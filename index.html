@@ -414,7 +414,7 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== POPULAR MUSIC SECTION (ADDED) ===== */
+        /* ===== POPULAR MUSIC SECTION ===== */
         .popular-music-section {
             margin: 0 auto 30px;
             max-width: 1400px;
@@ -430,7 +430,7 @@
             position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
 
-        /* ===== MINI MUSIC PLAYER (ADDED) ===== */
+        /* ===== MINI MUSIC PLAYER ===== */
         .mini-player {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 950; background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px); border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 8px; display: none; flex-direction: column; gap: 2px; transform: translateY(100%); transition: transform 0.3s ease;
         }
@@ -793,7 +793,7 @@
                     </div>
                 </div>
 
-                <!-- Popular Music Section (Restored) -->
+                <!-- Popular Music Section -->
                 <div class="popular-music-section" x-show="musicList.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-music"></i> Popular Music</h3>
@@ -857,9 +857,9 @@
         </a>
     </div>
 
-    <!-- ===== MINI MUSIC PLAYER (RESTORED) ===== -->
+    <!-- Mini Music Player -->
     <div class="mini-player" id="miniPlayer">
-        <div class="mini-progress" id="miniProgressWrap" @mousedown="miniSeek($event)" @touchstart="miniSeekTouch($event)">
+        <div class="mini-progress" id="miniProgressWrap" @mousedown="miniSeek($event)">
             <div class="mini-progress-fill" id="miniProgressFill"></div>
         </div>
         <div class="mini-row">
@@ -970,7 +970,6 @@
         const WATCH_PAGE_URL = 'player.html';
         const MUSIC_PAGE_URL = 'music.html';
         const VERCEL_MUSIC_API = 'https://music-psi-sand.vercel.app/api/search';
-        const NOW_PLAYING_KEY = 'rx_now_playing';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
