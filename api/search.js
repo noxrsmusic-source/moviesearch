@@ -1,56 +1,114 @@
-const { tmdbFetch } = require("./tmdb");
+// api/search.js
 
-module.exports = async function handler(req, res) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
+export default async function handler(req, res) {
+
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        "*"
+    );
+
+    if (req.method !== "GET") {
+
+        return res.status(405).json({
+            success: false,
+            error: "Only GET requests are allowed."
+        });
+
     }
 
     try {
-        const query = String(req.query.query || "").trim();
+
+        const query =
+            String(req.query.query || "").trim();
 
         if (!query) {
+
             return res.status(400).json({
                 success: false,
-                error: "Search query is required"
+                error: "Search query is required."
             });
+
         }
 
-        const page = Math.max(
-            1,
-            Number(req.query.page || 1)
+        const url =
+            new URL(
+                "https://api.themoviedb.org/3/search/multi"
+            );
+
+        url.searchParams.set(
+            "api_key",
+            TMDB_API_KEY
         );
 
-        const endpoint =
-            `/search/multi?query=${encodeURIComponent(query)}` +
-            `&page=${page}` +
-            `&language=en-US` +
-            `&include_adult=false`;
-
-        const data = await tmdbFetch(endpoint);
-
-        const results = (data.results || []).filter(
-            item =>
-                item.media_type === "movie" ||
-                item.media_type === "tv"
+        url.searchParams.set(
+            "query",
+            query
         );
+
+        url.searchParams.set(
+            "language",
+            "en-US"
+        );
+
+        url.searchParams.set(
+            "page",
+            "1"
+        );
+
+        url.searchParams.set(
+            "include_adult",
+            "false"
+        );
+
+        const response =
+            await fetch(
+                url.toString()
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            return res.status(response.status).json({
+                success: false,
+                error:
+                    data.status_message ||
+                    "TMDB search failed."
+            });
+
+        }
+
+        // Only movies and TV shows
+        const filtered =
+            (data.results || [])
+            .filter(
+                item =>
+                    item.media_type === "movie" ||
+                    item.media_type === "tv"
+            );
 
         return res.status(200).json({
-            success: true,
             page: data.page,
             total_pages: data.total_pages,
             total_results: data.total_results,
-            results
+            results: filtered
         });
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "Search Error:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            error: error.message
+            error: "Search request failed."
         });
+
     }
-};
+
+}
