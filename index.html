@@ -41,7 +41,7 @@
             --radius-sm: 8px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-offset: 125px;
+            --header-offset: 75px;
         }
 
         html { scroll-behavior: smooth; }
@@ -114,7 +114,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .header-top { padding: 12px 0 8px; }
+        .header-top { padding: 10px 0; }
         .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .header-left-cluster { display: flex; align-items: center; gap: 16px; }
 
@@ -218,49 +218,53 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO PNG FILTERS BAR ===== */
-        .ott-filters-wrapper {
-            background: rgba(12, 12, 18, 0.98);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 8px 0;
+        /* ===== OTT LOGO SECTION (NO TEXT, ONLY IMAGES) ===== */
+        .ott-section {
+            margin: 20px 0 10px;
+        }
+        .ott-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+        .ott-grid-row {
+            display: flex;
+            gap: 14px;
             overflow-x: auto;
+            padding-bottom: 6px;
             scrollbar-width: none;
         }
-        .ott-filters-wrapper::-webkit-scrollbar { display: none; }
-        .ott-filters-inner {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        .ott-pill {
-            flex: 0 0 auto;
+        .ott-grid-row::-webkit-scrollbar { display: none; }
+        .ott-card-logo {
+            flex: 0 0 85px;
+            height: 60px;
+            background: var(--bg-card);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 5px 14px;
-            border-radius: 30px;
-            font-size: 12.5px;
-            font-weight: 600;
-            color: var(--text-muted);
+            justify-content: center;
+            padding: 10px;
             cursor: pointer;
             transition: var(--transition);
         }
-        .ott-pill img {
-            width: 20px;
-            height: 20px;
+        .ott-card-logo img {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            border-radius: 4px;
+            filter: grayscale(30%);
+            transition: var(--transition);
         }
-        .ott-pill:hover, .ott-pill.active {
-            background: rgba(229, 9, 20, 0.15);
+        .ott-card-logo:hover, .ott-card-logo.active {
             border-color: var(--primary-red);
-            color: var(--text-white);
-            transform: translateY(-1px);
+            background: rgba(229, 9, 20, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .ott-card-logo:hover img, .ott-card-logo.active img {
+            filter: grayscale(0%);
         }
 
         /* ===== DRAWER MENU ===== */
@@ -319,10 +323,10 @@
         .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
 
         /* ===== HERO & MOVIE CARDS ===== */
-        .hero { position: relative; padding: 24px 0 12px; text-align: center; }
+        .hero { position: relative; padding: 20px 0 10px; text-align: center; }
         .hero h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
         .hero h1 span { color: var(--primary-red); }
-        .hero .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+        .hero .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 15px; }
 
         .section-heading-wrap {
             display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
@@ -496,36 +500,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- OTT Platform Filters Bar with PNG Logos -->
-        <div class="ott-filters-wrapper">
-            <div class="ott-filters-inner">
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')">
-                    <i class="fas fa-globe" style="color:var(--primary-red);"></i> All Platforms
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"> Netflix
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"> Prime Video
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"> Disney+ Hotstar
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"> Apple TV+
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')">
-                    <img src="https://images.seeklogo.com/logo-png/43/1/zee5-logo-png_seeklogo-437505.png" alt="Zee5"> Zee5
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')">
-                    <img src="https://images.seeklogo.com/logo-png/49/2/sonyliv-logo-png_seeklogo-494877.png" alt="SonyLIV"> SonyLIV
-                </button>
-                <button class="ott-pill" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')">
-                    <img src="https://images.seeklogo.com/logo-png/51/1/jiocinema-logo-png_seeklogo-513222.png" alt="JioCinema"> JioCinema
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Side Drawer -->
@@ -560,12 +534,43 @@
             <section class="hero">
                 <div class="container hero-content">
                     <h1>Unlimited Movies & TV Shows on <span>RX Player</span></h1>
-                    <p class="subtitle">Stream premium HD content from Netflix, Prime, Disney+ and more for free.</p>
+                    <p class="subtitle">Stream premium HD content from top networks for free.</p>
                 </div>
             </section>
 
+            <!-- OTT Platform Filters Section (PNG Logos Only) -->
+            <div class="container ott-section">
+                <div class="ott-section-title">Popular Networks</div>
+                <div class="ott-grid-row">
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/25/Streaming_Media_Icon.svg" alt="All">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')" title="Prime Video">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+ Hotstar">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')" title="Apple TV+">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5">
+                        <img src="https://images.seeklogo.com/logo-png/43/1/zee5-logo-png_seeklogo-437505.png" alt="Zee5">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV">
+                        <img src="https://images.seeklogo.com/logo-png/49/2/sonyliv-logo-png_seeklogo-494877.png" alt="SonyLIV">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema">
+                        <img src="https://images.seeklogo.com/logo-png/51/1/jiocinema-logo-png_seeklogo-513222.png" alt="JioCinema">
+                    </div>
+                </div>
+            </div>
+
             <!-- Sections Container -->
-            <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-bottom: 40px;">
+            <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
                 <!-- Trending -->
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
@@ -811,7 +816,6 @@
                 resetEmail: '',
 
                 async init() {
-                    // Hide preloader smoothly after setup
                     setTimeout(() => {
                         const preloader = document.getElementById('preloader');
                         if (preloader) preloader.classList.add('fade-out');
