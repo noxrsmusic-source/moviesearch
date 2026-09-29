@@ -1,64 +1,128 @@
-const { tmdbFetch } = require("./tmdb");
+// api/details.js
 
-module.exports = async function handler(req, res) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
+export default async function handler(req, res) {
+
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        "*"
+    );
+
+    if (req.method !== "GET") {
+
+        return res.status(405).json({
+            success: false,
+            error: "Only GET requests are allowed."
+        });
+
     }
 
     try {
-        const type = req.query.type;
-        const id = req.query.id;
 
-        if (!["movie", "tv"].includes(type)) {
-            return res.status(400).json({
-                success: false,
-                error: "Type must be movie or tv"
-            });
-        }
+        const id =
+            String(req.query.id || "").trim();
+
+        const type =
+            String(req.query.type || "movie").trim();
 
         if (!id) {
+
             return res.status(400).json({
                 success: false,
-                error: "ID is required"
+                error: "Movie or TV ID is required."
             });
+
         }
 
-        const encodedId = encodeURIComponent(id);
+        if (
+            type !== "movie" &&
+            type !== "tv"
+        ) {
 
-        const details = await tmdbFetch(
-            `/${type}/${encodedId}?language=en-US`
+            return res.status(400).json({
+                success: false,
+                error: "Invalid media type."
+            });
+
+        }
+
+        const endpoint =
+            `https://api.themoviedb.org/3/${type}/${encodeURIComponent(id)}`;
+
+        const url =
+            new URL(endpoint);
+
+        url.searchParams.set(
+            "api_key",
+            TMDB_API_KEY
         );
 
-        const credits = await tmdbFetch(
-            `/${type}/${encodedId}/credits?language=en-US`
+        url.searchParams.set(
+            "language",
+            "en-US"
         );
 
-        const videos = await tmdbFetch(
-            `/${type}/${encodedId}/videos?language=en-US`
+        // Get details, cast, trailer and similar content
+        url.searchParams.set(
+            "append_to_response",
+            "credits,videos,similar,recommendations"
         );
 
-        const similar = await tmdbFetch(
-            `/${type}/${encodedId}/similar?language=en-US&page=1`
-        );
+        const response =
+            await fetch(
+                url.toString()
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            return res.status(response.status).json({
+                success: false,
+                error:
+                    data.status_message ||
+                    "Unable to load details."
+            });
+
+        }
 
         return res.status(200).json({
-            success: true,
-            details,
-            cast: credits.cast || [],
-            crew: credits.crew || [],
-            videos: videos.results || [],
-            similar: similar.results || []
+
+            details: data,
+
+            cast:
+                data.credits?.cast ||
+                [],
+
+            videos:
+                data.videos?.results ||
+                [],
+
+            similar:
+                data.similar?.results ||
+                [],
+
+            recommendations:
+                data.recommendations?.results ||
+                []
+
         });
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "Details Error:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            error: error.message
+            error:
+                "Details request failed."
         });
+
     }
-};
+
+}
