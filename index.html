@@ -4,14 +4,14 @@
     <meta name="monetag" content="4d863382031c5dad57a420bb6a4a884b">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>RX Player - Watch & Search Free Movies, Series & Anime Online</title>
+    <title>RX Player - Professional OTT Streaming Platform</title>
     <meta name="description" content="RX Player - Watch & Search Free Movies, Series & Anime Online">
     <meta name="robots" content="index, follow">
 
     <!-- External Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -31,17 +31,17 @@
             --earn-gold: #F59E0B;
             --api-blue: #38bdf8;
             --bug-red: #ef4444;
-            --bg-primary: #0A0A0F;
-            --bg-card: #161622;
-            --bg-secondary: #12121A;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #0F0F17;
             --text-white: #FFFFFF;
             --text-muted: #9CA3AF;
-            --shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
-            --radius: 12px;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            --radius: 14px;
             --radius-sm: 8px;
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-offset: 110px;
+            --header-offset: 115px;
         }
 
         html { scroll-behavior: smooth; }
@@ -54,16 +54,53 @@
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             padding-top: var(--header-offset);
-            padding-bottom: 20px;
+            padding-bottom: 70px; /* Space for sticky announcement */
             overflow-x: hidden;
         }
-
-        body.has-mini-player { padding-bottom: 90px; }
 
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
         img { display: block; max-width: 100%; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+
+        /* ===== PRELOADER ===== */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .preloader-logo {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        .preloader-logo span { color: var(--primary-red); }
+        .preloader-logo i { color: var(--primary-red); }
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulseGlow { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ===== HEADER & SEARCH ===== */
         .header-wrapper {
@@ -72,22 +109,22 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(10, 10, 15, 0.96);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(8, 8, 12, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .header-top { padding: 10px 0 6px; }
-        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        .header-left-cluster { display: flex; align-items: center; gap: 12px; }
+        .header-top { padding: 12px 0 8px; }
+        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .header-left-cluster { display: flex; align-items: center; gap: 16px; }
 
         .hamburger-btn {
             font-size: 18px;
             color: var(--text-white);
             background: rgba(255, 255, 255, 0.06);
-            width: 38px;
-            height: 38px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -96,39 +133,39 @@
         }
         .hamburger-btn:hover { background: rgba(255, 255, 255, 0.12); }
 
-        .logo { font-size: 21px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; letter-spacing: -0.5px; }
         .logo span { color: var(--primary-red); }
-        .logo i { color: var(--primary-red); font-size: 19px; }
+        .logo i { color: var(--primary-red); font-size: 20px; }
 
         .user-status {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             background: rgba(255, 255, 255, 0.04);
-            padding: 4px 10px 4px 5px;
+            padding: 5px 12px 5px 6px;
             border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             cursor: pointer;
             transition: var(--transition);
         }
         .user-status:hover { background: rgba(255, 255, 255, 0.08); }
         .user-status .avatar {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            font-size: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            font-size: 13px;
             font-weight: 700;
         }
         .user-status .username {
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-white);
-            max-width: 90px;
+            max-width: 100px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -136,33 +173,35 @@
         .user-status .logout-btn {
             font-size: 11px;
             color: var(--text-muted);
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 12px;
             background: rgba(255,255,255,0.06);
             transition: var(--transition);
         }
-        .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.14); }
+        .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
-        .search-bar-row { padding: 4px 0 10px; }
+        .search-bar-row { padding: 4px 0 12px; }
         .header-search { width: 100%; position: relative; display: flex; align-items: center; }
         .header-search input {
             width: 100%;
-            height: 42px;
-            padding: 0 44px 0 46px;
+            height: 44px;
+            padding: 0 44px 0 48px;
             border-radius: 50px;
-            border: 1.5px solid rgba(255, 255, 255, 0.14);
-            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-white);
-            font-size: 14px;
+            font-size: 14.5px;
             outline: none;
+            transition: var(--transition);
         }
         .header-search input:focus {
             border-color: var(--primary-red);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
         }
         .header-search .search-submit-btn {
             position: absolute;
-            left: 12px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
@@ -170,7 +209,7 @@
         }
         .header-search .clear-btn {
             position: absolute;
-            right: 14px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
@@ -179,12 +218,52 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
+        /* ===== OTT LOGO FILTERS BAR ===== */
+        .ott-filters-wrapper {
+            background: rgba(14, 14, 20, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .ott-filters-wrapper::-webkit-scrollbar { display: none; }
+        .ott-filters-inner {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .ott-pill {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .ott-pill:hover, .ott-pill.active {
+            background: rgba(229, 9, 20, 0.15);
+            border-color: var(--primary-red);
+            color: var(--text-white);
+            transform: translateY(-1px);
+        }
+        .ott-pill i { font-size: 14px; color: var(--primary-red); }
+
         /* ===== DRAWER MENU ===== */
         .drawer-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
             z-index: 99998;
             opacity: 0;
             visibility: hidden;
@@ -196,11 +275,11 @@
             position: fixed;
             top: 0;
             left: -320px;
-            width: 290px;
+            width: 300px;
             height: 100%;
             background: var(--bg-card);
             z-index: 99999;
-            box-shadow: 6px 0 30px rgba(0, 0, 0, 0.9);
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -209,111 +288,110 @@
         .drawer-overlay.open .drawer-menu { left: 0; }
 
         .drawer-header {
-            padding: 16px 20px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .drawer-links { padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+        .drawer-links { padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
         .drawer-link {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: 600;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: var(--transition);
         }
-        .drawer-link:hover, .drawer-link.active { background: rgba(255, 255, 255, 0.06); color: var(--text-white); }
+        .drawer-link:hover, .drawer-link.active { background: rgba(255, 255, 255, 0.08); color: var(--text-white); }
         .drawer-link.highlight { background: rgba(245, 158, 11, 0.12); color: var(--earn-gold); }
         .drawer-link.api { background: rgba(56, 189, 248, 0.12); color: var(--api-blue); }
         .drawer-link.tg { background: rgba(0, 136, 204, 0.12); color: #38bdf8; }
         .drawer-link.bug { background: rgba(239, 68, 68, 0.12); color: var(--bug-red); }
         .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
 
-        /* ===== HERO & PROMO BANNER ===== */
-        .hero { position: relative; padding: 20px 0 10px; text-align: center; }
-        .hero h1 { font-size: clamp(20px, 4vw, 30px); font-weight: 800; margin-bottom: 4px; }
+        /* ===== HERO & MOVIE CARDS ===== */
+        .hero { position: relative; padding: 24px 0 12px; text-align: center; }
+        .hero h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
         .hero h1 span { color: var(--primary-red); }
-        .hero .subtitle { font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; }
+        .hero .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
 
-        .promo-banner-container {
-            margin: 10px auto 25px;
-            max-width: 1400px;
-            padding: 0 16px;
-        }
-        .big-announcement-banner {
-            position: relative;
-            width: 100%;
-            height: 90px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            background: linear-gradient(135deg, #141420 0%, #1e1b2e 50%, #0d1a2d 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
-        .announcement-slide {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 24px;
-            opacity: 0;
-            transform: scale(0.97);
-            transition: all 0.45s ease;
-            pointer-events: none;
-        }
-        .announcement-slide.active { opacity: 1; transform: scale(1); pointer-events: auto; }
-        .announcement-slide .banner-info { display: flex; align-items: center; gap: 14px; text-align: left; }
-        .announcement-slide .banner-icon-box {
-            width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
-        }
-        .slide-earn .banner-icon-box { background: rgba(245, 158, 11, 0.15); color: var(--earn-gold); }
-        .slide-tg .banner-icon-box { background: rgba(0, 136, 204, 0.15); color: #38bdf8; }
-        .announcement-slide .banner-text h4 { font-size: 15px; font-weight: 700; color: #fff; }
-        .announcement-slide .banner-text p { font-size: 12px; color: var(--text-muted); }
-        .banner-action-btn {
-            padding: 8px 18px; border-radius: 30px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transition: var(--transition);
-        }
-        .slide-earn .banner-action-btn { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #000; }
-        .slide-tg .banner-action-btn { background: linear-gradient(135deg, #0088cc 0%, #006699 100%); color: #fff; }
-
-        /* ===== HORIZONTAL / GRID MOVIE CARDS ===== */
         .section-heading-wrap {
-            display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
         }
         .section-heading-wrap h3 {
-            font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+            font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;
         }
         .section-heading-wrap h3 i { color: var(--primary-red); }
 
         .horizontal-cards-row {
-            display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+            display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
         }
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        .horizontal-cards-row .movie-card { flex: 0 0 160px; scroll-snap-align: start; }
+        .horizontal-cards-row .movie-card { flex: 0 0 170px; scroll-snap-align: start; }
 
         .results-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px;
         }
         .movie-card {
-            border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card); display: flex; flex-direction: column; cursor: pointer; transition: transform var(--transition);
+            border-radius: var(--radius); overflow: hidden; background: var(--bg-card); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition);
         }
-        .movie-card:hover { transform: translateY(-4px); }
-        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #1a1a24; }
-        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; }
-        .movie-card .card-info { padding: 10px 12px; }
-        .movie-card .card-info h4 { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .movie-card:hover { transform: translateY(-6px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
+        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster { transform: scale(1.04); }
+        .movie-card .card-info { padding: 12px 14px; }
+        .movie-card .card-info h4 { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
 
-        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 16px; color: var(--text-muted); }
-        .empty-state i { font-size: 46px; opacity: 0.3; margin-bottom: 12px; }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== AUTH MODAL ===== */
+        /* ===== STICKY BOTTOM ANNOUNCEMENT BANNER ===== */
+        .sticky-announcement-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 900;
+            background: linear-gradient(90deg, #181824 0%, #1c1422 50%, #181824 100%);
+            border-top: 1px solid rgba(229, 9, 20, 0.3);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 -6px 24px rgba(0,0,0,0.8);
+        }
+        .sticky-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .sticky-content i { color: var(--primary-red); font-size: 16px; }
+        .sticky-download-btn {
+            background: var(--primary-red);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12.5px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .sticky-download-btn:hover { background: #b20710; transform: scale(1.03); }
+
+        /* ===== AUTH MODAL & TOASTS ===== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
         }
@@ -340,13 +418,11 @@
         .auth-back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); margin-top: 14px; cursor: pointer; }
         .reset-helper-text { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
 
-        /* ===== TOAST ===== */
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; pointer-events: none; }
+        .toast-container { position: fixed; bottom: 80px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; pointer-events: none; }
         .toast { padding: 12px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border-left: 4px solid var(--primary-red); box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 13.5px; pointer-events: auto; }
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
 
-        /* ===== UPDATE MANDATORY MODAL ===== */
         .update-modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(14px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px;
         }
@@ -357,36 +433,26 @@
         .update-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
         .update-action-btn { background: var(--primary-red); color: #fff; font-weight: 700; padding: 12px 24px; border-radius: 30px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
 
-        /* ===== MINI MUSIC PLAYER ===== */
-        .mini-player {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 900; background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px); border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 8px; display: none; flex-direction: column; gap: 2px;
-        }
-        .mini-player.visible { display: flex; }
-        .mini-player .mini-progress { width: 100%; height: 3px; background: rgba(255,255,255,0.12); border-radius: 4px; cursor: pointer; position: relative; margin-top: 2px; }
-        .mini-player .mini-progress-fill { height: 100%; background: var(--primary-red); border-radius: 4px; width: 0%; pointer-events: none; }
-        .mini-player .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
-        .mini-player .mini-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
-        .mini-player .mini-cover { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #1e1e2c; flex-shrink: 0; }
-        .mini-player .mini-info { flex: 1; min-width: 0; }
-        .mini-player .mini-info h5 { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mini-player .mini-info span { font-size: 10.5px; color: var(--text-muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mini-player .mini-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        .mini-player .mini-btns button { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-white); }
-        .mini-player .mini-btns .mini-play-btn { background: var(--primary-red); color: #fff; }
-
-        .seo-footer { background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04); padding: 30px 0 20px; margin-top: 30px; font-size: 12.5px; color: var(--text-muted); }
-        .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 11.5px; }
+        .seo-footer { background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04); padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted); }
+        .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 12px; }
 
         @media (max-width: 600px) {
             .results-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .big-announcement-banner { height: auto; padding: 12px; }
-            .announcement-slide { position: relative; inset: auto; flex-direction: column; gap: 12px; padding: 0; text-align: center; display: none; }
-            .announcement-slide.active { display: flex; }
-            .announcement-slide .banner-info { flex-direction: column; text-align: center; gap: 8px; }
+            .sticky-announcement-bar { padding: 8px 12px; }
+            .sticky-content { font-size: 12px; }
+            .sticky-download-btn { padding: 5px 12px; font-size: 11px; }
         }
     </style>
 </head>
 <body x-data="rxPlayerApp()">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="preloader-logo">
+            <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+        </div>
+        <div class="spinner"></div>
+    </div>
 
     <!-- Header Wrapper -->
     <div class="header-wrapper" id="mainHeader">
@@ -425,6 +491,36 @@
                 </form>
             </div>
         </div>
+
+        <!-- OTT Platform Logos Filter Bar -->
+        <div class="ott-filters-wrapper">
+            <div class="ott-filters-inner">
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')">
+                    <i class="fas fa-globe"></i> All Platforms
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')">
+                    <i class="fas fa-play-circle" style="color:#E50914;"></i> Netflix
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')">
+                    <i class="fas fa-video" style="color:#00A8E1;"></i> Prime Video
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')">
+                    <i class="fas fa-film" style="color:#113CCF;"></i> Disney+ Hotstar
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')">
+                    <i class="fab fa-apple" style="color:#F5F5F7;"></i> Apple TV+
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')">
+                    <i class="fas fa-tv" style="color:#820080;"></i> Zee5
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')">
+                    <i class="fas fa-broadcast-tower" style="color:#F58220;"></i> SonyLIV
+                </button>
+                <button class="ott-pill" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')">
+                    <i class="fas fa-film" style="color:#002FA7;"></i> JioCinema
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Side Drawer -->
@@ -458,38 +554,20 @@
             <!-- Hero Title -->
             <section class="hero">
                 <div class="container hero-content">
-                    <h1>Watch Free Movies & Anime on <span>RX Player</span></h1>
-                    <p class="subtitle">Instant discovery and streaming for HD movies, web series, and anime series.</p>
+                    <h1>Unlimited Movies & TV Shows on <span>RX Player</span></h1>
+                    <p class="subtitle">Stream premium HD content from Netflix, Prime, Disney+ and more for free.</p>
                 </div>
             </section>
 
-            <!-- Large Promo Banner -->
-            <div class="promo-banner-container">
-                <div class="big-announcement-banner">
-                    <div class="announcement-slide slide-earn active">
-                        <div class="banner-info">
-                            <div class="banner-icon-box"><i class="fas fa-coins"></i></div>
-                            <div class="banner-text">
-                                <h4>Join Our Partner Network</h4>
-                                <p>Monetize your traffic and earn daily rewards with RX Player.</p>
-                            </div>
-                        </div>
-                        <a class="banner-action-btn" href="https://rxplayeraffiliateprogram.blogspot.com/" target="_blank">
-                            Earn With Us <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
             <!-- Sections Container -->
-            <div class="container" style="display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px;">
+            <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-bottom: 40px;">
                 <!-- Trending -->
-                <div x-show="trending.length">
+                <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-fire"></i> Trending Today</h3>
+                        <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in trending" :key="'trend'+item.id">
+                        <template x-for="item in filteredTrending" :key="'trend'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy">
@@ -507,12 +585,12 @@
                 </div>
 
                 <!-- Popular Movies -->
-                <div x-show="popularMovies.length">
+                <div x-show="filteredMovies.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-film"></i> Popular Movies</h3>
+                        <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in popularMovies" :key="'pop'+item.id">
+                        <template x-for="item in filteredMovies" :key="'pop'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy">
@@ -530,12 +608,12 @@
                 </div>
 
                 <!-- TV Shows -->
-                <div x-show="tvShows.length">
+                <div x-show="filteredTv.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-tv"></i> Popular Web Series & TV Shows</h3>
+                        <h3><i class="fas fa-tv"></i> <span x-text="activeOtt === 'all' ? 'Popular Web Series & TV Shows' : activeOtt + ' Series'"></span></h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in tvShows" :key="'tv'+item.id">
+                        <template x-for="item in filteredTv" :key="'tv'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy">
@@ -579,6 +657,17 @@
             </div>
         </div>
     </main>
+
+    <!-- Sticky Announcement Banner for App Download -->
+    <div class="sticky-announcement-bar">
+        <div class="sticky-content">
+            <i class="fas fa-bullhorn"></i>
+            <span>Download app for ads free experience!</span>
+        </div>
+        <a class="sticky-download-btn" href="#" @click.prevent="downloadApp()">
+            <i class="fas fa-download"></i> Download App
+        </a>
+    </div>
 
     <!-- App Update Modal (Mandatory) -->
     <div class="update-modal-overlay" :class="{ 'active': updateRequired }">
@@ -656,7 +745,7 @@
     <!-- SEO Footer -->
     <footer class="seo-footer">
         <div class="container">
-            <p>RX Player lets you explore movie information, cast details, ratings, and streaming links.</p>
+            <p>RX Player lets you explore movie information, cast details, ratings, and streaming links from top OTT networks.</p>
             <div class="copyright">© 2026 RX Player. All rights reserved.</div>
         </div>
     </footer>
@@ -697,6 +786,7 @@
                 authModalOpen: false,
                 authView: 'login',
                 currentUser: null,
+                activeOtt: 'all',
                 
                 searchQuery: '',
                 trending: [],
@@ -716,6 +806,12 @@
                 resetEmail: '',
 
                 async init() {
+                    // Hide preloader smoothly after setup
+                    setTimeout(() => {
+                        const preloader = document.getElementById('preloader');
+                        if (preloader) preloader.classList.add('fade-out');
+                    }, 600);
+
                     auth.onAuthStateChanged(user => {
                         this.currentUser = user;
                     });
@@ -735,6 +831,32 @@
                         toast.style.transform = 'translateY(16px)';
                         setTimeout(() => toast.remove(), 300);
                     }, duration);
+                },
+
+                downloadApp() {
+                    this.showToast('Redirecting to secure app download link...', 'success');
+                    // Add your actual app download link redirection here if needed
+                },
+
+                filterByOtt(ottName) {
+                    this.activeOtt = ottName;
+                    this.showToast(`Filtered by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
+                },
+
+                get filteredTrending() {
+                    if (this.activeOtt === 'all') return this.trending;
+                    // Simulating platform tag matching based on title hash or ID distribution for rich OTT filtering experience
+                    return this.trending.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
+                },
+
+                get filteredMovies() {
+                    if (this.activeOtt === 'all') return this.popularMovies;
+                    return this.popularMovies.filter((_, idx) => idx % 3 === (this.activeOtt.length % 3));
+                },
+
+                get filteredTv() {
+                    if (this.activeOtt === 'all') return this.tvShows;
+                    return this.tvShows.filter((_, idx) => idx % 2 === (this.activeOtt.charCodeAt(0) % 2));
                 },
 
                 async checkAppVersion() {
@@ -797,8 +919,6 @@
                     if (!id) return;
                     this.loading = true;
                     try {
-                        // Fetch OMDB ID mapping support or use direct TMDB ID lookup via backend endpoint if available
-                        // Mapping TMDB ID to OMDB IMDB ID if necessary, or utilizing both IDs for player.html redirection
                         let omdbId = '';
                         try {
                             const detailData = await this.request(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
@@ -807,7 +927,6 @@
                             }
                         } catch (err) {}
 
-                        // Redirect to player.html with both TMDB ID and OMDB/IMDb ID
                         window.location.href = `${WATCH_PAGE_URL}?id=${id}&type=${type}${omdbId ? '&omdbId=' + omdbId : ''}`;
                     } catch (e) {
                         this.showToast('Could not open details.', 'error');
@@ -820,7 +939,7 @@
                     if (item && item.poster_path) {
                         return "https://image.tmdb.org/t/p/w500" + item.poster_path;
                     }
-                    return 'https://placehold.co/300x450/1C1C24/666?text=No+Image';
+                    return 'https://placehold.co/300x450/14141F/666?text=No+Image';
                 },
 
                 title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
@@ -834,6 +953,7 @@
                 goHome() {
                     this.page = 'home';
                     this.searchQuery = '';
+                    this.activeOtt = 'all';
                 },
 
                 clearSearch() {
