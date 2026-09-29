@@ -675,6 +675,9 @@
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO">
                     </div>
+                    <div class="ott-card-logo" @click="openMusicPage()" title="Spotify">
+                        <img src="//thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/2024_Spotify_Logo.svg/330px-2024_Spotify_Logo.svg.png" alt="Spotify">
+                    </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
                     </div>
@@ -1134,7 +1137,7 @@
 
                 miniNext() {
                     if (this.miniIndex < this.musicList.length - 1) {
-                        this.playMusic(this.musicList[this.miniIndex + 1], this.miniIndex + 1);
+                        this.playMusic(this.musicList[this.musicList.length - 1], this.miniIndex + 1);
                     }
                 },
 
