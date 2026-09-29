@@ -41,7 +41,7 @@
             --radius-sm: 8px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-offset: 140px;
+            --header-offset: 165px;
         }
 
         html { scroll-behavior: smooth; }
@@ -54,9 +54,11 @@
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             padding-top: var(--header-offset);
-            padding-bottom: 70px;
+            padding-bottom: 90px;
             overflow-x: hidden;
         }
+
+        body.has-mini-player { padding-bottom: 120px; }
 
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
@@ -114,8 +116,8 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .header-top { padding: 10px 0; }
-        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .header-top { padding: 12px 0; }
+        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .header-left-cluster { display: flex; align-items: center; gap: 16px; }
 
         .hamburger-btn {
@@ -165,7 +167,7 @@
             font-size: 13px;
             font-weight: 600;
             color: var(--text-white);
-            max-width: 100px;
+            max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -180,17 +182,17 @@
         }
         .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
-        .search-bar-row { padding: 4px 0 10px; }
+        .search-bar-row { padding: 4px 0 12px; }
         .header-search { width: 100%; position: relative; display: flex; align-items: center; }
         .header-search input {
             width: 100%;
-            height: 42px;
+            height: 44px;
             padding: 0 44px 0 48px;
             border-radius: 50px;
             border: 1.5px solid rgba(255, 255, 255, 0.12);
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-white);
-            font-size: 14px;
+            font-size: 14.5px;
             outline: none;
             transition: var(--transition);
         }
@@ -218,36 +220,36 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE) ===== */
+        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE - LARGER ON PC) ===== */
         .ott-section {
-            margin: 20px 0 10px;
+            margin: 24px 0 12px;
         }
         .ott-section-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             color: var(--text-muted);
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             letter-spacing: -0.2px;
         }
         .ott-grid-row {
             display: flex;
-            gap: 16px;
+            gap: 18px;
             overflow-x: auto;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
             scrollbar-width: none;
         }
         .ott-grid-row::-webkit-scrollbar { display: none; }
         
         .ott-card-logo {
-            flex: 0 0 110px;
-            height: 75px;
+            flex: 0 0 120px;
+            height: 80px;
             background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 14px;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -261,16 +263,16 @@
         .ott-card-logo:hover, .ott-card-logo.active {
             border-color: var(--primary-red);
             background: rgba(229, 9, 20, 0.08);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.6);
         }
         .ott-card-logo:hover img, .ott-card-logo.active img {
             filter: grayscale(0%);
         }
 
         .ott-card-all {
-            flex: 0 0 120px;
-            height: 75px;
+            flex: 0 0 130px;
+            height: 80px;
             background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
@@ -284,11 +286,11 @@
             color: var(--text-muted);
         }
         .ott-card-all i {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--primary-red);
         }
         .ott-card-all span {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
@@ -296,21 +298,22 @@
             border-color: var(--primary-red);
             background: rgba(229, 9, 20, 0.08);
             color: var(--text-white);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.6);
         }
 
         @media (min-width: 1024px) {
             .ott-card-logo {
-                flex: 0 0 140px;
-                height: 90px;
+                flex: 0 0 160px;
+                height: 105px;
+                padding: 18px;
             }
             .ott-card-all {
-                flex: 0 0 150px;
-                height: 90px;
+                flex: 0 0 170px;
+                height: 105px;
             }
-            .ott-card-all i { font-size: 24px; }
-            .ott-card-all span { font-size: 13px; }
+            .ott-card-all i { font-size: 28px; }
+            .ott-card-all span { font-size: 14px; }
         }
 
         /* ===== DRAWER MENU ===== */
@@ -388,6 +391,11 @@
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         .horizontal-cards-row .movie-card { flex: 0 0 170px; scroll-snap-align: start; }
+        .horizontal-cards-row .movie-card.song-card-16-9 { flex: 0 0 240px; }
+        .horizontal-cards-row .movie-card.song-card-16-9 .poster-wrap { aspect-ratio: 16 / 9; }
+        .horizontal-cards-row .movie-card.song-card-16-9 .play-badge {
+            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
 
         .results-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px;
@@ -406,6 +414,45 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
+        /* ===== POPULAR MUSIC SECTION (ADDED) ===== */
+        .popular-music-section {
+            margin: 0 auto 30px;
+            max-width: 1400px;
+            padding: 0 16px;
+        }
+        .popular-music-section .see-all-link {
+            font-size: 12px; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px; transition: var(--transition);
+        }
+        .popular-music-section .see-all-link:hover { color: var(--primary-red); }
+        .popular-music-section .horizontal-cards-row .movie-card { flex: 0 0 200px; }
+        .popular-music-section .horizontal-cards-row .movie-card .poster-wrap { aspect-ratio: 1 / 1; }
+        .popular-music-section .horizontal-cards-row .movie-card .play-badge {
+            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        }
+
+        /* ===== MINI MUSIC PLAYER (ADDED) ===== */
+        .mini-player {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 950; background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px); border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 8px; display: none; flex-direction: column; gap: 2px; transform: translateY(100%); transition: transform 0.3s ease;
+        }
+        .mini-player.visible { display: flex; transform: translateY(0); }
+        .mini-player .mini-progress { width: 100%; height: 3px; background: rgba(255,255,255,0.12); border-radius: 4px; cursor: pointer; position: relative; margin-top: 2px; }
+        .mini-player .mini-progress-fill { height: 100%; background: var(--primary-red); border-radius: 4px; width: 0%; position: relative; pointer-events: none; }
+        .mini-player .mini-progress-fill::after {
+            content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.7);
+        }
+        .mini-player .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
+        .mini-player .mini-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
+        .mini-player .mini-cover { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #1e1e2c; flex-shrink: 0; }
+        .mini-player .mini-info { flex: 1; min-width: 0; }
+        .mini-player .mini-info h5 { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+        .mini-player .mini-info span { font-size: 10.5px; color: var(--text-muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mini-player .mini-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .mini-player .mini-btns button {
+            width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-white); transition: var(--transition);
+        }
+        .mini-player .mini-btns button:hover { background: rgba(255,255,255,0.12); }
+        .mini-player .mini-btns .mini-play-btn { background: var(--primary-red); color: #fff; }
+
         /* ===== STICKY BOTTOM ANIMATED ANNOUNCEMENT BANNER ===== */
         .sticky-announcement-bar {
             position: fixed;
@@ -423,6 +470,7 @@
             box-shadow: 0 -8px 28px rgba(0,0,0,0.85);
             animation: barGlowPulse 2.5s infinite ease-in-out;
         }
+        body.has-mini-player .sticky-announcement-bar { bottom: 58px; }
 
         @keyframes barGlowPulse {
             0% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
@@ -505,7 +553,7 @@
         .auth-back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); margin-top: 14px; cursor: pointer; }
         .reset-helper-text { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
 
-        .toast-container { position: fixed; bottom: 80px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; pointer-events: none; }
+        .toast-container { position: fixed; bottom: 130px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; pointer-events: none; }
         .toast { padding: 12px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border-left: 4px solid var(--primary-red); box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 13.5px; pointer-events: auto; }
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
@@ -531,7 +579,7 @@
         }
     </style>
 </head>
-<body x-data="rxPlayerApp()">
+<body x-data="rxPlayerApp()" x-init="init()">
 
     <!-- Preloader -->
     <div id="preloader">
@@ -744,6 +792,31 @@
                         </template>
                     </div>
                 </div>
+
+                <!-- Popular Music Section (Restored) -->
+                <div class="popular-music-section" x-show="musicList.length">
+                    <div class="section-heading-wrap">
+                        <h3><i class="fas fa-music"></i> Popular Music</h3>
+                        <a href="music.html" class="see-all-link">See All <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="(song, idx) in musicList" :key="song.id">
+                            <div class="movie-card song-card-16-9" @click="playMusic(song, idx)">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="song.coverUrl" loading="lazy">
+                                    <div class="play-badge"><i class="fas fa-play"></i></div>
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="song.title"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="song.artist"></span>
+                                        <span><i class="fas fa-music"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -782,6 +855,27 @@
         <a class="sticky-download-btn" href="#" @click.prevent="downloadApp()">
             <i class="fas fa-download"></i> Download App
         </a>
+    </div>
+
+    <!-- ===== MINI MUSIC PLAYER (RESTORED) ===== -->
+    <div class="mini-player" id="miniPlayer">
+        <div class="mini-progress" id="miniProgressWrap" @mousedown="miniSeek($event)" @touchstart="miniSeekTouch($event)">
+            <div class="mini-progress-fill" id="miniProgressFill"></div>
+        </div>
+        <div class="mini-row">
+            <div class="mini-left" id="miniLeft" @click="openMusicPage()">
+                <img class="mini-cover" id="miniCover" src="https://placehold.co/60/1C1C24/666?text=Music" alt="cover" />
+                <div class="mini-info">
+                    <h5 id="miniTitle">—</h5>
+                    <span id="miniArtist">—</span>
+                </div>
+            </div>
+            <div class="mini-btns">
+                <button @click="miniPrev()" title="Previous"><i class="fas fa-step-backward"></i></button>
+                <button class="mini-play-btn" id="miniPlayPauseBtn" @click="toggleMiniPlay()" title="Play/Pause"><i class="fas fa-play"></i></button>
+                <button @click="miniNext()" title="Next"><i class="fas fa-step-forward"></i></button>
+            </div>
+        </div>
     </div>
 
     <!-- App Update Modal (Mandatory) -->
@@ -874,6 +968,9 @@
     <script>
         const CURRENT_APP_VERSION = "1.0.0";
         const WATCH_PAGE_URL = 'player.html';
+        const MUSIC_PAGE_URL = 'music.html';
+        const VERCEL_MUSIC_API = 'https://music-psi-sand.vercel.app/api/search';
+        const NOW_PLAYING_KEY = 'rx_now_playing';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
@@ -908,6 +1005,7 @@
                 popularMovies: [],
                 tvShows: [],
                 animeList: [],
+                musicList: [],
                 searchResults: [],
 
                 updateRequired: false,
@@ -921,6 +1019,12 @@
                 regPassword: '',
                 resetEmail: '',
 
+                miniAudio: new Audio(),
+                miniPlaylist: [],
+                miniIndex: 0,
+                miniCurrentSong: null,
+                miniIsPlaying: false,
+
                 async init() {
                     setTimeout(() => {
                         const preloader = document.getElementById('preloader');
@@ -932,6 +1036,8 @@
                     });
                     this.checkAppVersion();
                     this.loadHomeData();
+                    this.loadMusicData();
+                    this.initMiniAudioEvents();
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
@@ -975,6 +1081,84 @@
                 get filteredAnime() {
                     if (this.activeOtt === 'all') return this.animeList;
                     return this.animeList.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
+                },
+
+                async loadMusicData() {
+                    try {
+                        const res = await fetch(`${VERCEL_MUSIC_API}?query=latest+hits`);
+                        const json = await res.json();
+                        const items = json.results || json.data || [];
+                        this.musicList = items.slice(0, 10).map(i => ({
+                            id: 'm_' + (i.id || Math.random()),
+                            title: i.title || i.name || 'Song',
+                            artist: i.artist || 'Artist',
+                            coverUrl: i.image || 'https://placehold.co/300x300/161622/ffffff?text=Music',
+                            audioUrl: i.downloadUrl?.[2]?.url || i.url || ''
+                        })).filter(s => s.audioUrl);
+                    } catch(e) {}
+                },
+
+                playMusic(song, index) {
+                    this.miniPlaylist = this.musicList;
+                    this.miniIndex = index;
+                    this.miniCurrentSong = song;
+                    this.miniAudio.src = song.audioUrl;
+                    this.miniAudio.play();
+                    this.miniIsPlaying = true;
+                    
+                    document.getElementById('miniPlayer').classList.add('visible');
+                    document.body.classList.add('has-mini-player');
+                    document.getElementById('miniCover').src = song.coverUrl;
+                    document.getElementById('miniTitle').textContent = song.title;
+                    document.getElementById('miniArtist').textContent = song.artist;
+                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                },
+
+                toggleMiniPlay() {
+                    if (this.miniAudio.paused) {
+                        this.miniAudio.play();
+                        this.miniIsPlaying = true;
+                        document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                    } else {
+                        this.miniAudio.pause();
+                        this.miniIsPlaying = false;
+                        document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                    }
+                },
+
+                miniPrev() {
+                    if (this.miniIndex > 0) {
+                        this.playMusic(this.musicList[this.miniIndex - 1], this.miniIndex - 1);
+                    }
+                },
+
+                miniNext() {
+                    if (this.miniIndex < this.musicList.length - 1) {
+                        this.playMusic(this.musicList[this.miniIndex + 1], this.miniIndex + 1);
+                    }
+                },
+
+                openMusicPage() {
+                    window.location.href = MUSIC_PAGE_URL;
+                },
+
+                miniSeek(e) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    this.miniAudio.currentTime = pos * this.miniAudio.duration;
+                },
+
+                initMiniAudioEvents() {
+                    this.miniAudio.addEventListener('timeupdate', () => {
+                        if (this.miniAudio.duration) {
+                            const pct = (this.miniAudio.currentTime / this.miniAudio.duration) * 100;
+                            const fill = document.getElementById('miniProgressFill');
+                            if (fill) fill.style.width = pct + '%';
+                        }
+                    });
+                    this.miniAudio.addEventListener('ended', () => {
+                        this.miniNext();
+                    });
                 },
 
                 async checkAppVersion() {
