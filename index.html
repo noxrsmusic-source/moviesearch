@@ -1060,7 +1060,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/movie/popular?language=en-US&page=1"
                         )
@@ -1084,7 +1084,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/movie/now_playing?language=en-US&region=IN&page=1"
                         )
@@ -1114,7 +1114,7 @@ function movieApp() {
                         language =>
 
                         this.request(
-                            "/tmdb?endpoint=" +
+                            "/tmdb-proxy?endpoint=" +
                             encodeURIComponent(
                                 `/discover/movie?language=en-US&with_original_language=${language}&sort_by=popularity.desc&page=1`
                             )
@@ -1184,7 +1184,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/tv/popular?language=en-US&page=1"
                         )
@@ -1212,7 +1212,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"
                         )
@@ -1240,7 +1240,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/movie/top_rated?language=en-US&page=1"
                         )
@@ -1264,7 +1264,7 @@ function movieApp() {
 
                 const response =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(
                             "/discover/movie?language=en-US&sort_by=popularity.desc&without_original_language=en&vote_count.gte=100&page=1"
                         )
@@ -1566,7 +1566,7 @@ function movieApp() {
 
                 const data =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(endpoint)
                     );
 
@@ -1609,7 +1609,7 @@ function movieApp() {
 
                 const data =
                     await this.request(
-                        "/tmdb?endpoint=" +
+                        "/tmdb-proxy?endpoint=" +
                         encodeURIComponent(endpoint)
                     );
 
