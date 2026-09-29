@@ -1246,9 +1246,6 @@ img{ display:block; max-width:100%; object-fit:cover; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
 <script>
-/* ============================================================
- *  CONFIG
- * ============================================================ */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
   authDomain: "rxplayer-a2582.firebaseapp.com",
@@ -1263,22 +1260,18 @@ const CLOUDINARY_CLOUD_NAME = 'du9nysbwl';
 const CLOUDINARY_UPLOAD_PRESET = 'Spotifreebyadmin';
 const VERCEL_API = 'https://music-psi-sand.vercel.app/api/search';
 const FALLBACK_COVER = 'https://placehold.co/300x300/161622/ffffff?text=Music';
+const NOW_PLAYING_KEY = 'rx_now_playing';
 
 if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* ============================================================
- *  STATE
- * ============================================================ */
 let currentUser = null;
 let firestoreSongs = [];
-
 let currentSong = null;
 let currentPlaylist = [];
 let currentIndex = 0;
 let currentOpenPlaylistId = null;
-
 let currentSection = 'global';
 let searchQuery = '';
 let searchDebounce = null;
@@ -1293,30 +1286,22 @@ let shuffle = false;
 let loopMode = 'none';
 
 let likedSongs = new Set(JSON.parse(localStorage.getItem('rx_liked_songs') || '[]'));
-
 let songCache = new Map();
 const CACHE_KEY = 'rx_song_cache';
 const CACHE_LIMIT = 400;
-
 let knownSongs = {};
 const KNOWN_KEY = 'rx_known_songs';
-
 let tasteProfile = { artists:{}, genres:{}, languages:{}, moods:{}, recent:[] };
 const TASTE_KEY = 'rx_taste_profile';
-
 let autoplayQueue = [];
 let isFetchingAutoplay = false;
 let previousTracking = null;
-
 let userPlaylists = [];
 let addToPlaylistSongId = null;
-
 const SEARCH_CACHE = new Map();
 const MAX_SEARCH_CACHE = 60;
+let lastSaveTime = 0;
 
-/* ============================================================
- *  DOM REFS
- * ============================================================ */
 const drawerOpenBtn = document.getElementById('drawerOpenBtn');
 const drawerCloseBtn = document.getElementById('drawerCloseBtn');
 const drawerOverlay = document.getElementById('drawerOverlay');
@@ -1331,7 +1316,6 @@ const searchStatus = document.getElementById('searchStatus');
 const sectionTabs = document.getElementById('sectionTabs');
 const songListContainer = document.getElementById('songListContainer');
 const listSectionTitle = document.getElementById('listSectionTitle');
-const listSectionHeader = document.getElementById('listSectionHeader');
 const trackCountLabel = document.getElementById('trackCountLabel');
 const homeFeed = document.getElementById('homeFeed');
 const adBannerTop = document.getElementById('adBannerTop');
@@ -1340,7 +1324,6 @@ const quickMixContainer = document.getElementById('quickMixContainer');
 const trendingScroller = document.getElementById('trendingScroller');
 const madeForYouScroller = document.getElementById('madeForYouScroller');
 const albumsScroller = document.getElementById('albumsScroller');
-const personalizedSectionTitle = document.getElementById('personalizedSectionTitle');
 const greetingMessage = document.getElementById('greetingMessage');
 
 const inlineUploadBtn = document.getElementById('inlineUploadBtn');
@@ -1431,31 +1414,39 @@ const logoutBtn = document.getElementById('logoutBtn');
 const toastContainer = document.getElementById('toastContainer');
 
 /* ============================================================
- *  STOP & CLEAR AUDIO WHEN LEAVING PAGE
+ *  SAVE / SYNC NOW PLAYING STATE
  * ============================================================ */
-function stopAndClearPlayback() {
+function saveNowPlaying(){
+  if (!currentSong || !currentSong.audioUrl) return;
   try {
-    if (audio) {
-      audio.pause();
-      audio.src = '';
-    }
-  } catch(e) {}
+    const state = {
+      song: currentSong,
+      currentTime: audio.currentTime || 0,
+      isPlaying: !!isPlaying,
+      playlist: (currentPlaylist || []).slice(0, 50),
+      index: currentIndex,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(NOW_PLAYING_KEY, JSON.stringify(state));
+  } catch(e){}
 }
 
-window.addEventListener('beforeunload', stopAndClearPlayback);
-window.addEventListener('pagehide', stopAndClearPlayback);
+function clearNowPlaying(){
+  try { localStorage.removeItem(NOW_PLAYING_KEY); } catch(e){}
+}
 
-// Intercept clicks on links that navigate away from this page
+// When navigating away to index.html, save current state so index.html can resume it
 document.addEventListener('click', e => {
   const link = e.target.closest('a');
   if (link && link.href) {
     const targetUrl = new URL(link.href, window.location.origin);
-    // If it's a link to a different file/page
     if (targetUrl.pathname !== window.location.pathname) {
-      stopAndClearPlayback();
+      saveNowPlaying();
     }
   }
 });
+window.addEventListener('beforeunload', saveNowPlaying);
+window.addEventListener('pagehide', saveNowPlaying);
 
 /* ============================================================
  *  UTIL
@@ -1577,9 +1568,6 @@ function findSongById(id){
   return null;
 }
 
-/* ============================================================
- *  AUTH HELPER
- * ============================================================ */
 function requireLogin(message){
   if (currentUser) return true;
   if (message) showToast(message, 'info');
@@ -1588,9 +1576,6 @@ function requireLogin(message){
   return false;
 }
 
-/* ============================================================
- *  TASTE PROFILE
- * ============================================================ */
 function getSongArtists(song){
   if (!song) return [];
   if (Array.isArray(song.artists) && song.artists.length) return song.artists;
@@ -1629,9 +1614,6 @@ function addRecentTaste(song){
   saveTaste();
 }
 
-/* ============================================================
- *  GREETING
- * ============================================================ */
 (function setGreeting(){
   const h = new Date().getHours();
   greetingMessage.textContent =
@@ -1640,9 +1622,6 @@ function addRecentTaste(song){
     h < 21 ? 'Good Evening' : 'Good Night';
 })();
 
-/* ============================================================
- *  DRAWER
- * ============================================================ */
 function openDrawer(){
   drawerOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1654,14 +1633,11 @@ function closeDrawer(){
 drawerOpenBtn.addEventListener('click', openDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerOverlay.addEventListener('click', e => { if (e.target === drawerOverlay) closeDrawer(); });
-navHome.addEventListener('click', () => { closeDrawer(); stopAndClearPlayback(); });
+navHome.addEventListener('click', () => { closeDrawer(); saveNowPlaying(); });
 navMusic.addEventListener('click', () => { closeDrawer(); switchSection('global'); window.scrollTo({ top:0, behavior:'smooth' }); });
 navRequest.addEventListener('click', () => { closeDrawer(); });
 navBug.addEventListener('click', () => { closeDrawer(); window.open('https://t.me/rxplayer', '_blank'); });
 
-/* ============================================================
- *  AUTH
- * ============================================================ */
 function showLoginView(){
   authTabsContainer.style.display = 'flex';
   authTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'login'));
@@ -1792,7 +1768,7 @@ logoutBtn.addEventListener('click', e => {
   e.stopPropagation();
   auth.signOut().then(() => {
     showToast('Logged out.', 'info');
-    stopAndClearPlayback();
+    clearNowPlaying();
     if (audio.src){
       audio.pause(); audio.src = '';
       bottomPlayer.classList.remove('visible');
@@ -1809,9 +1785,6 @@ logoutBtn.addEventListener('click', e => {
 authModalClose.addEventListener('click', () => authModal.classList.remove('open'));
 authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.remove('open'); });
 
-/* ============================================================
- *  VERCEL SEARCH
- * ============================================================ */
 function decryptSaavnMediaUrl(encryptedUrl){
   try {
     if (!encryptedUrl) return '';
@@ -1970,9 +1943,6 @@ async function searchVercel(query){
   return results;
 }
 
-/* ============================================================
- *  FIRESTORE
- * ============================================================ */
 function normalizeFirestoreSong(doc){
   const d = doc.data ? doc.data() : doc;
   const song = {
@@ -2024,9 +1994,6 @@ async function loadUserData(){
   if (!searchQuery) renderCurrentSection();
 }
 
-/* ============================================================
- *  UPLOAD / REQUEST
- * ============================================================ */
 function uploadToCloudinaryWithProgress(file, resourceType = 'image', onProgress){
   return new Promise((resolve, reject) => {
     const formData = new FormData();
@@ -2160,9 +2127,6 @@ requestForm.addEventListener('submit', async e => {
   }
 });
 
-/* ============================================================
- *  SECTION SWITCH
- * ============================================================ */
 function switchSection(section){
   currentSection = section;
   currentOpenPlaylistId = null;
@@ -2192,9 +2156,6 @@ function updateFeedVisibility(){
   }
 }
 
-/* ============================================================
- *  RENDER
- * ============================================================ */
 function collectSongsByIds(ids){
   const out = [];
   const seen = new Set();
@@ -2394,9 +2355,6 @@ function renderSongList(songs){
   });
 }
 
-/* ============================================================
- *  PLAYLISTS RENDER
- * ============================================================ */
 function renderPlaylists(){
   currentOpenPlaylistId = null;
   updateFeedVisibility();
@@ -2543,9 +2501,6 @@ async function removeFromPlaylist(playlistId, songId){
   }
 }
 
-/* ============================================================
- *  PLAYER
- * ============================================================ */
 function recordListeningStats(){
   if (!previousTracking) return;
   const { song, listenedRatio } = previousTracking;
@@ -2615,6 +2570,7 @@ function playSongAtIndex(index){
   previousTracking = { song, listenedRatio: 0 };
 
   updatePlayingHighlight();
+  saveNowPlaying();
   ensureAutoplayQueue(song).catch(()=>{});
 }
 
@@ -2625,6 +2581,7 @@ function togglePlay(){
   }
   if (isPlaying){ audio.pause(); updatePlayPauseIcon(false); }
   else { audio.play().catch(()=>{}); updatePlayPauseIcon(true); }
+  saveNowPlaying();
 }
 
 function updatePlayPauseIcon(playing){
@@ -2783,9 +2740,14 @@ audio.addEventListener('timeupdate', () => {
     fsCurrentTime.textContent = formatTime(audio.currentTime);
     fsTotalTime.textContent = formatTime(audio.duration);
   }
+  const now = Date.now();
+  if (isPlaying && currentSong && (now - lastSaveTime) > 3000){
+    lastSaveTime = now;
+    saveNowPlaying();
+  }
 });
-audio.addEventListener('play', () => updatePlayPauseIcon(true));
-audio.addEventListener('pause', () => updatePlayPauseIcon(false));
+audio.addEventListener('play', () => { updatePlayPauseIcon(true); saveNowPlaying(); });
+audio.addEventListener('pause', () => { updatePlayPauseIcon(false); saveNowPlaying(); });
 audio.addEventListener('ended', () => {
   if (loopMode === 'single'){
     audio.currentTime = 0;
@@ -2861,13 +2823,13 @@ document.addEventListener('mousemove', e => {
   if (isDragging && activeSeekWrap) handleSeekMove(e.clientX, activeSeekWrap);
 });
 document.addEventListener('mouseup', () => {
-  if (isDragging){ isDragging = false; activeSeekWrap = null; }
+  if (isDragging){ isDragging = false; activeSeekWrap = null; saveNowPlaying(); }
 });
 document.addEventListener('touchmove', e => {
   if (isDragging && activeSeekWrap && e.touches && e.touches[0]) handleSeekMove(e.touches[0].clientX, activeSeekWrap);
 }, { passive: false });
 document.addEventListener('touchend', () => {
-  if (isDragging){ isDragging = false; activeSeekWrap = null; }
+  if (isDragging){ isDragging = false; activeSeekWrap = null; saveNowPlaying(); }
 });
 setupProgressSeek(bottomProgressWrap);
 setupProgressSeek(fsProgressWrap);
@@ -2885,9 +2847,6 @@ bottomPlayer.addEventListener('click', e => {
 });
 fsCloseBtn.addEventListener('click', () => fsOverlay.classList.remove('open'));
 
-/* ============================================================
- *  LIKE
- * ============================================================ */
 function toggleLike(songId){
   if (!requireLogin('Please login to like songs.')) return;
 
@@ -2942,9 +2901,6 @@ fsLikeBtn.addEventListener('click', () => {
   toggleLike(currentSong.id);
 });
 
-/* ============================================================
- *  ADD TO PLAYLIST
- * ============================================================ */
 function openAddToPlaylist(songId, songObjFromCaller){
   if (!requireLogin('Please login to add songs to playlists.')) return;
 
@@ -3053,9 +3009,6 @@ createPlaylistForm.addEventListener('submit', async e => {
   } catch (e){ showToast('Error creating playlist.', 'error'); }
 });
 
-/* ============================================================
- *  INSTANT SEARCH
- * ============================================================ */
 musicSearchInput.addEventListener('input', e => {
   const val = e.target.value.trim();
   searchClearBtn.classList.toggle('visible', val.length > 0);
@@ -3138,9 +3091,6 @@ async function runSearch(query){
   renderSongList(merged);
 }
 
-/* ============================================================
- *  HOME FEED
- * ============================================================ */
 function renderHorizontalCards(songs, container){
   if (!songs || !songs.length){
     container.innerHTML = `<div style="padding:10px;color:var(--text-dim);font-size:12px;">No items.</div>`;
@@ -3231,9 +3181,6 @@ document.querySelectorAll('.artist-card').forEach(card => {
   });
 });
 
-/* ============================================================
- *  INIT
- * ============================================================ */
 loadCache();
 loadKnownSongs();
 loadTaste();
@@ -3247,7 +3194,7 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v15 — Music page ready (stops on navigate)');
+console.log('🔊 RX PLAYER v15 — Music page ready (sync enabled)');
 </script>
 
 <script>
