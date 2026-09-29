@@ -1180,7 +1180,6 @@
                             const fill = document.getElementById('miniProgressFill');
                             if (fill) fill.style.width = pct + '%';
                             
-                            // Periodically update localStorage current time
                             if (Math.floor(this.miniAudio.currentTime) % 2 === 0) {
                                 this.saveAudioState();
                             }
