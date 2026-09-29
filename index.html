@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>MiniFlix - Movie & TV Discovery</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script defer
+        src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js">
+    </script>
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .movie-card {
+            transition: transform .25s ease, border-color .25s ease;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            border-color: #ef4444;
+        }
+
+        .hero-gradient {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(2, 6, 23, .98) 0%,
+                    rgba(2, 6, 23, .80) 40%,
+                    rgba(2, 6, 23, .20) 100%
+                );
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-950 text-white min-h-screen"
+    x-data="movieApp()"
+    x-init="init()">
+
+<header
+    class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur border-b border-slate-800">
+
+    <div
+        class="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
+
+        <button
+            @click="goHome()"
+            class="text-2xl font-black text-red-500 whitespace-nowrap">
+
+            Mini<span class="text-white">Flix</span>
+
+        </button>
+
+        <nav class="hidden lg:flex gap-5 text-sm text-slate-300">
+
+            <button @click="goHome()"
+                class="hover:text-white">
+                Home
+            </button>
+
+            <button @click="loadCategory('movies')"
+                class="hover:text-white">
+                Movies
+            </button>
+
+            <button @click="loadCategory('tv')"
+                class="hover:text-white">
+                TV Shows
+            </button>
+
+            <button @click="loadCategory('anime')"
+                class="hover:text-white">
+                Anime
+            </button>
+
+            <button @click="loadCategory('indian')"
+                class="hover:text-white">
+                Indian Cinema
+            </button>
+
+        </nav>
+
+        <form
+            @submit.prevent="searchMovies()"
+            class="flex-1 max-w-xl ml-auto">
+
+            <div class="relative">
+
+                <input
+                    x-model="searchQuery"
+                    placeholder="Search movies, TV shows, anime..."
+                    class="w-full bg-slate-900 border border-slate-700
+                    rounded-full px-5 py-2.5 pr-12
+                    text-sm focus:outline-none
+                    focus:border-red-500">
+
+                <button
+                    class="absolute right-4 top-2.5">
+                    🔍
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</header>
+
+
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+
+<!-- ERROR -->
+
+<div
+    x-show="error"
+    x-cloak
+    class="mb-6 bg-red-950/50 border border-red-800
+    text-red-300 p-4 rounded-lg">
+
+    <span x-text="error"></span>
+
+</div>
+
+
+<!-- HOME -->
+
+<div x-show="page === 'home'" x-cloak>
+
+
+<!-- HERO -->
+
+<section
+    x-show="featured"
+    class="relative overflow-hidden rounded-2xl
+    min-h-[420px] md:min-h-[520px]
+    mb-12 bg-slate-900">
+
+    <img
+        :src="backdrop(featured)"
+        class="absolute inset-0 w-full h-full object-cover"
+        alt="">
+
+    <div class="absolute inset-0 hero-gradient"></div>
+
+    <div class="relative z-10 max-w-2xl p-8
+        md:p-14 pt-20 md:pt-28">
+
+        <span
+            class="inline-block bg-red-600 px-3 py-1
+            rounded-full text-xs font-bold mb-4">
+
+            FEATURED
+
+        </span>
+
+        <h1
+            class="text-4xl md:text-6xl font-black mb-4"
+            x-text="title(featured)">
+        </h1>
+
+        <div
+            class="flex gap-3 text-sm text-slate-300 mb-4">
+
+            <span>
+                ⭐ <span
+                    x-text="rating(featured)">
+                </span>
+            </span>
+
+            <span
+                x-text="year(featured)">
+            </span>
+
+            <span
+                x-text="featured.media_type === 'tv'
+                ? 'TV'
+                : 'Movie'">
+            </span>
+
+        </div>
+
+        <p
+            class="text-slate-300 line-clamp-4 mb-7"
+            x-text="featured.overview">
+        </p>
+
+        <button
+            @click="openDetails(
+                featured.id,
+                featured.media_type
+            )"
+            class="bg-red-600 hover:bg-red-500
+            px-6 py-3 rounded-lg font-bold">
+
+            View Details
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- TRENDING -->
+
+<section
+    x-show="trending.length"
+    class="mb-12">
+
+    <section-title
+        title="🔥 Trending Today">
+    </section-title>
+
+    <div
+        class="flex gap-4 overflow-x-auto pb-4">
+
+        <template
+            x-for="item in trending"
+            :key="'trend'+item.id">
+
+            <div
+                @click="openDetails(
+                    item.id,
+                    item.media_type || 'movie'
+                )"
+                class="movie-card flex-shrink-0
+                w-40 md:w-44 bg-slate-900
+                border border-slate-800
+                rounded-xl overflow-hidden cursor-pointer">
+
+                <img
+                    :src="poster(item)"
+                    class="w-full aspect-[2/3] object-cover"
+                    loading="lazy">
+
+                <div class="p-3">
+
+                    <h3
+                        class="font-bold text-sm truncate"
+                        x-text="title(item)">
+                    </h3>
+
+                    <div
+                        class="flex justify-between
+                        text-xs text-slate-400 mt-2">
+
+                        <span x-text="year(item)"></span>
+
+                        <span
+                            class="text-yellow-400"
+                            x-text="'⭐ ' + rating(item)">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </template>
+
+    </div>
+
+</section>
+
+
+<!-- POPULAR MOVIES -->
+
+<section
+    x-show="popularMovies.length"
+    class="mb-12">
+
+    <section-title
+        title="🎬 Popular Movies">
+    </section-title>
+
+    <movie-row
+        :items="popularMovies">
+    </movie-row>
+
+</section>
+
+
+<!-- NEW RELEASES -->
+
+<section
+    x-show="newReleases.length"
+    class="mb-12">
+
+    <section-title
+        title="✨ New Releases">
+    </section-title>
+
+    <movie-row
+        :items="newReleases">
+    </movie-row>
+
+</section>
+
+
+<!-- INDIAN -->
+
+<section
+    x-show="indianMovies.length"
+    class="mb-12">
+
+    <section-title
+        title="🇮🇳 Indian Cinema">
+    </section-title>
+
+    <movie-row
+        :items="indianMovies">
+    </movie-row>
+
+</section>
+
+
+<!-- TV -->
+
+<section
+    x-show="tvShows.length"
+    class="mb-12">
+
+    <section-title
+        title="📺 Popular Web Series & TV Shows">
+    </section-title>
+
+    <movie-row
+        :items="tvShows">
+    </movie-row>
+
+</section>
+
+
+<!-- ANIME -->
+
+<section
+    x-show="animeList.length"
+    class="mb-12">
+
+    <section-title
+        title="🍥 Anime">
+    </section-title>
+
+    <movie-row
+        :items="animeList">
+    </movie-row>
+
+</section>
+
+
+<!-- TOP RATED -->
+
+<section
+    x-show="topRated.length"
+    class="mb-12">
+
+    <section-title
+        title="⭐ Top Rated">
+    </section-title>
+
+    <movie-row
+        :items="topRated">
+    </movie-row>
+
+</section>
+
+
+<!-- INTERNATIONAL -->
+
+<section
+    x-show="international.length"
+    class="mb-12">
+
+    <section-title
+        title="🌎 International">
+    </section-title>
+
+    <movie-row
+        :items="international">
+    </movie-row>
+
+</section>
+
+
+<!-- RECENT -->
+
+<section
+    x-show="recent.length"
+    class="mb-12">
+
+    <section-title
+        title="👀 Recently Viewed">
+    </section-title>
+
+    <movie-row
+        :items="recent">
+    </movie-row>
+
+</section>
+
+
+<!-- GENRES -->
+
+<section class="mb-12">
+
+    <h2 class="text-2xl font-bold mb-5">
+        🎭 Browse by Genre
+    </h2>
+
+    <div
+        class="grid grid-cols-2 sm:grid-cols-3
+        md:grid-cols-5 gap-3">
+
+        <template
+            x-for="genre in genres"
+            :key="genre.id">
+
+            <button
+                @click="loadGenre(genre.id, genre.name)"
+                class="bg-slate-900 border
+                border-slate-800 hover:border-red-500
+                p-4 rounded-xl text-sm
+                font-semibold">
+
+                <span x-text="genre.name"></span>
+
+            </button>
+
+        </template>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div
+    x-show="page === 'search'"
+    x-cloak>
+
+    <h2 class="text-2xl font-bold mb-6">
+
+        Search Results
+
+    </h2>
+
+    <div
+        x-show="searchResults.length"
+        class="grid grid-cols-2 sm:grid-cols-3
+        md:grid-cols-5 lg:grid-cols-6 gap-5">
+
+        <template
+            x-for="item in searchResults"
+            :key="'search'+item.id">
+
+            <div
+                @click="openDetails(
+                    item.id,
+                    item.media_type
+                )"
+                class="movie-card bg-slate-900
+                border border-slate-800 rounded-xl
+                overflow-hidden cursor-pointer">
+
+                <img
+                    :src="poster(item)"
+                    class="w-full aspect-[2/3]
+                    object-cover"
+                    loading="lazy">
+
+                <div class="p-3">
+
+                    <h3
+                        class="font-bold text-sm truncate"
+                        x-text="title(item)">
+                    </h3>
+
+                    <div
+                        class="flex justify-between
+                        text-xs text-slate-400 mt-2">
+
+                        <span x-text="year(item)"></span>
+
+                        <span
+                            class="text-yellow-400"
+                            x-text="'⭐ ' + rating(item)">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </template>
+
+    </div>
+
+    <div
+        x-show="!searchResults.length && !loading"
+        class="text-center py-20 text-slate-500">
+
+        No movies or shows found.
+
+    </div>
+
+</div>
+
+
+<!-- CATEGORY -->
+
+<div
+    x-show="page === 'category'"
+    x-cloak>
+
+    <button
+        @click="goHome()"
+        class="mb-6 text-slate-400 hover:text-white">
+
+        ← Back
+
+    </button>
+
+    <h2
+        class="text-3xl font-bold mb-7"
+        x-text="categoryTitle">
+    </h2>
+
+    <div
+        class="grid grid-cols-2 sm:grid-cols-3
+        md:grid-cols-5 lg:grid-cols-6 gap-5">
+
+        <template
+            x-for="item in categoryResults"
+            :key="'cat'+item.id">
+
+            <div
+                @click="openDetails(
+                    item.id,
+                    item.media_type || categoryMedia
+                )"
+                class="movie-card bg-slate-900
+                border border-slate-800 rounded-xl
+                overflow-hidden cursor-pointer">
+
+                <img
+                    :src="poster(item)"
+                    class="w-full aspect-[2/3]
+                    object-cover"
+                    loading="lazy">
+
+                <div class="p-3">
+
+                    <h3
+                        class="font-bold text-sm truncate"
+                        x-text="title(item)">
+                    </h3>
+
+                    <div
+                        class="flex justify-between
+                        text-xs text-slate-400 mt-2">
+
+                        <span x-text="year(item)"></span>
+
+                        <span
+                            class="text-yellow-400"
+                            x-text="'⭐ ' + rating(item)">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </template>
+
+    </div>
+
+</div>
+
+
+<!-- DETAILS -->
+
+<div
+    x-show="page === 'details'"
+    x-cloak>
+
+    <button
+        @click="goBack()"
+        class="mb-6 text-slate-400 hover:text-white">
+
+        ← Back
+
+    </button>
+
+    <div
+        x-show="detail"
+        class="bg-slate-900 rounded-2xl
+        overflow-hidden border border-slate-800">
+
+        <div class="relative">
+
+            <img
+                :src="backdrop(detail)"
+                class="w-full h-64 md:h-[450px]
+                object-cover">
+
+            <div
+                class="absolute inset-0
+                bg-gradient-to-t
+                from-slate-900 via-slate-900/50
+                to-transparent">
+            </div>
+
+        </div>
+
+        <div
+            class="relative -mt-24 md:-mt-40
+            p-5 md:p-10 flex flex-col
+            md:flex-row gap-7">
+
+            <img
+                :src="poster(detail)"
+                class="w-40 md:w-60
+                aspect-[2/3] object-cover
+                rounded-xl shadow-2xl
+                mx-auto md:mx-0">
+
+            <div class="flex-1">
+
+                <h1
+                    class="text-3xl md:text-5xl
+                    font-black"
+                    x-text="title(detail)">
+                </h1>
+
+                <div
+                    class="flex flex-wrap gap-3
+                    text-sm text-slate-400 mt-4">
+
+                    <span>
+                        ⭐ <span
+                            x-text="rating(detail)">
+                        </span>
+                    </span>
+
+                    <span x-text="year(detail)"></span>
+
+                    <span
+                        x-text="detail.original_language
+                        || 'N/A'">
+                    </span>
+
+                </div>
+
+                <div
+                    class="flex flex-wrap gap-2 mt-5">
+
+                    <template
+                        x-for="genre in (detail.genres || [])"
+                        :key="genre.id">
+
+                        <span
+                            class="bg-slate-800 px-3 py-1
+                            rounded-full text-xs">
+
+                            <span
+                                x-text="genre.name">
+                            </span>
+
+                        </span>
+
+                    </template>
+
+                </div>
+
+                <p
+                    class="text-slate-300
+                    leading-relaxed mt-6"
+                    x-text="detail.overview ||
+                    'No overview available.'">
+                </p>
+
+                <div
+                    class="mt-6 flex flex-wrap gap-3">
+
+                    <button
+                        x-show="trailer"
+                        @click="watchTrailer()"
+                        class="bg-red-600
+                        hover:bg-red-500
+                        px-5 py-3 rounded-lg
+                        font-bold">
+
+                        ▶ Watch Trailer
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CAST -->
+
+    <section
+        x-show="cast.length"
+        class="mt-10">
+
+        <h2 class="text-2xl font-bold mb-5">
+            Top Cast
+        </h2>
+
+        <div
+            class="flex gap-4 overflow-x-auto pb-4">
+
+            <template
+                x-for="actor in cast.slice(0,10)"
+                :key="actor.id">
+
+                <div
+                    class="flex-shrink-0
+                    w-24 text-center">
+
+                    <img
+                        :src="actor.profile_path
+                        ? 'https://image.tmdb.org/t/p/w185'
+                        + actor.profile_path
+                        : fallbackProfile"
+                        class="w-20 h-20 rounded-full
+                        object-cover mx-auto">
+
+                    <p
+                        class="text-xs font-bold
+                        mt-2 truncate"
+                        x-text="actor.name">
+                    </p>
+
+                    <p
+                        class="text-[10px]
+                        text-slate-500 truncate"
+                        x-text="actor.character || ''">
+                    </p>
+
+                </div>
+
+            </template>
+
+        </div>
+
+    </section>
+
+
+    <!-- SIMILAR -->
+
+    <section
+        x-show="similar.length"
+        class="mt-10">
+
+        <h2 class="text-2xl font-bold mb-5">
+            You May Also Like
+        </h2>
+
+        <div
+            class="flex gap-4 overflow-x-auto pb-4">
+
+            <template
+                x-for="item in similar"
+                :key="'sim'+item.id">
+
+                <div
+                    @click="openDetails(
+                        item.id,
+                        detailType
+                    )"
+                    class="movie-card flex-shrink-0
+                    w-40 bg-slate-900
+                    border border-slate-800
+                    rounded-xl overflow-hidden
+                    cursor-pointer">
+
+                    <img
+                        :src="poster(item)"
+                        class="w-full aspect-[2/3]
+                        object-cover">
+
+                    <div class="p-3">
+
+                        <h3
+                            class="text-sm font-bold truncate"
+                            x-text="title(item)">
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </template>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- LOADING -->
+
+<div
+    x-show="loading"
+    class="fixed inset-0 z-[100]
+    bg-black/60 backdrop-blur-sm
+    flex items-center justify-center">
+
+    <div
+        class="bg-slate-900
+        border border-slate-700
+        px-6 py-5 rounded-xl">
+
+        <div
+            class="w-8 h-8 border-4
+            border-slate-700
+            border-t-red-500
+            rounded-full animate-spin mx-auto">
+        </div>
+
+        <p class="text-sm text-slate-400 mt-3">
+            Loading...
+        </p>
+
+    </div>
+
+</div>
+
+</main>
+
+
+<footer
+    class="border-t border-slate-800
+    bg-slate-950 py-8 text-center
+    text-sm text-slate-500">
+
+    <p>
+        MiniFlix — Movie & TV Discovery
+    </p>
+
+    <p class="mt-2">
+        Movie and TV metadata powered by TMDB.
+    </p>
+
+</footer>
+
+
+<script>
+
+function movieApp() {
+
+    return {
+
+        API: "/api",
+
+        page: "home",
+
+        loading: false,
+
+        error: "",
+
+        featured: null,
+
+        trending: [],
+
+        popularMovies: [],
+
+        newReleases: [],
+
+        indianMovies: [],
+
+        tvShows: [],
+
+        animeList: [],
+
+        topRated: [],
+
+        international: [],
+
+        recent: [],
+
+        searchResults: [],
+
+        categoryResults: [],
+
+        categoryTitle: "",
+
+        categoryMedia: "movie",
+
+        searchQuery: "",
+
+        detail: null,
+
+        detailType: "movie",
+
+        cast: [],
+
+        similar: [],
+
+        trailer: null,
+
+        fallbackPoster:
+            "https://via.placeholder.com/500x750?text=No+Poster",
+
+        fallbackBackdrop:
+            "https://via.placeholder.com/1280x720?text=MiniFlix",
+
+        fallbackProfile:
+            "https://via.placeholder.com/185x185?text=No+Image",
+
+        genres: [
+
+            { id: 28, name: "Action" },
+            { id: 12, name: "Adventure" },
+            { id: 16, name: "Animation" },
+            { id: 35, name: "Comedy" },
+            { id: 80, name: "Crime" },
+            { id: 99, name: "Documentary" },
+            { id: 18, name: "Drama" },
+            { id: 14, name: "Fantasy" },
+            { id: 27, name: "Horror" },
+            { id: 9648, name: "Mystery" },
+            { id: 10749, name: "Romance" },
+            { id: 878, name: "Science Fiction" },
+            { id: 53, name: "Thriller" },
+            { id: 10752, name: "War" },
+            { id: 37, name: "Western" }
+
+        ],
+
+
+        async init() {
+
+            await this.loadHome();
+
+            this.loadRecent();
+
+        },
+
+
+        async request(url) {
+
+            const response = await fetch(
+                this.API + url
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || data.success === false) {
+
+                throw new Error(
+                    data.error ||
+                    "Request failed"
+                );
+
+            }
+
+            return data;
+
+        },
+
+
+        async loadHome() {
+
+            this.loading = true;
+            this.error = "";
+
+            try {
+
+                const data =
+                    await this.request(
+                        "/test-tmdb"
+                    );
+
+                this.trending =
+                    data.results || [];
+
+                this.featured =
+                    this.trending[0] || null;
+
+
+                const results =
+                    await Promise.allSettled([
+
+                        this.fetchPopularMovies(),
+
+                        this.fetchNewReleases(),
+
+                        this.fetchIndianMovies(),
+
+                        this.fetchTV(),
+
+                        this.fetchAnime(),
+
+                        this.fetchTopRated(),
+
+                        this.fetchInternational()
+
+                    ]);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                this.error =
+                    "Unable to connect to the movie service. Please try again.";
+
+            } finally {
+
+                this.loading = false;
+
+            }
+
+        },
+
+
+        async fetchPopularMovies() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/movie/popular?language=en-US&page=1"
+                        )
+                    );
+
+                this.popularMovies =
+                    response.results || [];
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchNewReleases() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/movie/now_playing?language=en-US&region=IN&page=1"
+                        )
+                    );
+
+                this.newReleases =
+                    response.results || [];
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchIndianMovies() {
+
+            try {
+
+                const languages =
+                    ["hi", "ta", "te", "ml", "kn", "bn", "mr", "pa"];
+
+                const requests =
+                    languages.map(
+                        language =>
+
+                        this.request(
+                            "/tmdb?endpoint=" +
+                            encodeURIComponent(
+                                `/discover/movie?language=en-US&with_original_language=${language}&sort_by=popularity.desc&page=1`
+                            )
+                        )
+                    );
+
+                const responses =
+                    await Promise.all(
+                        requests
+                    );
+
+                const all = [];
+
+                responses.forEach(
+                    response => {
+
+                        if (response.results) {
+
+                            all.push(
+                                ...response.results
+                            );
+
+                        }
+
+                    }
+                );
+
+                const unique =
+                    new Map();
+
+                all.forEach(
+                    movie => {
+
+                        if (!unique.has(movie.id)) {
+
+                            unique.set(
+                                movie.id,
+                                movie
+                            );
+
+                        }
+
+                    }
+                );
+
+                this.indianMovies =
+                    Array.from(unique.values())
+                    .sort(
+                        (a,b) =>
+                            (b.popularity || 0) -
+                            (a.popularity || 0)
+                    )
+                    .slice(0,20);
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchTV() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/tv/popular?language=en-US&page=1"
+                        )
+                    );
+
+                this.tvShows =
+                    (response.results || [])
+                    .map(item => ({
+                        ...item,
+                        media_type: "tv"
+                    }));
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchAnime() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"
+                        )
+                    );
+
+                this.animeList =
+                    (response.results || [])
+                    .map(item => ({
+                        ...item,
+                        media_type: "tv"
+                    }));
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchTopRated() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/movie/top_rated?language=en-US&page=1"
+                        )
+                    );
+
+                this.topRated =
+                    response.results || [];
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async fetchInternational() {
+
+            try {
+
+                const response =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(
+                            "/discover/movie?language=en-US&sort_by=popularity.desc&without_original_language=en&vote_count.gte=100&page=1"
+                        )
+                    );
+
+                this.international =
+                    response.results || [];
+
+            } catch (e) {
+
+                console.error(e);
+
+            }
+
+        },
+
+
+        async searchMovies() {
+
+            const query =
+                this.searchQuery.trim();
+
+            if (!query) {
+
+                return;
+
+            }
+
+            this.loading = true;
+
+            this.error = "";
+
+            try {
+
+                const data =
+                    await this.request(
+                        "/search?query=" +
+                        encodeURIComponent(query)
+                    );
+
+                this.searchResults =
+                    data.results || [];
+
+                this.page = "search";
+
+            } catch (error) {
+
+                this.error =
+                    "Search failed. Please try again.";
+
+            } finally {
+
+                this.loading = false;
+
+            }
+
+        },
+
+
+        async openDetails(id, type = "movie") {
+
+            if (!id) return;
+
+            this.loading = true;
+
+            this.error = "";
+
+            this.page = "details";
+
+            this.detail = null;
+
+            try {
+
+                const data =
+                    await this.request(
+                        `/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`
+                    );
+
+                this.detail =
+                    data.details;
+
+                this.detailType =
+                    type;
+
+                this.cast =
+                    data.cast || [];
+
+                this.similar =
+                    (data.similar || [])
+                    .map(item => ({
+                        ...item,
+                        media_type: type
+                    }));
+
+                this.findTrailer(
+                    data.videos || []
+                );
+
+                this.saveRecent(
+                    this.detail,
+                    type
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                this.error =
+                    "Unable to load details.";
+
+            } finally {
+
+                this.loading = false;
+
+            }
+
+        },
+
+
+        findTrailer(videos) {
+
+            const trailer =
+                videos.find(
+                    video =>
+                        video.site === "YouTube" &&
+                        video.type === "Trailer" &&
+                        video.official === true
+                ) ||
+                videos.find(
+                    video =>
+                        video.site === "YouTube" &&
+                        video.type === "Trailer"
+                ) ||
+                videos.find(
+                    video =>
+                        video.site === "YouTube"
+                );
+
+            this.trailer =
+                trailer || null;
+
+        },
+
+
+        watchTrailer() {
+
+            if (!this.trailer) return;
+
+            window.open(
+                "https://www.youtube.com/watch?v=" +
+                this.trailer.key,
+                "_blank"
+            );
+
+        },
+
+
+        saveRecent(item, type) {
+
+            if (!item) return;
+
+            let recent =
+                JSON.parse(
+                    localStorage.getItem(
+                        "miniflix_recent"
+                    ) || "[]"
+                );
+
+            const object = {
+
+                id: item.id,
+
+                media_type: type,
+
+                title:
+                    item.title ||
+                    item.name,
+
+                poster_path:
+                    item.poster_path,
+
+                vote_average:
+                    item.vote_average,
+
+                release_date:
+                    item.release_date ||
+                    item.first_air_date
+
+            };
+
+            recent =
+                recent.filter(
+                    item =>
+                        item.id !== object.id ||
+                        item.media_type !==
+                        object.media_type
+                );
+
+            recent.unshift(object);
+
+            recent =
+                recent.slice(0,10);
+
+            localStorage.setItem(
+                "miniflix_recent",
+                JSON.stringify(recent)
+            );
+
+            this.recent = recent;
+
+        },
+
+
+        loadRecent() {
+
+            try {
+
+                this.recent =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "miniflix_recent"
+                        ) || "[]"
+                    );
+
+            } catch {
+
+                this.recent = [];
+
+            }
+
+        },
+
+
+        async loadCategory(type) {
+
+            this.loading = true;
+
+            try {
+
+                let endpoint = "";
+                let title = "";
+
+                if (type === "movies") {
+
+                    endpoint =
+                        "/movie/popular?language=en-US&page=1";
+
+                    title =
+                        "🎬 Popular Movies";
+
+                    this.categoryMedia =
+                        "movie";
+
+                }
+
+                if (type === "tv") {
+
+                    endpoint =
+                        "/tv/popular?language=en-US&page=1";
+
+                    title =
+                        "📺 Popular TV Shows";
+
+                    this.categoryMedia =
+                        "tv";
+
+                }
+
+                if (type === "anime") {
+
+                    endpoint =
+                        "/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1";
+
+                    title =
+                        "🍥 Anime";
+
+                    this.categoryMedia =
+                        "tv";
+
+                }
+
+                if (type === "indian") {
+
+                    this.categoryResults =
+                        this.indianMovies;
+
+                    this.categoryTitle =
+                        "🇮🇳 Indian Cinema";
+
+                    this.page =
+                        "category";
+
+                    this.loading =
+                        false;
+
+                    return;
+
+                }
+
+                const data =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(endpoint)
+                    );
+
+                this.categoryResults =
+                    (data.results || [])
+                    .map(item => ({
+                        ...item,
+                        media_type:
+                            this.categoryMedia
+                    }));
+
+                this.categoryTitle =
+                    title;
+
+                this.page =
+                    "category";
+
+            } catch (error) {
+
+                this.error =
+                    "Unable to load category.";
+
+            } finally {
+
+                this.loading = false;
+
+            }
+
+        },
+
+
+        async loadGenre(id, name) {
+
+            this.loading = true;
+
+            try {
+
+                const endpoint =
+                    `/discover/movie?language=en-US&with_genres=${id}&sort_by=popularity.desc&page=1`;
+
+                const data =
+                    await this.request(
+                        "/tmdb?endpoint=" +
+                        encodeURIComponent(endpoint)
+                    );
+
+                this.categoryResults =
+                    data.results || [];
+
+                this.categoryTitle =
+                    "🎭 " + name;
+
+                this.categoryMedia =
+                    "movie";
+
+                this.page =
+                    "category";
+
+            } catch {
+
+                this.error =
+                    "Unable to load genre.";
+
+            } finally {
+
+                this.loading = false;
+
+            }
+
+        },
+
+
+        goHome() {
+
+            this.page =
+                "home";
+
+            this.searchQuery =
+                "";
+
+            this.error =
+                "";
+
+        },
+
+
+        goBack() {
+
+            this.goHome();
+
+        },
+
+
+        title(item) {
+
+            return item
+                ? (
+                    item.title ||
+                    item.name ||
+                    "Untitled"
+                )
+                : "";
+
+        },
+
+
+        year(item) {
+
+            if (!item) return "N/A";
+
+            const date =
+                item.release_date ||
+                item.first_air_date;
+
+            return date
+                ? date.substring(0,4)
+                : "N/A";
+
+        },
+
+
+        rating(item) {
+
+            if (
+                !item ||
+                typeof item.vote_average !==
+                "number"
+            ) {
+
+                return "N/A";
+
+            }
+
+            return item.vote_average
+                .toFixed(1);
+
+        },
+
+
+        poster(item) {
+
+            if (
+                item &&
+                item.poster_path
+            ) {
+
+                return
+                    "https://image.tmdb.org/t/p/w500" +
+                    item.poster_path;
+
+            }
+
+            return this.fallbackPoster;
+
+        },
+
+
+        backdrop(item) {
+
+            if (
+                item &&
+                item.backdrop_path
+            ) {
+
+                return
+                    "https://image.tmdb.org/t/p/w1280" +
+                    item.backdrop_path;
+
+            }
+
+            return this.fallbackBackdrop;
+
+        }
+
+    };
+
+}
+
+
+/*
+Reusable components
+*/
+
+document.addEventListener(
+    "alpine:init",
+    () => {
+
+        Alpine.data(
+            "sectionTitle",
+            () => ({})
+        );
+
+    }
+);
+
+</script>
+
+
+<!-- SIMPLE COMPONENT STYLES -->
+
+<script>
+
+document.addEventListener(
+    "alpine:init",
+    () => {
+
+        Alpine.directive(
+            "component",
+            () => {}
+        );
+
+    }
+);
+
+</script>
+
+
+</body>
+</html>
