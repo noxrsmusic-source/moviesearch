@@ -1183,34 +1183,49 @@
         const OMDB_API_KEY = 'df7d5111';
         const OMDB_BASE = 'https://www.omdbapi.com/';
 
+        // ============================================================
+        //  SERVERS
+        //  - main (Red +) : uses the TMDB id (untouched, same as before)
+        //  - red / green  : use the OMDb / IMDb id (exactly like the
+        //                   second code). The OMDb id that is fetched
+        //                   (or passed via URL) replaces the "show id".
+        // ============================================================
         const SERVERS = {
             main: {
                 name: 'Red +',
+                requiresOmdb: false,
                 url: (tmdbId, omdbId, type, season, episode) => {
+                    if (!tmdbId) return null;
                     if (type === 'movie') {
                         return `https://vidstuck.xyz/embed/movie/${tmdbId}?branding=RX+Player&loading=1&back=false`;
-                    } else {
-                        const s = season || 1;
-                        const e = episode || 1;
-                        return `https://vidstuck.xyz/embed/tv/${tmdbId}/${s}/${e}?branding=RX+Player&loading=1&back=false`;
                     }
+                    const s = season || 1;
+                    const e = episode || 1;
+                    return `https://vidstuck.xyz/embed/tv/${tmdbId}/${s}/${e}?branding=RX+Player&loading=1&back=false`;
                 }
             },
             red: {
                 name: 'Red',
+                requiresOmdb: true,
                 url: (tmdbId, omdbId, type, season, episode) => {
+                    // Red server -> OMDb / IMDb id
+                    if (!omdbId) return null;
                     if (type === 'movie') {
                         return `https://autoembed.co/movie/imdb/${omdbId}`;
-                    } else {
-                        const s = season || 1;
-                        const e = episode || 1;
-                        return `https://autoembed.co/tv/imdb/${omdbId}-${s}-${e}`;
                     }
+                    const s = season || 1;
+                    const e = episode || 1;
+                    return `https://autoembed.co/tv/imdb/${omdbId}-${s}-${e}`;
                 }
             },
             green: {
                 name: 'Green',
-                url: (tmdbId, omdbId, type, season, episode) => `https://kriss424did.com/play/${omdbId}`
+                requiresOmdb: true,
+                url: (tmdbId, omdbId, type, season, episode) => {
+                    // Green server -> OMDb / IMDb id
+                    if (!omdbId) return null;
+                    return `https://kriss424did.com/play/${omdbId}`;
+                }
             }
         };
 
@@ -1370,6 +1385,12 @@
             }
         }
 
+        function syncServerButtons() {
+            document.querySelectorAll('.server-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.server === currentServer);
+            });
+        }
+
         function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             const overlay = document.getElementById('serverIssueOverlay');
@@ -1381,6 +1402,28 @@
             if (!currentTmdbId && !currentOmdbId) {
                 showToast('No content ID provided.', 'error');
                 return;
+            }
+
+            // ----- Fallbacks when a server does not have the ID it needs -----
+            // Red / Green need the OMDb (IMDb) id.
+            if (SERVERS[currentServer].requiresOmdb && !currentOmdbId) {
+                if (currentTmdbId) {
+                    showToast('Red/Green servers need an OMDb (IMDb) ID — switching to Red + server.', 'info', 3500);
+                    currentServer = 'main';
+                } else {
+                    showToast('Red/Green servers need an OMDb (IMDb) ID.', 'error', 4000);
+                    return;
+                }
+            }
+            // Red + needs the TMDB id.
+            if (currentServer === 'main' && !currentTmdbId) {
+                if (currentOmdbId) {
+                    showToast('Red + server needs a TMDB ID — switching to Red server.', 'info', 3500);
+                    currentServer = 'red';
+                } else {
+                    showToast('No TMDB ID available for Red + server.', 'error', 4000);
+                    return;
+                }
             }
 
             const url = buildPlayerUrl(currentServer, currentTmdbId, currentOmdbId, currentType, currentSeason, currentEpisode);
@@ -1399,13 +1442,10 @@
                 hidePauseAds();
             };
 
-            document.querySelectorAll('.server-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.server === currentServer);
-            });
+            syncServerButtons();
 
             const isSeries = currentType === 'series' || currentType === 'tv' || currentType === 'anime';
-            const showEpControls = isSeries; // Ep controls apply to Red + server too if it's tv/anime/series
-            document.getElementById('episodeControls').classList.toggle('visible', showEpControls);
+            document.getElementById('episodeControls').classList.toggle('visible', isSeries);
 
             showToast(`🔴 ${SERVERS[currentServer].name} server loading…`, 'success', 2000);
         }
@@ -1527,11 +1567,28 @@
         // ============================================================
         async function init() {
             const params = new URLSearchParams(window.location.search);
-            const tmdbId = params.get('id');
-            const omdbId = params.get('omdbId') || params.get('imdbId');
+            const rawId = params.get('id');                                  // TMDB id (or a raw IMDb id)
+            const omdbParam = params.get('omdbId') || params.get('imdbId');  // OMDb / IMDb id
             const type = params.get('type') || 'movie';
 
             loadPauseAdScript();
+
+            // ---- Resolve the two IDs -------------------------------------
+            // Red +  -> TMDB id   (the "show id")
+            // Red    -> OMDb id   (the fetched / passed IMDb id)
+            // Green  -> OMDb id   (the fetched / passed IMDb id)
+            let tmdbId = null;
+            let omdbId = omdbParam || null;
+
+            if (rawId) {
+                if (/^tt\d+$/i.test(rawId)) {
+                    // The id itself is an IMDb id (2nd-code style link)
+                    if (!omdbId) omdbId = rawId;
+                } else {
+                    // The id is a TMDB id (1st-code style link)
+                    tmdbId = rawId;
+                }
+            }
 
             if (!tmdbId && !omdbId) {
                 document.getElementById('movieTitle').textContent = 'No content specified';
@@ -1544,15 +1601,26 @@
             currentOmdbId = omdbId;
             currentType = type;
 
+            // If there is no TMDB id we cannot use Red +, so start on Red.
+            if (!currentTmdbId && currentOmdbId) {
+                currentServer = 'red';
+                syncServerButtons();
+            }
+
             try {
-                // Fetch metadata using OMDb if an omdbId is available, or fallback if needed
+                // Fetch metadata using the OMDb id (if we have one)
                 if (currentOmdbId) {
                     metadata = await fetchOmdbById(currentOmdbId);
                 }
-                
+
                 if (metadata) {
                     updateUIWithMetadata(metadata);
                     if (metadata.Type) currentType = metadata.Type.toLowerCase();
+                    // The OMDb id that comes back from the API is the one that
+                    // replaces the "show id" for the Red / Green servers.
+                    if (metadata.imdbID) {
+                        currentOmdbId = metadata.imdbID;
+                    }
                 } else {
                     document.getElementById('movieTitle').textContent = 'RX Player Content';
                     document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
