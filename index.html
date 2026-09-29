@@ -220,7 +220,7 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE - DESKTOP SCROLLBAR ENABLED) ===== */
+        /* ===== OTT LOGO SECTION ===== */
         .ott-section {
             margin: 24px 0 12px;
         }
@@ -1056,6 +1056,17 @@
                     this.loadMusicData();
                     this.initMiniAudioEvents();
                     this.restoreSavedAudioState();
+
+                    // Intercept navigation to music.html to save state cleanly
+                    document.addEventListener('click', e => {
+                        const link = e.target.closest('a');
+                        if (link && link.href) {
+                            const targetUrl = new URL(link.href, window.location.origin);
+                            if (targetUrl.pathname !== window.location.pathname) {
+                                this.saveAudioState();
+                            }
+                        }
+                    });
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
