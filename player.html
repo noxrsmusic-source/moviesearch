@@ -1208,11 +1208,11 @@
                     // Red server -> OMDb / IMDb id
                     if (!omdbId) return null;
                     if (type === 'movie') {
-                        return `https://autoembed.co/movie/imdb/${omdbId}`;
+                        return `https://autoembed.co/movie/imdb/${Id}`;
                     }
                     const s = season || 1;
                     const e = episode || 1;
-                    return `https://autoembed.co/tv/imdb/${omdbId}-${s}-${e}`;
+                    return `https://autoembed.co/tv/imdb/${Id}-${s}-${e}`;
                 }
             },
             green: {
@@ -1221,7 +1221,7 @@
                 url: (tmdbId, omdbId, type, season, episode) => {
                     // Green server -> OMDb / IMDb id
                     if (!omdbId) return null;
-                    return `https://kriss424did.com/play/${omdbId}`;
+                    return `https://kriss424did.com/play/${Id}`;
                 }
             }
         };
