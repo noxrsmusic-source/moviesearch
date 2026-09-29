@@ -1,6 +1,6 @@
 // api/details.js
 
-const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
+const TMDB_API_KEY = "9b7b483c93df65bd42c5e29ab1c8891a";
 
 export default async function handler(req, res) {
 
