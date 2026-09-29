@@ -1,37 +1,67 @@
-const { tmdbFetch } = require("./tmdb");
+// api/test-tmdb.js
 
-module.exports = async function handler(req, res) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
+export default async function handler(req, res) {
 
-    if (req.method !== "GET") {
-        return res.status(405).json({
-            success: false,
-            error: "Method not allowed"
-        });
-    }
+    res.setHeader(
+        "Access-Control-Allow-Origin",
+        "*"
+    );
 
     try {
-        const data = await tmdbFetch(
-            "/trending/all/day?language=en-US"
+
+        const url =
+            new URL(
+                "https://api.themoviedb.org/3/trending/all/day"
+            );
+
+        url.searchParams.set(
+            "api_key",
+            TMDB_API_KEY
         );
 
-        return res.status(200).json({
-            success: true,
-            message: "Vercel → TMDB connection is working",
-            results: data.results || []
-        });
+        url.searchParams.set(
+            "language",
+            "en-US"
+        );
+
+        const response =
+            await fetch(
+                url.toString()
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            return res.status(response.status).json({
+                success: false,
+                error:
+                    data.status_message ||
+                    "TMDB connection failed."
+            });
+
+        }
+
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "TMDB Test Error:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            error: error.message
+            error:
+                "Vercel could not connect to TMDB.",
+            message:
+                error.message
         });
+
     }
-};
+
+}
