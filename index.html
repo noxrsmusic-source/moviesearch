@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniFlix - Movie Database</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between" x-data="movieApp()" x-init="init()">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" @click="resetHome()">
+                <span class="text-2xl font-extrabold text-red-500 tracking-wider">Mini<span class="text-white">Flix</span></span>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-md mx-6">
+                <form @submit.prevent="searchMovies">
+                    <div class="relative">
+                        <input type="text" x-model="searchQuery" placeholder="Search for a movie..." 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-full py-2 pl-4 pr-10 text-sm text-slate-200 focus:outline-none focus:border-red-500">
+                        <button type="submit" class="absolute right-3 top-2.5 text-slate-400 hover:text-white">
+                            🔍
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div>
+                <button @click="openApiKeyModal = true" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-md border border-slate-600 transition">
+                    ⚙️ API Key
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- VIEW 1: HOME / SEARCH RESULTS -->
+        <div x-show="view === 'home'">
+            <h2 class="text-2xl font-bold mb-6 text-slate-100 border-l-4 border-red-500 pl-3" x-text="searchQuery ? 'Search Results' : 'Trending Movies'"></h2>
+            
+            <!-- Loading Indicator -->
+            <div x-show="loading" class="flex justify-center items-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            </div>
+
+            <!-- Movies Grid -->
+            <div x-show="!loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <template x-for="movie in movies" :key="movie.id">
+                    <div @click="fetchMovieDetails(movie.id)" class="bg-slate-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-700/50 flex flex-col justify-between">
+                        <div>
+                            <img :src="movie.poster_path ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" 
+                                 :alt="movie.title" class="w-full h-72 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-sm truncate text-slate-100" x-text="movie.title"></h3>
+                                <p class="text-xs text-slate-400 mt-1" x-text="movie.release_date ? movie.release_date.split('-')[0] : 'N/A'"></p>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 flex justify-between items-center text-xs text-slate-300">
+                            <span class="bg-slate-700 px-2 py-0.5 rounded text-amber-400 font-semibold">⭐ <span x-text="movie.vote_average.toFixed(1)"></span></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- VIEW 2: MOVIE DETAILS -->
+        <div x-show="view === 'detail'" x-cloak>
+            <button @click="view = 'home'" class="mb-6 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm border border-slate-700 transition flex items-center space-x-2">
+                <span>← Back to list</span>
+            </button>
+
+            <div x-show="loading" class="flex justify-center items-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            </div>
+
+            <div x-show="!loading && movie" class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl md:flex">
+                <div class="md:w-1/3">
+                    <img :src="movie.poster_path ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" 
+                         class="w-full h-full object-cover" :alt="movie.title">
+                </div>
+                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h1 class="text-3xl font-extrabold text-white" x-text="movie.title"></h1>
+                            <span class="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold" x-text="movie.status"></span>
+                        </div>
+                        <p class="text-slate-400 italic text-sm mt-1" x-text="movie.tagline"></p>
+
+                        <div class="flex flex-wrap gap-2 my-4">
+                            <template x-for="genre in movie.genres" :key="genre.id">
+                                <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-md" x-text="genre.name"></span>
+                            </template>
+                        </div>
+
+                        <p class="text-slate-300 text-sm leading-relaxed mt-4" x-text="movie.overview"></p>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6 text-sm">
+                            <div>
+                                <span class="text-slate-400 block text-xs">Release Date</span>
+                                <span class="font-semibold text-slate-200" x-text="movie.release_date"></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-xs">Runtime</span>
+                                <span class="font-semibold text-slate-200" x-text="movie.runtime + ' mins'"></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-xs">Rating</span>
+                                <span class="font-semibold text-amber-400" x-text="'⭐ ' + movie.vote_average.toFixed(1) + ' / 10'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- API KEY MODAL -->
+    <div x-show="openApiKeyModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-md w-full mx-4 shadow-2xl">
+            <h3 class="text-lg font-bold mb-2 text-white">TMDB API Configuration</h3>
+            <p class="text-xs text-slate-400 mb-4">Enter your TMDB V3 API Key to fetch movies. A default demo key is provided, but you can swap it out if needed.</p>
+            <input type="text" x-model="tempApiKey" placeholder="Enter TMDB API Key" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 mb-4 focus:outline-none focus:border-red-500">
+            <div class="flex justify-end space-x-2">
+                <button @click="openApiKeyModal = false" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm rounded transition">Cancel</button>
+                <button @click="saveApiKey()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-sm rounded font-bold transition">Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-6 text-center text-xs text-slate-500">
+        <p>Powered by TMDB API. Built with Tailwind CSS & Alpine.js.</p>
+    </footer>
+
+    <!-- APP SCRIPT -->
+    <script>
+        function movieApp() {
+            return {
+                apiKey: localStorage.getItem('tmdb_api_key') || '2b36a147040954f9d020d091a457193d', // Fallback public demo key
+                tempApiKey: '',
+                openApiKeyModal: false,
+                view: 'home', // 'home' or 'detail'
+                movies: [],
+                movie: null,
+                searchQuery: '',
+                loading: false,
+
+                init() {
+                    this.tempApiKey = this.apiKey;
+                    this.fetchTrending();
+                },
+
+                saveApiKey() {
+                    if(this.tempApiKey.trim()) {
+                        this.apiKey = this.tempApiKey.trim();
+                        localStorage.setItem('tmdb_api_key', this.apiKey);
+                        this.openApiKeyModal = false;
+                        this.fetchTrending();
+                    }
+                },
+
+                async fetchTrending() {
+                    this.loading = true;
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${this.apiKey}`);
+                        let data = await res.json();
+                        this.movies = data.results || [];
+                    } catch (err) {
+                        console.error('Error fetching trending:', err);
+                    }
+                    this.loading = false;
+                },
+
+                async searchMovies() {
+                    if (!this.searchQuery.trim()) {
+                        this.fetchTrending();
+                        return;
+                    }
+                    this.loading = true;
+                    this.view = 'home';
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${this.apiKey}&query=${encodeURIComponent(this.searchQuery)}`);
+                        let data = await res.json();
+                        this.movies = data.results || [];
+                    } catch (err) {
+                        console.error('Error searching movies:', err);
+                    }
+                    this.loading = false;
+                },
+
+                async fetchMovieDetails(id) {
+                    this.loading = true;
+                    this.view = 'detail';
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${this.apiKey}`);
+                        let data = await res.json();
+                        this.movie = data;
+                    } catch (err) {
+                        console.error('Error fetching details:', err);
+                    }
+                    this.loading = false;
+                },
+
+                resetHome() {
+                    this.searchQuery = '';
+                    this.view = 'home';
+                    this.fetchTrending();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
