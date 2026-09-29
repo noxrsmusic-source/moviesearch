@@ -1185,7 +1185,7 @@
         // ============================================================
         //  SERVERS
         //  - main (Red +) : uses the TMDB id
-        //  - red / green  : use the OMDb / IMDb id
+        //  - red / green  : use the OMDb / IMDb id (ex: tt0111161)
         // ============================================================
         const SERVERS = {
             main: {
@@ -1205,23 +1205,23 @@
                 name: 'Red',
                 requiresOmdb: true,
                 url: (tmdbId, omdbId, type, season, episode) => {
-                    // Red server -> OMDb / IMDb id
+                    // Red server -> uses OMDb / IMDb id (tt0111161 style)
                     if (!omdbId) return null;
                     if (type === 'movie') {
-                        return `https://autoembed.co/movie/imdb/${Id}`;
+                        return `https://autoembed.co/movie/imdb/${omdbId}`;
                     }
                     const s = season || 1;
                     const e = episode || 1;
-                    return `https://autoembed.co/tv/imdb/${Id}-${s}-${e}`;
+                    return `https://autoembed.co/tv/imdb/${omdbId}-${s}-${e}`;
                 }
             },
             green: {
                 name: 'Green',
                 requiresOmdb: true,
                 url: (tmdbId, omdbId, type, season, episode) => {
-                    // Green server -> OMDb / IMDb id
+                    // Green server -> uses OMDb / IMDb id (tt0111161 style)
                     if (!omdbId) return null;
-                    return `https://kriss424did.com/play/${Id}`;
+                    return `https://kriss424did.com/play/${omdbId}`;
                 }
             }
         };
