@@ -196,16 +196,14 @@
             </span>
 
             <span
-                x-text="featured.media_type === 'tv'
-                ? 'TV'
-                : 'Movie'">
+             x-text="featured ? (featured.media_type === 'tv' ? 'TV' : 'Movie') : ''">
             </span>
 
         </div>
 
         <p
             class="text-slate-300 line-clamp-4 mb-7"
-            x-text="featured.overview">
+           x-text="featured ? featured.overview : ''">
         </p>
 
         <button
@@ -676,8 +674,7 @@
                     <span x-text="year(detail)"></span>
 
                     <span
-                        x-text="detail.original_language
-                        || 'N/A'">
+                        x-text="detail ? (detail.original_language || 'N/A') : 'N/A'">
                     </span>
 
                 </div>
@@ -686,7 +683,7 @@
                     class="flex flex-wrap gap-2 mt-5">
 
                     <template
-                        x-for="genre in (detail.genres || [])"
+                        x-for="genre in (detail ? (detail.genres || []) : [])"
                         :key="genre.id">
 
                         <span
@@ -706,8 +703,7 @@
                 <p
                     class="text-slate-300
                     leading-relaxed mt-6"
-                    x-text="detail.overview ||
-                    'No overview available.'">
+                    x-text="detail ? (detail.overview || 'No overview available.') : ''">
                 </p>
 
                 <div
@@ -939,13 +935,55 @@ function movieApp() {
         trailer: null,
 
         fallbackPoster:
-            "https://via.placeholder.com/500x750?text=No+Poster",
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="500"
+             height="750"
+             viewBox="0 0 500 750">
+            <rect width="500" height="750" fill="#1e293b"/>
+            <text x="250"
+                  y="375"
+                  text-anchor="middle"
+                  fill="#94a3b8"
+                  font-size="32"
+                  font-family="Arial">
+                No Poster
+            </text>
+        </svg>
+    `),
 
-        fallbackBackdrop:
-            "https://via.placeholder.com/1280x720?text=MiniFlix",
+fallbackBackdrop:
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="1280"
+             height="720"
+             viewBox="0 0 1280 720">
+            <rect width="1280" height="720" fill="#0f172a"/>
+            <text x="640"
+                  y="360"
+                  text-anchor="middle"
+                  fill="#64748b"
+                  font-size="48"
+                  font-family="Arial">
+                MiniFlix
+            </text>
+        </svg>
+    `),
 
-        fallbackProfile:
-            "https://via.placeholder.com/185x185?text=No+Image",
+fallbackProfile:
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="185"
+             height="185"
+             viewBox="0 0 185 185">
+            <rect width="185" height="185" fill="#1e293b"/>
+            <circle cx="92" cy="70" r="35" fill="#64748b"/>
+            <circle cx="92" cy="180" r="65" fill="#64748b"/>
+        </svg>
+    `),
 
         genres: [
 
@@ -1708,38 +1746,34 @@ function movieApp() {
 
         poster(item) {
 
-            if (
-                item &&
-                item.poster_path
-            ) {
+    if (
+        item &&
+        item.poster_path
+    ) {
+        return (
+            "https://image.tmdb.org/t/p/w500" +
+            item.poster_path
+        );
+    }
 
-                return
-                    "https://image.tmdb.org/t/p/w500" +
-                    item.poster_path;
-
-            }
-
-            return this.fallbackPoster;
-
-        },
+    return this.fallbackPoster;
+},
 
 
         backdrop(item) {
 
-            if (
-                item &&
-                item.backdrop_path
-            ) {
+    if (
+        item &&
+        item.backdrop_path
+    ) {
+        return (
+            "https://image.tmdb.org/t/p/w1280" +
+            item.backdrop_path
+        );
+    }
 
-                return
-                    "https://image.tmdb.org/t/p/w1280" +
-                    item.backdrop_path;
-
-            }
-
-            return this.fallbackBackdrop;
-
-        }
+    return this.fallbackBackdrop;
+},
 
     };
 
