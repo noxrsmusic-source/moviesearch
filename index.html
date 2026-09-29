@@ -268,7 +268,6 @@
             filter: grayscale(0%);
         }
 
-        /* Specific styling for the 'All' card with icon and text */
         .ott-card-all {
             flex: 0 0 120px;
             height: 75px;
@@ -617,7 +616,7 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (Expanded size for PC & Mobile) -->
+            <!-- OTT Platform Filters Section -->
             <div class="container ott-section">
                 <div class="ott-section-title">Popular Networks</div>
                 <div class="ott-grid-row">
@@ -926,7 +925,7 @@
                     setTimeout(() => {
                         const preloader = document.getElementById('preloader');
                         if (preloader) preloader.classList.add('fade-out');
-                    }, 600);
+                    }, 400);
 
                     auth.onAuthStateChanged(user => {
                         this.currentUser = user;
@@ -1028,7 +1027,7 @@
                     this.loading = true;
                     try {
                         const data = await this.request("/search?query=" + encodeURIComponent(query));
-                        this.searchResults = data.results ||/n/a/ data.results || [];
+                        this.searchResults = data.results || [];
                         this.page = 'search';
                     } catch (e) {
                         this.showToast('Search failed.', 'error');
@@ -1097,7 +1096,7 @@
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
                         this.showToast('Logged in successfully!', 'success');
                         this.authModalOpen = false;
-                        this.loginEmail = '',
+                        this.loginEmail = '';
                         this.loginPassword = '';
                     } catch (e) { this.showToast(e.message, 'error'); }
                 },
