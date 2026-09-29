@@ -218,7 +218,7 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO SECTION (NO TEXT, ONLY IMAGES) ===== */
+        /* ===== OTT LOGO SECTION ===== */
         .ott-section {
             margin: 20px 0 10px;
         }
@@ -237,6 +237,7 @@
             scrollbar-width: none;
         }
         .ott-grid-row::-webkit-scrollbar { display: none; }
+        
         .ott-card-logo {
             flex: 0 0 85px;
             height: 60px;
@@ -265,6 +266,39 @@
         }
         .ott-card-logo:hover img, .ott-card-logo.active img {
             filter: grayscale(0%);
+        }
+
+        /* Specific styling for the 'All' card with icon and text */
+        .ott-card-all {
+            flex: 0 0 95px;
+            height: 60px;
+            background: var(--bg-card);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-muted);
+        }
+        .ott-card-all i {
+            font-size: 18px;
+            color: var(--primary-red);
+        }
+        .ott-card-all span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .ott-card-all:hover, .ott-card-all.active {
+            border-color: var(--primary-red);
+            background: rgba(229, 9, 20, 0.08);
+            color: var(--text-white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
 
         /* ===== DRAWER MENU ===== */
@@ -538,12 +572,13 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (PNG Logos Only with HBO Added) -->
+            <!-- OTT Platform Filters Section (PNG Logos + All with Icon and Text + HBO Added) -->
             <div class="container ott-section">
                 <div class="ott-section-title">Popular Networks</div>
                 <div class="ott-grid-row">
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/25/Streaming_Media_Icon.svg" alt="All">
+                    <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
+                        <i class="fas fa-globe"></i>
+                        <span>ALL</span>
                     </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO">
