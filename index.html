@@ -538,12 +538,15 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (PNG Logos Only) -->
+            <!-- OTT Platform Filters Section (PNG Logos Only with HBO Added) -->
             <div class="container ott-section">
                 <div class="ott-section-title">Popular Networks</div>
                 <div class="ott-grid-row">
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/2/25/Streaming_Media_Icon.svg" alt="All">
+                    </div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO">
                     </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
@@ -558,13 +561,13 @@
                         <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+">
                     </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5">
-                        <img src="https://images.seeklogo.com/logo-png/43/1/zee5-logo-png_seeklogo-437505.png" alt="Zee5">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg" alt="Zee5">
                     </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV">
-                        <img src="https://images.seeklogo.com/logo-png/49/2/sonyliv-logo-png_seeklogo-494877.png" alt="SonyLIV">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png" alt="SonyLIV">
                     </div>
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema">
-                        <img src="https://images.seeklogo.com/logo-png/51/1/jiocinema-logo-png_seeklogo-513222.png" alt="JioCinema">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg" alt="JioCinema">
                     </div>
                 </div>
             </div>
@@ -633,6 +636,29 @@
                                     <div class="card-meta">
                                         <span>tv</span>
                                         <span x-text="year(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Anime Section -->
+                <div x-show="filteredAnime.length">
+                    <div class="section-heading-wrap">
+                        <h3><i class="fas fa-dragon"></i> <span x-text="activeOtt === 'all' ? 'Featured Anime Series' : activeOtt + ' Anime'"></span></h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredAnime" :key="'anime'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span>anime</span>
+                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
                                     </div>
                                 </div>
                             </div>
@@ -802,6 +828,7 @@
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
+                animeList: [],
                 searchResults: [],
 
                 updateRequired: false,
@@ -866,6 +893,11 @@
                     return this.tvShows.filter((_, idx) => idx % 2 === (this.activeOtt.charCodeAt(0) % 2));
                 },
 
+                get filteredAnime() {
+                    if (this.activeOtt === 'all') return this.animeList;
+                    return this.animeList.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
+                },
+
                 async checkAppVersion() {
                     try {
                         const doc = await db.collection('config').doc('appVersion').get();
@@ -900,6 +932,9 @@
 
                         const tvRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/popular?language=en-US&page=1"));
                         this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const animeRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"));
+                        this.animeList = (animeRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
                     } catch (e) {
                         console.error("Home Data Load Error:", e);
                     } finally {
