@@ -36,7 +36,7 @@
             --sticky-banner-height: 70px;
             --server-green: #22C55E;
             --server-red: #EF4444;
-            --server-blue: #38BDF8;
+            --server-red-plus: #FF1E38;
         }
         html {
             scroll-behavior: smooth;
@@ -408,11 +408,11 @@
             transform: scale(1.05);
         }
         .server-issue-overlay .switch-btn.main {
-            color: var(--server-blue);
-            border-color: var(--server-blue);
+            color: var(--server-red-plus);
+            border-color: var(--server-red-plus);
         }
         .server-issue-overlay .switch-btn.main:hover {
-            background: rgba(56, 189, 248, 0.15);
+            background: rgba(255, 30, 56, 0.15);
         }
         .server-issue-overlay .switch-btn.red {
             color: var(--server-red);
@@ -561,14 +561,14 @@
             display: inline-block;
         }
         .server-btn.main {
-            color: var(--server-blue);
+            color: var(--server-red-plus);
         }
         .server-btn.main .dot {
-            background: var(--server-blue);
+            background: var(--server-red-plus);
         }
         .server-btn.main.active {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: var(--server-blue);
+            background: rgba(255, 30, 56, 0.15);
+            border-color: var(--server-red-plus);
         }
         .server-btn.red {
             color: var(--server-red);
@@ -1079,8 +1079,8 @@
                     <p>This may be due to a slow network connection or temporary server slowness. You can wait, retry, or switch to another server below.</p>
                     <div class="switch-actions">
                         <button class="switch-btn main" data-server="main">
-                            <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-blue);display:inline-block;"></span>
-                            Main Server (Default)
+                            <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-red-plus);display:inline-block;"></span>
+                            Red + Server (Default)
                         </button>
                         <button class="switch-btn red" data-server="red">
                             <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-red);display:inline-block;"></span>
@@ -1117,7 +1117,7 @@
                 <div class="server-controls" id="serverControls">
                     <div class="server-group">
                         <button class="server-btn main active" data-server="main">
-                            <span class="dot"></span> Main
+                            <span class="dot"></span> Red +
                         </button>
                         <button class="server-btn red" data-server="red">
                             <span class="dot"></span> Red
@@ -1184,7 +1184,7 @@
 
         const SERVERS = {
             main: {
-                name: 'Main',
+                name: 'Red +',
                 url: (tmdbId, omdbId, type, season, episode) => {
                     if (type === 'movie') {
                         return `https://vidstuck.xyz/embed/movie/${tmdbId}?branding=RX+Player&loading=1&back=false`;
@@ -1403,10 +1403,10 @@
             });
 
             const isSeries = currentType === 'series' || currentType === 'tv' || currentType === 'anime';
-            const showEpControls = isSeries; // Ep controls apply to main server too if it's tv/anime/series
+            const showEpControls = isSeries; // Ep controls apply to Red + server too if it's tv/anime/series
             document.getElementById('episodeControls').classList.toggle('visible', showEpControls);
 
-            showToast(`🔵 ${SERVERS[currentServer].name} server loading…`, 'success', 2000);
+            showToast(`🔴 ${SERVERS[currentServer].name} server loading…`, 'success', 2000);
         }
 
         // ============================================================
@@ -1554,7 +1554,7 @@
                     if (metadata.Type) currentType = metadata.Type.toLowerCase();
                 } else {
                     document.getElementById('movieTitle').textContent = 'RX Player Content';
-                    document.getElementById('moviePlot').textContent = 'Streaming via Main Server.';
+                    document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
                 }
             } catch (e) {
                 console.error('Metadata fetch error:', e);
