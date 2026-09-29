@@ -10,308 +10,674 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
-        /* Custom scrollbar for horizontal category rows */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between" x-data="movieApp()" x-init="init()">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-red-600 selection:text-white" x-data="movieApp()" x-init="init()">
 
     <!-- HEADER / NAVIGATION -->
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" @click="resetHome()">
-                <span class="text-2xl font-extrabold text-red-500 tracking-wider">Mini<span class="text-white">Flix</span></span>
+            <div class="flex items-center space-x-6">
+                <span class="text-2xl font-extrabold text-red-600 tracking-wider cursor-pointer flex items-center gap-1" @click="navigate('home')">
+                    Mini<span class="text-white">Flix</span>
+                </span>
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
+                    <button @click="navigate('home')" :class="view === 'home' && !activeGenre ? 'text-red-500 font-bold' : 'hover:text-white transition'">Home</button>
+                    <button @click="navigate('movies')" :class="view === 'movies' ? 'text-red-500 font-bold' : 'hover:text-white transition'">Movies</button>
+                    <button @click="navigate('tv')" :class="view === 'tv' ? 'text-red-500 font-bold' : 'hover:text-white transition'">TV Shows</button>
+                    <button @click="navigate('anime')" :class="view === 'anime' ? 'text-red-500 font-bold' : 'hover:text-white transition'">Anime</button>
+                    <button @click="navigate('indian')" :class="view === 'indian' ? 'text-red-500 font-bold' : 'hover:text-white transition'">Indian Cinema</button>
+                    <button @click="navigate('genres')" :class="view === 'genres' || activeGenre ? 'text-red-500 font-bold' : 'hover:text-white transition'">Genres</button>
+                </nav>
             </div>
             
-            <!-- Search Bar -->
-            <div class="flex-1 max-w-md mx-6">
-                <form @submit.prevent="searchMovies">
-                    <div class="relative">
-                        <input type="text" x-model="searchQuery" placeholder="Search movies, web series, anime..." 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-full py-2 pl-4 pr-10 text-sm text-slate-200 focus:outline-none focus:border-red-500">
-                        <button type="submit" class="absolute right-3 top-2.5 text-slate-400 hover:text-white">
-                            🔍
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <!-- Search Bar & Settings -->
+            <div class="flex items-center space-x-4">
+                <div class="relative w-36 sm:w-64 md:w-72">
+                    <form @submit.prevent="performSearch">
+                        <input type="text" x-model="searchQuery" placeholder="Search movies, TV, anime..." 
+                            class="w-full bg-slate-950 border border-slate-700 rounded-full py-1.5 pl-4 pr-10 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-red-600 transition">
+                        <button type="submit" class="absolute right-3 top-2 text-slate-400 hover:text-white text-xs sm:text-sm">🔍</button>
+                    </form>
+                </div>
 
-            <div>
-                <button @click="openApiKeyModal = true" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-md border border-slate-600 transition">
-                    ⚙️ API Key
+                <button @click="openApiKeyModal = true" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-md border border-slate-700 transition flex items-center gap-1 font-medium text-slate-300">
+                    ⚙️ <span class="hidden sm:inline">API Key</span>
+                </button>
+
+                <!-- Mobile Menu Hamburger Button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-slate-300 hover:text-white focus:outline-none p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
         </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" class="md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-2 text-sm">
+            <button @click="navigate('home'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">Home</button>
+            <button @click="navigate('movies'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">Movies</button>
+            <button @click="navigate('tv'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">TV Shows</button>
+            <button @click="navigate('anime'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">Anime</button>
+            <button @click="navigate('indian'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">Indian Cinema</button>
+            <button @click="navigate('genres'); mobileMenuOpen=false" class="block w-full text-left py-1.5 text-slate-300 hover:text-white">Genres</button>
+        </div>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <!-- TOAST NOTIFICATION -->
+    <div x-show="toastMessage" x-transition class="fixed bottom-5 right-5 z-50 bg-slate-800 border border-slate-700 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs sm:text-sm flex items-center space-x-2">
+        <span x-text="toastMessage"></span>
+    </div>
 
-        <!-- VIEW 1: HOME / CATEGORIES OR SEARCH RESULTS -->
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow w-full">
+
+        <!-- 1. HOME VIEW -->
         <div x-show="view === 'home'">
             
-            <!-- Loading Indicator -->
-            <div x-show="loading" class="flex justify-center items-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+            <!-- Global Error Banner -->
+            <div x-show="errorMessage" class="max-w-7xl mx-auto px-4 mt-4">
+                <div class="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm flex justify-between items-center">
+                    <span x-text="errorMessage"></span>
+                    <button @click="errorMessage = ''" class="text-xs font-bold bg-red-800 px-2 py-1 rounded">Dismiss</button>
+                </div>
             </div>
 
-            <!-- IF SEARCH QUERY IS ACTIVE -> SHOW GRID -->
-            <div x-show="!loading && searchQuery">
-                <h2 class="text-2xl font-bold mb-6 text-slate-100 border-l-4 border-red-500 pl-3">Search Results</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                    <template x-for="item in searchResults" :key="item.id">
-                        <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="bg-slate-800 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-700/50 flex flex-col justify-between">
-                            <div>
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" 
-                                     :alt="item.title || item.name" class="w-full h-72 object-cover">
-                                <div class="p-4">
-                                    <h3 class="font-bold text-sm truncate text-slate-100" x-text="item.title || item.name"></h3>
-                                    <p class="text-xs text-slate-400 mt-1" x-text="(item.release_date || item.first_air_date || 'N/A').split('-')[0]"></p>
+            <!-- Loading Spinner / Global skeleton -->
+            <div x-show="loading && !trending.length" class="flex flex-col justify-center items-center py-32">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600 mb-4"></div>
+                <p class="text-xs text-slate-400 tracking-wider animate-pulse">Loading content from TMDB...</p>
+            </div>
+
+            <!-- Content Loaded Container -->
+            <div x-show="!loading || trending.length">
+                
+                <!-- SECTION 1: FEATURED HERO CAROUSEL -->
+                <section class="relative w-full h-[450px] sm:h-[520px] lg:h-[600px] overflow-hidden bg-slate-900 shadow-2xl" @mouseenter="pauseHero = true" @mouseleave="pauseHero = false">
+                    <template x-for="(item, index) in featuredHeroes" :key="item.id">
+                        <div x-show="currentHeroIndex === index" x-transition.opacity.duration.700ms class="absolute inset-0 w-full h-full">
+                            <!-- Backdrop Image -->
+                            <img :src="item.backdrop_path ? 'https://image.tmdb.org/t/p/original' + item.backdrop_path : 'https://via.placeholder.com/1280x720?text=No+Backdrop'" 
+                                 class="w-full h-full object-cover object-center transform scale-105 transition duration-1000">
+                            <!-- Gradient Overlays -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                            <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent"></div>
+                            
+                            <!-- Hero Content Details -->
+                            <div class="absolute inset-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-12 sm:pb-16">
+                                <div class="max-w-2xl space-y-3">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-red-600 text-white uppercase text-[10px] font-bold px-2.5 py-1 rounded tracking-wider" x-text="item.media_type === 'tv' ? 'TV Series' : 'Movie'"></span>
+                                        <span class="text-amber-400 text-xs font-semibold flex items-center gap-1">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                        <span class="text-slate-400 text-xs" x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
+                                    </div>
+                                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md" x-text="item.title || item.name"></h1>
+                                    <p class="text-xs sm:text-sm text-slate-300 line-clamp-2 sm:line-clamp-3 leading-relaxed" x-text="item.overview || 'Explore details for this title.'"></p>
+                                    
+                                    <div class="flex items-center space-x-3 pt-2">
+                                        <button @click="fetchDetails(item.id, item.media_type || 'movie')" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold shadow-lg transition flex items-center space-x-2">
+                                            <span>▶ View Details</span>
+                                        </button>
+                                        <button @click="playHeroTrailer(item.id, item.media_type || 'movie')" class="bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-600 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition">
+                                            🎬 Watch Trailer
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="px-4 pb-4 flex justify-between items-center text-xs text-slate-300">
-                                <span class="bg-slate-700 px-2 py-0.5 rounded text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
                             </div>
                         </div>
                     </template>
+
+                    <!-- Hero Carousel Dots Indicator -->
+                    <div class="absolute bottom-4 right-4 sm:right-8 flex space-x-1.5 z-20">
+                        <template x-for="(item, index) in featuredHeroes" :key="index">
+                            <button @click="currentHeroIndex = index" :class="currentHeroIndex === index ? 'w-6 bg-red-600' : 'w-2 bg-slate-600 hover:bg-slate-500'" class="h-2 rounded-full transition-all duration-300"></button>
+                        </template>
+                    </div>
+                </section>
+
+                <!-- SECTION WRAPPERS -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+                    
+                    <!-- SECTION 2: TRENDING TODAY -->
+                    <section x-show="trending.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🔥 Trending Today</h2>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in trending" :key="item.id">
+                                <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800 relative">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                            <span class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-[10px] text-white px-1.5 py-0.5 rounded font-bold uppercase" x-text="item.media_type === 'tv' ? 'TV' : 'Movie'"></span>
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title || item.name"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 3: POPULAR MOVIES -->
+                    <section x-show="popularMovies.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🎬 Popular Movies (Global)</h2>
+                            <button @click="navigate('movies')" class="text-xs text-red-500 hover:text-red-400 font-semibold transition">View All →</button>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in popularMovies" :key="item.id">
+                                <div @click="fetchDetails(item.id, 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.release_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 4: NEW RELEASES -->
+                    <section x-show="newReleases.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">✨ New Releases</h2>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in newReleases" :key="item.id">
+                                <div @click="fetchDetails(item.id, 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="item.release_date"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 5: INDIAN CINEMA -->
+                    <section x-show="indianMovies.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🇮🇳 Indian Cinema</h2>
+                            <button @click="navigate('indian')" class="text-xs text-red-500 hover:text-red-400 font-semibold transition">View All →</button>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in indianMovies" :key="item.id">
+                                <div @click="fetchDetails(item.id, 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.release_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 6: POPULAR WEB SERIES & TV SHOWS -->
+                    <section x-show="tvShows.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">📺 Popular Web Series & TV Shows</h2>
+                            <button @click="navigate('tv')" class="text-xs text-red-500 hover:text-red-400 font-semibold transition">View All →</button>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in tvShows" :key="item.id">
+                                <div @click="fetchDetails(item.id, 'tv')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.name"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.first_air_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 7: ANIME -->
+                    <section x-show="animeList.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🍥 Anime</h2>
+                            <button @click="navigate('anime')" class="text-xs text-red-500 hover:text-red-400 font-semibold transition">View All →</button>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in animeList" :key="item.id">
+                                <div @click="fetchDetails(item.id, 'tv')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.name"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.first_air_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 8: TOP RATED -->
+                    <section x-show="topRated.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">⭐ Top Rated</h2>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in topRated" :key="item.id">
+                                <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title || item.name"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 9: INTERNATIONAL -->
+                    <section x-show="internationalList.length">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🌎 International Masterpieces</h2>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in internationalList" :key="item.id">
+                                <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title || item.name"></h3>
+                                            <div class="flex justify-between items-center mt-1.5 text-[11px] text-slate-400">
+                                                <span class="uppercase font-mono text-[10px] bg-slate-800 px-1 rounded" x-text="item.original_language"></span>
+                                                <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 10: BROWSE BY GENRE -->
+                    <section>
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">🎭 Browse by Genre</h2>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                            <template x-for="genre in genresList" :key="genre.id">
+                                <button @click="selectGenre(genre.id, genre.name)" class="bg-slate-900 hover:bg-red-600/20 border border-slate-800 hover:border-red-600 text-slate-300 hover:text-white p-3 rounded-lg text-sm font-semibold transition text-left flex items-center justify-between group">
+                                    <span x-text="genre.name"></span>
+                                    <span class="text-xs text-slate-500 group-hover:text-red-400">→</span>
+                                </button>
+                            </template>
+                        </div>
+                    </section>
+
+                    <!-- SECTION 11: RECENTLY VIEWED -->
+                    <section x-show="recentlyViewed.length > 0">
+                        <div class="flex items-center justify-between mb-4 border-l-4 border-red-600 pl-3">
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-100">👀 Recently Viewed</h2>
+                            <button @click="clearRecentlyViewed()" class="text-xs text-slate-400 hover:text-white">Clear History</button>
+                        </div>
+                        <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                            <template x-for="item in recentlyViewed" :key="item.id">
+                                <div @click="fetchDetails(item.id, item.media_type)" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                    <div>
+                                        <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                            <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="p-3">
+                                            <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500" x-text="item.title"></h3>
+                                            <span class="text-[10px] text-slate-400 uppercase" x-text="item.media_type"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+
                 </div>
-            </div>
-
-            <!-- IF NO SEARCH -> SHOW TMDB-STYLE CATEGORY ROWS -->
-            <div x-show="!loading && !searchQuery" class="space-y-10">
-                
-                <!-- Category 1: Trending Today -->
-                <section>
-                    <div class="flex items-center justify-between mb-4 border-l-4 border-red-500 pl-3">
-                        <h2 class="text-xl font-bold text-slate-100">🔥 Trending Today</h2>
-                    </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-                        <template x-for="item in trending" :key="item.id">
-                            <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="flex-shrink-0 w-44 bg-slate-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition cursor-pointer border border-slate-700">
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-64 h-64 object-cover">
-                                <div class="p-3">
-                                    <h3 class="font-bold text-xs truncate text-slate-100" x-text="item.title || item.name"></h3>
-                                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                        <span x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
-                                        <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </section>
-
-                <!-- Category 2: New Releases -->
-                <section>
-                    <div class="flex items-center justify-between mb-4 border-l-4 border-red-500 pl-3">
-                        <h2 class="text-xl font-bold text-slate-100">✨ New Releases</h2>
-                    </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-                        <template x-for="item in newReleases" :key="item.id">
-                            <div @click="fetchDetails(item.id, 'movie')" class="flex-shrink-0 w-44 bg-slate-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition cursor-pointer border border-slate-700">
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-64 h-64 object-cover">
-                                <div class="p-3">
-                                    <h3 class="font-bold text-xs truncate text-slate-100" x-text="item.title"></h3>
-                                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                        <span x-text="item.release_date"></span>
-                                        <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </section>
-
-                <!-- Category 3: Indian Taste (Bollywood / Indian Cinema) -->
-                <section>
-                    <div class="flex items-center justify-between mb-4 border-l-4 border-red-500 pl-3">
-                        <h2 class="text-xl font-bold text-slate-100">🇮🇳 Indian Taste (Bollywood & More)</h2>
-                    </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-                        <template x-for="item in indianMovies" :key="item.id">
-                            <div @click="fetchDetails(item.id, 'movie')" class="flex-shrink-0 w-44 bg-slate-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition cursor-pointer border border-slate-700">
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-64 h-64 object-cover">
-                                <div class="p-3">
-                                    <h3 class="font-bold text-xs truncate text-slate-100" x-text="item.title"></h3>
-                                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                        <span x-text="(item.release_date || '').split('-')[0]"></span>
-                                        <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </section>
-
-                <!-- Category 4: Web Series / TV Shows -->
-                <section>
-                    <div class="flex items-center justify-between mb-4 border-l-4 border-red-500 pl-3">
-                        <h2 class="text-xl font-bold text-slate-100">📺 Popular Web Series</h2>
-                    </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-                        <template x-for="item in tvShows" :key="item.id">
-                            <div @click="fetchDetails(item.id, 'tv')" class="flex-shrink-0 w-44 bg-slate-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition cursor-pointer border border-slate-700">
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-64 h-64 object-cover">
-                                <div class="p-3">
-                                    <h3 class="font-bold text-xs truncate text-slate-100" x-text="item.name"></h3>
-                                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                        <span>Web Series</span>
-                                        <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </section>
-
-                <!-- Category 5: Anime -->
-                <section>
-                    <div class="flex items-center justify-between mb-4 border-l-4 border-red-500 pl-3">
-                        <h2 class="text-xl font-bold text-slate-100">🍥 Anime Hits</h2>
-                    </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-                        <template x-for="item in animeList" :key="item.id">
-                            <div @click="fetchDetails(item.id, 'tv')" class="flex-shrink-0 w-44 bg-slate-800 rounded-lg overflow-hidden shadow-md hover:scale-105 transition cursor-pointer border border-slate-700">
-                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-64 h-64 object-cover">
-                                <div class="p-3">
-                                    <h3 class="font-bold text-xs truncate text-slate-100" x-text="item.name"></h3>
-                                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                        <span>Anime</span>
-                                        <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average.toFixed(1)"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </section>
-
             </div>
         </div>
 
-        <!-- VIEW 2: FULL DETAILS VIEW (TMDB STYLE) -->
-        <div x-show="view === 'detail'" x-cloak>
-            <button @click="view = 'home'" class="mb-6 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm border border-slate-700 transition flex items-center space-x-2">
-                <span>← Back to Home</span>
-            </button>
-
-            <div x-show="loading" class="flex justify-center items-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+        <!-- 2. DEDICATED CATALOGUE / GENRE GRID VIEW -->
+        <div x-show="view === 'movies' || view === 'tv' || view === 'anime' || view === 'indian' || view === 'genres' || activeGenre" x-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <div class="flex items-center justify-between mb-6 border-l-4 border-red-600 pl-3">
+                <h2 class="text-2xl font-bold text-slate-100" x-text="pageTitle"></h2>
+                <button @click="navigate('home')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-700 transition">← Back to Home</button>
             </div>
 
-            <div x-show="!loading && detailItem" class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl md:flex">
-                <!-- Poster -->
-                <div class="md:w-1/3">
-                    <img :src="detailItem.poster_path ? 'https://image.tmdb.org/t/p/w500' + detailItem.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" 
-                         class="w-full h-full object-cover" alt="Poster">
+            <!-- Loading indicator -->
+            <div x-show="loading" class="flex justify-center items-center py-24">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+            </div>
+
+            <!-- Grid Content -->
+            <div x-show="!loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <template x-for="item in catalogItems" :key="item.id">
+                    <div @click="fetchDetails(item.id, item.media_type || (view === 'tv' || view === 'anime' ? 'tv' : 'movie'))" class="bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                        <div>
+                            <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-bold text-xs sm:text-sm truncate text-slate-200 group-hover:text-red-500 transition" x-text="item.title || item.name"></h3>
+                                <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
+                                    <span x-text="(item.release_date || item.first_air_date || '').split('-')[0] || 'N/A'"></span>
+                                    <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Empty State for Catalog -->
+            <div x-show="!loading && catalogItems.length === 0" class="text-center py-20">
+                <p class="text-slate-400 text-sm">No titles found in this category.</p>
+            </div>
+        </div>
+
+        <!-- 3. SEARCH RESULTS VIEW -->
+        <div x-show="view === 'search'" x-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between mb-6 border-l-4 border-red-600 pl-3">
+                <h2 class="text-2xl font-bold text-slate-100">Search Results for "<span x-text="searchQuery"></span>"</h2>
+                <button @click="navigate('home')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded border border-slate-700">← Back to Home</button>
+            </div>
+
+            <div x-show="loading" class="flex justify-center items-center py-24">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+            </div>
+
+            <div x-show="!loading && searchResults.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <template x-for="item in searchResults" :key="item.id">
+                    <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                        <div>
+                            <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800 relative">
+                                <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover">
+                                <span class="absolute top-2 left-2 bg-black/70 text-[10px] text-white px-1.5 py-0.5 rounded font-bold uppercase" x-text="item.media_type || 'media'"></span>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500" x-text="item.title || item.name"></h3>
+                                <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
+                                    <span x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
+                                    <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="!loading && searchResults.length === 0" class="text-center py-24">
+                <p class="text-slate-400 text-sm">No movies or shows found for your search.</p>
+            </div>
+        </div>
+
+        <!-- 4. MOVIE / TV DETAIL VIEW -->
+        <div x-show="view === 'detail'" x-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <button @click="navigate('home')" class="mb-6 bg-slate-900 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-xs sm:text-sm border border-slate-800 transition flex items-center space-x-2">
+                <span>← Back</span>
+            </button>
+
+            <div x-show="loading" class="flex justify-center items-center py-24">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+            </div>
+
+            <div x-show="!loading && detailItem" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Backdrop header header -->
+                <div class="relative w-full h-64 sm:h-80 lg:h-96 bg-slate-950 overflow-hidden">
+                    <img :src="detailItem.backdrop_path ? 'https://image.tmdb.org/t/p/original' + detailItem.backdrop_path : 'https://via.placeholder.com/1280x720?text=No+Backdrop'" class="w-full h-full object-cover opacity-60">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
                 </div>
-                <!-- Information Panel -->
-                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <h1 class="text-3xl font-extrabold text-white" x-text="detailItem.title || detailItem.name"></h1>
+
+                <div class="p-6 sm:p-8 -mt-24 sm:-mt-32 relative z-10 md:flex gap-8">
+                    <!-- Poster Column -->
+                    <div class="md:w-1/3 flex-shrink-0 mb-6 md:mb-0">
+                        <div class="aspect-[2/3] w-48 sm:w-64 md:w-full mx-auto rounded-xl overflow-hidden shadow-2xl border-2 border-slate-700 bg-slate-800">
+                            <img :src="detailItem.poster_path ? 'https://image.tmdb.org/t/p/w500' + detailItem.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Details Info Column -->
+                    <div class="flex-grow space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h1 class="text-2xl sm:text-4xl font-black text-white" x-text="detailItem.title || detailItem.name"></h1>
                             <span class="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase" x-text="detailItem.status || 'Released'"></span>
                         </div>
-                        <p class="text-slate-400 italic text-sm mt-1" x-text="detailItem.tagline"></p>
+                        <p class="text-slate-400 italic text-sm" x-text="detailItem.tagline"></p>
 
-                        <!-- Genres -->
-                        <div class="flex flex-wrap gap-2 my-4">
+                        <!-- Genres Badges -->
+                        <div class="flex flex-wrap gap-2">
                             <template x-for="genre in detailItem.genres" :key="genre.id">
-                                <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-md" x-text="genre.name"></span>
+                                <span class="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-md border border-slate-700" x-text="genre.name"></span>
                             </template>
                         </div>
 
                         <!-- Overview -->
-                        <h3 class="text-sm font-semibold text-slate-200 mt-4">Overview</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed mt-1" x-text="detailItem.overview || 'No overview available.'"></p>
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-200 mb-1">Overview</h3>
+                            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed" x-text="detailItem.overview || 'No overview available.'"></p>
+                        </div>
 
-                        <!-- Extra Details Grid -->
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-sm border-t border-slate-700 pt-4">
+                        <!-- Grid Meta Stats -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm border-t border-slate-800 pt-4">
                             <div>
-                                <span class="text-slate-400 block text-xs">Release Date</span>
-                                <span class="font-semibold text-slate-200" x-text="detailItem.release_date || detailItem.first_air_date || 'N/A'"></span>
+                                <span class="text-slate-500 block text-[11px]">Release Date</span>
+                                <span class="font-semibold text-slate-200 text-xs sm:text-sm" x-text="detailItem.release_date || detailItem.first_air_date || 'N/A'"></span>
                             </div>
                             <div>
-                                <span class="text-slate-400 block text-xs">Runtime / Episodes</span>
-                                <span class="font-semibold text-slate-200" x-text="detailItem.runtime ? detailItem.runtime + ' mins' : (detailItem.number_of_seasons ? detailItem.number_of_seasons + ' Seasons' : 'N/A')"></span>
+                                <span class="text-slate-500 block text-[11px]">Runtime / Seasons</span>
+                                <span class="font-semibold text-slate-200 text-xs sm:text-sm" x-text="detailItem.runtime ? detailItem.runtime + ' mins' : (detailItem.number_of_seasons ? detailItem.number_of_seasons + ' Seasons' : 'N/A')"></span>
                             </div>
                             <div>
-                                <span class="text-slate-400 block text-xs">Rating</span>
-                                <span class="font-semibold text-amber-400" x-text="'⭐ ' + (detailItem.vote_average ? detailItem.vote_average.toFixed(1) : 'N/A') + ' / 10'"></span>
+                                <span class="text-slate-500 block text-[11px]">Rating</span>
+                                <span class="font-semibold text-amber-400 text-xs sm:text-sm" x-text="'⭐ ' + (detailItem.vote_average ? detailItem.vote_average.toFixed(1) : 'N/A') + ' / 10'"></span>
                             </div>
                             <div>
-                                <span class="text-slate-400 block text-xs">Language</span>
-                                <span class="font-semibold text-slate-200 uppercase" x-text="detailItem.original_language || 'N/A'"></span>
+                                <span class="text-slate-500 block text-[11px]">Original Language</span>
+                                <span class="font-semibold text-slate-200 uppercase text-xs sm:text-sm" x-text="detailItem.original_language || 'N/A'"></span>
                             </div>
                         </div>
 
+                        <!-- Trailer Button -->
+                        <div class="pt-2" x-show="trailerKey">
+                            <button @click="openTrailerModal()" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg transition flex items-center space-x-2">
+                                <span>🎬 Watch Official Trailer</span>
+                            </button>
+                        </div>
+
                         <!-- Top Cast Section -->
-                        <div class="mt-6 border-t border-slate-700 pt-4" x-show="castList.length > 0">
+                        <div class="border-t border-slate-800 pt-4" x-show="castList.length > 0">
                             <h3 class="text-sm font-semibold text-slate-200 mb-3">Top Cast</h3>
-                            <div class="flex space-x-4 overflow-x-auto pb-2">
-                                <template x-for="actor in castList.slice(0, 8)" :key="actor.id">
+                            <div class="flex space-x-4 overflow-x-auto pb-2 scrollbar-thin">
+                                <template x-for="actor in castList.slice(0, 10)" :key="actor.id">
                                     <div class="flex-shrink-0 text-center w-20">
-                                        <img :src="actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'https://via.placeholder.com/150?text=No+Img'" class="w-16 h-16 rounded-full object-cover mx-auto mb-1 border border-slate-600">
+                                        <img :src="actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'https://via.placeholder.com/150?text=No+Img'" class="w-16 h-16 rounded-full object-cover mx-auto mb-1 border border-slate-700">
                                         <p class="text-[11px] font-bold truncate text-slate-200" x-text="actor.name"></p>
                                         <p class="text-[10px] text-slate-400 truncate" x-text="actor.character"></p>
                                     </div>
                                 </template>
                             </div>
                         </div>
-
                     </div>
                 </div>
+
+                <!-- SIMILAR CONTENT SECTION -->
+                <div class="p-6 sm:p-8 border-t border-slate-800 bg-slate-950/50" x-show="similarItems.length > 0">
+                    <h3 class="text-lg font-bold text-slate-100 mb-4 border-l-4 border-red-600 pl-3">You May Also Like</h3>
+                    <div class="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
+                        <template x-for="item in similarItems" :key="item.id">
+                            <div @click="fetchDetails(item.id, item.media_type || 'movie')" class="flex-shrink-0 w-36 sm:w-44 bg-slate-900 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition transform cursor-pointer border border-slate-800 flex flex-col justify-between group">
+                                <div>
+                                    <div class="aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                        <img :src="item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'" loading="lazy" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="p-3">
+                                        <h3 class="font-bold text-xs truncate text-slate-200 group-hover:text-red-500" x-text="item.title || item.name"></h3>
+                                        <div class="flex justify-between items-center mt-1 text-[11px] text-slate-400">
+                                            <span x-text="(item.release_date || item.first_air_date || '').split('-')[0]"></span>
+                                            <span class="text-amber-400 font-semibold">⭐ <span x-text="item.vote_average ? item.vote_average.toFixed(1) : 'N/A'"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
 
+    <!-- TRAILER MODAL -->
+    <div x-show="showTrailerModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-4xl w-full overflow-hidden shadow-2xl relative">
+            <div class="flex justify-between items-center p-4 border-b border-slate-800">
+                <h3 class="font-bold text-white text-sm sm:text-base">Official Trailer</h3>
+                <button @click="closeTrailerModal()" class="text-slate-400 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <div class="aspect-video w-full bg-black">
+                <iframe x-bind:src="trailerUrl" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <!-- API KEY MODAL -->
-    <div x-show="openApiKeyModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-md w-full mx-4 shadow-2xl">
+    <div x-show="openApiKeyModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full shadow-2xl">
             <h3 class="text-lg font-bold mb-2 text-white">TMDB API Configuration</h3>
-            <p class="text-xs text-slate-400 mb-4">Enter your TMDB V3 API Key to fetch movies and web series.</p>
-            <input type="text" x-model="tempApiKey" placeholder="Enter TMDB API Key" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 mb-4 focus:outline-none focus:border-red-500">
+            <p class="text-xs text-slate-400 mb-4">Enter your TMDB V3 API Key to fetch movies and web series catalogues.</p>
+            <input type="text" x-model="tempApiKey" placeholder="Enter TMDB API Key" class="w-full bg-slate-950 border border-slate-700 rounded p-2.5 text-sm text-slate-200 mb-4 focus:outline-none focus:border-red-600">
             <div class="flex justify-end space-x-2">
-                <button @click="openApiKeyModal = false" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-sm rounded transition">Cancel</button>
+                <button @click="openApiKeyModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm rounded transition">Cancel</button>
                 <button @click="saveApiKey()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-sm rounded font-bold transition">Save Key</button>
             </div>
         </div>
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-slate-800 border-t border-slate-700 py-6 text-center text-xs text-slate-500">
-        <p>Powered by TMDB API. Built with Tailwind CSS & Alpine.js.</p>
+    <footer class="bg-slate-900 border-t border-slate-800 py-8 text-center text-xs text-slate-500 space-y-3 mt-12">
+        <div class="flex justify-center space-x-6 text-slate-400 font-medium">
+            <button @click="navigate('home')" class="hover:text-white">Home</button>
+            <button @click="navigate('movies')" class="hover:text-white">Movies</button>
+            <button @click="navigate('tv')" class="hover:text-white">TV Shows</button>
+            <button @click="navigate('anime')" class="hover:text-white">Anime</button>
+            <button @click="navigate('indian')" class="hover:text-white">Indian Cinema</button>
+            <button @click="navigate('genres')" class="hover:text-white">Genres</button>
+        </div>
+        <p>Movie and TV metadata powered by <a href="https://www.themoviedb.org/" target="_blank" class="text-slate-300 underline hover:text-white">TMDB</a>.</p>
+        <p class="text-slate-600">Built with Tailwind CSS & Alpine.js.</p>
     </footer>
 
-    <!-- APP SCRIPT -->
+    <!-- JAVASCRIPT ARCHITECTURE -->
     <script>
         function movieApp() {
             return {
                 apiKey: localStorage.getItem('tmdb_api_key') || '9b7b483c93df65bd42c5e29ab1c8891a',
                 tempApiKey: '',
                 openApiKeyModal: false,
-                view: 'home', // 'home' or 'detail'
+                mobileMenuOpen: false,
+                view: 'home', // 'home', 'movies', 'tv', 'anime', 'indian', 'genres', 'search', 'detail'
+                pageTitle: '',
+                activeGenre: null,
                 
-                // Categories lists
+                // Homepage Lists
+                featuredHeroes: [],
+                currentHeroIndex: 0,
+                heroInterval: null,
+                pauseHero: false,
                 trending: [],
+                popularMovies: [],
                 newReleases: [],
                 indianMovies: [],
                 tvShows: [],
                 animeList: [],
+                topRated: [],
+                internationalList: [],
+                genresList: [],
+                recentlyViewed: JSON.parse(localStorage.getItem('miniflix_recent') || '[]'),
+
+                // Catalog Lists for Dedicated Views
+                catalogItems: [],
                 searchResults: [],
 
-                // Detail view items
+                // Detail View State
                 detailItem: null,
                 castList: [],
+                similarItems: [],
+                trailerKey: null,
+                trailerUrl: '',
+                showTrailerModal: false,
 
                 searchQuery: '',
                 loading: false,
+                errorMessage: '',
 
                 init() {
                     this.tempApiKey = this.apiKey;
-                    this.fetchAllCategories();
+                    this.fetchHomeData();
+                    this.fetchGenresList();
+                    this.startHeroRotation();
+                },
+
+                startHeroRotation() {
+                    if (this.heroInterval) clearInterval(this.heroInterval);
+                    this.heroInterval = setInterval(() => {
+                        if (!this.pauseHero && this.featuredHeroes.length > 0) {
+                            this.currentHeroIndex = (this.currentHeroIndex + 1) % this.featuredHeroes.length;
+                        }
+                    }, 5000);
                 },
 
                 saveApiKey() {
@@ -319,83 +685,223 @@
                         this.apiKey = this.tempApiKey.trim();
                         localStorage.setItem('tmdb_api_key', this.apiKey);
                         this.openApiKeyModal = false;
-                        this.fetchAllCategories();
+                        this.fetchHomeData();
+                        this.showToast('API Key updated successfully!');
                     }
                 },
 
-                async fetchAllCategories() {
+                showToast(msg) {
+                    this.toastMessage = msg;
+                    setTimeout(() => { this.toastMessage = ''; }, 3000);
+                },
+
+                navigate(targetView) {
+                    this.view = targetView;
+                    this.activeGenre = null;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    if (targetView === 'movies') {
+                        this.pageTitle = 'Popular Movies';
+                        this.fetchCatalog('https://api.themoviedb.org/3/movie/popular?api_key=');
+                    } else if (targetView === 'tv') {
+                        this.pageTitle = 'Popular Web Series & TV Shows';
+                        this.fetchCatalog('https://api.themoviedb.org/3/tv/popular?api_key=');
+                    } else if (targetView === 'anime') {
+                        this.pageTitle = 'Anime Hits';
+                        this.fetchCatalog('https://api.themoviedb.org/3/discover/tv?api_key=', '&with_genres=16&with_original_language=ja&sort_by=popularity.desc');
+                    } else if (targetView === 'indian') {
+                        this.pageTitle = 'Indian Cinema (Bollywood & Regional)';
+                        this.fetchCatalog('https://api.themoviedb.org/3/discover/movie?api_key=', '&with_original_language=hi|ta|te|ml|kn|bn|pa&sort_by=popularity.desc');
+                    } else if (targetView === 'genres') {
+                        this.pageTitle = 'Explore Genres';
+                    }
+                },
+
+                async fetchHomeData() {
                     this.loading = true;
+                    this.errorMessage = '';
                     try {
-                        // 1. Trending Today
-                        let trendRes = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${this.apiKey}`);
-                        let trendData = await trendRes.json();
-                        this.trending = trendData.results || [];
+                        const endpoints = [
+                            fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${this.apiKey}`),
+                            fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${this.apiKey}`),
+                            fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${this.apiKey}&region=IN`),
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${this.apiKey}&with_original_language=hi|ta|te|ml|kn&sort_by=popularity.desc`),
+                            fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${this.apiKey}`),
+                            fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${this.apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`),
+                            fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=${this.apiKey}`),
+                            fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${this.apiKey}&with_original_language=ko|ja|es|fr|de&sort_by=popularity.desc`)
+                        ];
 
-                        // 2. New Releases (Now Playing Movies)
-                        let newRes = await fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${this.apiKey}&region=IN`);
-                        let newData = await newRes.json();
-                        this.newReleases = newData.results || [];
-
-                        // 3. Indian Taste (Hindi / Indian movies with region/language filter)
-                        let indRes = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${this.apiKey}&with_original_language=hi|ta|te&sort_by=popularity.desc`);
-                        let indData = await indRes.json();
-                        this.indianMovies = indData.results || [];
-
-                        // 4. Popular Web Series (TV Shows)
-                        let tvRes = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${this.apiKey}`);
-                        let tvData = await tvRes.json();
-                        this.tvShows = tvData.results || [];
-
-                        // 5. Anime Hits (Animation genre id = 16, original language = ja)
-                        let animeRes = await fetch(`https://api.themoviedb.org/3/discover/tv?api_key=${this.apiKey}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`);
-                        let animeData = await animeRes.json();
-                        this.animeList = animeData.results || [];
+                        const results = await Promise.allSettled(endpoints);
+                        
+                        if (results[0].status === 'fulfilled') {
+                            const data = await results[0].value.json();
+                            this.trending = data.results || [];
+                            this.featuredHeroes = (data.results || []).slice(0, 5);
+                        }
+                        if (results[1].status === 'fulfilled') {
+                            const data = await results[1].value.json();
+                            this.popularMovies = data.results || [];
+                        }
+                        if (results[2].status === 'fulfilled') {
+                            const data = await results[2].value.json();
+                            this.newReleases = data.results || [];
+                        }
+                        if (results[3].status === 'fulfilled') {
+                            const data = await results[3].value.json();
+                            this.indianMovies = data.results || [];
+                        }
+                        if (results[4].status === 'fulfilled') {
+                            const data = await results[4].value.json();
+                            this.tvShows = data.results || [];
+                        }
+                        if (results[5].status === 'fulfilled') {
+                            const data = await results[5].value.json();
+                            this.animeList = data.results || [];
+                        }
+                        if (results[6].status === 'fulfilled') {
+                            const data = await results[6].value.json();
+                            this.topRated = data.results || [];
+                        }
+                        if (results[7].status === 'fulfilled') {
+                            const data = await results[7].value.json();
+                            this.internationalList = data.results || [];
+                        }
 
                     } catch (err) {
-                        console.error('Error fetching categories:', err);
+                        console.error('API Error:', err);
+                        this.errorMessage = 'Unable to load content right now. Please check your API Key or network connection.';
                     }
                     this.loading = false;
                 },
 
-                async searchMovies() {
-                    if (!this.searchQuery.trim()) {
-                        this.searchResults = [];
-                        return;
+                async fetchGenresList() {
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${this.apiKey}`);
+                        let data = await res.json();
+                        this.genresList = data.genres || [];
+                    } catch (err) {
+                        console.error('Error fetching genres:', err);
                     }
+                },
+
+                async selectGenre(genreId, genreName) {
+                    this.activeGenre = genreId;
+                    this.view = 'genres';
+                    this.pageTitle = genreName + ' Movies & Shows';
                     this.loading = true;
-                    this.view = 'home';
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${this.apiKey}&with_genres=${genreId}&sort_by=popularity.desc`);
+                        let data = await res.json();
+                        this.catalogItems = data.results || [];
+                    } catch (err) {
+                        console.error('Error fetching genre items:', err);
+                    }
+                    this.loading = false;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                async fetchCatalog(baseUrl, extraParams = '') {
+                    this.loading = true;
+                    try {
+                        let res = await fetch(`${baseUrl}${this.apiKey}${extraParams}`);
+                        let data = await res.json();
+                        this.catalogItems = data.results || [];
+                    } catch (err) {
+                        console.error('Catalog fetch error:', err);
+                    }
+                    this.loading = false;
+                },
+
+                async performSearch() {
+                    if (!this.searchQuery.trim()) return;
+                    this.loading = true;
+                    this.view = 'search';
                     try {
                         let res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${this.apiKey}&query=${encodeURIComponent(this.searchQuery)}`);
                         let data = await res.json();
                         this.searchResults = (data.results || []).filter(item => item.media_type === 'movie' || item.media_type === 'tv');
                     } catch (err) {
-                        console.error('Error searching:', err);
+                        console.error('Search error:', err);
                     }
                     this.loading = false;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
                 async fetchDetails(id, mediaType = 'movie') {
                     this.loading = true;
                     this.view = 'detail';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     try {
-                        // Fetch main details
                         let res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}?api_key=${this.apiKey}`);
                         this.detailItem = await res.json();
 
-                        // Fetch cast/credits
                         let creditRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/credits?api_key=${this.apiKey}`);
                         let creditData = await creditRes.json();
                         this.castList = creditData.cast || [];
+
+                        let simRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/similar?api_key=${this.apiKey}`);
+                        let simData = await simRes.json();
+                        this.similarItems = simData.results || [];
+
+                        let vidRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/videos?api_key=${this.apiKey}`);
+                        let vidData = await vidRes.json();
+                        let officialTrailer = (vidData.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                        this.trailerKey = officialTrailer ? officialTrailer.key : null;
+
+                        // Save to Recently Viewed
+                        this.addToRecentlyViewed({
+                            id: this.detailItem.id,
+                            title: this.detailItem.title || this.detailItem.name,
+                            poster_path: this.detailItem.poster_path,
+                            media_type: mediaType
+                        });
+
                     } catch (err) {
                         console.error('Error fetching details:', err);
                     }
                     this.loading = false;
                 },
 
-                resetHome() {
-                    this.searchQuery = '';
-                    this.searchResults = [];
-                    this.view = 'home';
+                addToRecentlyViewed(item) {
+                    let list = this.recentlyViewed.filter(i => i.id !== item.id);
+                    list.unshift(item);
+                    if (list.length > 10) list.pop();
+                    this.recentlyViewed = list;
+                    localStorage.setItem('miniflix_recent', JSON.stringify(list));
+                },
+
+                clearRecentlyViewed() {
+                    this.recentlyViewed = [];
+                    localStorage.removeItem('miniflix_recent');
+                },
+
+                async playHeroTrailer(id, mediaType) {
+                    try {
+                        let res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/videos?api_key=${this.apiKey}`);
+                        let data = await res.json();
+                        let trailer = (data.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                        if (trailer) {
+                            this.trailerUrl = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
+                            this.showTrailerModal = true;
+                        } else {
+                            this.showToast('No official trailer available for this title.');
+                        }
+                    } catch(err) {
+                        this.showToast('Unable to load trailer.');
+                    }
+                },
+
+                openTrailerModal() {
+                    if (this.trailerKey) {
+                        this.trailerUrl = `https://www.youtube.com/embed/${this.trailerKey}?autoplay=1`;
+                        this.showTrailerModal = true;
+                    }
+                },
+
+                closeTrailerModal() {
+                    this.showTrailerModal = false;
+                    this.trailerUrl = '';
                 }
             }
         }
