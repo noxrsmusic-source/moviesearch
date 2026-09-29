@@ -1435,6 +1435,71 @@ function clearNowPlaying(){
   try { localStorage.removeItem(NOW_PLAYING_KEY); } catch(e){}
 }
 
+function loadNowPlaying(){
+  try {
+    const raw = localStorage.getItem(NOW_PLAYING_KEY);
+    if (!raw) return null;
+    const state = JSON.parse(raw);
+    if (!state || !state.song || !state.song.audioUrl) return null;
+    if (state.updatedAt && (Date.now() - state.updatedAt) > 6 * 60 * 60 * 1000){
+      localStorage.removeItem(NOW_PLAYING_KEY);
+      return null;
+    }
+    return state;
+  } catch(e){ return null; }
+}
+
+function resumeFromSavedState(){
+  const state = loadNowPlaying();
+  if (!state) return false;
+
+  const song = state.song;
+  if (!song || !song.audioUrl) return false;
+
+  currentSong = song;
+  cacheSong(song);
+  rememberSong(song);
+
+  if (Array.isArray(state.playlist) && state.playlist.length){
+    currentPlaylist = state.playlist;
+    currentIndex = typeof state.index === 'number' ? state.index : 0;
+    if (currentIndex < 0 || currentIndex >= currentPlaylist.length) currentIndex = 0;
+    const idx = currentPlaylist.findIndex(s => s.id === song.id);
+    if (idx >= 0) currentIndex = idx;
+    else { currentPlaylist.unshift(song); currentIndex = 0; }
+  } else {
+    currentPlaylist = [song];
+    currentIndex = 0;
+  }
+
+  audio.src = song.audioUrl;
+  audio.loop = false;
+  bottomPlayer.classList.add('visible');
+
+  const cover = song.coverUrl || FALLBACK_COVER;
+  bottomCover.src = cover;
+  bottomTitle.textContent = song.title;
+  bottomArtist.textContent = song.artist || 'Unknown';
+  fsCover.src = cover;
+  fsTitle.textContent = song.title;
+  fsArtist.textContent = song.artist || 'Unknown';
+  fsLikeBtn.classList.toggle('liked', likedSongs.has(song.id));
+
+  audio.load();
+  const onMeta = () => {
+    try { audio.currentTime = state.currentTime || 0; } catch(e){}
+    if (state.isPlaying){
+      audio.play().then(() => updatePlayPauseIcon(true)).catch(() => updatePlayPauseIcon(false));
+    } else {
+      updatePlayPauseIcon(false);
+    }
+    audio.removeEventListener('loadedmetadata', onMeta);
+  };
+  audio.addEventListener('loadedmetadata', onMeta);
+
+  return true;
+}
+
 // When navigating away to index.html, save current state so index.html can resume it
 document.addEventListener('click', e => {
   const link = e.target.closest('a');
@@ -3187,8 +3252,11 @@ loadTaste();
 loadGlobalSongs();
 loadHomeFeed();
 
-updateLoopUI();
-updateFeedVisibility();
+// Check if resuming from index.html
+if (!resumeFromSavedState()){
+  updateLoopUI();
+  updateFeedVisibility();
+}
 
 auth.onAuthStateChanged(user => {
   if (user) loadUserData();
