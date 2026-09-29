@@ -220,7 +220,7 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE - LARGER ON PC) ===== */
+        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE - DESKTOP SCROLLBAR ENABLED) ===== */
         .ott-section {
             margin: 24px 0 12px;
         }
@@ -235,10 +235,24 @@
             display: flex;
             gap: 18px;
             overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: none;
+            padding-bottom: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
         }
-        .ott-grid-row::-webkit-scrollbar { display: none; }
+        .ott-grid-row::-webkit-scrollbar {
+            height: 8px;
+        }
+        .ott-grid-row::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+        .ott-grid-row::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+        .ott-grid-row::-webkit-scrollbar-thumb:hover {
+            background: rgba(229, 9, 20, 0.6);
+        }
         
         .ott-card-logo {
             flex: 0 0 120px;
@@ -1041,6 +1055,7 @@
                     this.loadHomeData();
                     this.loadMusicData();
                     this.initMiniAudioEvents();
+                    this.restoreSavedAudioState();
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
@@ -1115,6 +1130,8 @@
                     document.getElementById('miniTitle').textContent = song.title;
                     document.getElementById('miniArtist').textContent = song.artist;
                     document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                    
+                    this.saveAudioState();
                 },
 
                 toggleMiniPlay() {
@@ -1127,6 +1144,7 @@
                         this.miniIsPlaying = false;
                         document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
                     }
+                    this.saveAudioState();
                 },
 
                 miniPrev() {
@@ -1137,18 +1155,22 @@
 
                 miniNext() {
                     if (this.miniIndex < this.musicList.length - 1) {
-                        this.playMusic(this.musicList[this.musicList.length - 1], this.miniIndex + 1);
+                        this.playMusic(this.musicList[this.miniIndex + 1], this.miniIndex + 1);
                     }
                 },
 
                 openMusicPage() {
+                    this.saveAudioState();
                     window.location.href = MUSIC_PAGE_URL;
                 },
 
                 miniSeek(e) {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const pos = (e.clientX - rect.left) / rect.width;
-                    this.miniAudio.currentTime = pos * this.miniAudio.duration;
+                    if (this.miniAudio.duration) {
+                        this.miniAudio.currentTime = pos * this.miniAudio.duration;
+                        this.saveAudioState();
+                    }
                 },
 
                 initMiniAudioEvents() {
@@ -1157,11 +1179,59 @@
                             const pct = (this.miniAudio.currentTime / this.miniAudio.duration) * 100;
                             const fill = document.getElementById('miniProgressFill');
                             if (fill) fill.style.width = pct + '%';
+                            
+                            // Periodically update localStorage current time
+                            if (Math.floor(this.miniAudio.currentTime) % 2 === 0) {
+                                this.saveAudioState();
+                            }
                         }
                     });
                     this.miniAudio.addEventListener('ended', () => {
                         this.miniNext();
                     });
+                },
+
+                saveAudioState() {
+                    if (!this.miniCurrentSong) return;
+                    const state = {
+                        song: this.miniCurrentSong,
+                        index: this.miniIndex,
+                        currentTime: this.miniAudio.currentTime,
+                        isPlaying: !this.miniAudio.paused
+                    };
+                    localStorage.setItem(NOW_PLAYING_KEY, JSON.stringify(state));
+                },
+
+                restoreSavedAudioState() {
+                    try {
+                        const saved = localStorage.getItem(NOW_PLAYING_KEY);
+                        if (!saved) return;
+                        const data = JSON.parse(saved);
+                        if (data && data.song && data.song.audioUrl) {
+                            this.miniCurrentSong = data.song;
+                            this.miniIndex = data.index || 0;
+                            this.miniAudio.src = data.song.audioUrl;
+                            this.miniAudio.currentTime = data.currentTime || 0;
+
+                            document.getElementById('miniPlayer').classList.add('visible');
+                            document.body.classList.add('has-mini-player');
+                            document.getElementById('miniCover').src = data.song.coverUrl;
+                            document.getElementById('miniTitle').textContent = data.song.title;
+                            document.getElementById('miniArtist').textContent = data.song.artist;
+
+                            if (data.isPlaying) {
+                                this.miniAudio.play().then(() => {
+                                    this.miniIsPlaying = true;
+                                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                                }).catch(e => {
+                                    this.miniIsPlaying = false;
+                                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                                });
+                            } else {
+                                document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
+                            }
+                        }
+                    } catch (e) { console.error(e); }
                 },
 
                 async checkAppVersion() {
