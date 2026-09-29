@@ -41,7 +41,7 @@
             --radius-sm: 8px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-offset: 75px;
+            --header-offset: 140px;
         }
 
         html { scroll-behavior: smooth; }
@@ -218,7 +218,7 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* ===== OTT LOGO SECTION ===== */
+        /* ===== OTT LOGO SECTION (PC & MOBILE RESPONSIVE) ===== */
         .ott-section {
             margin: 20px 0 10px;
         }
@@ -231,7 +231,7 @@
         }
         .ott-grid-row {
             display: flex;
-            gap: 14px;
+            gap: 16px;
             overflow-x: auto;
             padding-bottom: 6px;
             scrollbar-width: none;
@@ -239,15 +239,15 @@
         .ott-grid-row::-webkit-scrollbar { display: none; }
         
         .ott-card-logo {
-            flex: 0 0 85px;
-            height: 60px;
+            flex: 0 0 110px;
+            height: 75px;
             background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 12px;
             cursor: pointer;
             transition: var(--transition);
         }
@@ -270,8 +270,8 @@
 
         /* Specific styling for the 'All' card with icon and text */
         .ott-card-all {
-            flex: 0 0 95px;
-            height: 60px;
+            flex: 0 0 120px;
+            height: 75px;
             background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
@@ -279,17 +279,17 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
             cursor: pointer;
             transition: var(--transition);
             color: var(--text-muted);
         }
         .ott-card-all i {
-            font-size: 18px;
+            font-size: 20px;
             color: var(--primary-red);
         }
         .ott-card-all span {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
@@ -299,6 +299,19 @@
             color: var(--text-white);
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 1024px) {
+            .ott-card-logo {
+                flex: 0 0 140px;
+                height: 90px;
+            }
+            .ott-card-all {
+                flex: 0 0 150px;
+                height: 90px;
+            }
+            .ott-card-all i { font-size: 24px; }
+            .ott-card-all span { font-size: 13px; }
         }
 
         /* ===== DRAWER MENU ===== */
@@ -394,22 +407,30 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== STICKY BOTTOM ANNOUNCEMENT BANNER ===== */
+        /* ===== STICKY BOTTOM ANIMATED ANNOUNCEMENT BANNER ===== */
         .sticky-announcement-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 900;
-            background: linear-gradient(90deg, #181824 0%, #1c1422 50%, #181824 100%);
-            border-top: 1px solid rgba(229, 9, 20, 0.3);
+            background: linear-gradient(90deg, #181824 0%, #2a1218 50%, #181824 100%);
+            border-top: 1px solid rgba(229, 9, 20, 0.4);
             padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            box-shadow: 0 -6px 24px rgba(0,0,0,0.8);
+            box-shadow: 0 -8px 28px rgba(0,0,0,0.85);
+            animation: barGlowPulse 2.5s infinite ease-in-out;
         }
+
+        @keyframes barGlowPulse {
+            0% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
+            50% { border-top-color: rgba(229, 9, 20, 0.8); box-shadow: 0 -8px 32px rgba(229, 9, 20, 0.35); }
+            100% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
+        }
+
         .sticky-content {
             display: flex;
             align-items: center;
@@ -418,11 +439,24 @@
             font-weight: 600;
             color: #fff;
         }
-        .sticky-content i { color: var(--primary-red); font-size: 16px; }
+        .sticky-content i {
+            color: var(--primary-red);
+            font-size: 18px;
+            animation: bellShake 1.2s infinite ease-in-out;
+        }
+
+        @keyframes bellShake {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(14deg); }
+            40% { transform: rotate(-14deg); }
+            60% { transform: rotate(8deg); }
+            80% { transform: rotate(-8deg); }
+        }
+
         .sticky-download-btn {
-            background: var(--primary-red);
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
             color: #fff;
-            padding: 6px 16px;
+            padding: 7px 18px;
             border-radius: 30px;
             font-size: 12.5px;
             font-weight: 700;
@@ -431,8 +465,19 @@
             gap: 6px;
             transition: var(--transition);
             white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+            animation: btnPulseBounce 2s infinite ease-in-out;
         }
-        .sticky-download-btn:hover { background: #b20710; transform: scale(1.03); }
+
+        @keyframes btnPulseBounce {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 6px 22px rgba(229, 9, 20, 0.65); }
+        }
+
+        .sticky-download-btn:hover {
+            background: linear-gradient(135deg, #ff1e2d 0%, #cc0a14 100%);
+            transform: scale(1.08);
+        }
 
         /* ===== AUTH MODAL & TOASTS ===== */
         .modal-overlay {
@@ -572,7 +617,7 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (PNG Logos + All with Icon and Text + HBO Added) -->
+            <!-- OTT Platform Filters Section (Expanded size for PC & Mobile) -->
             <div class="container ott-section">
                 <div class="ott-section-title">Popular Networks</div>
                 <div class="ott-grid-row">
@@ -729,7 +774,7 @@
         </div>
     </main>
 
-    <!-- Sticky Announcement Banner for App Download -->
+    <!-- Sticky Animated Announcement Banner for App Download -->
     <div class="sticky-announcement-bar">
         <div class="sticky-content">
             <i class="fas fa-bullhorn"></i>
@@ -983,7 +1028,7 @@
                     this.loading = true;
                     try {
                         const data = await this.request("/search?query=" + encodeURIComponent(query));
-                        this.searchResults = data.results || [];
+                        this.searchResults = data.results ||/n/a/ data.results || [];
                         this.page = 'search';
                     } catch (e) {
                         this.showToast('Search failed.', 'error');
@@ -1052,7 +1097,7 @@
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
                         this.showToast('Logged in successfully!', 'success');
                         this.authModalOpen = false;
-                        this.loginEmail = '';
+                        this.loginEmail = '',
                         this.loginPassword = '';
                     } catch (e) { this.showToast(e.message, 'error'); }
                 },
