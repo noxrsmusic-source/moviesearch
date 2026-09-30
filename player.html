@@ -25,8 +25,6 @@
             --header-height: 62px;
             --sticky-banner-height: 70px;
             --server-green: #22C55E;
-            --server-red: #EF4444;
-            --server-red-plus: #FF1E38;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -140,29 +138,6 @@
         }
         .custom-fs-btn:hover { background: var(--primary-red); border-color: var(--primary-red); transform: scale(1.05); }
 
-        .server-issue-overlay {
-            position: absolute; inset: 0; z-index: 6; background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px); display: none; flex-direction: column;
-            align-items: center; justify-content: center; padding: 30px; text-align: center; gap: 16px;
-        }
-        .server-issue-overlay.visible { display: flex; }
-        .server-issue-overlay .icon { font-size: 48px; color: var(--server-red); opacity: 0.8; }
-        .server-issue-overlay h3 { font-size: 22px; font-weight: 700; }
-        .server-issue-overlay p { color: var(--text-muted); max-width: 440px; font-size: 15px; }
-        .server-issue-overlay .switch-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
-        .server-issue-overlay .switch-btn {
-            padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 14px;
-            transition: var(--transition); border: 2px solid transparent;
-            display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.04);
-        }
-        .server-issue-overlay .switch-btn:hover { transform: scale(1.05); }
-        .server-issue-overlay .switch-btn.main { color: var(--server-red-plus); border-color: var(--server-red-plus); }
-        .server-issue-overlay .switch-btn.main:hover { background: rgba(255, 30, 56, 0.15); }
-        .server-issue-overlay .switch-btn.red { color: var(--server-red); border-color: var(--server-red); }
-        .server-issue-overlay .switch-btn.red:hover { background: rgba(239, 68, 68, 0.15); }
-        .server-issue-overlay .switch-btn.green { color: var(--server-green); border-color: var(--server-green); }
-        .server-issue-overlay .switch-btn.green:hover { background: rgba(34, 197, 94, 0.15); }
-
         .ad-banner-container {
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08);
@@ -187,84 +162,72 @@
         .ad-mobile-stack .ad-iframe-frame { height: 140px; }
 
         .player-info {
-            margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px 20px;
-            align-items: flex-start; justify-content: space-between;
+            margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px 24px;
+            align-items: center; justify-content: space-between;
+            background: var(--bg-card); padding: 20px 24px; border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .player-info .title-section h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+        .player-info .title-section h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
         .player-info .title-section .meta {
-            display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px;
-            color: var(--text-muted); margin-top: 4px;
+            display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px;
+            color: var(--text-muted); margin-top: 6px; align-items: center;
         }
         .player-info .title-section .meta .type-badge {
-            text-transform: capitalize; padding: 2px 12px; border-radius: 12px;
-            background: rgba(255, 255, 255, 0.06); font-size: 12px; font-weight: 600;
+            text-transform: uppercase; padding: 2px 10px; border-radius: 6px;
+            background: rgba(229, 9, 20, 0.15); color: var(--primary-red); font-size: 11px; font-weight: 700;
         }
-        .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; }
-        .player-info .title-section .meta .rating i { font-size: 12px; }
+        .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
-        .server-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 8px; }
-        .server-controls .server-group {
-            display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03);
-            padding: 4px 6px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.04);
+        .stream-status-badge {
+            display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 14px; border-radius: 30px;
+            font-size: 12px; font-weight: 600; color: var(--server-green);
         }
-        .server-btn {
-            padding: 6px 16px; border-radius: 30px; font-size: 12px; font-weight: 700;
-            transition: var(--transition); border: 2px solid transparent;
-            display: flex; align-items: center; gap: 6px;
+        .stream-status-badge .live-dot {
+            width: 8px; height: 8px; background: var(--server-green); border-radius: 50%;
+            box-shadow: 0 0 8px var(--server-green); animation: pulse 2s infinite;
         }
-        .server-btn .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .server-btn.main { color: var(--server-red-plus); }
-        .server-btn.main .dot { background: var(--server-red-plus); }
-        .server-btn.main.active { background: rgba(255, 30, 56, 0.15); border-color: var(--server-red-plus); }
-        .server-btn.red { color: var(--server-red); }
-        .server-btn.red .dot { background: var(--server-red); }
-        .server-btn.red.active { background: rgba(239, 68, 68, 0.15); border-color: var(--server-red); }
-        .server-btn.green { color: var(--server-green); }
-        .server-btn.green .dot { background: var(--server-green); }
-        .server-btn.green.active { background: rgba(34, 197, 94, 0.15); border-color: var(--server-green); }
-        .server-btn:not(.active) { opacity: 0.5; }
-        .server-btn:not(.active):hover { opacity: 0.8; }
-
-        .server-issue-trigger {
-            padding: 6px 14px; border-radius: 30px; background: rgba(239, 68, 68, 0.08);
-            color: var(--server-red); font-size: 12px; font-weight: 600;
-            border: 1px solid rgba(239, 68, 68, 0.15); transition: var(--transition);
-            display: flex; align-items: center; gap: 6px;
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
-        .server-issue-trigger:hover { background: rgba(239, 68, 68, 0.15); }
 
         .episode-controls {
-            display: none; flex-wrap: wrap; gap: 10px; align-items: center;
-            margin-top: 8px; padding: 10px 14px; background: rgba(255, 255, 255, 0.03);
-            border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.04);
+            display: none; flex-wrap: wrap; gap: 12px; align-items: center;
+            margin-top: 14px; padding: 14px 18px; background: var(--bg-card);
+            border-radius: var(--radius); border: 1px solid rgba(255, 255, 255, 0.04);
         }
         .episode-controls.visible { display: flex; }
+        .episode-controls .control-group { display: flex; align-items: center; gap: 8px; }
         .episode-controls label {
             font-size: 13px; font-weight: 600; color: var(--text-muted);
             display: flex; align-items: center; gap: 6px;
         }
         .episode-controls select {
-            padding: 6px 12px; border-radius: 30px; background: rgba(255, 255, 255, 0.06);
+            padding: 8px 14px; border-radius: 30px; background: var(--bg-secondary);
             border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-white);
             font-size: 13px; font-weight: 500; outline: none; cursor: pointer;
-            font-family: var(--font); min-width: 60px; max-width: 260px;
+            font-family: var(--font); min-width: 110px;
         }
         .episode-controls select:focus { border-color: var(--primary-red); }
         .episode-controls select option { background: var(--bg-secondary); color: var(--text-white); }
         .episode-controls .apply-btn {
-            padding: 6px 20px; border-radius: 30px; background: var(--primary-red);
+            padding: 8px 22px; border-radius: 30px; background: var(--primary-red);
             color: #fff; font-size: 13px; font-weight: 700; transition: var(--transition);
         }
-        .episode-controls .apply-btn:hover { background: #b20710; transform: scale(1.04); }
+        .episode-controls .apply-btn:hover { background: #b20710; transform: scale(1.02); }
 
         .plot-section {
-            margin-top: 14px; padding: 14px 16px; background: rgba(255, 255, 255, 0.02);
-            border-radius: var(--radius-sm); border-left: 3px solid var(--primary-red);
+            margin-top: 14px; padding: 16px 20px; background: var(--bg-card);
+            border-radius: var(--radius); border-left: 3px solid var(--primary-red);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .plot-section p { font-size: 14px; color: rgba(255, 255, 255, 0.7); line-height: 1.7; }
+        .plot-section p { font-size: 14px; color: rgba(255, 255, 255, 0.75); line-height: 1.7; }
         .plot-section .plot-label {
             font-size: 11px; font-weight: 700; text-transform: uppercase;
-            color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 4px;
+            color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 6px;
         }
 
         .sticky-bottom-banner {
@@ -313,73 +276,26 @@
             .logo i { font-size: 15px; }
             .header-actions .back-btn { font-size: 12px; padding: 4px 12px; }
             .header-actions .profile-btn { width: 30px; height: 30px; font-size: 12px; }
-            .player-section { padding: 10px 0 20px; }
             .player-row { flex-direction: column; align-items: stretch; gap: 16px; }
             .player-wrapper { max-height: 55vh; border-radius: var(--radius-sm); }
             .ad-desktop { display: none; }
             .ad-mobile-stack { display: flex; }
             .player-branding { top: 8px; right: 8px; padding: 4px 10px; font-size: 10px; min-width: 90px; }
             .custom-fs-btn { bottom: 10px; right: 8px; width: 40px; height: 40px; font-size: 14px; }
+            .player-info { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
             .player-info .title-section h1 { font-size: 18px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
-            .server-btn { font-size: 11px; padding: 4px 12px; }
-            .server-controls .server-group { padding: 3px 4px; }
-            .server-issue-trigger { font-size: 11px; padding: 4px 10px; }
-            .episode-controls { padding: 8px 12px; }
-            .episode-controls label { font-size: 12px; }
-            .episode-controls select { font-size: 12px; padding: 4px 10px; min-width: 50px; max-width: 170px; }
-            .episode-controls .apply-btn { font-size: 12px; padding: 4px 14px; }
+            .episode-controls { padding: 12px 14px; flex-direction: column; align-items: stretch; gap: 10px; }
+            .episode-controls .control-group { width: 100%; justify-content: space-between; }
+            .episode-controls select { width: 100%; max-width: none; }
             .plot-section p { font-size: 13px; }
             .container { padding: 0 12px; }
             .toast-container { right: 12px; bottom: 74px; }
-            .server-issue-overlay { padding: 20px 16px; gap: 12px; }
-            .server-issue-overlay .icon { font-size: 36px; }
-            .server-issue-overlay h3 { font-size: 18px; word-break: break-word; }
-            .server-issue-overlay p { font-size: 13px; max-width: 100%; word-break: break-word; }
-            .server-issue-overlay .switch-btn { padding: 8px 16px; font-size: 12px; white-space: nowrap; justify-content: center; }
-            .server-issue-overlay .switch-actions { gap: 8px; flex-direction: column; align-items: stretch; }
-            .pause-ad-overlay { padding: 4px 8px; min-height: 70px; }
-            .pause-ad-overlay .ad-inner { min-height: 60px; }
-            .pause-ad-overlay .ad-inner iframe { max-height: 70px; }
-            .pause-ad-overlay.top, .pause-ad-overlay.bottom { min-height: 70px; }
-            .pause-badge { width: 56px; height: 56px; }
-            .pause-badge i { font-size: 24px; }
-        }
-        @media (max-width: 480px) {
-            .player-wrapper { max-height: 45vh; }
-            .player-info .title-section h1 { font-size: 16px; }
-            .server-controls { gap: 6px; }
-            .server-btn { font-size: 10px; padding: 3px 10px; }
-            .episode-controls { gap: 6px; }
-            .episode-controls select { font-size: 11px; padding: 3px 8px; min-width: 44px; max-width: 140px; }
-            .custom-fs-btn { bottom: 8px; right: 6px; width: 36px; height: 36px; font-size: 13px; }
-            .server-issue-overlay { padding: 16px 12px; gap: 10px; }
-            .server-issue-overlay .icon { font-size: 28px; }
-            .server-issue-overlay h3 { font-size: 16px; }
-            .server-issue-overlay p { font-size: 12px; }
-            .server-issue-overlay .switch-btn { padding: 6px 12px; font-size: 11px; }
-            .pause-ad-overlay { padding: 3px 6px; min-height: 56px; }
-            .pause-ad-overlay .ad-inner { min-height: 50px; }
-            .pause-ad-overlay .ad-inner iframe { max-height: 56px; }
-            .pause-ad-overlay.top, .pause-ad-overlay.bottom { min-height: 56px; }
-            .pause-badge { width: 44px; height: 44px; }
-            .pause-badge i { font-size: 18px; }
         }
         @media (min-width: 769px) {
             .ad-desktop { display: flex; }
             .ad-mobile-stack { display: none; }
         }
-
-        .player-wrapper:fullscreen .pause-ad-overlay,
-        .player-wrapper:-webkit-full-screen .pause-ad-overlay { z-index: 2147483646; }
-        .player-wrapper:fullscreen .pause-badge,
-        .player-wrapper:-webkit-full-screen .pause-badge { z-index: 2147483645; }
-        .player-wrapper:fullscreen .player-branding,
-        .player-wrapper:-webkit-full-screen .player-branding { z-index: 2147483647; }
-        .player-wrapper:fullscreen .custom-fs-btn,
-        .player-wrapper:-webkit-full-screen .custom-fs-btn { z-index: 2147483647; }
-        .player-wrapper:fullscreen .server-issue-overlay,
-        .player-wrapper:-webkit-full-screen .server-issue-overlay { z-index: 2147483646; }
     </style>
 </head>
 <body>
@@ -421,26 +337,6 @@
                 <div class="pause-badge" id="pauseBadge">
                     <i class="fas fa-pause-circle"></i>
                 </div>
-
-                <div class="server-issue-overlay" id="serverIssueOverlay">
-                    <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    <h3>Loading is taking a while</h3>
-                    <p>This may be due to a slow network connection or temporary server slowness. You can wait, retry, or switch to another server below.</p>
-                    <div class="switch-actions">
-                        <button class="switch-btn main" data-server="main">
-                            <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-red-plus);display:inline-block;"></span>
-                            Red + Server (Default)
-                        </button>
-                        <button class="switch-btn red" data-server="red">
-                            <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-red);display:inline-block;"></span>
-                            Red Server (OMDb)
-                        </button>
-                        <button class="switch-btn green" data-server="green">
-                            <span class="dot" style="width:10px;height:10px;border-radius:50%;background:var(--server-green);display:inline-block;"></span>
-                            Green Server (OMDb)
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <div class="ad-banner-container ad-desktop">
@@ -460,31 +356,21 @@
                     <span id="movieGenre">—</span>
                 </div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-                <div class="server-controls" id="serverControls">
-                    <div class="server-group">
-                        <button class="server-btn main active" data-server="main">
-                            <span class="dot"></span> Red +
-                        </button>
-                        <button class="server-btn red" data-server="red">
-                            <span class="dot"></span> Red
-                        </button>
-                        <button class="server-btn green" data-server="green">
-                            <span class="dot"></span> Green
-                        </button>
-                    </div>
-                    <button class="server-issue-trigger" id="serverIssueTrigger">
-                        <i class="fas fa-exclamation-circle"></i> Not Found? Click Here
-                    </button>
-                </div>
-                <div class="episode-controls" id="episodeControls">
-                    <label><i class="fas fa-layer-group"></i> Season</label>
-                    <select id="seasonSelect"></select>
-                    <label><i class="fas fa-list"></i> Episode</label>
-                    <select id="episodeSelect"></select>
-                    <button class="apply-btn" id="applyEpBtn">Apply</button>
-                </div>
+            <div class="stream-status-badge">
+                <span class="live-dot"></span> HD Stream Active
             </div>
+        </div>
+
+        <div class="episode-controls" id="episodeControls">
+            <div class="control-group">
+                <label><i class="fas fa-layer-group"></i> Season</label>
+                <select id="seasonSelect"></select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-list"></i> Episode</label>
+                <select id="episodeSelect"></select>
+            </div>
+            <button class="apply-btn" id="applyEpBtn"><i class="fas fa-check"></i> Play Episode</button>
         </div>
 
         <div class="plot-section" id="plotSection">
@@ -519,78 +405,19 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ============================================================
-        //  SERVER API — same as home page
-        // ============================================================
         const API = "/api";
-        const OMDB_API_KEY = 'df7d5111';
-        const OMDB_BASE    = 'https://www.omdbapi.com/';
+        const STREAM_BASE = "https://vidstuck.xyz/embed";
 
-        // ============================================================
-        //  SERVERS
-        //  - main (Red+) : TMDB id + season/episode
-        //  - red / green : OMDb / IMDb id (from OMDb fetch)
-        // ============================================================
-        const SERVERS = {
-            main: {
-                name: 'Red +',
-                requiresOmdb: false,
-                url: (tmdbId, omdbId, type, season, episode) => {
-                    if (!tmdbId) return null;
-                    if (type === 'movie') {
-                        return `https://vidstuck.xyz/embed/movie/${tmdbId}?branding=RX+Player&loading=1&back=false`;
-                    }
-                    const s = season || 1;
-                    const e = episode || 1;
-                    return `https://vidstuck.xyz/embed/tv/${tmdbId}/${s}/${e}?branding=RX+Player&loading=1&back=false`;
-                }
-            },
-            red: {
-                name: 'Red',
-                requiresOmdb: true,
-                url: (tmdbId, omdbId, type, season, episode) => {
-                    if (!omdbId) return null;
-                    if (type === 'movie') {
-                        return `https://autoembed.co/movie/imdb/${omdbId}`;
-                    }
-                    const s = season || 1;
-                    const e = episode || 1;
-                    return `https://autoembed.co/tv/imdb/${omdbId}-${s}-${e}`;
-                }
-            },
-            green: {
-                name: 'Green',
-                requiresOmdb: true,
-                url: (tmdbId, omdbId, type, season, episode) => {
-                    if (!omdbId) return null;
-                    return `https://kriss424did.com/play/${omdbId}`;
-                }
-            }
-        };
-
-        // ============================================================
-        //  STATE
-        // ============================================================
         let currentTmdbId = null;
-        let currentOmdbId = null;         // IMDb id used for Red/Green
-        let currentType = 'movie';        // 'movie' | 'tv'
-        let currentServer = 'main';
+        let currentType = 'movie';
         let currentSeason = 1;
         let currentEpisode = 1;
         let totalSeasons = 1;
-        let seasonList = [];              // [{ season_number, name, episode_count }]
-        let episodeList = [];             // [{ episode_number, name }]
-
-        // Store both metadata sources
+        let seasonList = [];
+        let episodeList = [];
         let tmdbMetadata = null;
-        let omdbMetadata = null;
-
-        let isIssueOverlayShown = false;
         let isPaused = false;
 
-        // ============================================================
-        //  HELPERS
-        // ============================================================
         function isTvType(t) {
             if (!t) return false;
             t = String(t).toLowerCase();
@@ -608,6 +435,7 @@
                 else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
             }
         }
+
         function updateFsButtonState() {
             const fsIcon = document.getElementById('fsIcon');
             const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -633,9 +461,6 @@
             }, duration);
         }
 
-        // ============================================================
-        //  SERVER API REQUESTS (same as home page)
-        // ============================================================
         async function apiRequest(url) {
             try {
                 const res = await fetch(API + url);
@@ -651,8 +476,7 @@
         }
 
         async function tmdbProxy(endpoint) {
-            const data = await apiRequest(`/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
-            return data;
+            return await apiRequest(`/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
         }
 
         async function fetchDetailsFromApi(id, type) {
@@ -672,55 +496,6 @@
             return null;
         }
 
-        async function findTmdbByImdb(imdbId) {
-            if (!imdbId) return null;
-            const data = await tmdbProxy(`/find/${imdbId}?external_source=imdb_id`);
-            if (!data) return null;
-            if (Array.isArray(data.tv_results) && data.tv_results.length) {
-                return { id: data.tv_results[0].id, type: 'tv' };
-            }
-            if (Array.isArray(data.movie_results) && data.movie_results.length) {
-                return { id: data.movie_results[0].id, type: 'movie' };
-            }
-            return null;
-        }
-
-        // ============================================================
-        //  OMDb FETCH (for Red/Green servers)
-        // ============================================================
-        async function fetchOmdbById(imdbId) {
-            if (!imdbId) return null;
-            try {
-                const res = await fetch(`${OMDB_BASE}?apikey=${OMDB_API_KEY}&i=${imdbId}&plot=full`);
-                const data = await res.json();
-                return data.Response === 'True' ? data : null;
-            } catch (e) {
-                console.warn('OMDb fetch error:', e.message);
-                return null;
-            }
-        }
-
-        async function fetchOmdbEpisodes(imdbId, season) {
-            try {
-                const res = await fetch(`${OMDB_BASE}?apikey=${OMDB_API_KEY}&i=${imdbId}&Season=${season}`);
-                const data = await res.json();
-                if (data.Response === 'True' && data.Episodes) {
-                    return data.Episodes.map(e => ({
-                        episode_number: parseInt(e.Episode, 10),
-                        name: e.Title || ''
-                    })).filter(e => !isNaN(e.episode_number));
-                }
-                return null;
-            } catch (e) {
-                console.warn('Failed to fetch OMDb episodes:', e.message);
-                return null;
-            }
-        }
-
-        // ============================================================
-        //  METADATA DISPLAY FUNCTIONS
-        //  (only update the DOM, not the internal state)
-        // ============================================================
         function displayTmdbMetadata(d, type) {
             if (!d) return;
             const isTv = type === 'tv';
@@ -747,73 +522,14 @@
             let genreText = '—';
             if (Array.isArray(d.genres)) {
                 genreText = d.genres.map(g => g.name || g).join(', ');
-            } else if (typeof d.genres === 'string') {
-                genreText = d.genres;
-            } else if (typeof d.Genre === 'string') {
-                genreText = d.Genre;
             }
             document.getElementById('movieGenre').textContent = genreText || '—';
-
-            document.getElementById('moviePlot').textContent = d.overview || d.Plot || 'No description available.';
+            document.getElementById('moviePlot').textContent = d.overview || 'No description available.';
         }
 
-        function displayOmdbMetadata(data) {
-            if (!data) return;
-
-            document.getElementById('movieTitle').textContent = data.Title || 'Untitled';
-            document.getElementById('movieType').textContent = isSeries() ? 'series' : 'movie';
-            document.getElementById('movieYear').textContent = data.Year || '—';
-            document.getElementById('movieRating').innerHTML =
-                `<i class="fas fa-star"></i> ${data.imdbRating || '—'}`;
-            document.getElementById('movieRuntime').textContent = data.Runtime || '—';
-            document.getElementById('movieGenre').textContent = data.Genre || '—';
-            document.getElementById('moviePlot').textContent = data.Plot || 'No description available.';
-        }
-
-        /** Show the right metadata based on which server is active */
-        function refreshMetadataDisplay() {
-            if (currentServer === 'main') {
-                if (tmdbMetadata) displayTmdbMetadata(tmdbMetadata, currentType);
-            } else {
-                // Red or Green → use OMDb metadata
-                if (omdbMetadata) displayOmdbMetadata(omdbMetadata);
-                else if (tmdbMetadata) displayTmdbMetadata(tmdbMetadata, currentType);
-            }
-        }
-
-        // ============================================================
-        //  ENSURE OMDb ID (for Red/Green servers)
-        // ============================================================
-        async function ensureOmdbId() {
-            // Already have it
-            if (currentOmdbId) {
-                // Make sure we have OMDb metadata too
-                if (!omdbMetadata) {
-                    omdbMetadata = await fetchOmdbById(currentOmdbId);
-                }
-                return true;
-            }
-            // Try fetching from server details endpoint
-            if (currentTmdbId) {
-                showToast('Fetching IMDb ID from server…', 'info', 2500);
-                const details = await fetchDetailsFromApi(currentTmdbId, currentType);
-                if (details && details.imdb_id) {
-                    currentOmdbId = details.imdb_id;
-                    // Fetch OMDb metadata for accurate display
-                    omdbMetadata = await fetchOmdbById(currentOmdbId);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // ============================================================
-        //  DROPDOWNS
-        // ============================================================
         function populateSeasonDropdown() {
             const select = document.getElementById('seasonSelect');
             select.innerHTML = '';
-
             let list = seasonList.slice();
             if (!list.length) {
                 const count = totalSeasons > 0 ? totalSeasons : 1;
@@ -821,7 +537,6 @@
                     list.push({ season_number: i, name: `Season ${i}`, episode_count: 0 });
                 }
             }
-
             list.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.season_number;
@@ -836,16 +551,9 @@
             select.disabled = true;
 
             let eps = null;
-
-            // 1) TMDB proxy
             if (currentTmdbId) {
                 eps = await fetchSeasonEpisodes(currentTmdbId, seasonNumber);
             }
-            // 2) OMDb fallback
-            if ((!eps || !eps.length) && currentOmdbId) {
-                eps = await fetchOmdbEpisodes(currentOmdbId, seasonNumber);
-            }
-            // 3) Build from metadata count
             if (!eps || !eps.length) {
                 const seasonMeta = seasonList.find(s => s.season_number === seasonNumber);
                 const count = seasonMeta && seasonMeta.episode_count ? seasonMeta.episode_count : 1;
@@ -861,33 +569,19 @@
                 const opt = document.createElement('option');
                 opt.value = ep.episode_number;
                 let name = ep.name || '';
-                if (name.length > 45) name = name.slice(0, 42) + '…';
+                if (name.length > 40) name = name.slice(0, 37) + '…';
                 opt.textContent = name ? `Ep ${ep.episode_number} — ${name}` : `Episode ${ep.episode_number}`;
                 select.appendChild(opt);
             });
 
-            const exists = Array.from(select.options)
-                .some(o => parseInt(o.value, 10) === parseInt(currentEpisode, 10));
-            if (!exists) currentEpisode = parseInt(select.options[0].value, 10) || 1;
             select.value = currentEpisode;
-
             return episodeList;
         }
 
-        // ============================================================
-        //  URL SYNC
-        // ============================================================
         function updateUrl() {
             const params = new URLSearchParams(window.location.search);
             if (currentTmdbId) params.set('id', currentTmdbId);
-            else if (currentOmdbId) params.set('id', currentOmdbId);
-            else params.delete('id');
-
-            if (currentOmdbId) params.set('omdbId', currentOmdbId);
-            else params.delete('omdbId');
-
             params.set('type', isSeries() ? 'tv' : 'movie');
-
             if (isSeries()) {
                 params.set('season', currentSeason);
                 params.set('episode', currentEpisode);
@@ -895,61 +589,31 @@
                 params.delete('season');
                 params.delete('episode');
             }
-
             try {
-                const newUrl = `${window.location.pathname}?${params.toString()}`;
-                window.history.replaceState(null, '', newUrl);
+                window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
             } catch (e) {}
         }
 
-        // ============================================================
-        //  PLAYER
-        // ============================================================
-        function buildPlayerUrl(server, tmdbId, omdbId, type, season, episode) {
-            const fn = SERVERS[server];
-            if (!fn) return null;
-            try { return fn.url(tmdbId, omdbId, type, season, episode); }
-            catch (e) { console.error('URL build error:', e); return null; }
+        function buildPlayerUrl() {
+            if (!currentTmdbId) return null;
+            if (currentType === 'movie') {
+                return `${STREAM_BASE}/movie/${currentTmdbId}?branding=RX+Player&loading=1&back=false`;
+            }
+            const s = currentSeason || 1;
+            const e = currentEpisode || 1;
+            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?branding=RX+Player&loading=1&back=false`;
         }
 
-        function syncServerButtons() {
-            document.querySelectorAll('.server-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.server === currentServer);
-            });
-        }
-
-        async function loadPlayer() {
+        function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
-            const overlay = document.getElementById('serverIssueOverlay');
-
             hidePauseAds();
-            overlay.classList.remove('visible');
-            isIssueOverlayShown = false;
 
-            if (!currentTmdbId && !currentOmdbId) {
+            if (!currentTmdbId) {
                 showToast('No content ID provided.', 'error');
                 return;
             }
 
-            // ⚠️ Red / Green need OMDb (IMDb) id — fetch it if missing
-            if (SERVERS[currentServer].requiresOmdb && !currentOmdbId) {
-                const ok = await ensureOmdbId();
-                if (!ok) {
-                    showToast('Could not fetch IMDb ID for this title. Try Red + server.', 'error', 4500);
-                    // Revert to main if Red/Green fails completely
-                    currentServer = 'main';
-                    syncServerButtons();
-                    refreshMetadataDisplay();
-                }
-            }
-
-            // Main needs TMDB id
-            if (currentServer === 'main' && !currentTmdbId) {
-                showToast('No TMDB ID available for Red + server.', 'error', 4000);
-                return;
-            }
-
-            const url = buildPlayerUrl(currentServer, currentTmdbId, currentOmdbId, currentType, currentSeason, currentEpisode);
+            const url = buildPlayerUrl();
             if (!url) {
                 showToast('Failed to build player URL.', 'error');
                 return;
@@ -957,81 +621,11 @@
 
             iframe.style.display = 'block';
             iframe.src = url;
-
-            iframe.onload = () => {
-                overlay.classList.remove('visible');
-                isIssueOverlayShown = false;
-                isPaused = false;
-                hidePauseAds();
-            };
-
-            syncServerButtons();
-            document.getElementById('episodeControls').classList.toggle('visible', isSeries());
-            refreshMetadataDisplay();
             updateUrl();
 
-            const epLabel = isSeries() ? ` • S${currentSeason}E${currentEpisode}` : '';
-            showToast(`🔴 ${SERVERS[currentServer].name} server loading${epLabel}…`, 'success', 2000);
+            document.getElementById('episodeControls').classList.toggle('visible', isSeries());
         }
 
-        // ============================================================
-        //  SERVER SWITCH (main fix here)
-        // ============================================================
-        async function switchServer(server) {
-            if (server === currentServer) {
-                // Same server clicked → just reload
-                loadPlayer();
-                return;
-            }
-
-            currentServer = server;
-            syncServerButtons();
-
-            // If switching to Red/Green and we don't have OMDb id yet → fetch it
-            if (SERVERS[server].requiresOmdb && !currentOmdbId) {
-                const ok = await ensureOmdbId();
-                if (!ok) {
-                    showToast('Could not fetch IMDb ID. Staying on Red + server.', 'error', 4000);
-                    currentServer = 'main';
-                    syncServerButtons();
-                    refreshMetadataDisplay();
-                    loadPlayer();
-                    return;
-                }
-            }
-
-            // If switching to Main and we don't have TMDB id → try to find it
-            if (server === 'main' && !currentTmdbId) {
-                if (currentOmdbId) {
-                    const found = await findTmdbByImdb(currentOmdbId);
-                    if (found) {
-                        currentTmdbId = found.id;
-                        currentType = found.type;
-                    } else {
-                        showToast('Could not find TMDB ID. Staying on current server.', 'error', 4000);
-                        // revert
-                        currentServer = 'red';
-                        syncServerButtons();
-                        loadPlayer();
-                        return;
-                    }
-                } else {
-                    showToast('No TMDB ID available.', 'error', 4000);
-                    return;
-                }
-            }
-
-            // Refresh metadata for the new server
-            refreshMetadataDisplay();
-            loadPlayer();
-
-            document.getElementById('serverIssueOverlay').classList.remove('visible');
-            isIssueOverlayShown = false;
-        }
-
-        // ============================================================
-        //  PAUSE ADS
-        // ============================================================
         function loadPauseAdScript() {
             const adCode = `
                 <script>
@@ -1055,278 +649,106 @@
             isPaused = false;
         }
         function togglePauseAds() {
-            if (isPaused) { hidePauseAds(); sendPlayCommand(); }
-            else { showPauseAds(); sendPauseCommand(); }
-        }
-        function sendPauseCommand() {
-            const iframe = document.getElementById('playerIframe');
-            if (iframe && iframe.contentWindow) {
-                try {
-                    iframe.contentWindow.postMessage({ command: 'pause', method: 'pause' }, '*');
-                    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-                    iframe.contentWindow.postMessage({ action: 'pause' }, '*');
-                    iframe.contentWindow.postMessage('pause', '*');
-                } catch (e) {}
-            }
-        }
-        function sendPlayCommand() {
-            const iframe = document.getElementById('playerIframe');
-            if (iframe && iframe.contentWindow) {
-                try {
-                    iframe.contentWindow.postMessage({ command: 'play', method: 'play' }, '*');
-                    iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-                    iframe.contentWindow.postMessage({ action: 'play' }, '*');
-                    iframe.contentWindow.postMessage('play', '*');
-                } catch (e) {}
-            }
+            if (isPaused) { hidePauseAds(); }
+            else { showPauseAds(); }
         }
 
-        function handleKeydown(e) {
-            const key = e.key;
-            if (key === ' ' || key === 'Spacebar' || key === 'Space') {
-                e.preventDefault(); e.stopPropagation();
-                const iframe = document.getElementById('playerIframe');
-                if (iframe && iframe.style.display !== 'none') togglePauseAds();
-            }
-            if (key === 'f' || key === 'F') { e.preventDefault(); toggleContainerFullscreen(); }
-        }
-
-        // ============================================================
-        //  INIT
-        // ============================================================
         async function init() {
             const params = new URLSearchParams(window.location.search);
             const rawId = params.get('id');
-            const omdbParam = params.get('omdbId') || params.get('imdbId');
             const typeParam = (params.get('type') || 'movie').toLowerCase();
 
             loadPauseAdScript();
 
-            console.log('🎬 RX Player init — server API:', API);
-
-            let tmdbId = null;
-            let omdbId = omdbParam || null;
-
-            if (rawId) {
-                if (/^tt\d+$/i.test(rawId)) { if (!omdbId) omdbId = rawId; }
-                else { tmdbId = rawId; }
-            }
-
-            if (!tmdbId && !omdbId) {
+            if (!rawId) {
                 document.getElementById('movieTitle').textContent = 'No content specified';
-                document.getElementById('moviePlot').textContent = 'Please provide an ID in the URL.';
+                document.getElementById('moviePlot').textContent = 'Please provide a valid ID in the URL.';
                 showToast('Missing content ID.', 'error', 4000);
                 return;
             }
 
             currentType = isTvType(typeParam) ? 'tv' : 'movie';
-            currentTmdbId = tmdbId;
-            currentOmdbId = omdbId;
+            currentTmdbId = rawId;
 
-            // If we only have IMDb id, find the TMDB id
-            if (!currentTmdbId && currentOmdbId) {
-                const found = await findTmdbByImdb(currentOmdbId);
-                if (found) { currentTmdbId = found.id; currentType = found.type; }
-            }
-
-            // ===== Fetch TMDB details from server API =====
-            if (currentTmdbId) {
-                let details = await fetchDetailsFromApi(currentTmdbId, currentType);
-                if (!details || (!details.title && !details.name)) {
-                    const other = currentType === 'tv' ? 'movie' : 'tv';
-                    const alt = await fetchDetailsFromApi(currentTmdbId, other);
-                    if (alt && (alt.title || alt.name)) {
-                        details = alt;
-                        currentType = other;
-                    }
-                }
-                if (details) {
-                    tmdbMetadata = details;
-                    console.log('✅ TMDB details loaded:', details.title || details.name);
-
-                    // Grab imdb_id from details if we don't have it yet
-                    if (!currentOmdbId && details.imdb_id) {
-                        currentOmdbId = details.imdb_id;
-                    }
-
-                    // Setup seasons
-                    if (isTvType(currentType)) {
-                        seasonList = (details.seasons || [])
-                            .filter(s => s.season_number >= 1)
-                            .map(s => ({
-                                season_number: s.season_number,
-                                name: s.name || `Season ${s.season_number}`,
-                                episode_count: s.episode_count || 0
-                            }));
-                        totalSeasons = seasonList.length || details.number_of_seasons || 1;
-                    }
+            let details = await fetchDetailsFromApi(currentTmdbId, currentType);
+            if (!details || (!details.title && !details.name)) {
+                const other = currentType === 'tv' ? 'movie' : 'tv';
+                const alt = await fetchDetailsFromApi(currentTmdbId, other);
+                if (alt && (alt.title || alt.name)) {
+                    details = alt;
+                    currentType = other;
                 }
             }
 
-            // ===== Fetch OMDb details (used by Red / Green) =====
-            if (currentOmdbId) {
-                omdbMetadata = await fetchOmdbById(currentOmdbId);
-                if (omdbMetadata) {
-                    console.log('✅ OMDb details loaded:', omdbMetadata.Title);
-                    // If we don't have TMDB data at all, fall back to OMDb metadata
-                    if (!tmdbMetadata) {
-                        currentType = isTvType(omdbMetadata.Type) ? 'tv' : 'movie';
-                        if (isSeries()) {
-                            totalSeasons = parseInt(omdbMetadata.totalSeasons, 10) || 1;
-                        }
-                    }
+            if (details) {
+                tmdbMetadata = details;
+                displayTmdbMetadata(details, currentType);
+                if (isTvType(currentType)) {
+                    seasonList = (details.seasons || [])
+                        .filter(s => s.season_number >= 1)
+                        .map(s => ({
+                            season_number: s.season_number,
+                            name: s.name || `Season ${s.season_number}`,
+                            episode_count: s.episode_count || 0
+                        }));
+                    totalSeasons = seasonList.length || details.number_of_seasons || 1;
                 }
             }
 
-            // ===== Initial display =====
-            if (tmdbMetadata || omdbMetadata) {
-                refreshMetadataDisplay();
-            } else {
-                document.getElementById('movieTitle').textContent = 'RX Player Content';
-                document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
-            }
-
-            // ===== Seasons / Episodes setup =====
             const seasonSelect = document.getElementById('seasonSelect');
             const episodeSelect = document.getElementById('episodeSelect');
 
             if (isSeries()) {
-                document.getElementById('episodeControls').classList.add('visible');
                 populateSeasonDropdown();
-
                 const seasonParam = parseInt(params.get('season'), 10);
-                const seasonExists = !isNaN(seasonParam) &&
-                    Array.from(seasonSelect.options).some(o => parseInt(o.value, 10) === seasonParam);
-
-                currentSeason = seasonExists ? seasonParam : (parseInt(seasonSelect.value, 10) || 1);
+                currentSeason = !isNaN(seasonParam) ? seasonParam : (parseInt(seasonSelect.value, 10) || 1);
                 seasonSelect.value = currentSeason;
 
                 currentEpisode = parseInt(params.get('episode'), 10) || 1;
                 await loadEpisodes(currentSeason);
-
-                const epExists = !isNaN(currentEpisode) &&
-                    Array.from(episodeSelect.options).some(o => parseInt(o.value, 10) === currentEpisode);
-                if (!epExists) currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 episodeSelect.value = currentEpisode;
-            } else {
-                document.getElementById('episodeControls').classList.remove('visible');
-                currentSeason = 1;
-                currentEpisode = 1;
             }
 
             loadPlayer();
 
-            // ===== EVENT LISTENERS =====
-            document.getElementById('customFsBtn').addEventListener('click', function(e) {
+            document.getElementById('customFsBtn').addEventListener('click', (e) => {
                 toggleContainerFullscreen();
                 e.stopPropagation();
-            });
-
-            document.querySelectorAll('.server-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    switchServer(btn.dataset.server);
-                });
-            });
-
-            document.getElementById('serverIssueTrigger').addEventListener('click', () => {
-                const overlay = document.getElementById('serverIssueOverlay');
-                overlay.classList.toggle('visible');
-                isIssueOverlayShown = overlay.classList.contains('visible');
-                if (isIssueOverlayShown) showToast('🔄 Select a different server or wait.', 'info', 3000);
-            });
-
-            document.querySelectorAll('.server-issue-overlay .switch-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const server = btn.dataset.server;
-                    if (server) switchServer(server);
-                });
             });
 
             seasonSelect.addEventListener('change', async () => {
                 currentSeason = parseInt(seasonSelect.value, 10) || 1;
                 currentEpisode = 1;
                 await loadEpisodes(currentSeason);
-                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 loadPlayer();
-                showToast(`📺 Season ${currentSeason}, Episode ${currentEpisode}`, 'info', 2200);
-            });
-
-            episodeSelect.addEventListener('change', () => {
-                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
-                loadPlayer();
-                showToast(`▶️ Season ${currentSeason}, Episode ${currentEpisode}`, 'info', 2000);
+                showToast(`📺 Season ${currentSeason} loaded`, 'info', 2000);
             });
 
             document.getElementById('applyEpBtn').addEventListener('click', () => {
                 currentSeason = parseInt(seasonSelect.value, 10) || 1;
                 currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 loadPlayer();
-                showToast(`Season ${currentSeason}, Episode ${currentEpisode} loaded`, 'success', 2000);
+                showToast(`▶️ S${currentSeason} E${currentEpisode} playing`, 'success', 2000);
             });
 
-            const header = document.getElementById('mainHeader');
             window.addEventListener('scroll', () => {
-                header.classList.toggle('scrolled', window.scrollY > 10);
+                document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 10);
             });
 
             document.getElementById('profileBtn').addEventListener('click', () => {
-                showToast('👤 Profile — Demo mode', 'info', 3000);
+                showToast('👤 Profile Active', 'info', 3000);
             });
-
-            document.addEventListener('keydown', handleKeydown);
 
             const playerWrapper = document.getElementById('playerWrapper');
             playerWrapper.addEventListener('click', function(e) {
                 const target = e.target;
                 if (target === this || target.closest('.pause-ad-overlay') || target.closest('.pause-badge')) {
-                    const iframe = document.getElementById('playerIframe');
-                    if (iframe && iframe.style.display !== 'none') togglePauseAds();
+                    togglePauseAds();
                 }
-            });
-
-            document.getElementById('pauseBadge').addEventListener('click', function(e) {
-                e.stopPropagation();
-                togglePauseAds();
-            });
-
-            window.addEventListener('message', function(event) {
-                let data = event.data;
-                if (typeof data === 'string') {
-                    try { data = JSON.parse(data); } catch (e) {}
-                }
-                if (data) {
-                    if (data.event === 'onStateChange' && data.info === 2) { showPauseAds(); return; }
-                    if (data.event === 'onStateChange' && data.info === 1) { hidePauseAds(); return; }
-                    if (data.event === 'pause') { showPauseAds(); return; }
-                    if (data.event === 'play') { hidePauseAds(); return; }
-                    if (data.type === 'pause' || data.action === 'pause' || data.method === 'pause') { showPauseAds(); return; }
-                    if (data.type === 'play' || data.action === 'play' || data.method === 'play' || data.type === 'playing') { hidePauseAds(); return; }
-                    if (data.paused === true) { showPauseAds(); return; }
-                    if (data.paused === false) { hidePauseAds(); return; }
-                }
-            });
-
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) hidePauseAds();
             });
         }
 
         document.addEventListener('DOMContentLoaded', init);
-
-        window.addEventListener('error', (e) => console.error('Uncaught error:', e.message));
-
-        document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
-        document.addEventListener('keydown', function(e) {
-            const key = e.keyCode || e.which;
-            if (key === 123) { e.preventDefault(); return false; }
-            if (e.ctrlKey && e.shiftKey && (key === 73 || key === 74 || key === 67)) { e.preventDefault(); return false; }
-            if (e.ctrlKey && (key === 85 || key === 83)) { e.preventDefault(); return false; }
-            if (e.metaKey && e.altKey && key === 73) { e.preventDefault(); return false; }
-            if (key === 44) { e.preventDefault(); return false; }
-            return true;
-        });
-        document.addEventListener('selectstart', function(e) { e.preventDefault(); return false; });
-        document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
     </script>
 </body>
 </html>
