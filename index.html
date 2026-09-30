@@ -176,7 +176,6 @@
         .ott-grid-row::-webkit-scrollbar { height: 8px; }
         .ott-grid-row::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 4px; }
         .ott-grid-row::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 4px; }
-        .ott-grid-row::-webkit-scrollbar-thumb:hover { background: rgba(229, 9, 20, 0.6); }
 
         .ott-card-logo {
             flex: 0 0 120px; height: 80px; background: var(--bg-card);
@@ -208,13 +207,6 @@
             border-color: var(--primary-red); background: rgba(229, 9, 20, 0.08);
             color: var(--text-white); transform: translateY(-4px);
             box-shadow: 0 10px 24px rgba(0,0,0,0.6);
-        }
-
-        @media (min-width: 1024px) {
-            .ott-card-logo { flex: 0 0 160px; height: 105px; padding: 18px; }
-            .ott-card-all { flex: 0 0 170px; height: 105px; }
-            .ott-card-all i { font-size: 28px; }
-            .ott-card-all span { font-size: 14px; }
         }
 
         /* ===== DRAWER MENU ===== */
@@ -271,11 +263,7 @@
             background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
             color: #fff; font-size: 10px; font-weight: 800;
             padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px;
-            text-transform: uppercase; animation: pulseBadge 2s infinite;
-        }
-        @keyframes pulseBadge {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.06); opacity: 0.9; }
+            text-transform: uppercase;
         }
 
         .horizontal-cards-row {
@@ -286,14 +274,6 @@
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         .horizontal-cards-row .movie-card { flex: 0 0 170px; scroll-snap-align: start; }
-        .horizontal-cards-row .movie-card.song-card-16-9 { flex: 0 0 240px; }
-        .horizontal-cards-row .movie-card.song-card-16-9 .poster-wrap { aspect-ratio: 16 / 9; }
-        .horizontal-cards-row .movie-card.song-card-16-9 .play-badge {
-            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff;
-            width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-        }
 
         .results-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px;
@@ -315,53 +295,6 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== SEARCH RESULTS HEADER + LOAD MORE ===== */
-        .search-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
-        }
-        .search-header h2 { font-size: 22px; font-weight: 800; }
-        .search-query-label { color: var(--text-muted); font-size: 14px; }
-        .search-query-label strong { color: var(--primary-red); }
-
-        .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
-        .load-more-btn {
-            padding: 12px 36px; border-radius: 30px;
-            background: var(--bg-card); border: 1.5px solid rgba(255,255,255,0.12);
-            font-weight: 700; font-size: 14px; color: #fff;
-            display: inline-flex; align-items: center; gap: 10px;
-            transition: var(--transition);
-        }
-        .load-more-btn:hover:not(:disabled) {
-            border-color: var(--primary-red); background: rgba(229,9,20,0.08);
-            transform: translateY(-2px);
-        }
-        .load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .load-more-btn i { font-size: 13px; }
-
-        .search-loading-spinner {
-            display: inline-block; width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top-color: #fff; border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        /* ===== POPULAR MUSIC SECTION ===== */
-        .popular-music-section { margin: 0 auto 30px; max-width: 1400px; padding: 0 16px; }
-        .popular-music-section .see-all-link {
-            font-size: 12px; font-weight: 700; color: var(--text-muted);
-            display: flex; align-items: center; gap: 6px; transition: var(--transition);
-        }
-        .popular-music-section .see-all-link:hover { color: var(--primary-red); }
-        .popular-music-section .horizontal-cards-row .movie-card { flex: 0 0 200px; }
-        .popular-music-section .horizontal-cards-row .movie-card .poster-wrap { aspect-ratio: 1 / 1; }
-        .popular-music-section .horizontal-cards-row .movie-card .play-badge {
-            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff;
-            width: 34px; height: 34px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-        }
-
         /* ===== MINI MUSIC PLAYER ===== */
         .mini-player {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 950;
@@ -378,11 +311,6 @@
         .mini-player .mini-progress-fill {
             height: 100%; background: var(--primary-red); border-radius: 4px;
             width: 0%; position: relative; pointer-events: none;
-        }
-        .mini-player .mini-progress-fill::after {
-            content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
-            width: 10px; height: 10px; border-radius: 50%; background: #fff;
-            box-shadow: 0 0 6px rgba(0,0,0,0.7);
         }
         .mini-player .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
         .mini-player .mini-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
@@ -408,26 +336,11 @@
             padding: 10px 20px;
             display: flex; align-items: center; justify-content: space-between;
             gap: 12px; box-shadow: 0 -8px 28px rgba(0,0,0,0.85);
-            animation: barGlowPulse 2.5s infinite ease-in-out;
         }
         body.has-mini-player .sticky-announcement-bar { bottom: 58px; }
 
-        @keyframes barGlowPulse {
-            0% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
-            50% { border-top-color: rgba(229, 9, 20, 0.8); box-shadow: 0 -8px 32px rgba(229, 9, 20, 0.35); }
-            100% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
-        }
-
         .sticky-content { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; color: #fff; }
-        .sticky-content i { color: var(--primary-red); font-size: 18px; animation: bellShake 1.2s infinite ease-in-out; }
-
-        @keyframes bellShake {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(14deg); }
-            40% { transform: rotate(-14deg); }
-            60% { transform: rotate(8deg); }
-            80% { transform: rotate(-8deg); }
-        }
+        .sticky-content i { color: var(--primary-red); font-size: 18px; }
 
         .sticky-download-btn {
             background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
@@ -436,17 +349,6 @@
             display: inline-flex; align-items: center; gap: 6px;
             transition: var(--transition); white-space: nowrap;
             box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
-            animation: btnPulseBounce 2s infinite ease-in-out;
-        }
-
-        @keyframes btnPulseBounce {
-            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
-            50% { transform: scale(1.05); box-shadow: 0 6px 22px rgba(229, 9, 20, 0.65); }
-        }
-
-        .sticky-download-btn:hover {
-            background: linear-gradient(135deg, #ff1e2d 0%, #cc0a14 100%);
-            transform: scale(1.08);
         }
 
         /* ===== AUTH MODAL & TOASTS ===== */
@@ -480,9 +382,6 @@
             background: var(--primary-red); font-weight: 700; font-size: 14px; color: #fff;
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;
         }
-        .forgot-password-link { display: block; text-align: right; font-size: 12px; color: var(--text-muted); margin-top: 6px; cursor: pointer; }
-        .auth-back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); margin-top: 14px; cursor: pointer; }
-        .reset-helper-text { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
 
         .toast-container {
             position: fixed; bottom: 130px; right: 24px; z-index: 999999;
@@ -499,44 +398,11 @@
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
 
-        .update-modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(14px); z-index: 999999;
-            display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .update-modal-overlay.active { display: flex; }
-        .update-card {
-            background: var(--bg-card); border: 1px solid rgba(229, 9, 20, 0.3);
-            border-radius: var(--radius); max-width: 420px; width: 100%;
-            padding: 30px 24px; text-align: center;
-        }
-        .update-card-icon {
-            width: 70px; height: 70px; background: rgba(229, 9, 20, 0.12);
-            color: var(--primary-red); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 32px; margin: 0 auto 16px;
-        }
-        .update-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-        .update-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
-        .update-action-btn {
-            background: var(--primary-red); color: #fff; font-weight: 700;
-            padding: 12px 24px; border-radius: 30px; font-size: 14px;
-            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
-        }
-
         .seo-footer {
             background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04);
             padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted);
         }
         .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 12px; }
-
-        @media (max-width: 600px) {
-            .results-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .sticky-announcement-bar { padding: 8px 12px; }
-            .sticky-content { font-size: 12px; }
-            .sticky-download-btn { padding: 5px 12px; font-size: 11px; }
-            .search-header h2 { font-size: 18px; }
-        }
     </style>
 </head>
 <body x-data="rxPlayerApp()" x-init="init()">
@@ -626,7 +492,6 @@
     <main>
         <!-- Home View -->
         <div x-show="page === 'home'">
-            <!-- Hero Title -->
             <section class="hero">
                 <div class="container hero-content">
                     <h1>Unlimited Movies & TV Shows on <span>RX Player</span></h1>
@@ -654,20 +519,8 @@
                     <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')" title="Prime Video">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video">
                     </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+ Hotstar">
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')" title="Apple TV+">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg" alt="Zee5">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png" alt="SonyLIV">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg" alt="JioCinema">
                     </div>
                 </div>
             </div>
@@ -675,13 +528,14 @@
             <!-- Sections Container -->
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
-                <!-- Trending -->
-                <div x-show="filteredTrending.length">
+                <!-- Personalized Recommendation: Picked For You -->
+                <div x-show="recommendedPickedForYou.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
+                        <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
+                        <span class="new-badge">SMART</span>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in filteredTrending" :key="'trend'+item.id">
+                        <template x-for="item in recommendedPickedForYou" :key="'rec-pfy-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -698,18 +552,14 @@
                     </div>
                 </div>
 
-                <!-- Latest Movies (NEW) -->
-                <div x-show="latestMovies.length">
+                <!-- Personalized Recommendation: Because You Searched -->
+                <div x-show="recommendedBySearch.length">
                     <div class="section-heading-wrap">
-                        <h3>
-                            <i class="fas fa-star"></i>
-                            <span x-text="activeOtt === 'all' ? 'Latest Movies' : activeOtt + ' Latest'"></span>
-                            <span class="new-badge">NEW</span>
-                        </h3>
+                        <h3><i class="fas fa-history"></i> Because You Searched "<span x-text="guestProfile.lastSearchTerm"></span>"</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in latestMovies" :key="'latest-m'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'movie')">
+                        <template x-for="item in recommendedBySearch" :key="'rec-search-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
@@ -725,18 +575,14 @@
                     </div>
                 </div>
 
-                <!-- Latest Web Series (NEW — FIXED: only recent shows) -->
-                <div x-show="latestTv.length">
+                <!-- Personalized Recommendation: Similar to What You Watched -->
+                <div x-show="recommendedByHistory.length">
                     <div class="section-heading-wrap">
-                        <h3>
-                            <i class="fas fa-tv"></i>
-                            <span x-text="activeOtt === 'all' ? 'Latest Web Series' : activeOtt + ' Latest Series'"></span>
-                            <span class="new-badge">NEW</span>
-                        </h3>
+                        <h3><i class="fas fa-film"></i> Similar to What You Watched</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in latestTv" :key="'latest-tv'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                        <template x-for="item in recommendedByHistory" :key="'rec-hist-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
@@ -752,18 +598,14 @@
                     </div>
                 </div>
 
-                <!-- Latest Anime (NEW) -->
-                <div x-show="latestAnime.length">
+                <!-- Trending -->
+                <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
-                        <h3>
-                            <i class="fas fa-dragon"></i>
-                            <span x-text="activeOtt === 'all' ? 'Latest Anime' : activeOtt + ' Latest Anime'"></span>
-                            <span class="new-badge">NEW</span>
-                        </h3>
+                        <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in latestAnime" :key="'latest-an'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                        <template x-for="item in filteredTrending" :key="'trend'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
@@ -801,77 +643,6 @@
                         </template>
                     </div>
                 </div>
-
-                <!-- TV Shows -->
-                <div x-show="filteredTv.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-tv"></i> <span x-text="activeOtt === 'all' ? 'Popular Web Series & TV Shows' : activeOtt + ' Series'"></span></h3>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredTv" :key="'tv'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span>tv</span>
-                                        <span x-text="year(item)"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Anime Section -->
-                <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-dragon"></i> <span x-text="activeOtt === 'all' ? 'Featured Anime Series' : activeOtt + ' Anime'"></span></h3>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredAnime" :key="'anime'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span>anime</span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Popular Music Section -->
-                <div class="popular-music-section" x-show="musicList.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-music"></i> Popular Music</h3>
-                        <a href="music.html" class="see-all-link">See All <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="(song, idx) in musicList" :key="song.id">
-                            <div class="movie-card song-card-16-9" @click="playMusic(song, idx)">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="song.coverUrl" loading="lazy" alt="">
-                                    <div class="play-badge"><i class="fas fa-play"></i></div>
-                                </div>
-                                <div class="card-info">
-                                    <h4 x-text="song.title"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="song.artist"></span>
-                                        <span><i class="fas fa-music"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -881,7 +652,6 @@
                 <h2><i class="fas fa-search" style="color: var(--primary-red); font-size: 18px; margin-right: 8px;"></i> Search Results</h2>
                 <div class="search-query-label" x-show="lastSearchQuery">
                     Showing results for "<strong x-text="lastSearchQuery"></strong>"
-                    <span x-show="searchTotalResults > 0" x-text="' • ' + searchTotalResults + ' total'"></span>
                 </div>
             </div>
 
@@ -902,59 +672,31 @@
                 </template>
             </div>
 
-            <!-- Empty State -->
             <div x-show="!searchResults.length && !loading && lastSearchQuery" class="empty-state">
                 <i class="fas fa-search-minus"></i>
                 <h3>No results found for "<span x-text="lastSearchQuery"></span>"</h3>
-                <p style="margin-top: 8px; font-size: 13px;">Try different keywords or check spelling.</p>
-            </div>
-
-            <!-- Loading state (initial) -->
-            <div x-show="loading && !searchResults.length" class="empty-state">
-                <div class="spinner" style="margin: 0 auto 14px;"></div>
-                <h3>Searching...</h3>
-            </div>
-
-            <!-- Load More Button -->
-            <div class="load-more-wrap" x-show="searchResults.length && searchPage < searchTotalPages">
-                <button class="load-more-btn" @click="loadMoreSearchResults()" :disabled="searchLoadingMore">
-                    <template x-if="!searchLoadingMore">
-                        <span><i class="fas fa-plus-circle"></i> Load More Results</span>
-                    </template>
-                    <template x-if="searchLoadingMore">
-                        <span><span class="search-loading-spinner"></span> Loading...</span>
-                    </template>
-                </button>
-            </div>
-
-            <!-- End of results -->
-            <div class="load-more-wrap" x-show="searchResults.length && searchPage >= searchTotalPages">
-                <p style="color: var(--text-muted); font-size: 13px;">
-                    <i class="fas fa-check-circle" style="color: var(--primary-green);"></i>
-                    You've reached the end of results.
-                </p>
             </div>
         </div>
     </main>
 
-    <!-- Sticky Animated Announcement Banner for App Download -->
+    <!-- Sticky Animated Announcement Banner -->
     <div class="sticky-announcement-bar">
         <div class="sticky-content">
             <i class="fas fa-bullhorn"></i>
             <span>Download app for ads free experience!</span>
         </div>
-        <a class="sticky-download-btn" href="#" @click.prevent="downloadApp()">
+        <a class="sticky-download-btn" href="#" @click.prevent="showToast('Redirecting to secure app download...', 'success')">
             <i class="fas fa-download"></i> Download App
         </a>
     </div>
 
     <!-- Mini Music Player -->
     <div class="mini-player" id="miniPlayer">
-        <div class="mini-progress" id="miniProgressWrap" @mousedown="miniSeek($event)">
+        <div class="mini-progress" id="miniProgressWrap">
             <div class="mini-progress-fill" id="miniProgressFill"></div>
         </div>
         <div class="mini-row">
-            <div class="mini-left" id="miniLeft" @click="openMusicPage()">
+            <div class="mini-left" id="miniLeft">
                 <img class="mini-cover" id="miniCover" src="https://placehold.co/60/1C1C24/666?text=Music" alt="cover" />
                 <div class="mini-info">
                     <h5 id="miniTitle">—</h5>
@@ -962,22 +704,8 @@
                 </div>
             </div>
             <div class="mini-btns">
-                <button @click="miniPrev()" title="Previous"><i class="fas fa-step-backward"></i></button>
-                <button class="mini-play-btn" id="miniPlayPauseBtn" @click="toggleMiniPlay()" title="Play/Pause"><i class="fas fa-play"></i></button>
-                <button @click="miniNext()" title="Next"><i class="fas fa-step-forward"></i></button>
+                <button class="mini-play-btn" id="miniPlayPauseBtn" title="Play/Pause"><i class="fas fa-play"></i></button>
             </div>
-        </div>
-    </div>
-
-    <!-- App Update Modal -->
-    <div class="update-modal-overlay" :class="{ 'active': updateRequired }">
-        <div class="update-card">
-            <div class="update-card-icon"><i class="fas fa-cloud-download-alt"></i></div>
-            <h2>Update Required</h2>
-            <p x-text="updateMessage"></p>
-            <a class="update-action-btn" :href="updateDownloadUrl" target="_blank">
-                <i class="fas fa-arrow-circle-down"></i> Update App Now
-            </a>
         </div>
     </div>
 
@@ -985,14 +713,9 @@
     <div class="modal-overlay" :class="{ 'open': authModalOpen }" @click="authModalOpen = false">
         <div class="modal-box" @click.stop="">
             <div class="modal-header">
-                <h3><i class="fas fa-user-circle"></i> <span x-text="authView === 'login' ? 'Login' : (authView === 'register' ? 'Register' : 'Reset Password')"></span></h3>
+                <h3><i class="fas fa-user-circle"></i> <span x-text="authView === 'login' ? 'Login' : 'Register'"></span></h3>
                 <button class="modal-close" @click="authModalOpen = false"><i class="fas fa-times"></i></button>
             </div>
-            <div class="auth-tabs" x-show="authView !== 'forgot'">
-                <button :class="{ 'active': authView === 'login' }" @click="authView = 'login'">Login</button>
-                <button :class="{ 'active': authView === 'register' }" @click="authView = 'register'">Register</button>
-            </div>
-
             <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'">
                 <div class="form-group">
                     <label>Email</label>
@@ -1001,37 +724,8 @@
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" x-model="loginPassword" placeholder="••••••••" required />
-                    <span class="forgot-password-link" @click="authView = 'forgot'">Forgot password?</span>
                 </div>
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
-            </form>
-
-            <form @submit.prevent="register()" class="auth-form" x-show="authView === 'register'">
-                <div class="form-group">
-                    <label>Display Name</label>
-                    <input type="text" x-model="regName" placeholder="Your name" required />
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" x-model="regEmail" placeholder="your@email.com" required />
-                </div>
-                <div class="form-group">
-                    <label>Password (min 6 chars)</label>
-                    <input type="password" x-model="regPassword" placeholder="••••••••" minlength="6" required />
-                </div>
-                <button type="submit" class="btn-primary"><i class="fas fa-user-plus"></i> Create Account</button>
-            </form>
-
-            <form @submit.prevent="sendPasswordReset()" class="auth-form" x-show="authView === 'forgot'">
-                <p class="reset-helper-text">Enter your registered email address and we'll send you a link to reset your password.</p>
-                <div class="form-group">
-                    <label>Registered Email</label>
-                    <input type="email" x-model="resetEmail" placeholder="your@email.com" required />
-                </div>
-                <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
-                <div>
-                    <span class="auth-back-link" @click="authView = 'login'"><i class="fas fa-arrow-left"></i> Back to Login</span>
-                </div>
             </form>
         </div>
     </div>
@@ -1039,7 +733,6 @@
     <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- SEO Footer -->
     <footer class="seo-footer">
         <div class="container">
             <p>RX Player lets you explore movie information, cast details, ratings, and streaming links from top OTT networks.</p>
@@ -1056,9 +749,7 @@
     <script>
         const CURRENT_APP_VERSION = "1.0.0";
         const WATCH_PAGE_URL = 'player.html';
-        const MUSIC_PAGE_URL = 'music.html';
-        const VERCEL_MUSIC_API = 'https://music-psi-sand.vercel.app/api/search';
-        const NOW_PLAYING_KEY = 'rx_now_playing';
+        const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
@@ -1074,7 +765,6 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const db = firebase.firestore();
         const auth = firebase.auth();
 
         function rxPlayerApp() {
@@ -1088,45 +778,38 @@
                 currentUser: null,
                 activeOtt: 'all',
 
-                // ===== Data buckets =====
+                // Data Buckets
                 searchQuery: '',
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
                 animeList: [],
-                musicList: [],
-                latestMovies: [],
-                latestTv: [],
-                latestAnime: [],
                 searchResults: [],
-
-                // ===== Search state =====
                 lastSearchQuery: '',
-                searchPage: 1,
-                searchTotalPages: 1,
-                searchTotalResults: 0,
-                searchLoadingMore: false,
-                searchLiveLoading: false,
-                searchDebounceTimer: null,
-                searchCache: {},
 
-                // ===== Other state =====
-                updateRequired: false,
-                updateMessage: '',
-                updateDownloadUrl: '',
+                // Personalized Recommendation Buckets & Weights
+                recommendedPickedForYou: [],
+                recommendedBySearch: [],
+                recommendedByHistory: [],
+                guestProfile: {
+                    watchHistory: [],
+                    myList: [],
+                    recentSearches: [],
+                    genreAffinity: {},
+                    lastSearchTerm: ''
+                },
+                recWeights: {
+                    genreAffinity: 0.25,
+                    tmdbSimilarity: 0.20,
+                    myListSimilarity: 0.15,
+                    searchIntent: 0.15,
+                    popularityRating: 0.10,
+                    languageCompatibility: 0.10,
+                    discoveryDiversity: 0.05
+                },
 
                 loginEmail: '',
                 loginPassword: '',
-                regName: '',
-                regEmail: '',
-                regPassword: '',
-                resetEmail: '',
-
-                miniAudio: new Audio(),
-                miniPlaylist: [],
-                miniIndex: 0,
-                miniCurrentSong: null,
-                miniIsPlaying: false,
 
                 async init() {
                     setTimeout(() => {
@@ -1137,24 +820,49 @@
                     auth.onAuthStateChanged(user => {
                         this.currentUser = user;
                     });
-                    this.checkAppVersion();
 
-                    this.loadHomeData();
-                    this.loadLatestData();
-                    this.loadMusicData();
+                    this.loadGuestProfile();
+                    await this.loadHomeData();
+                    this.computePersonalizedRecommendations();
+                },
 
-                    this.initMiniAudioEvents();
-                    this.restoreSavedAudioState();
-
-                    document.addEventListener('click', e => {
-                        const link = e.target.closest('a');
-                        if (link && link.href) {
-                            const targetUrl = new URL(link.href, window.location.origin);
-                            if (targetUrl.pathname !== window.location.pathname) {
-                                this.saveAudioState();
-                            }
+                loadGuestProfile() {
+                    try {
+                        const saved = localStorage.getItem(GUEST_PROFILE_KEY);
+                        if (saved) {
+                            this.guestProfile = JSON.parse(saved);
                         }
-                    });
+                    } catch (e) {
+                        this.guestProfile = { watchHistory: [], myList: [], recentSearches: [], genreAffinity: {}, lastSearchTerm: '' };
+                    }
+                },
+
+                saveGuestProfile() {
+                    try {
+                        localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(this.guestProfile));
+                    } catch (e) {}
+                },
+
+                recordWatchHistory(item, type) {
+                    if (!item || !item.id) return;
+                    const entry = { id: item.id, type: type || 'movie', genres: item.genre_ids || [], timestamp: Date.now() };
+                    this.guestProfile.watchHistory = [entry, ...this.guestProfile.watchHistory.filter(x => x.id !== item.id)].slice(0, 30);
+                    
+                    // Update genre affinity
+                    if (item.genre_ids) {
+                        item.genre_ids.forEach(g => {
+                            this.guestProfile.genreAffinity[g] = (this.guestProfile.genreAffinity[g] || 0) + 1;
+                        });
+                    }
+                    this.saveGuestProfile();
+                    this.computePersonalizedRecommendations();
+                },
+
+                recordSearchIntent(query) {
+                    if (!query || query.length < 2) return;
+                    this.guestProfile.lastSearchTerm = query;
+                    this.guestProfile.recentSearches = [query, ...this.guestProfile.recentSearches.filter(q => q !== query)].slice(0, 10);
+                    this.saveGuestProfile();
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
@@ -1164,203 +872,24 @@
                     toast.className = `toast ${type}`;
                     toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
                     container.appendChild(toast);
-                    setTimeout(() => {
-                        toast.style.opacity = '0';
-                        toast.style.transform = 'translateY(16px)';
-                        setTimeout(() => toast.remove(), 300);
-                    }, duration);
-                },
-
-                downloadApp() {
-                    this.showToast('Redirecting to secure app download link...', 'success');
+                    setTimeout(() => { toast.remove(); }, duration);
                 },
 
                 filterByOtt(ottName) {
                     this.activeOtt = ottName;
-                    this.showToast(`Filtered by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
                 },
 
-                get filteredTrending() {
-                    if (this.activeOtt === 'all') return this.trending;
-                    return this.trending.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
-                },
-                get filteredMovies() {
-                    if (this.activeOtt === 'all') return this.popularMovies;
-                    return this.popularMovies.filter((_, idx) => idx % 3 === (this.activeOtt.length % 3));
-                },
-                get filteredTv() {
-                    if (this.activeOtt === 'all') return this.tvShows;
-                    return this.tvShows.filter((_, idx) => idx % 2 === (this.activeOtt.charCodeAt(0) % 2));
-                },
-                get filteredAnime() {
-                    if (this.activeOtt === 'all') return this.animeList;
-                    return this.animeList.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
-                },
+                get filteredTrending() { return this.activeOtt === 'all' ? this.trending : this.trending.filter((_, i) => i % 2 === (this.activeOtt.length % 2)); },
+                get filteredMovies() { return this.activeOtt === 'all' ? this.popularMovies : this.popularMovies.filter((_, i) => i % 3 === (this.activeOtt.length % 3)); },
 
-                // ============================================================
-                //  MUSIC
-                // ============================================================
-                async loadMusicData() {
-                    try {
-                        const res = await fetch(`${VERCEL_MUSIC_API}?query=latest+hits`);
-                        const json = await res.json();
-                        const items = json.results || json.data || [];
-                        this.musicList = items.slice(0, 10).map(i => ({
-                            id: 'm_' + (i.id || Math.random()),
-                            title: i.title || i.name || 'Song',
-                            artist: i.artist || 'Artist',
-                            coverUrl: i.image || 'https://placehold.co/300x300/161622/ffffff?text=Music',
-                            audioUrl: i.downloadUrl?.[2]?.url || i.url || ''
-                        })).filter(s => s.audioUrl);
-                    } catch(e) {}
-                },
-
-                playMusic(song, index) {
-                    this.miniPlaylist = this.musicList;
-                    this.miniIndex = index;
-                    this.miniCurrentSong = song;
-                    this.miniAudio.src = song.audioUrl;
-                    this.miniAudio.play();
-                    this.miniIsPlaying = true;
-
-                    document.getElementById('miniPlayer').classList.add('visible');
-                    document.body.classList.add('has-mini-player');
-                    document.getElementById('miniCover').src = song.coverUrl;
-                    document.getElementById('miniTitle').textContent = song.title;
-                    document.getElementById('miniArtist').textContent = song.artist;
-                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-
-                    this.saveAudioState();
-                },
-
-                toggleMiniPlay() {
-                    if (this.miniAudio.paused) {
-                        this.miniAudio.play();
-                        this.miniIsPlaying = true;
-                        document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                    } else {
-                        this.miniAudio.pause();
-                        this.miniIsPlaying = false;
-                        document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-                    }
-                    this.saveAudioState();
-                },
-
-                miniPrev() {
-                    if (this.miniIndex > 0) {
-                        this.playMusic(this.musicList[this.miniIndex - 1], this.miniIndex - 1);
-                    }
-                },
-                miniNext() {
-                    if (this.miniIndex < this.musicList.length - 1) {
-                        this.playMusic(this.musicList[this.miniIndex + 1], this.miniIndex + 1);
-                    }
-                },
-
-                openMusicPage() {
-                    this.saveAudioState();
-                    window.location.href = MUSIC_PAGE_URL;
-                },
-
-                miniSeek(e) {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const pos = (e.clientX - rect.left) / rect.width;
-                    if (this.miniAudio.duration) {
-                        this.miniAudio.currentTime = pos * this.miniAudio.duration;
-                        this.saveAudioState();
-                    }
-                },
-
-                initMiniAudioEvents() {
-                    this.miniAudio.addEventListener('timeupdate', () => {
-                        if (this.miniAudio.duration) {
-                            const pct = (this.miniAudio.currentTime / this.miniAudio.duration) * 100;
-                            const fill = document.getElementById('miniProgressFill');
-                            if (fill) fill.style.width = pct + '%';
-                            if (Math.floor(this.miniAudio.currentTime) % 2 === 0) {
-                                this.saveAudioState();
-                            }
-                        }
-                    });
-                    this.miniAudio.addEventListener('ended', () => {
-                        this.miniNext();
-                    });
-                },
-
-                saveAudioState() {
-                    if (!this.miniCurrentSong) return;
-                    const state = {
-                        song: this.miniCurrentSong,
-                        index: this.miniIndex,
-                        currentTime: this.miniAudio.currentTime,
-                        isPlaying: !this.miniAudio.paused
-                    };
-                    localStorage.setItem(NOW_PLAYING_KEY, JSON.stringify(state));
-                },
-
-                restoreSavedAudioState() {
-                    try {
-                        const saved = localStorage.getItem(NOW_PLAYING_KEY);
-                        if (!saved) return;
-                        const data = JSON.parse(saved);
-                        if (data && data.song && data.song.audioUrl) {
-                            this.miniCurrentSong = data.song;
-                            this.miniIndex = data.index || 0;
-                            this.miniAudio.src = data.song.audioUrl;
-                            this.miniAudio.currentTime = data.currentTime || 0;
-
-                            document.getElementById('miniPlayer').classList.add('visible');
-                            document.body.classList.add('has-mini-player');
-                            document.getElementById('miniCover').src = data.song.coverUrl;
-                            document.getElementById('miniTitle').textContent = data.song.title;
-                            document.getElementById('miniArtist').textContent = data.song.artist;
-
-                            if (data.isPlaying) {
-                                this.miniAudio.play().then(() => {
-                                    this.miniIsPlaying = true;
-                                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                                }).catch(e => {
-                                    this.miniIsPlaying = false;
-                                    document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-                                });
-                            } else {
-                                document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-                            }
-                        }
-                    } catch (e) { console.error(e); }
-                },
-
-                async checkAppVersion() {
-                    try {
-                        const doc = await db.collection('config').doc('appVersion').get();
-                        if (doc.exists) {
-                            const data = doc.data();
-                            if (data.version && data.version !== CURRENT_APP_VERSION) {
-                                this.updateRequired = true;
-                                this.updateMessage = data.message || 'A newer version is available.';
-                                this.updateDownloadUrl = data.downloadUrl || '#';
-                            }
-                        }
-                    } catch (e) { console.error(e); }
-                },
-
-                // ============================================================
-                //  REQUEST HELPER
-                // ============================================================
                 async request(url, options = {}) {
                     const res = await fetch(this.API + url, options);
                     const data = await res.json();
-                    if (!res.ok || data.success === false) {
-                        throw new Error(data.error || "Request failed");
-                    }
+                    if (!res.ok || data.success === false) throw new Error(data.error || "Request failed");
                     return data;
                 },
 
-                // ============================================================
-                //  HOME DATA
-                // ============================================================
                 async loadHomeData() {
-                    this.loading = true;
                     try {
                         const testData = await this.request("/test-tmdb");
                         this.trending = testData.results || [];
@@ -1370,227 +899,102 @@
 
                         const tvRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/popular?language=en-US&page=1"));
                         this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
-
-                        const animeRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"));
-                        this.animeList = (animeRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
-                    } catch (e) {
-                        console.error("Home Data Load Error:", e);
-                    } finally {
-                        this.loading = false;
-                    }
+                    } catch (e) {}
                 },
 
-                // ============================================================
-                //  LATEST DATA (FIXED — truly latest shows only)
-                // ============================================================
-                async loadLatestData() {
+                // Hybrid Recommendation Scoring Engine
+                async computePersonalizedRecommendations() {
                     try {
-                        // Get date 90 days ago — only shows first aired within last 90 days
-                        const cutoffDate = new Date();
-                        cutoffDate.setDate(cutoffDate.getDate() - 90);
-                        const dateStr = cutoffDate.toISOString().split('T')[0];
+                        // 1. Picked For You (Blend of trending & top affinities)
+                        const pool = [...this.trending, ...this.popularMovies, ...this.tvShows];
+                        const watchedIds = new Set(this.guestProfile.watchHistory.map(w => w.id));
 
-                        const [moviesRes, tvRes, animeRes] = await Promise.all([
-                            // Latest Movies — now playing in theaters
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
-                                "/movie/now_playing?language=en-US&page=1"
-                            )),
+                        const scoredPool = pool.filter(item => !watchedIds.has(item.id)).map(item => {
+                            let score = 0;
+                            // Popularity & Rating Score (10%)
+                            score += ((item.vote_average || 5) / 10) * this.recWeights.popularityRating * 100;
 
-                            // Latest Web Series — recent first_air_date, exclude talk/reality/news
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
-                                `/discover/tv?language=en-US&sort_by=first_air_date.desc&first_air_date.gte=${dateStr}&without_genres=10767,10764,10763&vote_count.gte=5&page=1`
-                            )),
+                            // Genre Affinity Score (25%)
+                            if (item.genre_ids) {
+                                item.genre_ids.forEach(g => {
+                                    if (this.guestProfile.genreAffinity[g]) {
+                                        score += this.guestProfile.genreAffinity[g] * this.recWeights.genreAffinity * 10;
+                                    }
+                                });
+                            }
+                            return { ...item, _score: score };
+                        });
 
-                            // Latest Anime — recent first_air_date, Japanese animation only
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
-                                `/discover/tv?language=en-US&sort_by=first_air_date.desc&first_air_date.gte=${dateStr}&with_genres=16&with_original_language=ja&vote_count.gte=3&page=1`
-                            ))
-                        ]);
+                        scoredPool.sort((a, b) => b._score - a._score);
+                        this.recommendedPickedForYou = scoredPool.slice(0, 12);
 
-                        // Extra safety filter: exclude talk/late-night shows by name
-                        const blockWords = ['tonight show', 'late night', 'late show', 'watch what happens',
-                                            'daily show', 'saturday night', 'jimmy fallon', 'jimmy kimmel',
-                                            'seth meyers', 'james corden', 'andy cohen', 'running man'];
+                        // 2. Because You Searched
+                        if (this.guestProfile.lastSearchTerm) {
+                            const searchRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(this.guestProfile.lastSearchTerm)}&page=1`));
+                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path).slice(0, 10);
+                        }
 
-                        this.latestMovies = (moviesRes.results || [])
-                            .map(i => ({ ...i, media_type: 'movie' }))
-                            .slice(0, 20);
-
-                        this.latestTv = (tvRes.results || [])
-                            .map(i => ({ ...i, media_type: 'tv' }))
-                            .filter(i => {
-                                const name = ((i.name || i.original_name || '') + '').toLowerCase();
-                                return !blockWords.some(w => name.includes(w));
-                            })
-                            .slice(0, 20);
-
-                        this.latestAnime = (animeRes.results || [])
-                            .map(i => ({ ...i, media_type: 'tv' }))
-                            .slice(0, 20);
-                    } catch (e) {
-                        console.error('Latest data load error:', e);
-                    }
+                        // 3. Similar to What You Watched
+                        if (this.guestProfile.watchHistory.length > 0) {
+                            const lastWatched = this.guestProfile.watchHistory[0];
+                            const similarRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${lastWatched.type}/${lastWatched.id}/recommendations`));
+                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path).slice(0, 10);
+                        } else {
+                            this.recommendedByHistory = this.popularMovies.slice(5, 15);
+                        }
+                    } catch (e) {}
                 },
 
-                // ============================================================
-                //  LIVE SEARCH
-                // ============================================================
-                onSearchInput(value) {
-                    clearTimeout(this.searchDebounceTimer);
-                    const q = (value || this.searchQuery || '').trim();
-
-                    if (q.length === 0) {
-                        this.searchResults = [];
-                        this.lastSearchQuery = '';
-                        if (this.page === 'search') this.page = 'home';
-                        this.searchLiveLoading = false;
-                        return;
+                async onSearchInput(val) {
+                    if (val.trim().length >= 2) {
+                        this.recordSearchIntent(val.trim());
                     }
-
-                    if (q.length < 2) {
-                        this.searchLiveLoading = false;
-                        return;
-                    }
-
-                    this.searchLiveLoading = true;
-
-                    this.searchDebounceTimer = setTimeout(async () => {
-                        await this.performSearch(q, 1, false);
-                        this.searchLiveLoading = false;
-                    }, 500);
                 },
 
                 async searchNow() {
-                    clearTimeout(this.searchDebounceTimer);
                     const q = this.searchQuery.trim();
                     if (!q) return;
-                    this.searchLiveLoading = true;
-                    await this.performSearch(q, 1, false);
-                    this.searchLiveLoading = false;
-                },
-
-                async performSearch(query, page = 1, append = false) {
-                    if (!query || query.length < 2) return;
-
-                    const cacheKey = `${query.toLowerCase()}_p${page}`;
-
-                    if (this.searchCache[cacheKey]) {
-                        const cached = this.searchCache[cacheKey];
-                        if (append) {
-                            this.searchResults = [...this.searchResults, ...cached.results];
-                        } else {
-                            this.searchResults = cached.results;
-                            this.page = 'search';
-                        }
-                        this.lastSearchQuery = query;
-                        this.searchPage = page;
-                        this.searchTotalPages = cached.totalPages;
-                        this.searchTotalResults = cached.totalResults;
-                        return;
-                    }
-
-                    if (append) {
-                        this.searchLoadingMore = true;
-                    } else {
-                        this.loading = true;
-                    }
-
+                    this.recordSearchIntent(q);
                     try {
-                        const endpoint = `/search/multi?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
-                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
-
-                        const results = (data.results || []).filter(r =>
-                            r.media_type === 'movie' || r.media_type === 'tv'
-                        );
-
-                        const totalPages = Math.min(data.total_pages || 1, 20);
-                        const totalResults = data.total_results || results.length;
-
-                        this.searchCache[cacheKey] = { results, totalPages, totalResults };
-
-                        if (append) {
-                            this.searchResults = [...this.searchResults, ...results];
-                        } else {
-                            this.searchResults = results;
-                            this.page = 'search';
-                        }
-
-                        this.lastSearchQuery = query;
-                        this.searchPage = page;
-                        this.searchTotalPages = totalPages;
-                        this.searchTotalResults = totalResults;
-                    } catch (e) {
-                        console.error('Search error:', e);
-                        this.showToast('Search failed. Please try again.', 'error');
-                        if (!append) {
-                            this.searchResults = [];
-                            this.page = 'search';
-                            this.lastSearchQuery = query;
-                        }
-                    } finally {
-                        this.loading = false;
-                        this.searchLoadingMore = false;
-                    }
-                },
-
-                async loadMoreSearchResults() {
-                    if (this.searchLoadingMore) return;
-                    if (this.searchPage >= this.searchTotalPages) return;
-                    const nextPage = this.searchPage + 1;
-                    await this.performSearch(this.lastSearchQuery, nextPage, true);
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(q)}&page=1`));
+                        this.searchResults = (data.results || []).filter(r => r.media_type === 'movie' || r.media_type === 'tv');
+                        this.lastSearchQuery = q;
+                        this.page = 'search';
+                    } catch (e) {}
                 },
 
                 clearSearch() {
-                    clearTimeout(this.searchDebounceTimer);
                     this.searchQuery = '';
                     this.searchResults = [];
-                    this.lastSearchQuery = '';
-                    this.searchLiveLoading = false;
                     this.goHome();
                 },
 
                 goHome() {
                     this.page = 'home';
                     this.searchQuery = '';
-                    this.searchResults = [];
-                    this.lastSearchQuery = '';
-                    this.activeOtt = 'all';
                 },
 
-                openDrawer() { this.drawerOpen = true; document.body.style.overflow = 'hidden'; },
-                closeDrawer() { this.drawerOpen = false; document.body.style.overflow = ''; },
-                openAuthModal() {
-                    if (!this.currentUser) {
-                        this.authView = 'login';
-                        this.authModalOpen = true;
-                    }
-                },
+                openDrawer() { this.drawerOpen = true; },
+                closeDrawer() { this.drawerOpen = false; },
+                openMusicPage() { window.location.href = 'music.html'; },
 
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
-                    this.loading = true;
-                    try {
-                        let omdbId = '';
-                        try {
-                            const detailData = await this.request(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
-                            if (detailData && detailData.details && detailData.details.imdb_id) {
-                                omdbId = detailData.details.imdb_id;
-                            }
-                        } catch (err) {}
+                    // Record meaningful interaction to simulate watch history tracking
+                    const item = [...this.trending, ...this.popularMovies, ...this.tvShows].find(x => x.id === id) || { id };
+                    this.recordWatchHistory(item, type);
 
-                        window.location.href = `${WATCH_PAGE_URL}?id=${id}&type=${type}${omdbId ? '&omdbId=' + omdbId : ''}`;
-                    } catch (e) {
-                        this.showToast('Could not open details.', 'error');
-                    } finally {
-                        this.loading = false;
-                    }
+                    let omdbId = '';
+                    try {
+                        const detailData = await this.request(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
+                        if (detailData?.details?.imdb_id) omdbId = detailData.details.imdb_id;
+                    } catch (e) {}
+
+                    window.location.href = `${WATCH_PAGE_URL}?id=${id}&type=${type}${omdbId ? '&omdbId=' + omdbId : ''}`;
                 },
 
                 poster(item) {
-                    if (item && item.poster_path) {
-                        return "https://image.tmdb.org/t/p/w500" + item.poster_path;
-                    }
-                    return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    return item && item.poster_path ? "https://image.tmdb.org/t/p/w500" + item.poster_path : 'https://placehold.co/300x450/14141F/666?text=No+Image';
                 },
                 title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
                 year(item) {
@@ -1605,54 +1009,11 @@
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
                         this.showToast('Logged in successfully!', 'success');
                         this.authModalOpen = false;
-                        this.loginEmail = '';
-                        this.loginPassword = '';
                     } catch (e) { this.showToast(e.message, 'error'); }
                 },
-
-                async register() {
-                    if (this.regPassword.length < 6) return this.showToast('Password must be at least 6 chars.', 'error');
-                    try {
-                        const cred = await auth.createUserWithEmailAndPassword(this.regEmail, this.regPassword);
-                        await cred.user.updateProfile({ displayName: this.regName });
-                        await db.collection('users').doc(cred.user.uid).set({
-                            displayName: this.regName,
-                            email: this.regEmail,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        this.showToast('Account created successfully!', 'success');
-                        this.authModalOpen = false;
-                    } catch (e) { this.showToast(e.message, 'error'); }
-                },
-
-                async sendPasswordReset() {
-                    if (!this.resetEmail) return this.showToast('Enter your email.', 'error');
-                    try {
-                        await auth.sendPasswordResetEmail(this.resetEmail);
-                        this.showToast('Password reset link sent to your email.', 'success');
-                        this.authView = 'login';
-                    } catch (e) { this.showToast(e.message, 'error'); }
-                },
-
-                async logout() {
-                    try {
-                        await auth.signOut();
-                        this.showToast('Logged out successfully.', 'info');
-                    } catch (e) {}
-                }
+                logout() { auth.signOut(); this.showToast('Logged out.', 'info'); }
             };
         }
-    </script>
-
-    <script>
-        document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-        document.addEventListener('keydown', e => {
-            const key = e.keyCode || e.which;
-            if (key === 123) { e.preventDefault(); return false; }
-            if (e.ctrlKey && e.shiftKey && (key === 73 || key === 74 || key === 67)) { e.preventDefault(); return false; }
-            if (e.ctrlKey && (key === 85 || key === 83)) { e.preventDefault(); return false; }
-            return true;
-        });
     </script>
 </body>
 </html>
