@@ -110,7 +110,7 @@
             display: flex; align-items: center; gap: 10px;
             background: rgba(255, 255, 255, 0.04);
             padding: 5px 12px 5px 6px; border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
             cursor: pointer; transition: var(--transition);
         }
         .user-status:hover { background: rgba(255, 255, 255, 0.08); }
@@ -165,7 +165,7 @@
         .search-live-indicator.visible { display: block; }
         .search-live-indicator i { animation: spin 0.8s linear infinite; }
 
-        /* ===== OTT LOGO SECTION (Compact Mobile / Large PC) ===== */
+        /* ===== OTT LOGO SECTION ===== */
         .ott-section { margin: 24px 0 12px; }
         .ott-section-title { font-size: 17px; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; letter-spacing: -0.2px; }
         .ott-grid-row {
@@ -248,7 +248,7 @@
         .drawer-link.bug { background: rgba(239, 68, 68, 0.12); color: var(--bug-red); }
         .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
 
-        /* ===== HERO & MOVIE CARDS (Compact Sizing for Mobile) ===== */
+        /* ===== HERO & MOVIE CARDS ===== */
         .hero { position: relative; padding: 20px 0 10px; text-align: center; }
         .hero h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
         .hero h1 span { color: var(--primary-red); }
@@ -588,14 +588,14 @@
                     </div>
                 </div>
 
-                <!-- Personalized Recommendation: Because You Searched -->
-                <div x-show="filteredBySearch.length">
+                <!-- Web Series Section -->
+                <div x-show="filteredSeries.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-history"></i> Because You Searched "<span x-text="guestProfile.lastSearchTerm"></span>"</h3>
+                        <h3><i class="fas fa-tv"></i> Web Series</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in filteredBySearch" :key="'rec-search-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
+                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
@@ -611,14 +611,37 @@
                     </div>
                 </div>
 
-                <!-- Personalized Recommendation: Similar to What You Watched -->
-                <div x-show="filteredByHistory.length">
+                <!-- K-Drama Section -->
+                <div x-show="filteredKDrama.length">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas fa-film"></i> Similar to What You Watched</h3>
+                        <h3><i class="fas fa-heart"></i> K-Drama Series</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in filteredByHistory" :key="'rec-hist-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
+                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="year(item)"></span>
+                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Anime Section -->
+                <div x-show="filteredAnime.length">
+                    <div class="section-heading-wrap">
+                        <h3><i class="fas fa-dragon"></i> Anime Series</h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
@@ -818,6 +841,8 @@
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
+                kdramaList: [],
+                animeList: [],
                 searchResults: [],
                 lastSearchQuery: '',
 
@@ -829,6 +854,9 @@
                     trending: [],
                     popular: [],
                     picked: [],
+                    series: [],
+                    kdrama: [],
+                    anime: [],
                     searchRec: [],
                     historyRec: []
                 },
@@ -916,14 +944,32 @@
                     setTimeout(() => { toast.remove(); }, duration);
                 },
 
-                // Helper to check if release date is latest (2025 or 2026 and onwards automatically)
-                isLatestRelease(item) {
-                    if (!item) return false;
-                    const dateStr = item.release_date || item.first_air_date || '';
-                    if (!dateStr) return false;
-                    const year = parseInt(dateStr.substring(0, 4), 10);
+                // Smart Year Filter: Prioritizes current year and last year. Automatically falls back further if needed to guarantee 10+ items.
+                filterBySmartYear(items, minCount = 10) {
+                    if (!items || !Array.isArray(items)) return [];
                     const currentYear = new Date().getFullYear(); // 2026
-                    return year >= (currentYear - 1); // Automatically allows 2025, 2026, 2027...
+                    
+                    let filtered = items.filter(item => {
+                        const dateStr = item.release_date || item.first_air_date || '';
+                        if (!dateStr) return false;
+                        const year = parseInt(dateStr.substring(0, 4), 10);
+                        return year >= (currentYear - 1); // 2025, 2026 onwards
+                    });
+
+                    // Fallback mechanism: if not enough items found for current/last year, include previous years until minCount is reached
+                    if (filtered.length < minCount) {
+                        const additional = items.filter(item => {
+                            if (filtered.includes(item)) return false;
+                            const dateStr = item.release_date || item.first_air_date || '';
+                            if (!dateStr) return false;
+                            const year = parseInt(dateStr.substring(0, 4), 10);
+                            return year >= (currentYear - 3); // Fallback up to 3 years back
+                        });
+                        filtered = [...filtered, ...additional];
+                    }
+
+                    // Ultimate fallback if still under minCount: return full list so sections never look empty
+                    return filtered.length > 0 ? filtered : items;
                 },
 
                 async filterByOtt(ottName) {
@@ -934,6 +980,9 @@
                         this.ottPools.trending = [];
                         this.ottPools.popular = [];
                         this.ottPools.picked = [];
+                        this.ottPools.series = [];
+                        this.ottPools.kdrama = [];
+                        this.ottPools.anime = [];
                         this.ottPools.searchRec = [];
                         this.ottPools.historyRec = [];
                         return;
@@ -954,44 +1003,60 @@
 
                     try {
                         const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
-                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv') && this.isLatestRelease(r));
+                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
+                        const smartItems = this.filterBySmartYear(items, 6);
                         
-                        if (items.length > 0) {
-                            this.ottPools.trending = items.slice(0, 12);
-                            this.ottPools.popular = items.slice(2, 14).reverse();
-                            this.ottPools.picked = items.slice(4, 16);
-                            this.ottPools.searchRec = items.slice(1, 11);
-                            this.ottPools.historyRec = items.slice(3, 13);
+                        if (smartItems.length > 0) {
+                            this.ottPools.trending = smartItems.slice(0, 12);
+                            this.ottPools.popular = smartItems.slice(2, 14).reverse();
+                            this.ottPools.picked = smartItems.slice(4, 16);
+                            this.ottPools.series = smartItems.filter(i => i.media_type === 'tv').slice(0, 10);
+                            this.ottPools.kdrama = smartItems.filter(i => i.original_language === 'ko').slice(0, 10);
+                            this.ottPools.anime = smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10);
+                            this.ottPools.searchRec = smartItems.slice(1, 11);
+                            this.ottPools.historyRec = smartItems.slice(3, 13);
                         } else {
-                            this.ottPools.trending = this.trending.slice(0, 10);
-                            this.ottPools.popular = this.popularMovies.slice(0, 10);
-                            this.ottPools.picked = this.recommendedPickedForYou.slice(0, 10);
+                            this.ottPools.trending = this.filterBySmartYear(this.trending, 6);
+                            this.ottPools.popular = this.filterBySmartYear(this.popularMovies, 6);
+                            this.ottPools.series = this.filterBySmartYear(this.tvShows, 6);
                         }
                     } catch (e) {
-                        this.ottPools.trending = this.trending.slice(0, 10);
-                        this.ottPools.popular = this.popularMovies.slice(0, 10);
+                        this.ottPools.trending = this.filterBySmartYear(this.trending, 6);
+                        this.ottPools.popular = this.filterBySmartYear(this.popularMovies, 6);
                     }
                 },
 
                 get filteredPickedForYou() { 
                     const base = this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou);
-                    return base.filter(item => this.isLatestRelease(item));
+                    return this.filterBySmartYear(base, 6);
+                },
+                get filteredSeries() {
+                    const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
+                    return this.filterBySmartYear(base, 6);
+                },
+                get filteredKDrama() {
+                    const base = this.activeOtt === 'all' ? this.kdramaList : (this.ottPools.kdrama.length ? this.ottPools.kdrama : this.kdramaList);
+                    return this.filterBySmartYear(base, 6);
+                },
+                get filteredAnime() {
+                    const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
+                    return this.filterBySmartYear(base, 6);
                 },
                 get filteredBySearch() { 
                     const base = this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch);
-                    return base.filter(item => this.isLatestRelease(item));
+                    return this.filterBySmartYear(base, 6);
                 },
                 get filteredByHistory() { 
                     const base = this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory);
-                    return base.filter(item => this.isLatestRelease(item));
+                    return this.filterBySmartYear(base, 6);
                 },
                 get filteredTrending() { 
                     const base = this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending);
-                    return base.filter(item => this.isLatestRelease(item));
+                    return this.filterBySmartYear(base, 6);
                 },
                 get filteredMovies() { 
                     const base = this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies);
-                    return base.filter(item => this.isLatestRelease(item));
+                    return this.filterBySmartYear(base, 6);
                 },
 
                 async request(url, options = {}) {
@@ -1004,13 +1069,19 @@
                 async loadHomeData() {
                     try {
                         const testData = await this.request("/test-tmdb");
-                        this.trending = (testData.results || []).filter(item => this.isLatestRelease(item));
+                        this.trending = testData.results || [];
 
                         const popRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/movie/popular?language=en-US&page=1"));
-                        this.popularMovies = (popRes.results || []).filter(item => this.isLatestRelease(item));
+                        this.popularMovies = popRes.results || [];
 
                         const tvRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/popular?language=en-US&page=1"));
-                        this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' })).filter(item => this.isLatestRelease(item));
+                        this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const kdramaRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=ko&sort_by=popularity.desc&page=1"));
+                        this.kdramaList = (kdramaRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const animeRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"));
+                        this.animeList = (animeRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
                     } catch (e) {}
                 },
 
@@ -1019,7 +1090,7 @@
                         const pool = [...this.trending, ...this.popularMovies, ...this.tvShows];
                         const watchedIds = new Set(this.guestProfile.watchHistory.map(w => w.id));
 
-                        const scoredPool = pool.filter(item => !watchedIds.has(item.id) && this.isLatestRelease(item)).map(item => {
+                        const scoredPool = pool.filter(item => !watchedIds.has(item.id)).map(item => {
                             let score = 0;
                             score += ((item.vote_average || 5) / 10) * this.recWeights.popularityRating * 100;
 
@@ -1038,13 +1109,13 @@
 
                         if (this.guestProfile.lastSearchTerm) {
                             const searchRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(this.guestProfile.lastSearchTerm)}&page=1`));
-                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path && this.isLatestRelease(r)).slice(0, 10);
+                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path).slice(0, 10);
                         }
 
                         if (this.guestProfile.watchHistory.length > 0) {
                             const lastWatched = this.guestProfile.watchHistory[0];
                             const similarRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${lastWatched.type}/${lastWatched.id}/recommendations`));
-                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path && this.isLatestRelease(r)).slice(0, 10);
+                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path).slice(0, 10);
                         } else {
                             this.recommendedByHistory = this.popularMovies.slice(5, 15);
                         }
