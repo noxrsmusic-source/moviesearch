@@ -8,7 +8,6 @@
     <meta name="description" content="RX Player - Watch & Search Free Movies, Series & Anime Online">
     <meta name="robots" content="index, follow">
 
-    <!-- External Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,12 +16,7 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         :root {
             --primary-red: #E50914;
@@ -67,69 +61,42 @@
 
         /* ===== PRELOADER ===== */
         #preloader {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-primary);
-            z-index: 999999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            position: fixed; inset: 0; background: var(--bg-primary); z-index: 999999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; transition: opacity 0.4s ease, visibility 0.4s ease;
         }
-        #preloader.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
+        #preloader.fade-out { opacity: 0; visibility: hidden; }
         .preloader-logo {
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 32px; font-weight: 900; letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 8px;
             animation: pulseGlow 1.5s infinite alternate;
         }
         .preloader-logo span { color: var(--primary-red); }
         .preloader-logo i { color: var(--primary-red); }
         .spinner {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             border: 3px solid rgba(255,255,255,0.1);
             border-top-color: var(--primary-red);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulseGlow { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         /* ===== HEADER & SEARCH ===== */
         .header-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(8, 8, 12, 0.95);
-            backdrop-filter: blur(16px);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-
         .header-top { padding: 12px 0; }
         .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .header-left-cluster { display: flex; align-items: center; gap: 16px; }
 
         .hamburger-btn {
-            font-size: 18px;
-            color: var(--text-white);
+            font-size: 18px; color: var(--text-white);
             background: rgba(255, 255, 255, 0.06);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
             border: 1px solid rgba(255, 255, 255, 0.08);
             transition: var(--transition);
         }
@@ -140,60 +107,39 @@
         .logo i { color: var(--primary-red); font-size: 20px; }
 
         .user-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             background: rgba(255, 255, 255, 0.04);
-            padding: 5px 12px 5px 6px;
-            border-radius: 30px;
+            padding: 5px 12px 5px 6px; border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.08);
-            cursor: pointer;
-            transition: var(--transition);
+            cursor: pointer; transition: var(--transition);
         }
         .user-status:hover { background: rgba(255, 255, 255, 0.08); }
         .user-status .avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            width: 30px; height: 30px; border-radius: 50%;
             background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             border: 1.5px solid rgba(255, 255, 255, 0.15);
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 13px; font-weight: 700;
         }
         .user-status .username {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-white);
-            max-width: 120px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 13px; font-weight: 600; color: var(--text-white);
+            max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .user-status .logout-btn {
-            font-size: 11px;
-            color: var(--text-muted);
-            padding: 3px 8px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.06);
-            transition: var(--transition);
+            font-size: 11px; color: var(--text-muted);
+            padding: 3px 8px; border-radius: 12px;
+            background: rgba(255,255,255,0.06); transition: var(--transition);
         }
         .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
         .search-bar-row { padding: 4px 0 12px; }
         .header-search { width: 100%; position: relative; display: flex; align-items: center; }
         .header-search input {
-            width: 100%;
-            height: 44px;
-            padding: 0 44px 0 48px;
+            width: 100%; height: 44px; padding: 0 44px 0 48px;
             border-radius: 50px;
             border: 1.5px solid rgba(255, 255, 255, 0.12);
             background: rgba(255, 255, 255, 0.05);
-            color: var(--text-white);
-            font-size: 14.5px;
-            outline: none;
+            color: var(--text-white); font-size: 14.5px; outline: none;
             transition: var(--transition);
         }
         .header-search input:focus {
@@ -202,180 +148,104 @@
             box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
         }
         .header-search .search-submit-btn {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 15px;
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 15px;
         }
         .header-search .clear-btn {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 15px;
-            display: none;
+            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 15px; display: none;
         }
         .header-search .clear-btn.visible { display: block; }
 
+        /* Live search indicator */
+        .search-live-indicator {
+            position: absolute; right: 46px; top: 50%; transform: translateY(-50%);
+            font-size: 11px; color: var(--text-muted);
+            pointer-events: none; display: none;
+        }
+        .search-live-indicator.visible { display: block; }
+        .search-live-indicator i { animation: spin 0.8s linear infinite; }
+
         /* ===== OTT LOGO SECTION ===== */
-        .ott-section {
-            margin: 24px 0 12px;
-        }
-        .ott-section-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-            letter-spacing: -0.2px;
-        }
+        .ott-section { margin: 24px 0 12px; }
+        .ott-section-title { font-size: 17px; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; letter-spacing: -0.2px; }
         .ott-grid-row {
-            display: flex;
-            gap: 18px;
-            overflow-x: auto;
-            padding-bottom: 12px;
-            scrollbar-width: thin;
+            display: flex; gap: 18px; overflow-x: auto;
+            padding-bottom: 12px; scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
         }
-        .ott-grid-row::-webkit-scrollbar {
-            height: 8px;
-        }
-        .ott-grid-row::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 4px;
-        }
-        .ott-grid-row::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 4px;
-        }
-        .ott-grid-row::-webkit-scrollbar-thumb:hover {
-            background: rgba(229, 9, 20, 0.6);
-        }
-        
+        .ott-grid-row::-webkit-scrollbar { height: 8px; }
+        .ott-grid-row::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 4px; }
+        .ott-grid-row::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 4px; }
+        .ott-grid-row::-webkit-scrollbar-thumb:hover { background: rgba(229, 9, 20, 0.6); }
+
         .ott-card-logo {
-            flex: 0 0 120px;
-            height: 80px;
-            background: var(--bg-card);
+            flex: 0 0 120px; height: 80px; background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px;
-            cursor: pointer;
-            transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+            padding: 14px; cursor: pointer; transition: var(--transition);
         }
         .ott-card-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: grayscale(30%);
-            transition: var(--transition);
+            width: 100%; height: 100%; object-fit: contain;
+            filter: grayscale(30%); transition: var(--transition);
         }
         .ott-card-logo:hover, .ott-card-logo.active {
-            border-color: var(--primary-red);
-            background: rgba(229, 9, 20, 0.08);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+            border-color: var(--primary-red); background: rgba(229, 9, 20, 0.08);
+            transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.6);
         }
-        .ott-card-logo:hover img, .ott-card-logo.active img {
-            filter: grayscale(0%);
-        }
+        .ott-card-logo:hover img, .ott-card-logo.active img { filter: grayscale(0%); }
 
         .ott-card-all {
-            flex: 0 0 130px;
-            height: 80px;
-            background: var(--bg-card);
+            flex: 0 0 130px; height: 80px; background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; cursor: pointer; transition: var(--transition); color: var(--text-muted);
         }
-        .ott-card-all i {
-            font-size: 22px;
-            color: var(--primary-red);
-        }
-        .ott-card-all span {
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+        .ott-card-all i { font-size: 22px; color: var(--primary-red); }
+        .ott-card-all span { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
         .ott-card-all:hover, .ott-card-all.active {
-            border-color: var(--primary-red);
-            background: rgba(229, 9, 20, 0.08);
-            color: var(--text-white);
-            transform: translateY(-4px);
+            border-color: var(--primary-red); background: rgba(229, 9, 20, 0.08);
+            color: var(--text-white); transform: translateY(-4px);
             box-shadow: 0 10px 24px rgba(0,0,0,0.6);
         }
 
         @media (min-width: 1024px) {
-            .ott-card-logo {
-                flex: 0 0 160px;
-                height: 105px;
-                padding: 18px;
-            }
-            .ott-card-all {
-                flex: 0 0 170px;
-                height: 105px;
-            }
+            .ott-card-logo { flex: 0 0 160px; height: 105px; padding: 18px; }
+            .ott-card-all { flex: 0 0 170px; height: 105px; }
             .ott-card-all i { font-size: 28px; }
             .ott-card-all span { font-size: 14px; }
         }
 
         /* ===== DRAWER MENU ===== */
         .drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(6px);
-            z-index: 99998;
-            opacity: 0;
-            visibility: hidden;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px); z-index: 99998;
+            opacity: 0; visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         .drawer-overlay.open { opacity: 1; visibility: visible; }
 
         .drawer-menu {
-            position: fixed;
-            top: 0;
-            left: -320px;
-            width: 300px;
-            height: 100%;
-            background: var(--bg-card);
-            z-index: 99999;
+            position: fixed; top: 0; left: -320px; width: 300px; height: 100%;
+            background: var(--bg-card); z-index: 99999;
             box-shadow: 10px 0 40px rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-right: 1px solid rgba(255, 255, 255, 0.08);
         }
         .drawer-overlay.open .drawer-menu { left: 0; }
 
         .drawer-header {
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
+            padding: 18px 20px; display: flex; align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .drawer-links { padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
         .drawer-link {
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            padding: 12px 16px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            color: var(--text-muted); display: flex; align-items: center; gap: 12px;
             transition: var(--transition);
         }
         .drawer-link:hover, .drawer-link.active { background: rgba(255, 255, 255, 0.08); color: var(--text-white); }
@@ -398,9 +268,21 @@
             font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;
         }
         .section-heading-wrap h3 i { color: var(--primary-red); }
+        .section-heading-wrap .new-badge {
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; font-size: 10px; font-weight: 800;
+            padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px;
+            text-transform: uppercase; animation: pulseBadge 2s infinite;
+        }
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.06); opacity: 0.9; }
+        }
 
         .horizontal-cards-row {
-            display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+            display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
         }
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -408,14 +290,20 @@
         .horizontal-cards-row .movie-card.song-card-16-9 { flex: 0 0 240px; }
         .horizontal-cards-row .movie-card.song-card-16-9 .poster-wrap { aspect-ratio: 16 / 9; }
         .horizontal-cards-row .movie-card.song-card-16-9 .play-badge {
-            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
 
         .results-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px;
         }
         .movie-card {
-            border-radius: var(--radius); overflow: hidden; background: var(--bg-card); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition);
+            border-radius: var(--radius); overflow: hidden; background: var(--bg-card);
+            display: flex; flex-direction: column; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all var(--transition);
         }
         .movie-card:hover { transform: translateY(-6px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
         .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
@@ -428,31 +316,74 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== POPULAR MUSIC SECTION ===== */
-        .popular-music-section {
-            margin: 0 auto 30px;
-            max-width: 1400px;
-            padding: 0 16px;
+        /* ===== SEARCH RESULTS HEADER + LOAD MORE ===== */
+        .search-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
         }
+        .search-header h2 { font-size: 22px; font-weight: 800; }
+        .search-query-label { color: var(--text-muted); font-size: 14px; }
+        .search-query-label strong { color: var(--primary-red); }
+
+        .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
+        .load-more-btn {
+            padding: 12px 36px; border-radius: 30px;
+            background: var(--bg-card); border: 1.5px solid rgba(255,255,255,0.12);
+            font-weight: 700; font-size: 14px; color: #fff;
+            display: inline-flex; align-items: center; gap: 10px;
+            transition: var(--transition);
+        }
+        .load-more-btn:hover:not(:disabled) {
+            border-color: var(--primary-red); background: rgba(229,9,20,0.08);
+            transform: translateY(-2px);
+        }
+        .load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .load-more-btn i { font-size: 13px; }
+
+        .search-loading-spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        /* ===== POPULAR MUSIC SECTION ===== */
+        .popular-music-section { margin: 0 auto 30px; max-width: 1400px; padding: 0 16px; }
         .popular-music-section .see-all-link {
-            font-size: 12px; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px; transition: var(--transition);
+            font-size: 12px; font-weight: 700; color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px; transition: var(--transition);
         }
         .popular-music-section .see-all-link:hover { color: var(--primary-red); }
         .popular-music-section .horizontal-cards-row .movie-card { flex: 0 0 200px; }
         .popular-music-section .horizontal-cards-row .movie-card .poster-wrap { aspect-ratio: 1 / 1; }
         .popular-music-section .horizontal-cards-row .movie-card .play-badge {
-            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            position: absolute; bottom: 8px; right: 8px; background: var(--primary-red); color: #fff;
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
 
         /* ===== MINI MUSIC PLAYER ===== */
         .mini-player {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 950; background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px); border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 12px 8px; display: none; flex-direction: column; gap: 2px; transform: translateY(100%); transition: transform 0.3s ease;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 950;
+            background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 4px 12px 8px; display: none; flex-direction: column;
+            gap: 2px; transform: translateY(100%); transition: transform 0.3s ease;
         }
         .mini-player.visible { display: flex; transform: translateY(0); }
-        .mini-player .mini-progress { width: 100%; height: 3px; background: rgba(255,255,255,0.12); border-radius: 4px; cursor: pointer; position: relative; margin-top: 2px; }
-        .mini-player .mini-progress-fill { height: 100%; background: var(--primary-red); border-radius: 4px; width: 0%; position: relative; pointer-events: none; }
+        .mini-player .mini-progress {
+            width: 100%; height: 3px; background: rgba(255,255,255,0.12);
+            border-radius: 4px; cursor: pointer; position: relative; margin-top: 2px;
+        }
+        .mini-player .mini-progress-fill {
+            height: 100%; background: var(--primary-red); border-radius: 4px;
+            width: 0%; position: relative; pointer-events: none;
+        }
         .mini-player .mini-progress-fill::after {
-            content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.7);
+            content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
+            width: 10px; height: 10px; border-radius: 50%; background: #fff;
+            box-shadow: 0 0 6px rgba(0,0,0,0.7);
         }
         .mini-player .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
         .mini-player .mini-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
@@ -462,26 +393,22 @@
         .mini-player .mini-info span { font-size: 10.5px; color: var(--text-muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mini-player .mini-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .mini-player .mini-btns button {
-            width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text-white); transition: var(--transition);
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: var(--text-white); transition: var(--transition);
         }
         .mini-player .mini-btns button:hover { background: rgba(255,255,255,0.12); }
         .mini-player .mini-btns .mini-play-btn { background: var(--primary-red); color: #fff; }
 
-        /* ===== STICKY BOTTOM ANIMATED ANNOUNCEMENT BANNER ===== */
+        /* ===== STICKY BOTTOM ANNOUNCEMENT BAR ===== */
         .sticky-announcement-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 900;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
             background: linear-gradient(90deg, #181824 0%, #2a1218 50%, #181824 100%);
             border-top: 1px solid rgba(229, 9, 20, 0.4);
             padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            box-shadow: 0 -8px 28px rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; box-shadow: 0 -8px 28px rgba(0,0,0,0.85);
             animation: barGlowPulse 2.5s infinite ease-in-out;
         }
         body.has-mini-player .sticky-announcement-bar { bottom: 58px; }
@@ -492,19 +419,8 @@
             100% { border-top-color: rgba(229, 9, 20, 0.3); box-shadow: 0 -8px 24px rgba(229, 9, 20, 0.1); }
         }
 
-        .sticky-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #fff;
-        }
-        .sticky-content i {
-            color: var(--primary-red);
-            font-size: 18px;
-            animation: bellShake 1.2s infinite ease-in-out;
-        }
+        .sticky-content { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; color: #fff; }
+        .sticky-content i { color: var(--primary-red); font-size: 18px; animation: bellShake 1.2s infinite ease-in-out; }
 
         @keyframes bellShake {
             0%, 100% { transform: rotate(0deg); }
@@ -516,16 +432,10 @@
 
         .sticky-download-btn {
             background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
-            color: #fff;
-            padding: 7px 18px;
-            border-radius: 30px;
-            font-size: 12.5px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: var(--transition);
-            white-space: nowrap;
+            color: #fff; padding: 7px 18px; border-radius: 30px;
+            font-size: 12.5px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: var(--transition); white-space: nowrap;
             box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
             animation: btnPulseBounce 2s infinite ease-in-out;
         }
@@ -542,11 +452,15 @@
 
         /* ===== AUTH MODAL & TOASTS ===== */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px); z-index: 99999;
+            display: none; align-items: center; justify-content: center; padding: 16px;
         }
         .modal-overlay.open { display: flex; }
         .modal-box {
-            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius); max-width: 420px; width: 100%; padding: 24px; box-shadow: var(--shadow);
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius); max-width: 420px; width: 100%;
+            padding: 24px; box-shadow: var(--shadow);
         }
         .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -558,31 +472,63 @@
         .auth-form .form-group { margin-bottom: 12px; }
         .auth-form .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
         .auth-form .form-group input {
-            width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #fff; font-size: 14px; outline: none;
+            width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04); color: #fff; font-size: 14px; outline: none;
         }
         .auth-form .btn-primary {
-            width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--primary-red); font-weight: 700; font-size: 14px; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;
+            width: 100%; padding: 12px; border-radius: var(--radius-sm);
+            background: var(--primary-red); font-weight: 700; font-size: 14px; color: #fff;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;
         }
         .forgot-password-link { display: block; text-align: right; font-size: 12px; color: var(--text-muted); margin-top: 6px; cursor: pointer; }
         .auth-back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-muted); margin-top: 14px; cursor: pointer; }
         .reset-helper-text { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
 
-        .toast-container { position: fixed; bottom: 130px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; pointer-events: none; }
-        .toast { padding: 12px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border-left: 4px solid var(--primary-red); box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 13.5px; pointer-events: auto; }
+        .toast-container {
+            position: fixed; bottom: 130px; right: 24px; z-index: 999999;
+            display: flex; flex-direction: column; gap: 10px;
+            max-width: 380px; width: 100%; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: var(--radius-sm);
+            background: var(--bg-card); border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+            pointer-events: auto;
+        }
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
 
         .update-modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(14px); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 20px;
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(14px); z-index: 999999;
+            display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .update-modal-overlay.active { display: flex; }
-        .update-card { background: var(--bg-card); border: 1px solid rgba(229, 9, 20, 0.3); border-radius: var(--radius); max-width: 420px; width: 100%; padding: 30px 24px; text-align: center; }
-        .update-card-icon { width: 70px; height: 70px; background: rgba(229, 9, 20, 0.12); color: var(--primary-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; }
+        .update-card {
+            background: var(--bg-card); border: 1px solid rgba(229, 9, 20, 0.3);
+            border-radius: var(--radius); max-width: 420px; width: 100%;
+            padding: 30px 24px; text-align: center;
+        }
+        .update-card-icon {
+            width: 70px; height: 70px; background: rgba(229, 9, 20, 0.12);
+            color: var(--primary-red); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin: 0 auto 16px;
+        }
         .update-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
         .update-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
-        .update-action-btn { background: var(--primary-red); color: #fff; font-weight: 700; padding: 12px 24px; border-radius: 30px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        .update-action-btn {
+            background: var(--primary-red); color: #fff; font-weight: 700;
+            padding: 12px 24px; border-radius: 30px; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+        }
 
-        .seo-footer { background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04); padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted); }
+        .seo-footer {
+            background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted);
+        }
         .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 12px; }
 
         @media (max-width: 600px) {
@@ -590,6 +536,7 @@
             .sticky-announcement-bar { padding: 8px 12px; }
             .sticky-content { font-size: 12px; }
             .sticky-download-btn { padding: 5px 12px; font-size: 11px; }
+            .search-header h2 { font-size: 18px; }
         }
     </style>
 </head>
@@ -616,7 +563,6 @@
                     </a>
                 </div>
 
-                <!-- Account / User Status Cluster -->
                 <div class="user-status" @click="openAuthModal()" title="Account">
                     <div class="avatar" x-text="currentUser && currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'">
                         <i class="fas fa-user" x-show="!currentUser"></i>
@@ -629,12 +575,23 @@
 
         <div class="search-bar-row">
             <div class="container">
-                <form class="header-search" @submit.prevent="searchMovies()">
+                <form class="header-search" @submit.prevent="searchNow()">
                     <button aria-label="Submit Search" class="search-submit-btn" type="submit">
                         <i aria-hidden="true" class="fas fa-search"></i>
                     </button>
-                    <input x-model="searchQuery" placeholder="Search movies, series, anime..." type="text">
-                    <button aria-label="Clear Search Input" class="clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="clearSearch()" type="button">
+                    <input
+                        x-model="searchQuery"
+                        @input="onSearchInput($event.target.value)"
+                        placeholder="Search movies, series, anime..."
+                        type="text"
+                        autocomplete="off"
+                    >
+                    <span class="search-live-indicator" :class="{ 'visible': searchLiveLoading }">
+                        <i class="fas fa-circle-notch"></i>
+                    </span>
+                    <button aria-label="Clear Search Input" class="clear-btn"
+                            :class="{ 'visible': searchQuery.length > 0 }"
+                            @click="clearSearch()" type="button">
                         <i class="fas fa-times"></i>
                     </button>
                 </form>
@@ -718,6 +675,7 @@
 
             <!-- Sections Container -->
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
+
                 <!-- Trending -->
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
@@ -727,7 +685,61 @@
                         <template x-for="item in filteredTrending" :key="'trend'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="year(item)"></span>
+                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Latest Movies (NEW) -->
+                <div x-show="latestMovies.length">
+                    <div class="section-heading-wrap">
+                        <h3>
+                            <i class="fas fa-star"></i>
+                            <span x-text="activeOtt === 'all' ? 'Latest Movies' : activeOtt + ' Latest'"></span>
+                            <span class="new-badge">NEW</span>
+                        </h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in latestMovies" :key="'latest-m'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'movie')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="year(item)"></span>
+                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Latest TV Shows (NEW) -->
+                <div x-show="latestTv.length">
+                    <div class="section-heading-wrap">
+                        <h3>
+                            <i class="fas fa-tv"></i>
+                            <span x-text="activeOtt === 'all' ? 'Latest Web Series' : activeOtt + ' Latest Series'"></span>
+                            <span class="new-badge">NEW</span>
+                        </h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in latestTv" :key="'latest-tv'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
@@ -750,7 +762,7 @@
                         <template x-for="item in filteredMovies" :key="'pop'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'movie')">
                                 <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
@@ -773,7 +785,7 @@
                         <template x-for="item in filteredTv" :key="'tv'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
@@ -796,7 +808,7 @@
                         <template x-for="item in filteredAnime" :key="'anime'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
                                 </div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
@@ -820,7 +832,7 @@
                         <template x-for="(song, idx) in musicList" :key="song.id">
                             <div class="movie-card song-card-16-9" @click="playMusic(song, idx)">
                                 <div class="poster-wrap">
-                                    <img class="poster" :src="song.coverUrl" loading="lazy">
+                                    <img class="poster" :src="song.coverUrl" loading="lazy" alt="">
                                     <div class="play-badge"><i class="fas fa-play"></i></div>
                                 </div>
                                 <div class="card-info">
@@ -838,27 +850,63 @@
         </div>
 
         <!-- Search Results View -->
-        <div x-show="page === 'search'" x-cloak class="container results-section">
-            <h2 class="text-2xl font-bold mb-6">Search Results</h2>
+        <div x-show="page === 'search'" x-cloak class="container results-section" style="padding-top: 20px;">
+            <div class="search-header">
+                <h2><i class="fas fa-search" style="color: var(--primary-red); font-size: 18px; margin-right: 8px;"></i> Search Results</h2>
+                <div class="search-query-label" x-show="lastSearchQuery">
+                    Showing results for "<strong x-text="lastSearchQuery"></strong>"
+                    <span x-show="searchTotalResults > 0" x-text="' • ' + searchTotalResults + ' total'"></span>
+                </div>
+            </div>
+
             <div class="results-grid" x-show="searchResults.length">
-                <template x-for="item in searchResults" :key="'search'+item.id">
+                <template x-for="item in searchResults" :key="'search'+item.id + (item.media_type || '')">
                     <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                         <div class="poster-wrap">
-                            <img class="poster" :src="poster(item)" loading="lazy">
+                            <img class="poster" :src="poster(item)" loading="lazy" alt="">
                         </div>
                         <div class="card-info">
                             <h4 x-text="title(item)"></h4>
                             <div class="card-meta">
-                                <span x-text="item.media_type || 'movie'"></span>
+                                <span x-text="item.media_type === 'tv' ? 'series' : (item.media_type || 'movie')"></span>
                                 <span x-text="year(item)"></span>
                             </div>
                         </div>
                     </div>
                 </template>
             </div>
-            <div x-show="!searchResults.length && !loading" class="empty-state">
-                <i class="fas fa-search"></i>
-                <h3>No movies or shows found.</h3>
+
+            <!-- Empty State -->
+            <div x-show="!searchResults.length && !loading && lastSearchQuery" class="empty-state">
+                <i class="fas fa-search-minus"></i>
+                <h3>No results found for "<span x-text="lastSearchQuery"></span>"</h3>
+                <p style="margin-top: 8px; font-size: 13px;">Try different keywords or check spelling.</p>
+            </div>
+
+            <!-- Loading state (initial) -->
+            <div x-show="loading && !searchResults.length" class="empty-state">
+                <div class="spinner" style="margin: 0 auto 14px;"></div>
+                <h3>Searching...</h3>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-wrap" x-show="searchResults.length && searchPage < searchTotalPages">
+                <button class="load-more-btn" @click="loadMoreSearchResults()" :disabled="searchLoadingMore">
+                    <template x-if="!searchLoadingMore">
+                        <span><i class="fas fa-plus-circle"></i> Load More Results</span>
+                    </template>
+                    <template x-if="searchLoadingMore">
+                        <span><span class="search-loading-spinner"></span> Loading...</span>
+                    </template>
+                </button>
+            </div>
+
+            <!-- End of results -->
+            <div class="load-more-wrap" x-show="searchResults.length && searchPage >= searchTotalPages">
+                <p style="color: var(--text-muted); font-size: 13px;">
+                    <i class="fas fa-check-circle" style="color: var(--primary-green);"></i>
+                    You've reached the end of results.
+                </p>
             </div>
         </div>
     </main>
@@ -895,7 +943,7 @@
         </div>
     </div>
 
-    <!-- App Update Modal (Mandatory) -->
+    <!-- App Update Modal -->
     <div class="update-modal-overlay" :class="{ 'active': updateRequired }">
         <div class="update-card">
             <div class="update-card-icon"><i class="fas fa-cloud-download-alt"></i></div>
@@ -918,8 +966,7 @@
                 <button :class="{ 'active': authView === 'login' }" @click="authView = 'login'">Login</button>
                 <button :class="{ 'active': authView === 'register' }" @click="authView = 'register'">Register</button>
             </div>
-            
-            <!-- Login Form -->
+
             <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'">
                 <div class="form-group">
                     <label>Email</label>
@@ -933,7 +980,6 @@
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
 
-            <!-- Register Form -->
             <form @submit.prevent="register()" class="auth-form" x-show="authView === 'register'">
                 <div class="form-group">
                     <label>Display Name</label>
@@ -950,7 +996,6 @@
                 <button type="submit" class="btn-primary"><i class="fas fa-user-plus"></i> Create Account</button>
             </form>
 
-            <!-- Forgot Password Form -->
             <form @submit.prevent="sendPasswordReset()" class="auth-form" x-show="authView === 'forgot'">
                 <p class="reset-helper-text">Enter your registered email address and we'll send you a link to reset your password.</p>
                 <div class="form-group">
@@ -1016,15 +1061,30 @@
                 authView: 'login',
                 currentUser: null,
                 activeOtt: 'all',
-                
+
+                // ===== Data buckets =====
                 searchQuery: '',
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
                 animeList: [],
                 musicList: [],
+                latestMovies: [],      // NEW
+                latestTv: [],          // NEW
                 searchResults: [],
 
+                // ===== Search state =====
+                lastSearchQuery: '',
+                searchPage: 1,
+                searchTotalPages: 1,
+                searchTotalResults: 0,
+                searchLoadingMore: false,
+                searchLiveLoading: false,
+                searchDebounceTimer: null,
+                searchCache: {},        // { query_page: {results, totalPages, totalResults} }
+                searchAbortController: null,
+
+                // ===== Other state =====
                 updateRequired: false,
                 updateMessage: '',
                 updateDownloadUrl: '',
@@ -1052,12 +1112,15 @@
                         this.currentUser = user;
                     });
                     this.checkAppVersion();
+
+                    // Parallel load — home + latest + music
                     this.loadHomeData();
+                    this.loadLatestData();
                     this.loadMusicData();
+
                     this.initMiniAudioEvents();
                     this.restoreSavedAudioState();
 
-                    // Intercept navigation to music.html to save state cleanly
                     document.addEventListener('click', e => {
                         const link = e.target.closest('a');
                         if (link && link.href) {
@@ -1096,22 +1159,22 @@
                     if (this.activeOtt === 'all') return this.trending;
                     return this.trending.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
                 },
-
                 get filteredMovies() {
                     if (this.activeOtt === 'all') return this.popularMovies;
                     return this.popularMovies.filter((_, idx) => idx % 3 === (this.activeOtt.length % 3));
                 },
-
                 get filteredTv() {
                     if (this.activeOtt === 'all') return this.tvShows;
                     return this.tvShows.filter((_, idx) => idx % 2 === (this.activeOtt.charCodeAt(0) % 2));
                 },
-
                 get filteredAnime() {
                     if (this.activeOtt === 'all') return this.animeList;
                     return this.animeList.filter((_, idx) => idx % 2 === (this.activeOtt.length % 2));
                 },
 
+                // ============================================================
+                //  MUSIC
+                // ============================================================
                 async loadMusicData() {
                     try {
                         const res = await fetch(`${VERCEL_MUSIC_API}?query=latest+hits`);
@@ -1134,14 +1197,14 @@
                     this.miniAudio.src = song.audioUrl;
                     this.miniAudio.play();
                     this.miniIsPlaying = true;
-                    
+
                     document.getElementById('miniPlayer').classList.add('visible');
                     document.body.classList.add('has-mini-player');
                     document.getElementById('miniCover').src = song.coverUrl;
                     document.getElementById('miniTitle').textContent = song.title;
                     document.getElementById('miniArtist').textContent = song.artist;
                     document.getElementById('miniPlayPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
-                    
+
                     this.saveAudioState();
                 },
 
@@ -1163,7 +1226,6 @@
                         this.playMusic(this.musicList[this.miniIndex - 1], this.miniIndex - 1);
                     }
                 },
-
                 miniNext() {
                     if (this.miniIndex < this.musicList.length - 1) {
                         this.playMusic(this.musicList[this.miniIndex + 1], this.miniIndex + 1);
@@ -1190,7 +1252,6 @@
                             const pct = (this.miniAudio.currentTime / this.miniAudio.duration) * 100;
                             const fill = document.getElementById('miniProgressFill');
                             if (fill) fill.style.width = pct + '%';
-                            
                             if (Math.floor(this.miniAudio.currentTime) % 2 === 0) {
                                 this.saveAudioState();
                             }
@@ -1258,8 +1319,11 @@
                     } catch (e) { console.error(e); }
                 },
 
-                async request(url) {
-                    const res = await fetch(this.API + url);
+                // ============================================================
+                //  REQUEST HELPER
+                // ============================================================
+                async request(url, options = {}) {
+                    const res = await fetch(this.API + url, options);
                     const data = await res.json();
                     if (!res.ok || data.success === false) {
                         throw new Error(data.error || "Request failed");
@@ -1267,6 +1331,9 @@
                     return data;
                 },
 
+                // ============================================================
+                //  HOME DATA
+                // ============================================================
                 async loadHomeData() {
                     this.loading = true;
                     try {
@@ -1288,21 +1355,179 @@
                     }
                 },
 
-                async searchMovies() {
-                    const query = this.searchQuery.trim();
-                    if (!query) return;
-                    this.loading = true;
+                // ============================================================
+                //  LATEST DATA (NEW)
+                // ============================================================
+                async loadLatestData() {
                     try {
-                        const data = await this.request("/search?query=" + encodeURIComponent(query));
-                        this.searchResults = data.results || [];
-                        this.page = 'search';
+                        const [moviesRes, tvRes] = await Promise.all([
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/movie/now_playing?language=en-US&page=1")),
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/on_the_air?language=en-US&page=1"))
+                        ]);
+
+                        this.latestMovies = (moviesRes.results || [])
+                            .map(i => ({ ...i, media_type: 'movie' }))
+                            .slice(0, 20);
+
+                        this.latestTv = (tvRes.results || [])
+                            .map(i => ({ ...i, media_type: 'tv' }))
+                            .slice(0, 20);
                     } catch (e) {
-                        this.showToast('Search failed.', 'error');
-                    } finally {
-                        this.loading = false;
+                        console.error('Latest data load error:', e);
                     }
                 },
 
+                // ============================================================
+                //  LIVE SEARCH (debounced)
+                // ============================================================
+                onSearchInput(value) {
+                    clearTimeout(this.searchDebounceTimer);
+                    const q = (value || this.searchQuery || '').trim();
+
+                    // If cleared → return to home
+                    if (q.length === 0) {
+                        this.searchResults = [];
+                        this.lastSearchQuery = '';
+                        if (this.page === 'search') this.page = 'home';
+                        this.searchLiveLoading = false;
+                        return;
+                    }
+
+                    // Need at least 2 characters for live search (avoid spamming API)
+                    if (q.length < 2) {
+                        this.searchLiveLoading = false;
+                        return;
+                    }
+
+                    // Show loading indicator immediately
+                    this.searchLiveLoading = true;
+
+                    // Debounce: wait 500ms after user stops typing
+                    this.searchDebounceTimer = setTimeout(async () => {
+                        await this.performSearch(q, 1, false);
+                        this.searchLiveLoading = false;
+                    }, 500);
+                },
+
+                // Called when user hits Enter
+                async searchNow() {
+                    clearTimeout(this.searchDebounceTimer);
+                    const q = this.searchQuery.trim();
+                    if (!q) return;
+                    this.searchLiveLoading = true;
+                    await this.performSearch(q, 1, false);
+                    this.searchLiveLoading = false;
+                },
+
+                // Main search function
+                async performSearch(query, page = 1, append = false) {
+                    if (!query || query.length < 2) return;
+
+                    const cacheKey = `${query.toLowerCase()}_p${page}`;
+
+                    // Check cache first (avoid extra API calls)
+                    if (this.searchCache[cacheKey]) {
+                        const cached = this.searchCache[cacheKey];
+                        if (append) {
+                            this.searchResults = [...this.searchResults, ...cached.results];
+                        } else {
+                            this.searchResults = cached.results;
+                            this.page = 'search';
+                        }
+                        this.lastSearchQuery = query;
+                        this.searchPage = page;
+                        this.searchTotalPages = cached.totalPages;
+                        this.searchTotalResults = cached.totalResults;
+                        return;
+                    }
+
+                    if (append) {
+                        this.searchLoadingMore = true;
+                    } else {
+                        this.loading = true;
+                    }
+
+                    try {
+                        // Use TMDB proxy for pagination support
+                        const endpoint = `/search/multi?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+
+                        // Filter only movies & TV (skip persons)
+                        const results = (data.results || []).filter(r =>
+                            r.media_type === 'movie' || r.media_type === 'tv'
+                        );
+
+                        const totalPages = Math.min(data.total_pages || 1, 20); // Cap at 20 pages
+                        const totalResults = data.total_results || results.length;
+
+                        // Cache it
+                        this.searchCache[cacheKey] = { results, totalPages, totalResults };
+
+                        if (append) {
+                            this.searchResults = [...this.searchResults, ...results];
+                        } else {
+                            this.searchResults = results;
+                            this.page = 'search';
+                        }
+
+                        this.lastSearchQuery = query;
+                        this.searchPage = page;
+                        this.searchTotalPages = totalPages;
+                        this.searchTotalResults = totalResults;
+                    } catch (e) {
+                        console.error('Search error:', e);
+                        this.showToast('Search failed. Please try again.', 'error');
+                        if (!append) {
+                            this.searchResults = [];
+                            this.page = 'search';
+                            this.lastSearchQuery = query;
+                        }
+                    } finally {
+                        this.loading = false;
+                        this.searchLoadingMore = false;
+                    }
+                },
+
+                // Load more button handler
+                async loadMoreSearchResults() {
+                    if (this.searchLoadingMore) return;
+                    if (this.searchPage >= this.searchTotalPages) return;
+                    const nextPage = this.searchPage + 1;
+                    await this.performSearch(this.lastSearchQuery, nextPage, true);
+                },
+
+                clearSearch() {
+                    clearTimeout(this.searchDebounceTimer);
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                    this.lastSearchQuery = '';
+                    this.searchLiveLoading = false;
+                    this.goHome();
+                },
+
+                // ============================================================
+                //  NAVIGATION
+                // ============================================================
+                goHome() {
+                    this.page = 'home';
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                    this.lastSearchQuery = '';
+                    this.activeOtt = 'all';
+                },
+
+                openDrawer() { this.drawerOpen = true; document.body.style.overflow = 'hidden'; },
+                closeDrawer() { this.drawerOpen = false; document.body.style.overflow = ''; },
+                openAuthModal() {
+                    if (!this.currentUser) {
+                        this.authView = 'login';
+                        this.authModalOpen = true;
+                    }
+                },
+
+                // ============================================================
+                //  OPEN DETAILS
+                // ============================================================
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
                     this.loading = true;
@@ -1323,13 +1548,15 @@
                     }
                 },
 
+                // ============================================================
+                //  HELPERS
+                // ============================================================
                 poster(item) {
                     if (item && item.poster_path) {
                         return "https://image.tmdb.org/t/p/w500" + item.poster_path;
                     }
                     return 'https://placehold.co/300x450/14141F/666?text=No+Image';
                 },
-
                 title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
                 year(item) {
                     if (!item) return 'N/A';
@@ -1338,26 +1565,9 @@
                 },
                 rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
 
-                goHome() {
-                    this.page = 'home';
-                    this.searchQuery = '';
-                    this.activeOtt = 'all';
-                },
-
-                clearSearch() {
-                    this.searchQuery = '';
-                    this.goHome();
-                },
-
-                openDrawer() { this.drawerOpen = true; document.body.style.overflow = 'hidden'; },
-                closeDrawer() { this.drawerOpen = false; document.body.style.overflow = ''; },
-                openAuthModal() {
-                    if (!this.currentUser) {
-                        this.authView = 'login';
-                        this.authModalOpen = true;
-                    }
-                },
-
+                // ============================================================
+                //  AUTH
+                // ============================================================
                 async login() {
                     try {
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
