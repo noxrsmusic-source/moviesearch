@@ -472,16 +472,18 @@
             <div class="container ott-section">
                 <div class="ott-section-title" x-text="activeOtt === 'all' ? 'Popular Networks' : 'Filtering by Network: ' + activeOtt"></div>
                 <div class="ott-grid-row">
-                    <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms"><i class="fas fa-globe"></i><span>ALL</span></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO"><img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO"></div>
-                    <div class="ott-card-logo" @click="openMusicPage()" title="Spotify"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg" alt="Spotify"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')" title="Prime Video"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')" title="Apple TV+"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg" alt="Zee5"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema"><img src="https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg" alt="JioCinema"></div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png" alt="SonyLIV"></div>
+                    <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
+                        <i class="fas fa-globe"></i><span>ALL</span>
+                    </div>
+
+                    <template x-for="(ott, idx) in ottPlatforms" :key="'ott-' + idx">
+                        <div class="ott-card-logo"
+                             :class="{ 'active': activeOtt === ott.name }"
+                             @click="ott.type === 'music' ? openMusicPage() : filterByOtt(ott.name)"
+                             :title="ott.name">
+                            <img :src="ott.logo" :alt="ott.name" loading="lazy" @error="event.target.style.display='none'" />
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -701,8 +703,21 @@
                 recommendedBySearch: [],
                 recommendedByHistory: [],
 
-                // Admin-managed config from Firestore: { trending: {customItems:[], removedIds:[]}, ... }
+                // Admin-managed config: { all: {picked:{...}, ...}, Netflix: {...}, ... }
                 homeSectionsConfig: {},
+
+                // Dynamic OTT platforms (loaded from Firestore config/ottFilters, with defaults)
+                ottPlatforms: [
+                    { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
+                    { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',  type: 'music' },
+                    { name: 'Netflix',     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                     query: 'Netflix',  type: 'ott' },
+                    { name: 'Prime Video', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',   type: 'ott' },
+                    { name: 'Disney+',     logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                        query: 'Disney',   type: 'ott' },
+                    { name: 'Apple TV+',   logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                    query: 'Apple',    type: 'ott' },
+                    { name: 'Zee5',        logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',     type: 'ott' },
+                    { name: 'JioCinema',   logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',            query: 'Viacom18', type: 'ott' },
+                    { name: 'SonyLIV',     logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                          query: 'Sony',     type: 'ott' }
+                ],
 
                 ottPools: {
                     trending: [], popular: [], picked: [], series: [],
@@ -730,9 +745,27 @@
                     auth.onAuthStateChanged(user => { this.currentUser = user; });
 
                     this.loadGuestProfile();
+
+                    // Load both configs in parallel
+                    await Promise.all([
+                        this.loadOttPlatforms(),
+                        this.loadSectionConfig()
+                    ]);
+
                     await this.loadHomeData();
-                    await this.loadSectionConfig();
                     this.computePersonalizedRecommendations();
+                },
+
+                // Load OTT platforms from admin config
+                async loadOttPlatforms() {
+                    try {
+                        const doc = await db.collection('config').doc('ottFilters').get();
+                        if (doc.exists && Array.isArray(doc.data().platforms) && doc.data().platforms.length) {
+                            this.ottPlatforms = doc.data().platforms;
+                        }
+                    } catch (e) {
+                        console.warn('OTT load failed, using defaults:', e.message);
+                    }
                 },
 
                 // Load admin-managed section config
@@ -747,9 +780,24 @@
                     }
                 },
 
-                // Apply admin config: remove hidden IDs and prepend custom items
+                // Apply admin config per-OTT: remove hidden IDs and prepend custom items
                 applySectionConfig(key, items) {
-                    const cfg = (this.homeSectionsConfig && this.homeSectionsConfig[key]) || {};
+                    const all = this.homeSectionsConfig || {};
+
+                    // Detect old flat format: if `all.picked` doesn't exist but `picked` does at top level
+                    const sectionKeys = ['picked', 'series', 'kdrama', 'anime', 'trending', 'movies'];
+                    const looksOldFormat = sectionKeys.some(k => all[k] && (all[k].customItems !== undefined || all[k].removedIds !== undefined));
+
+                    let group;
+                    if (looksOldFormat) {
+                        // Old flat config — applies to all views
+                        group = all;
+                    } else {
+                        // New per-OTT config: prefer active OTT group, fall back to 'all'
+                        group = all[this.activeOtt] || all['all'] || {};
+                    }
+
+                    const cfg = group[key] || { customItems: [], removedIds: [] };
                     const removedIds = (cfg.removedIds || []).map(String);
                     const customItems = (cfg.customItems || []).map(c => ({
                         id: c.id,
@@ -806,7 +854,7 @@
                     toast.className = `toast ${type}`;
                     toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
                     container.appendChild(toast);
-                    setTimeout(() => toast.remove(), duration);
+                    setTimeout(() => { toast.remove(); }, duration);
                 },
 
                 filterBySmartYear(items, minCount = 10) {
@@ -838,12 +886,11 @@
                         this.ottPools = { trending: [], popular: [], picked: [], series: [], kdrama: [], anime: [], searchRec: [], historyRec: [] };
                         return;
                     }
-                    const networkQueryMap = {
-                        'HBO': 'HBO', 'Netflix': 'Netflix', 'Prime Video': 'Amazon',
-                        'Disney+': 'Disney', 'Apple TV+': 'Apple', 'Zee5': 'Zee5',
-                        'JioCinema': 'Viacom18', 'SonyLIV': 'Sony'
-                    };
-                    const keyword = networkQueryMap[ottName] || ottName;
+
+                    // Dynamic query from admin-managed OTT config
+                    const ott = (this.ottPlatforms || []).find(o => o.name === ottName);
+                    const keyword = ott ? (ott.query || ott.name) : ottName;
+
                     try {
                         const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
                         const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
@@ -868,7 +915,7 @@
                     }
                 },
 
-                // ====== Getter with Admin Config Applied ======
+                // ====== Getters with Admin Config Applied (per-OTT aware) ======
                 get filteredPickedForYou() {
                     const base = this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou);
                     return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
