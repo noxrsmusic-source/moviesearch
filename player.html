@@ -520,7 +520,7 @@
 
     <script>
         // ============================================================
-        //  SAME SERVER API AS HOME PAGE — no TMDB key needed
+        //  SERVER API — same as home page
         // ============================================================
         const API = "/api";
         const OMDB_API_KEY = 'df7d5111';
@@ -528,6 +528,8 @@
 
         // ============================================================
         //  SERVERS
+        //  - main (Red+) : TMDB id + season/episode
+        //  - red / green : OMDb / IMDb id (from OMDb fetch)
         // ============================================================
         const SERVERS = {
             main: {
@@ -570,15 +572,19 @@
         //  STATE
         // ============================================================
         let currentTmdbId = null;
-        let currentOmdbId = null;
-        let currentType = 'movie';
+        let currentOmdbId = null;         // IMDb id used for Red/Green
+        let currentType = 'movie';        // 'movie' | 'tv'
         let currentServer = 'main';
         let currentSeason = 1;
         let currentEpisode = 1;
         let totalSeasons = 1;
-        let seasonList = [];
-        let episodeList = [];
-        let metadata = null;
+        let seasonList = [];              // [{ season_number, name, episode_count }]
+        let episodeList = [];             // [{ episode_number, name }]
+
+        // Store both metadata sources
+        let tmdbMetadata = null;
+        let omdbMetadata = null;
+
         let isIssueOverlayShown = false;
         let isPaused = false;
 
@@ -628,7 +634,7 @@
         }
 
         // ============================================================
-        //  SERVER API REQUEST (same as home page)
+        //  SERVER API REQUESTS (same as home page)
         // ============================================================
         async function apiRequest(url) {
             try {
@@ -644,20 +650,17 @@
             }
         }
 
-        /** TMDB proxy helper — same as home page */
         async function tmdbProxy(endpoint) {
             const data = await apiRequest(`/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
             return data;
         }
 
-        /** Fetch details from /api/details — same as home page */
         async function fetchDetailsFromApi(id, type) {
             const data = await apiRequest(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
             if (data && data.details) return data.details;
             return null;
         }
 
-        /** Fetch TV season episodes from tmdb-proxy */
         async function fetchSeasonEpisodes(tmdbId, seasonNumber) {
             const data = await tmdbProxy(`/tv/${tmdbId}/season/${seasonNumber}`);
             if (data && Array.isArray(data.episodes)) {
@@ -669,7 +672,6 @@
             return null;
         }
 
-        /** Find TMDB id by IMDb id via tmdb-proxy */
         async function findTmdbByImdb(imdbId) {
             if (!imdbId) return null;
             const data = await tmdbProxy(`/find/${imdbId}?external_source=imdb_id`);
@@ -684,7 +686,7 @@
         }
 
         // ============================================================
-        //  OMDb FALLBACK
+        //  OMDb FETCH (for Red/Green servers)
         // ============================================================
         async function fetchOmdbById(imdbId) {
             if (!imdbId) return null;
@@ -716,19 +718,12 @@
         }
 
         // ============================================================
-        //  METADATA APPLIERS
+        //  METADATA DISPLAY FUNCTIONS
+        //  (only update the DOM, not the internal state)
         // ============================================================
-        function applyTmdbMetadata(d, type) {
+        function displayTmdbMetadata(d, type) {
+            if (!d) return;
             const isTv = type === 'tv';
-            metadata = d;
-            currentType = isTv ? 'tv' : 'movie';
-
-            // Details endpoint me imdb_id directly aa sakta hai
-            if (d.imdb_id) {
-                currentOmdbId = d.imdb_id;
-            } else if (d.external_ids && d.external_ids.imdb_id) {
-                currentOmdbId = d.external_ids.imdb_id;
-            }
 
             document.getElementById('movieTitle').textContent = d.title || d.name || 'Untitled';
             document.getElementById('movieType').textContent = isTv ? 'series' : 'movie';
@@ -749,7 +744,6 @@
             }
             document.getElementById('movieRuntime').textContent = runtime;
 
-            // Genres — details endpoint me array ya comma string ho sakta hai
             let genreText = '—';
             if (Array.isArray(d.genres)) {
                 genreText = d.genres.map(g => g.name || g).join(', ');
@@ -761,25 +755,11 @@
             document.getElementById('movieGenre').textContent = genreText || '—';
 
             document.getElementById('moviePlot').textContent = d.overview || d.Plot || 'No description available.';
-
-            if (isTv) {
-                seasonList = (d.seasons || [])
-                    .filter(s => s.season_number >= 1)
-                    .map(s => ({
-                        season_number: s.season_number,
-                        name: s.name || `Season ${s.season_number}`,
-                        episode_count: s.episode_count || 0
-                    }));
-                totalSeasons = seasonList.length || d.number_of_seasons || 1;
-            } else {
-                seasonList = [];
-                totalSeasons = 0;
-            }
         }
 
-        function applyOmdbMetadata(data) {
+        function displayOmdbMetadata(data) {
             if (!data) return;
-            metadata = data;
+
             document.getElementById('movieTitle').textContent = data.Title || 'Untitled';
             document.getElementById('movieType').textContent = isSeries() ? 'series' : 'movie';
             document.getElementById('movieYear').textContent = data.Year || '—';
@@ -788,11 +768,43 @@
             document.getElementById('movieRuntime').textContent = data.Runtime || '—';
             document.getElementById('movieGenre').textContent = data.Genre || '—';
             document.getElementById('moviePlot').textContent = data.Plot || 'No description available.';
+        }
 
-            if (isSeries()) {
-                totalSeasons = parseInt(data.totalSeasons, 10) || 1;
-                seasonList = [];
+        /** Show the right metadata based on which server is active */
+        function refreshMetadataDisplay() {
+            if (currentServer === 'main') {
+                if (tmdbMetadata) displayTmdbMetadata(tmdbMetadata, currentType);
+            } else {
+                // Red or Green → use OMDb metadata
+                if (omdbMetadata) displayOmdbMetadata(omdbMetadata);
+                else if (tmdbMetadata) displayTmdbMetadata(tmdbMetadata, currentType);
             }
+        }
+
+        // ============================================================
+        //  ENSURE OMDb ID (for Red/Green servers)
+        // ============================================================
+        async function ensureOmdbId() {
+            // Already have it
+            if (currentOmdbId) {
+                // Make sure we have OMDb metadata too
+                if (!omdbMetadata) {
+                    omdbMetadata = await fetchOmdbById(currentOmdbId);
+                }
+                return true;
+            }
+            // Try fetching from server details endpoint
+            if (currentTmdbId) {
+                showToast('Fetching IMDb ID from server…', 'info', 2500);
+                const details = await fetchDetailsFromApi(currentTmdbId, currentType);
+                if (details && details.imdb_id) {
+                    currentOmdbId = details.imdb_id;
+                    // Fetch OMDb metadata for accurate display
+                    omdbMetadata = await fetchOmdbById(currentOmdbId);
+                    return true;
+                }
+            }
+            return false;
         }
 
         // ============================================================
@@ -825,7 +837,7 @@
 
             let eps = null;
 
-            // 1) TMDB proxy (server) — same as home page
+            // 1) TMDB proxy
             if (currentTmdbId) {
                 eps = await fetchSeasonEpisodes(currentTmdbId, seasonNumber);
             }
@@ -833,7 +845,7 @@
             if ((!eps || !eps.length) && currentOmdbId) {
                 eps = await fetchOmdbEpisodes(currentOmdbId, seasonNumber);
             }
-            // 3) Fallback: build from metadata episode_count
+            // 3) Build from metadata count
             if (!eps || !eps.length) {
                 const seasonMeta = seasonList.find(s => s.season_number === seasonNumber);
                 const count = seasonMeta && seasonMeta.episode_count ? seasonMeta.episode_count : 1;
@@ -906,7 +918,7 @@
             });
         }
 
-        function loadPlayer() {
+        async function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             const overlay = document.getElementById('serverIssueOverlay');
 
@@ -919,27 +931,29 @@
                 return;
             }
 
+            // ⚠️ Red / Green need OMDb (IMDb) id — fetch it if missing
             if (SERVERS[currentServer].requiresOmdb && !currentOmdbId) {
-                if (currentTmdbId) {
-                    showToast('Switching to Red + server (needs TMDB ID).', 'info', 3500);
+                const ok = await ensureOmdbId();
+                if (!ok) {
+                    showToast('Could not fetch IMDb ID for this title. Try Red + server.', 'error', 4500);
+                    // Revert to main if Red/Green fails completely
                     currentServer = 'main';
-                } else {
-                    showToast('Red/Green servers need an OMDb (IMDb) ID.', 'error', 4000);
-                    return;
-                }
-            }
-            if (currentServer === 'main' && !currentTmdbId) {
-                if (currentOmdbId) {
-                    showToast('Switching to Red server (needs IMDb ID).', 'info', 3500);
-                    currentServer = 'red';
-                } else {
-                    showToast('No TMDB ID available for Red + server.', 'error', 4000);
-                    return;
+                    syncServerButtons();
+                    refreshMetadataDisplay();
                 }
             }
 
+            // Main needs TMDB id
+            if (currentServer === 'main' && !currentTmdbId) {
+                showToast('No TMDB ID available for Red + server.', 'error', 4000);
+                return;
+            }
+
             const url = buildPlayerUrl(currentServer, currentTmdbId, currentOmdbId, currentType, currentSeason, currentEpisode);
-            if (!url) { showToast('Failed to build player URL.', 'error'); return; }
+            if (!url) {
+                showToast('Failed to build player URL.', 'error');
+                return;
+            }
 
             iframe.style.display = 'block';
             iframe.src = url;
@@ -953,10 +967,66 @@
 
             syncServerButtons();
             document.getElementById('episodeControls').classList.toggle('visible', isSeries());
+            refreshMetadataDisplay();
             updateUrl();
 
             const epLabel = isSeries() ? ` • S${currentSeason}E${currentEpisode}` : '';
             showToast(`🔴 ${SERVERS[currentServer].name} server loading${epLabel}…`, 'success', 2000);
+        }
+
+        // ============================================================
+        //  SERVER SWITCH (main fix here)
+        // ============================================================
+        async function switchServer(server) {
+            if (server === currentServer) {
+                // Same server clicked → just reload
+                loadPlayer();
+                return;
+            }
+
+            currentServer = server;
+            syncServerButtons();
+
+            // If switching to Red/Green and we don't have OMDb id yet → fetch it
+            if (SERVERS[server].requiresOmdb && !currentOmdbId) {
+                const ok = await ensureOmdbId();
+                if (!ok) {
+                    showToast('Could not fetch IMDb ID. Staying on Red + server.', 'error', 4000);
+                    currentServer = 'main';
+                    syncServerButtons();
+                    refreshMetadataDisplay();
+                    loadPlayer();
+                    return;
+                }
+            }
+
+            // If switching to Main and we don't have TMDB id → try to find it
+            if (server === 'main' && !currentTmdbId) {
+                if (currentOmdbId) {
+                    const found = await findTmdbByImdb(currentOmdbId);
+                    if (found) {
+                        currentTmdbId = found.id;
+                        currentType = found.type;
+                    } else {
+                        showToast('Could not find TMDB ID. Staying on current server.', 'error', 4000);
+                        // revert
+                        currentServer = 'red';
+                        syncServerButtons();
+                        loadPlayer();
+                        return;
+                    }
+                } else {
+                    showToast('No TMDB ID available.', 'error', 4000);
+                    return;
+                }
+            }
+
+            // Refresh metadata for the new server
+            refreshMetadataDisplay();
+            loadPlayer();
+
+            document.getElementById('serverIssueOverlay').classList.remove('visible');
+            isIssueOverlayShown = false;
         }
 
         // ============================================================
@@ -1011,13 +1081,6 @@
             }
         }
 
-        function switchServer(server) {
-            currentServer = server;
-            loadPlayer();
-            document.getElementById('serverIssueOverlay').classList.remove('visible');
-            isIssueOverlayShown = false;
-        }
-
         function handleKeydown(e) {
             const key = e.key;
             if (key === ' ' || key === 'Spacebar' || key === 'Space') {
@@ -1039,7 +1102,7 @@
 
             loadPauseAdScript();
 
-            console.log('🎬 RX Player init — using server API:', API);
+            console.log('🎬 RX Player init — server API:', API);
 
             let tmdbId = null;
             let omdbId = omdbParam || null;
@@ -1060,53 +1123,75 @@
             currentTmdbId = tmdbId;
             currentOmdbId = omdbId;
 
-            // Agar sirf IMDb id hai to TMDB id dhundho (proxy ke through)
+            // If we only have IMDb id, find the TMDB id
             if (!currentTmdbId && currentOmdbId) {
                 const found = await findTmdbByImdb(currentOmdbId);
                 if (found) { currentTmdbId = found.id; currentType = found.type; }
             }
 
-            // ---- Fetch details from server API (same as home page) ----
-            let tmdbData = null;
+            // ===== Fetch TMDB details from server API =====
             if (currentTmdbId) {
-                tmdbData = await fetchDetailsFromApi(currentTmdbId, currentType);
-                // Agar type galat tha to try other
-                if (!tmdbData || (!tmdbData.title && !tmdbData.name)) {
+                let details = await fetchDetailsFromApi(currentTmdbId, currentType);
+                if (!details || (!details.title && !details.name)) {
                     const other = currentType === 'tv' ? 'movie' : 'tv';
                     const alt = await fetchDetailsFromApi(currentTmdbId, other);
                     if (alt && (alt.title || alt.name)) {
-                        tmdbData = alt;
+                        details = alt;
                         currentType = other;
+                    }
+                }
+                if (details) {
+                    tmdbMetadata = details;
+                    console.log('✅ TMDB details loaded:', details.title || details.name);
+
+                    // Grab imdb_id from details if we don't have it yet
+                    if (!currentOmdbId && details.imdb_id) {
+                        currentOmdbId = details.imdb_id;
+                    }
+
+                    // Setup seasons
+                    if (isTvType(currentType)) {
+                        seasonList = (details.seasons || [])
+                            .filter(s => s.season_number >= 1)
+                            .map(s => ({
+                                season_number: s.season_number,
+                                name: s.name || `Season ${s.season_number}`,
+                                episode_count: s.episode_count || 0
+                            }));
+                        totalSeasons = seasonList.length || details.number_of_seasons || 1;
                     }
                 }
             }
 
-            if (tmdbData) {
-                console.log('✅ Details loaded:', tmdbData.title || tmdbData.name);
-                applyTmdbMetadata(tmdbData, currentType);
-            } else if (currentOmdbId) {
-                console.warn('⚠️ Details API failed. Trying OMDb...');
-                const omdbData = await fetchOmdbById(currentOmdbId);
-                if (omdbData) {
-                    currentType = isTvType(omdbData.Type) ? 'tv' : 'movie';
-                    if (omdbData.imdbID) currentOmdbId = omdbData.imdbID;
-                    applyOmdbMetadata(omdbData);
-                } else {
-                    document.getElementById('movieTitle').textContent = 'RX Player Content';
-                    document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
+            // ===== Fetch OMDb details (used by Red / Green) =====
+            if (currentOmdbId) {
+                omdbMetadata = await fetchOmdbById(currentOmdbId);
+                if (omdbMetadata) {
+                    console.log('✅ OMDb details loaded:', omdbMetadata.Title);
+                    // If we don't have TMDB data at all, fall back to OMDb metadata
+                    if (!tmdbMetadata) {
+                        currentType = isTvType(omdbMetadata.Type) ? 'tv' : 'movie';
+                        if (isSeries()) {
+                            totalSeasons = parseInt(omdbMetadata.totalSeasons, 10) || 1;
+                        }
+                    }
                 }
+            }
+
+            // ===== Initial display =====
+            if (tmdbMetadata || omdbMetadata) {
+                refreshMetadataDisplay();
             } else {
                 document.getElementById('movieTitle').textContent = 'RX Player Content';
                 document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
             }
 
-            // ---- Seasons / Episodes setup ----
+            // ===== Seasons / Episodes setup =====
             const seasonSelect = document.getElementById('seasonSelect');
             const episodeSelect = document.getElementById('episodeSelect');
 
             if (isSeries()) {
                 document.getElementById('episodeControls').classList.add('visible');
-
                 populateSeasonDropdown();
 
                 const seasonParam = parseInt(params.get('season'), 10);
@@ -1139,10 +1224,7 @@
 
             document.querySelectorAll('.server-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const server = btn.dataset.server;
-                    if (server === currentServer) { loadPlayer(); return; }
-                    currentServer = server;
-                    loadPlayer();
+                    switchServer(btn.dataset.server);
                 });
             });
 
@@ -1160,7 +1242,6 @@
                 });
             });
 
-            // Season change -> Ep 1 of that season
             seasonSelect.addEventListener('change', async () => {
                 currentSeason = parseInt(seasonSelect.value, 10) || 1;
                 currentEpisode = 1;
