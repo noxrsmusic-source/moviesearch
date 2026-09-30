@@ -59,7 +59,6 @@
         img { display: block; max-width: 100%; }
         .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
 
-        /* ===== PRELOADER ===== */
         #preloader {
             position: fixed; inset: 0; background: var(--bg-primary); z-index: 999999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -82,7 +81,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulseGlow { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* ===== HEADER & SEARCH ===== */
         .header-wrapper {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
@@ -165,7 +163,6 @@
         .search-live-indicator.visible { display: block; }
         .search-live-indicator i { animation: spin 0.8s linear infinite; }
 
-        /* ===== OTT LOGO SECTION ===== */
         .ott-section { margin: 24px 0 12px; }
         .ott-section-title { font-size: 17px; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; letter-spacing: -0.2px; }
         .ott-grid-row {
@@ -203,15 +200,11 @@
         .ott-card-logo:hover img, .ott-card-logo.active img { filter: grayscale(0%); }
 
         @media (min-width: 1024px) {
-            .ott-card-logo, .ott-card-all {
-                flex: 0 0 160px; height: 100px; padding: 16px;
-                border-radius: var(--radius);
-            }
+            .ott-card-logo, .ott-card-all { flex: 0 0 160px; height: 100px; padding: 16px; border-radius: var(--radius); }
             .ott-card-all i { font-size: 26px; }
             .ott-card-all span { font-size: 13px; }
         }
 
-        /* ===== DRAWER MENU ===== */
         .drawer-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(6px); z-index: 99998;
@@ -231,8 +224,7 @@
         .drawer-overlay.open .drawer-menu { left: 0; }
 
         .drawer-header {
-            padding: 18px 20px; display: flex; align-items: center;
-            justify-content: space-between;
+            padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .drawer-links { padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
@@ -248,15 +240,12 @@
         .drawer-link.bug { background: rgba(239, 68, 68, 0.12); color: var(--bug-red); }
         .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
 
-        /* ===== HERO & MOVIE CARDS ===== */
         .hero { position: relative; padding: 20px 0 10px; text-align: center; }
         .hero h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
         .hero h1 span { color: var(--primary-red); }
         .hero .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 15px; }
 
-        .section-heading-wrap {
-            display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-        }
+        .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
         .section-heading-wrap h3 {
             font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;
         }
@@ -275,17 +264,15 @@
         }
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        
+
         .horizontal-cards-row .movie-card { flex: 0 0 125px; scroll-snap-align: start; }
-        
+
         @media (min-width: 768px) {
             .horizontal-cards-row .movie-card { flex: 0 0 170px; }
             .horizontal-cards-row { gap: 16px; }
         }
 
-        .results-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
-        }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         @media (min-width: 768px) {
             .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
         }
@@ -296,30 +283,21 @@
             border: 1px solid rgba(255,255,255,0.04);
             transition: all var(--transition);
         }
-        @media (min-width: 768px) {
-            .movie-card { border-radius: var(--radius); }
-        }
+        @media (min-width: 768px) { .movie-card { border-radius: var(--radius); } }
         .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
         .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
         .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
         .movie-card:hover .poster { transform: scale(1.04); }
         .movie-card .card-info { padding: 8px 10px; }
-        @media (min-width: 768px) {
-            .movie-card .card-info { padding: 12px 14px; }
-        }
+        @media (min-width: 768px) { .movie-card .card-info { padding: 12px 14px; } }
         .movie-card .card-info h4 { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        @media (min-width: 768px) {
-            .movie-card .card-info h4 { font-size: 14px; }
-        }
+        @media (min-width: 768px) { .movie-card .card-info h4 { font-size: 14px; } }
         .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
-        @media (min-width: 768px) {
-            .movie-card .card-meta { font-size: 11.5px; margin-top: 6px; }
-        }
+        @media (min-width: 768px) { .movie-card .card-meta { font-size: 11.5px; margin-top: 6px; } }
 
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* ===== MINI MUSIC PLAYER ===== */
         .mini-player {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 950;
             background: rgba(22, 22, 34, 0.98); backdrop-filter: blur(14px);
@@ -352,7 +330,6 @@
         .mini-player .mini-btns button:hover { background: rgba(255,255,255,0.12); }
         .mini-player .mini-btns .mini-play-btn { background: var(--primary-red); color: #fff; }
 
-        /* ===== STICKY BOTTOM ANNOUNCEMENT BAR ===== */
         .sticky-announcement-bar {
             position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
             background: linear-gradient(90deg, #181824 0%, #2a1218 50%, #181824 100%);
@@ -375,7 +352,6 @@
             box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
         }
 
-        /* ===== AUTH MODAL & TOASTS ===== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px); z-index: 99999;
@@ -431,27 +407,18 @@
 </head>
 <body x-data="rxPlayerApp()" x-init="init()">
 
-    <!-- Preloader -->
     <div id="preloader">
-        <div class="preloader-logo">
-            <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
-        </div>
+        <div class="preloader-logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
         <div class="spinner"></div>
     </div>
 
-    <!-- Header Wrapper -->
     <div class="header-wrapper" id="mainHeader">
         <header class="header-top">
             <div class="container header-top-inner">
                 <div class="header-left-cluster">
-                    <button aria-label="Open Navigation Drawer" class="hamburger-btn" @click="openDrawer()" type="button">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <a class="logo" href="#" @click.prevent="goHome()">
-                        <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
-                    </a>
+                    <button aria-label="Open Navigation Drawer" class="hamburger-btn" @click="openDrawer()" type="button"><i class="fas fa-bars"></i></button>
+                    <a class="logo" href="#" @click.prevent="goHome()"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
                 </div>
-
                 <div class="user-status" @click="openAuthModal()" title="Account">
                     <div class="avatar" x-text="currentUser && currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'">
                         <i class="fas fa-user" x-show="!currentUser"></i>
@@ -465,37 +432,20 @@
         <div class="search-bar-row">
             <div class="container">
                 <form class="header-search" @submit.prevent="searchNow()">
-                    <button aria-label="Submit Search" class="search-submit-btn" type="submit">
-                        <i aria-hidden="true" class="fas fa-search"></i>
-                    </button>
-                    <input
-                        x-model="searchQuery"
-                        @input="onSearchInput($event.target.value)"
-                        placeholder="Search movies, series, anime..."
-                        type="text"
-                        autocomplete="off"
-                    >
-                    <span class="search-live-indicator" :class="{ 'visible': searchLiveLoading }">
-                        <i class="fas fa-circle-notch"></i>
-                    </span>
-                    <button aria-label="Clear Search Input" class="clear-btn"
-                            :class="{ 'visible': searchQuery.length > 0 }"
-                            @click="clearSearch()" type="button">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button aria-label="Submit Search" class="search-submit-btn" type="submit"><i class="fas fa-search"></i></button>
+                    <input x-model="searchQuery" @input="onSearchInput($event.target.value)" placeholder="Search movies, series, anime..." type="text" autocomplete="off">
+                    <span class="search-live-indicator" :class="{ 'visible': searchLiveLoading }"><i class="fas fa-circle-notch"></i></span>
+                    <button aria-label="Clear" class="clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="clearSearch()" type="button"><i class="fas fa-times"></i></button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Side Drawer -->
     <div class="drawer-overlay" :class="{ 'open': drawerOpen }" @click="closeDrawer()">
         <aside class="drawer-menu" @click.stop="">
             <div class="drawer-header">
                 <div class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
-                <button aria-label="Close Menu" class="drawer-close" @click="closeDrawer()" type="button">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button aria-label="Close Menu" class="drawer-close" @click="closeDrawer()" type="button"><i class="fas fa-times"></i></button>
             </div>
             <div class="drawer-links">
                 <a class="drawer-link active" href="#" @click.prevent="goHome(); closeDrawer();"><i class="fas fa-home"></i> Home</a>
@@ -506,15 +456,11 @@
                 <a class="drawer-link highlight" href="https://rxplayeraffiliateprogram.blogspot.com/" target="_blank"><i class="fas fa-hand-holding-dollar"></i> Earn With Us</a>
                 <a class="drawer-link tg" href="https://t.me/rxplayer" target="_blank"><i class="fab fa-telegram-plane"></i> Join Backup Channel</a>
             </div>
-            <div class="drawer-footer">
-                <span>RX Player Search Engine © 2026</span>
-            </div>
+            <div class="drawer-footer"><span>RX Player Search Engine © 2026</span></div>
         </aside>
     </div>
 
-    <!-- Main Content Area -->
     <main>
-        <!-- Home View -->
         <div x-show="page === 'home'">
             <section class="hero">
                 <div class="container hero-content">
@@ -523,48 +469,24 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section -->
             <div class="container ott-section">
                 <div class="ott-section-title" x-text="activeOtt === 'all' ? 'Popular Networks' : 'Filtering by Network: ' + activeOtt"></div>
                 <div class="ott-grid-row">
-                    <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
-                        <i class="fas fa-globe"></i>
-                        <span>ALL</span>
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO">
-                    </div>
-                    <div class="ott-card-logo" @click="openMusicPage()" title="Spotify">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg" alt="Spotify">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')" title="Prime Video">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')" title="Apple TV+">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg" alt="Zee5">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg" alt="JioCinema">
-                    </div>
-                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png" alt="SonyLIV">
-                    </div>
+                    <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms"><i class="fas fa-globe"></i><span>ALL</span></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'HBO' }" @click="filterByOtt('HBO')" title="HBO"><img src="https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg" alt="HBO"></div>
+                    <div class="ott-card-logo" @click="openMusicPage()" title="Spotify"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg" alt="Spotify"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Netflix' }" @click="filterByOtt('Netflix')" title="Netflix"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Prime Video' }" @click="filterByOtt('Prime Video')" title="Prime Video"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Disney+' }" @click="filterByOtt('Disney+')" title="Disney+"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Apple TV+' }" @click="filterByOtt('Apple TV+')" title="Apple TV+"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'Zee5' }" @click="filterByOtt('Zee5')" title="Zee5"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg" alt="Zee5"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'JioCinema' }" @click="filterByOtt('JioCinema')" title="JioCinema"><img src="https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg" alt="JioCinema"></div>
+                    <div class="ott-card-logo" :class="{ 'active': activeOtt === 'SonyLIV' }" @click="filterByOtt('SonyLIV')" title="SonyLIV"><img src="https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png" alt="SonyLIV"></div>
                 </div>
             </div>
 
-            <!-- Sections Container -->
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
-                <!-- Personalized Recommendation: Picked For You -->
                 <div x-show="filteredPickedForYou.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
@@ -573,91 +495,61 @@
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredPickedForYou" :key="'rec-pfy-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="year(item)"></span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Web Series Section -->
                 <div x-show="filteredSeries.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-tv"></i> Web Series</h3>
-                    </div>
+                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredSeries" :key="'series-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="year(item)"></span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- K-Drama Section -->
                 <div x-show="filteredKDrama.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-heart"></i> K-Drama Series</h3>
-                    </div>
+                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="year(item)"></span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Anime Section -->
                 <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-dragon"></i> Anime Series</h3>
-                    </div>
+                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredAnime" :key="'anime-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="year(item)"></span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Trending -->
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
@@ -665,22 +557,16 @@
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredTrending" :key="'trend'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span x-text="year(item)"></span>
-                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Popular Movies -->
                 <div x-show="filteredMovies.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
@@ -688,15 +574,10 @@
                     <div class="horizontal-cards-row">
                         <template x-for="item in filteredMovies" :key="'pop'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'movie')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                                </div>
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta">
-                                        <span>movie</span>
-                                        <span x-text="year(item)"></span>
-                                    </div>
+                                    <div class="card-meta"><span>movie</span><span x-text="year(item)"></span></div>
                                 </div>
                             </div>
                         </template>
@@ -705,21 +586,15 @@
             </div>
         </div>
 
-        <!-- Search Results View -->
         <div x-show="page === 'search'" x-cloak class="container results-section" style="padding-top: 20px;">
             <div class="search-header">
                 <h2><i class="fas fa-search" style="color: var(--primary-red); font-size: 18px; margin-right: 8px;"></i> Search Results</h2>
-                <div class="search-query-label" x-show="lastSearchQuery">
-                    Showing results for "<strong x-text="lastSearchQuery"></strong>"
-                </div>
+                <div class="search-query-label" x-show="lastSearchQuery">Showing results for "<strong x-text="lastSearchQuery"></strong>"</div>
             </div>
-
             <div class="results-grid" x-show="searchResults.length">
                 <template x-for="item in searchResults" :key="'search'+item.id + (item.media_type || '')">
                     <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                        <div class="poster-wrap">
-                            <img class="poster" :src="poster(item)" loading="lazy" alt="">
-                        </div>
+                        <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
                         <div class="card-info">
                             <h4 x-text="title(item)"></h4>
                             <div class="card-meta">
@@ -730,7 +605,6 @@
                     </div>
                 </template>
             </div>
-
             <div x-show="!searchResults.length && !loading && lastSearchQuery" class="empty-state">
                 <i class="fas fa-search-minus"></i>
                 <h3>No results found for "<span x-text="lastSearchQuery"></span>"</h3>
@@ -738,37 +612,22 @@
         </div>
     </main>
 
-    <!-- Sticky Animated Announcement Banner -->
     <div class="sticky-announcement-bar">
-        <div class="sticky-content">
-            <i class="fas fa-bullhorn"></i>
-            <span>Download app for ads free experience!</span>
-        </div>
-        <a class="sticky-download-btn" href="#" @click.prevent="showToast('Redirecting to secure app download...', 'success')">
-            <i class="fas fa-download"></i> Download App
-        </a>
+        <div class="sticky-content"><i class="fas fa-bullhorn"></i><span>Download app for ads free experience!</span></div>
+        <a class="sticky-download-btn" href="#" @click.prevent="showToast('Redirecting to secure app download...', 'success')"><i class="fas fa-download"></i> Download App</a>
     </div>
 
-    <!-- Mini Music Player -->
     <div class="mini-player" id="miniPlayer">
-        <div class="mini-progress" id="miniProgressWrap">
-            <div class="mini-progress-fill" id="miniProgressFill"></div>
-        </div>
+        <div class="mini-progress" id="miniProgressWrap"><div class="mini-progress-fill" id="miniProgressFill"></div></div>
         <div class="mini-row">
             <div class="mini-left" id="miniLeft">
                 <img class="mini-cover" id="miniCover" src="https://placehold.co/60/1C1C24/666?text=Music" alt="cover" />
-                <div class="mini-info">
-                    <h5 id="miniTitle">—</h5>
-                    <span id="miniArtist">—</span>
-                </div>
+                <div class="mini-info"><h5 id="miniTitle">—</h5><span id="miniArtist">—</span></div>
             </div>
-            <div class="mini-btns">
-                <button class="mini-play-btn" id="miniPlayPauseBtn" title="Play/Pause"><i class="fas fa-play"></i></button>
-            </div>
+            <div class="mini-btns"><button class="mini-play-btn" id="miniPlayPauseBtn" title="Play/Pause"><i class="fas fa-play"></i></button></div>
         </div>
     </div>
 
-    <!-- AUTH MODAL -->
     <div class="modal-overlay" :class="{ 'open': authModalOpen }" @click="authModalOpen = false">
         <div class="modal-box" @click.stop="">
             <div class="modal-header">
@@ -776,20 +635,13 @@
                 <button class="modal-close" @click="authModalOpen = false"><i class="fas fa-times"></i></button>
             </div>
             <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" x-model="loginEmail" placeholder="your@email.com" required />
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" x-model="loginPassword" placeholder="••••••••" required />
-                </div>
+                <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required /></div>
+                <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required /></div>
                 <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
         </div>
     </div>
 
-    <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
     <footer class="seo-footer">
@@ -799,7 +651,6 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK & CryptoJS -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -821,10 +672,9 @@
             measurementId: "G-28GFZHBB6P"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function rxPlayerApp() {
             return {
@@ -845,37 +695,27 @@
                 animeList: [],
                 searchResults: [],
                 lastSearchQuery: '',
+                searchLiveLoading: false,
 
                 recommendedPickedForYou: [],
                 recommendedBySearch: [],
                 recommendedByHistory: [],
-                
+
+                // Admin-managed config from Firestore: { trending: {customItems:[], removedIds:[]}, ... }
+                homeSectionsConfig: {},
+
                 ottPools: {
-                    trending: [],
-                    popular: [],
-                    picked: [],
-                    series: [],
-                    kdrama: [],
-                    anime: [],
-                    searchRec: [],
-                    historyRec: []
+                    trending: [], popular: [], picked: [], series: [],
+                    kdrama: [], anime: [], searchRec: [], historyRec: []
                 },
 
                 guestProfile: {
-                    watchHistory: [],
-                    myList: [],
-                    recentSearches: [],
-                    genreAffinity: {},
-                    lastSearchTerm: ''
+                    watchHistory: [], myList: [], recentSearches: [],
+                    genreAffinity: {}, lastSearchTerm: ''
                 },
                 recWeights: {
-                    genreAffinity: 0.25,
-                    tmdbSimilarity: 0.20,
-                    myListSimilarity: 0.15,
-                    searchIntent: 0.15,
-                    popularityRating: 0.10,
-                    languageCompatibility: 0.10,
-                    discoveryDiversity: 0.05
+                    genreAffinity: 0.25, tmdbSimilarity: 0.20, myListSimilarity: 0.15,
+                    searchIntent: 0.15, popularityRating: 0.10, languageCompatibility: 0.10, discoveryDiversity: 0.05
                 },
 
                 loginEmail: '',
@@ -887,37 +727,62 @@
                         if (preloader) preloader.classList.add('fade-out');
                     }, 400);
 
-                    auth.onAuthStateChanged(user => {
-                        this.currentUser = user;
-                    });
+                    auth.onAuthStateChanged(user => { this.currentUser = user; });
 
                     this.loadGuestProfile();
                     await this.loadHomeData();
+                    await this.loadSectionConfig();
                     this.computePersonalizedRecommendations();
+                },
+
+                // Load admin-managed section config
+                async loadSectionConfig() {
+                    try {
+                        const doc = await db.collection('config').doc('homeSections').get();
+                        if (doc.exists) {
+                            this.homeSectionsConfig = doc.data().sections || {};
+                        }
+                    } catch (e) {
+                        console.warn('Could not load home sections config:', e.message);
+                    }
+                },
+
+                // Apply admin config: remove hidden IDs and prepend custom items
+                applySectionConfig(key, items) {
+                    const cfg = (this.homeSectionsConfig && this.homeSectionsConfig[key]) || {};
+                    const removedIds = (cfg.removedIds || []).map(String);
+                    const customItems = (cfg.customItems || []).map(c => ({
+                        id: c.id,
+                        title: c.title,
+                        name: c.title,
+                        poster_path: c.poster ? c.poster.replace('https://image.tmdb.org/t/p/w500', '') : '',
+                        release_date: (c.year ? c.year + '-01-01' : ''),
+                        first_air_date: (c.year ? c.year + '-01-01' : ''),
+                        media_type: c.media_type || 'movie',
+                        vote_average: typeof c.rating === 'number' ? c.rating : parseFloat(c.rating) || 0,
+                        _adminCustomPoster: c.poster
+                    }));
+                    const filtered = (items || []).filter(i => !removedIds.includes(String(i.id)));
+                    return [...customItems, ...filtered];
                 },
 
                 loadGuestProfile() {
                     try {
                         const saved = localStorage.getItem(GUEST_PROFILE_KEY);
-                        if (saved) {
-                            this.guestProfile = JSON.parse(saved);
-                        }
+                        if (saved) this.guestProfile = JSON.parse(saved);
                     } catch (e) {
                         this.guestProfile = { watchHistory: [], myList: [], recentSearches: [], genreAffinity: {}, lastSearchTerm: '' };
                     }
                 },
 
                 saveGuestProfile() {
-                    try {
-                        localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(this.guestProfile));
-                    } catch (e) {}
+                    try { localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(this.guestProfile)); } catch (e) {}
                 },
 
                 recordWatchHistory(item, type) {
                     if (!item || !item.id) return;
                     const entry = { id: item.id, type: type || 'movie', genres: item.genre_ids || [], timestamp: Date.now() };
                     this.guestProfile.watchHistory = [entry, ...this.guestProfile.watchHistory.filter(x => x.id !== item.id)].slice(0, 30);
-                    
                     if (item.genre_ids) {
                         item.genre_ids.forEach(g => {
                             this.guestProfile.genreAffinity[g] = (this.guestProfile.genreAffinity[g] || 0) + 1;
@@ -941,71 +806,48 @@
                     toast.className = `toast ${type}`;
                     toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
                     container.appendChild(toast);
-                    setTimeout(() => { toast.remove(); }, duration);
+                    setTimeout(() => toast.remove(), duration);
                 },
 
-                // Smart Year Filter: Prioritizes current year and last year. Automatically falls back further if needed to guarantee 10+ items.
                 filterBySmartYear(items, minCount = 10) {
                     if (!items || !Array.isArray(items)) return [];
-                    const currentYear = new Date().getFullYear(); // 2026
-                    
+                    const currentYear = new Date().getFullYear();
                     let filtered = items.filter(item => {
                         const dateStr = item.release_date || item.first_air_date || '';
                         if (!dateStr) return false;
                         const year = parseInt(dateStr.substring(0, 4), 10);
-                        return year >= (currentYear - 1); // 2025, 2026 onwards
+                        return year >= (currentYear - 1);
                     });
-
-                    // Fallback mechanism: if not enough items found for current/last year, include previous years until minCount is reached
                     if (filtered.length < minCount) {
                         const additional = items.filter(item => {
                             if (filtered.includes(item)) return false;
                             const dateStr = item.release_date || item.first_air_date || '';
                             if (!dateStr) return false;
                             const year = parseInt(dateStr.substring(0, 4), 10);
-                            return year >= (currentYear - 3); // Fallback up to 3 years back
+                            return year >= (currentYear - 3);
                         });
                         filtered = [...filtered, ...additional];
                     }
-
-                    // Ultimate fallback if still under minCount: return full list so sections never look empty
                     return filtered.length > 0 ? filtered : items;
                 },
 
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
                     this.showToast(`Filtering by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
-                    
                     if (ottName === 'all') {
-                        this.ottPools.trending = [];
-                        this.ottPools.popular = [];
-                        this.ottPools.picked = [];
-                        this.ottPools.series = [];
-                        this.ottPools.kdrama = [];
-                        this.ottPools.anime = [];
-                        this.ottPools.searchRec = [];
-                        this.ottPools.historyRec = [];
+                        this.ottPools = { trending: [], popular: [], picked: [], series: [], kdrama: [], anime: [], searchRec: [], historyRec: [] };
                         return;
                     }
-
                     const networkQueryMap = {
-                        'HBO': 'HBO',
-                        'Netflix': 'Netflix',
-                        'Prime Video': 'Amazon',
-                        'Disney+': 'Disney',
-                        'Apple TV+': 'Apple',
-                        'Zee5': 'Zee5',
-                        'JioCinema': 'Viacom18',
-                        'SonyLIV': 'Sony'
+                        'HBO': 'HBO', 'Netflix': 'Netflix', 'Prime Video': 'Amazon',
+                        'Disney+': 'Disney', 'Apple TV+': 'Apple', 'Zee5': 'Zee5',
+                        'JioCinema': 'Viacom18', 'SonyLIV': 'Sony'
                     };
-
                     const keyword = networkQueryMap[ottName] || ottName;
-
                     try {
                         const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
                         const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
                         const smartItems = this.filterBySmartYear(items, 6);
-                        
                         if (smartItems.length > 0) {
                             this.ottPools.trending = smartItems.slice(0, 12);
                             this.ottPools.popular = smartItems.slice(2, 14).reverse();
@@ -1026,37 +868,38 @@
                     }
                 },
 
-                get filteredPickedForYou() { 
+                // ====== Getter with Admin Config Applied ======
+                get filteredPickedForYou() {
                     const base = this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
                 },
                 get filteredSeries() {
                     const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
                 },
                 get filteredKDrama() {
                     const base = this.activeOtt === 'all' ? this.kdramaList : (this.ottPools.kdrama.length ? this.ottPools.kdrama : this.kdramaList);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('kdrama', this.filterBySmartYear(base, 6));
                 },
                 get filteredAnime() {
                     const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('anime', this.filterBySmartYear(base, 6));
                 },
-                get filteredBySearch() { 
+                get filteredBySearch() {
                     const base = this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
                 },
-                get filteredByHistory() { 
+                get filteredByHistory() {
                     const base = this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
                 },
-                get filteredTrending() { 
+                get filteredTrending() {
                     const base = this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('trending', this.filterBySmartYear(base, 6));
                 },
-                get filteredMovies() { 
+                get filteredMovies() {
                     const base = this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies);
-                    return this.filterBySmartYear(base, 6);
+                    return this.applySectionConfig('movies', this.filterBySmartYear(base, 6));
                 },
 
                 async request(url, options = {}) {
@@ -1082,7 +925,7 @@
 
                         const animeRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"));
                         this.animeList = (animeRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
-                    } catch (e) {}
+                    } catch (e) { console.warn('loadHomeData error:', e); }
                 },
 
                 async computePersonalizedRecommendations() {
@@ -1093,7 +936,6 @@
                         const scoredPool = pool.filter(item => !watchedIds.has(item.id)).map(item => {
                             let score = 0;
                             score += ((item.vote_average || 5) / 10) * this.recWeights.popularityRating * 100;
-
                             if (item.genre_ids) {
                                 item.genre_ids.forEach(g => {
                                     if (this.guestProfile.genreAffinity[g]) {
@@ -1103,7 +945,6 @@
                             }
                             return { ...item, _score: score };
                         });
-
                         scoredPool.sort((a, b) => b._score - a._score);
                         this.recommendedPickedForYou = scoredPool.slice(0, 12);
 
@@ -1111,7 +952,6 @@
                             const searchRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(this.guestProfile.lastSearchTerm)}&page=1`));
                             this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path).slice(0, 10);
                         }
-
                         if (this.guestProfile.watchHistory.length > 0) {
                             const lastWatched = this.guestProfile.watchHistory[0];
                             const similarRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${lastWatched.type}/${lastWatched.id}/recommendations`));
@@ -1119,38 +959,30 @@
                         } else {
                             this.recommendedByHistory = this.popularMovies.slice(5, 15);
                         }
-                    } catch (e) {}
+                    } catch (e) { console.warn('reco error:', e); }
                 },
 
                 async onSearchInput(val) {
-                    if (val.trim().length >= 2) {
-                        this.recordSearchIntent(val.trim());
-                    }
+                    if (val && val.trim().length >= 2) this.recordSearchIntent(val.trim());
                 },
 
                 async searchNow() {
                     const q = this.searchQuery.trim();
                     if (!q) return;
                     this.recordSearchIntent(q);
+                    this.searchLiveLoading = true;
                     try {
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(q)}&page=1`));
                         this.searchResults = (data.results || []).filter(r => r.media_type === 'movie' || r.media_type === 'tv');
                         this.lastSearchQuery = q;
                         this.page = 'search';
-                    } catch (e) {}
+                    } catch (e) {} finally {
+                        this.searchLiveLoading = false;
+                    }
                 },
 
-                clearSearch() {
-                    this.searchQuery = '';
-                    this.searchResults = [];
-                    this.goHome();
-                },
-
-                goHome() {
-                    this.page = 'home';
-                    this.searchQuery = '';
-                },
-
+                clearSearch() { this.searchQuery = ''; this.searchResults = []; this.goHome(); },
+                goHome() { this.page = 'home'; this.searchQuery = ''; },
                 openDrawer() { this.drawerOpen = true; },
                 closeDrawer() { this.drawerOpen = false; },
                 openMusicPage() { window.location.href = 'music.html'; },
@@ -1170,7 +1002,9 @@
                 },
 
                 poster(item) {
-                    return item && item.poster_path ? "https://image.tmdb.org/t/p/w500" + item.poster_path : 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    if (item._adminCustomPoster) return item._adminCustomPoster;
+                    return item.poster_path ? "https://image.tmdb.org/t/p/w500" + item.poster_path : 'https://placehold.co/300x450/14141F/666?text=No+Image';
                 },
                 title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
                 year(item) {
@@ -1179,6 +1013,8 @@
                     return date ? date.substring(0, 4) : 'N/A';
                 },
                 rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
+
+                openAuthModal() { this.authModalOpen = true; },
 
                 async login() {
                     try {
