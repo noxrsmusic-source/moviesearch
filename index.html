@@ -165,7 +165,7 @@
         .search-live-indicator.visible { display: block; }
         .search-live-indicator i { animation: spin 0.8s linear infinite; }
 
-        /* ===== OTT LOGO SECTION (PC Large / Mobile Compact) ===== */
+        /* ===== OTT LOGO SECTION (Compact Mobile / Large PC) ===== */
         .ott-section { margin: 24px 0 12px; }
         .ott-section-title { font-size: 17px; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; letter-spacing: -0.2px; }
         .ott-grid-row {
@@ -177,7 +177,6 @@
         .ott-grid-row::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.03); border-radius: 4px; }
         .ott-grid-row::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 4px; }
 
-        /* Default mobile size for network cards */
         .ott-card-logo, .ott-card-all {
             flex: 0 0 95px; height: 60px; background: var(--bg-card);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
@@ -203,7 +202,6 @@
         }
         .ott-card-logo:hover img, .ott-card-logo.active img { filter: grayscale(0%); }
 
-        /* PC Viewport Size Enhancement for Network Cards */
         @media (min-width: 1024px) {
             .ott-card-logo, .ott-card-all {
                 flex: 0 0 160px; height: 100px; padding: 16px;
@@ -278,7 +276,6 @@
         .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
         .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         
-        /* Compact movie card size for mobile viewports */
         .horizontal-cards-row .movie-card { flex: 0 0 125px; scroll-snap-align: start; }
         
         @media (min-width: 768px) {
@@ -828,7 +825,6 @@
                 recommendedBySearch: [],
                 recommendedByHistory: [],
                 
-                // Network-specific cached pools so each network shows full 10+ items per section
                 ottPools: {
                     trending: [],
                     popular: [],
@@ -920,6 +916,16 @@
                     setTimeout(() => { toast.remove(); }, duration);
                 },
 
+                // Helper to check if release date is latest (2025 or 2026 and onwards automatically)
+                isLatestRelease(item) {
+                    if (!item) return false;
+                    const dateStr = item.release_date || item.first_air_date || '';
+                    if (!dateStr) return false;
+                    const year = parseInt(dateStr.substring(0, 4), 10);
+                    const currentYear = new Date().getFullYear(); // 2026
+                    return year >= (currentYear - 1); // Automatically allows 2025, 2026, 2027...
+                },
+
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
                     this.showToast(`Filtering by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
@@ -933,7 +939,6 @@
                         return;
                     }
 
-                    // Map network names to TMDB company IDs or keyword query strings
                     const networkQueryMap = {
                         'HBO': 'HBO',
                         'Netflix': 'Netflix',
@@ -949,10 +954,9 @@
 
                     try {
                         const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
-                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
+                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv') && this.isLatestRelease(r));
                         
                         if (items.length > 0) {
-                            // Populate dedicated pools with enough items so each section shows 10+ items
                             this.ottPools.trending = items.slice(0, 12);
                             this.ottPools.popular = items.slice(2, 14).reverse();
                             this.ottPools.picked = items.slice(4, 16);
@@ -970,19 +974,24 @@
                 },
 
                 get filteredPickedForYou() { 
-                    return this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou); 
+                    const base = this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou);
+                    return base.filter(item => this.isLatestRelease(item));
                 },
                 get filteredBySearch() { 
-                    return this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch); 
+                    const base = this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch);
+                    return base.filter(item => this.isLatestRelease(item));
                 },
                 get filteredByHistory() { 
-                    return this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory); 
+                    const base = this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory);
+                    return base.filter(item => this.isLatestRelease(item));
                 },
                 get filteredTrending() { 
-                    return this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending); 
+                    const base = this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending);
+                    return base.filter(item => this.isLatestRelease(item));
                 },
                 get filteredMovies() { 
-                    return this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies); 
+                    const base = this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies);
+                    return base.filter(item => this.isLatestRelease(item));
                 },
 
                 async request(url, options = {}) {
@@ -995,13 +1004,13 @@
                 async loadHomeData() {
                     try {
                         const testData = await this.request("/test-tmdb");
-                        this.trending = testData.results || [];
+                        this.trending = (testData.results || []).filter(item => this.isLatestRelease(item));
 
                         const popRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/movie/popular?language=en-US&page=1"));
-                        this.popularMovies = popRes.results || [];
+                        this.popularMovies = (popRes.results || []).filter(item => this.isLatestRelease(item));
 
                         const tvRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/popular?language=en-US&page=1"));
-                        this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+                        this.tvShows = (tvRes.results || []).map(i => ({ ...i, media_type: 'tv' })).filter(item => this.isLatestRelease(item));
                     } catch (e) {}
                 },
 
@@ -1010,7 +1019,7 @@
                         const pool = [...this.trending, ...this.popularMovies, ...this.tvShows];
                         const watchedIds = new Set(this.guestProfile.watchHistory.map(w => w.id));
 
-                        const scoredPool = pool.filter(item => !watchedIds.has(item.id)).map(item => {
+                        const scoredPool = pool.filter(item => !watchedIds.has(item.id) && this.isLatestRelease(item)).map(item => {
                             let score = 0;
                             score += ((item.vote_average || 5) / 10) * this.recWeights.popularityRating * 100;
 
@@ -1029,13 +1038,13 @@
 
                         if (this.guestProfile.lastSearchTerm) {
                             const searchRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(this.guestProfile.lastSearchTerm)}&page=1`));
-                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path).slice(0, 10);
+                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path && this.isLatestRelease(r)).slice(0, 10);
                         }
 
                         if (this.guestProfile.watchHistory.length > 0) {
                             const lastWatched = this.guestProfile.watchHistory[0];
                             const similarRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${lastWatched.type}/${lastWatched.id}/recommendations`));
-                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path).slice(0, 10);
+                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path && this.isLatestRelease(r)).slice(0, 10);
                         } else {
                             this.recommendedByHistory = this.popularMovies.slice(5, 15);
                         }
