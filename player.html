@@ -648,6 +648,7 @@
             cursor: pointer;
             font-family: var(--font);
             min-width: 60px;
+            max-width: 260px;
         }
         .episode-controls select:focus {
             border-color: var(--primary-red);
@@ -861,6 +862,7 @@
                 font-size: 12px;
                 padding: 4px 10px;
                 min-width: 50px;
+                max-width: 170px;
             }
             .episode-controls .apply-btn {
                 font-size: 12px;
@@ -946,6 +948,7 @@
                 font-size: 11px;
                 padding: 3px 8px;
                 min-width: 44px;
+                max-width: 140px;
             }
             .custom-fs-btn {
                 bottom: 8px;
@@ -1179,12 +1182,18 @@
         // ============================================================
         //  CONFIG
         // ============================================================
+        // 🔑 TMDB v3 API key — replace this with your own key
+        const TMDB_API_KEY = 'PUT_YOUR_TMDB_V3_API_KEY_HERE';
+        const TMDB_BASE    = 'https://api.themoviedb.org/3';
+        const TMDB_LANG    = 'en-US';
+
+        // OMDb is only used as a fallback (and to obtain an IMDb id if TMDB fails)
         const OMDB_API_KEY = 'df7d5111';
-        const OMDB_BASE = 'https://www.omdbapi.com/';
+        const OMDB_BASE    = 'https://www.omdbapi.com/';
 
         // ============================================================
         //  SERVERS
-        //  - main (Red +) : uses the TMDB id
+        //  - main (Red +) : uses the TMDB id  + season/episode numbers
         //  - red / green  : use the OMDb / IMDb id (ex: tt0111161)
         // ============================================================
         const SERVERS = {
@@ -1205,7 +1214,6 @@
                 name: 'Red',
                 requiresOmdb: true,
                 url: (tmdbId, omdbId, type, season, episode) => {
-                    // Red server -> uses OMDb / IMDb id (tt0111161 style)
                     if (!omdbId) return null;
                     if (type === 'movie') {
                         return `https://autoembed.co/movie/imdb/${omdbId}`;
@@ -1219,22 +1227,42 @@
                 name: 'Green',
                 requiresOmdb: true,
                 url: (tmdbId, omdbId, type, season, episode) => {
-                    // Green server -> uses OMDb / IMDb id (tt0111161 style)
                     if (!omdbId) return null;
                     return `https://kriss424did.com/play/${omdbId}`;
                 }
             }
         };
 
+        // ============================================================
+        //  STATE
+        // ============================================================
         let currentTmdbId = null;
         let currentOmdbId = null;
-        let currentType = 'movie';
+        let currentType = 'movie';        // 'movie' | 'tv'
         let currentServer = 'main';
         let currentSeason = 1;
         let currentEpisode = 1;
+        let totalSeasons = 1;
+        let seasonList = [];              // [{ season_number, name, episode_count }]
+        let episodeList = [];             // [{ episode_number, name }]
         let metadata = null;
         let isIssueOverlayShown = false;
         let isPaused = false;
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        function isTvType(t) {
+            if (!t) return false;
+            t = String(t).toLowerCase();
+            return t === 'tv' || t === 'series' || t === 'anime' || t === 'show';
+        }
+        function isSeries() {
+            return currentType === 'tv';
+        }
+        function tmdbReady() {
+            return TMDB_API_KEY && TMDB_API_KEY !== 'PUT_YOUR_TMDB_V3_API_KEY_HERE';
+        }
 
         // ============================================================
         //  FULLSCREEN TOGGLE
@@ -1286,7 +1314,63 @@
         }
 
         // ============================================================
-        //  OMDb API
+        //  TMDB API
+        // ============================================================
+        async function tmdbGet(path, params = {}) {
+            if (!tmdbReady()) return null;
+            try {
+                const url = new URL(TMDB_BASE + path);
+                url.searchParams.set('api_key', TMDB_API_KEY);
+                url.searchParams.set('language', TMDB_LANG);
+                Object.keys(params).forEach(k => {
+                    if (params[k] !== undefined && params[k] !== null && params[k] !== '') {
+                        url.searchParams.set(k, params[k]);
+                    }
+                });
+                const res = await fetch(url.toString());
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return await res.json();
+            } catch (e) {
+                console.warn('TMDB error:', e.message);
+                return null;
+            }
+        }
+
+        /** Find a TMDB id starting from an IMDb id (tt1234567). */
+        async function tmdbFindByImdb(imdbId) {
+            if (!imdbId) return null;
+            const data = await tmdbGet(`/find/${imdbId}`, { external_source: 'imdb_id' });
+            if (!data) return null;
+            if (Array.isArray(data.tv_results) && data.tv_results.length) {
+                return { id: data.tv_results[0].id, type: 'tv' };
+            }
+            if (Array.isArray(data.movie_results) && data.movie_results.length) {
+                return { id: data.movie_results[0].id, type: 'movie' };
+            }
+            return null;
+        }
+
+        /** Full details for a movie or tv show, including external ids (imdb_id). */
+        async function tmdbGetDetails(id, type) {
+            if (!id) return null;
+            const data = await tmdbGet(`/${type}/${id}`, { append_to_response: 'external_ids' });
+            if (!data || data.success === false) return null;
+            return data;
+        }
+
+        /** All episodes of one season. */
+        async function tmdbGetSeason(id, seasonNumber) {
+            if (!id) return null;
+            const data = await tmdbGet(`/tv/${id}/season/${seasonNumber}`);
+            if (!data || !Array.isArray(data.episodes)) return null;
+            return data.episodes.map(ep => ({
+                episode_number: ep.episode_number,
+                name: ep.name || ''
+            }));
+        }
+
+        // ============================================================
+        //  OMDb API (FALLBACK ONLY)
         // ============================================================
         async function fetchOmdbById(imdbId) {
             if (!imdbId) return null;
@@ -1300,72 +1384,203 @@
             }
         }
 
-        async function fetchEpisodesForSeason(imdbId, season) {
+        async function fetchOmdbEpisodes(imdbId, season) {
             try {
                 const res = await fetch(`${OMDB_BASE}?apikey=${OMDB_API_KEY}&i=${imdbId}&Season=${season}`);
                 const data = await res.json();
                 if (data.Response === 'True' && data.Episodes) {
-                    return data.Episodes;
+                    return data.Episodes.map(e => ({
+                        episode_number: parseInt(e.Episode, 10),
+                        name: e.Title || ''
+                    })).filter(e => !isNaN(e.episode_number));
                 }
                 return null;
             } catch (e) {
-                console.warn('Failed to fetch episodes:', e.message);
+                console.warn('Failed to fetch OMDb episodes:', e.message);
                 return null;
             }
         }
 
         // ============================================================
-        //  DROPDOWN POPULATORS
+        //  UI: METADATA
         // ============================================================
-        function populateSeasonDropdown(totalSeasons) {
-            const select = document.getElementById('seasonSelect');
-            select.innerHTML = '';
-            if (!totalSeasons || totalSeasons < 1) {
-                select.innerHTML = '<option value="1">1</option>';
-                return;
+        function applyTmdbMetadata(d, type) {
+            const isTv = type === 'tv';
+            metadata = d;
+            currentType = isTv ? 'tv' : 'movie';
+
+            if (d.external_ids && d.external_ids.imdb_id) {
+                currentOmdbId = d.external_ids.imdb_id;
             }
-            for (let i = 1; i <= totalSeasons; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = i;
-                select.appendChild(opt);
-            }
-            if (currentSeason <= totalSeasons) {
-                select.value = currentSeason;
+
+            document.getElementById('movieTitle').textContent = d.title || d.name || 'Untitled';
+            document.getElementById('movieType').textContent = isTv ? 'series' : 'movie';
+
+            const dateStr = d.release_date || d.first_air_date || '';
+            document.getElementById('movieYear').textContent = dateStr ? dateStr.slice(0, 4) : '—';
+
+            document.getElementById('movieRating').innerHTML =
+                `<i class="fas fa-star"></i> ${d.vote_average ? Number(d.vote_average).toFixed(1) : '—'}`;
+
+            let runtime = '—';
+            if (isTv) {
+                const epRun = Array.isArray(d.episode_run_time) && d.episode_run_time.length ? d.episode_run_time[0] : null;
+                if (epRun) runtime = `${epRun} min/ep`;
+                else if (d.number_of_episodes) runtime = `${d.number_of_episodes} eps`;
             } else {
-                select.value = 1;
-                currentSeason = 1;
+                runtime = d.runtime ? `${d.runtime} min` : '—';
+            }
+            document.getElementById('movieRuntime').textContent = runtime;
+
+            document.getElementById('movieGenre').textContent =
+                (d.genres || []).map(g => g.name).join(', ') || '—';
+
+            document.getElementById('moviePlot').textContent = d.overview || 'No description available.';
+
+            if (isTv) {
+                seasonList = (d.seasons || [])
+                    .filter(s => s.season_number >= 1)
+                    .map(s => ({
+                        season_number: s.season_number,
+                        name: s.name || `Season ${s.season_number}`,
+                        episode_count: s.episode_count || 0
+                    }));
+                totalSeasons = seasonList.length || d.number_of_seasons || 1;
+            } else {
+                seasonList = [];
+                totalSeasons = 0;
             }
         }
 
-        async function loadEpisodes(imdbId, season) {
+        function applyOmdbMetadata(data) {
+            if (!data) return;
+            metadata = data;
+            document.getElementById('movieTitle').textContent = data.Title || 'Untitled';
+            document.getElementById('movieType').textContent = isSeries() ? 'series' : 'movie';
+            document.getElementById('movieYear').textContent = data.Year || '—';
+            document.getElementById('movieRating').innerHTML =
+                `<i class="fas fa-star"></i> ${data.imdbRating || '—'}`;
+            document.getElementById('movieRuntime').textContent = data.Runtime || '—';
+            document.getElementById('movieGenre').textContent = data.Genre || '—';
+            document.getElementById('moviePlot').textContent = data.Plot || 'No description available.';
+
+            if (isSeries()) {
+                totalSeasons = parseInt(data.totalSeasons, 10) || 1;
+                seasonList = [];
+            }
+        }
+
+        // ============================================================
+        //  DROPDOWNS
+        // ============================================================
+        function populateSeasonDropdown() {
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '';
+
+            let list = seasonList.slice();
+            if (!list.length) {
+                const count = totalSeasons > 0 ? totalSeasons : 1;
+                for (let i = 1; i <= count; i++) {
+                    list.push({ season_number: i, name: `Season ${i}`, episode_count: 0 });
+                }
+            }
+
+            list.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.season_number;
+                opt.textContent = s.name || `Season ${s.season_number}`;
+                select.appendChild(opt);
+            });
+        }
+
+        /**
+         * Fills the episode dropdown for a given season.
+         * Tries TMDB first, falls back to OMDb, then to the season episode count.
+         * Keeps `currentEpisode` if it still exists, otherwise picks the first one.
+         */
+        async function loadEpisodes(seasonNumber) {
             const select = document.getElementById('episodeSelect');
             select.innerHTML = '<option value="">Loading…</option>';
             select.disabled = true;
 
-            const episodes = await fetchEpisodesForSeason(imdbId, season);
-            select.disabled = false;
-            if (episodes && episodes.length > 0) {
-                select.innerHTML = '';
-                episodes.forEach(ep => {
-                    const opt = document.createElement('option');
-                    opt.value = ep.Episode;
-                    opt.textContent = `Episode ${ep.Episode}`;
-                    select.appendChild(opt);
-                });
-                const exists = Array.from(select.options).some(o => o.value == currentEpisode);
-                if (exists) {
-                    select.value = currentEpisode;
-                } else {
-                    select.value = select.options[0]?.value || 1;
-                    currentEpisode = parseInt(select.value);
-                }
-            } else {
-                select.innerHTML = '<option value="1">Episode 1</option>';
-                select.value = 1;
-                currentEpisode = 1;
-                showToast(`Could not fetch episode list for Season ${season}.`, 'error', 3000);
+            let eps = null;
+
+            // 1) TMDB
+            if (currentTmdbId) {
+                eps = await tmdbGetSeason(currentTmdbId, seasonNumber);
             }
+
+            // 2) OMDb fallback
+            if ((!eps || !eps.length) && currentOmdbId) {
+                eps = await fetchOmdbEpisodes(currentOmdbId, seasonNumber);
+            }
+
+            // 3) Fallback: build 1..N from the season metadata
+            if (!eps || !eps.length) {
+                const seasonMeta = seasonList.find(s => s.season_number === seasonNumber);
+                const count = seasonMeta && seasonMeta.episode_count ? seasonMeta.episode_count : 1;
+                eps = [];
+                for (let i = 1; i <= count; i++) {
+                    eps.push({ episode_number: i, name: '' });
+                }
+                if (count === 1) {
+                    showToast(`Could not fetch the episode list for Season ${seasonNumber}.`, 'error', 3000);
+                }
+            }
+
+            episodeList = eps;
+            select.disabled = false;
+            select.innerHTML = '';
+
+            eps.forEach(ep => {
+                const opt = document.createElement('option');
+                opt.value = ep.episode_number;
+                let name = ep.name || '';
+                if (name.length > 45) name = name.slice(0, 42) + '…';
+                opt.textContent = name
+                    ? `Ep ${ep.episode_number} — ${name}`
+                    : `Episode ${ep.episode_number}`;
+                select.appendChild(opt);
+            });
+
+            // Keep the current episode if it exists in this season
+            const exists = Array.from(select.options)
+                .some(o => parseInt(o.value, 10) === parseInt(currentEpisode, 10));
+            if (!exists) {
+                currentEpisode = parseInt(select.options[0].value, 10) || 1;
+            }
+            select.value = currentEpisode;
+
+            return episodeList;
+        }
+
+        // ============================================================
+        //  URL SYNC  (season & episode numbers go into the watch link)
+        // ============================================================
+        function updateUrl() {
+            const params = new URLSearchParams(window.location.search);
+
+            if (currentTmdbId) params.set('id', currentTmdbId);
+            else if (currentOmdbId) params.set('id', currentOmdbId);
+            else params.delete('id');
+
+            if (currentOmdbId) params.set('omdbId', currentOmdbId);
+            else params.delete('omdbId');
+
+            params.set('type', isSeries() ? 'tv' : 'movie');
+
+            if (isSeries()) {
+                params.set('season', currentSeason);
+                params.set('episode', currentEpisode);
+            } else {
+                params.delete('season');
+                params.delete('episode');
+            }
+
+            try {
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
+                window.history.replaceState(null, '', newUrl);
+            } catch (e) { /* ignore */ }
         }
 
         // ============================================================
@@ -1402,7 +1617,6 @@
             }
 
             // ----- Fallbacks when a server does not have the ID it needs -----
-            // Red / Green need the OMDb (IMDb) id.
             if (SERVERS[currentServer].requiresOmdb && !currentOmdbId) {
                 if (currentTmdbId) {
                     showToast('Red/Green servers need an OMDb (IMDb) ID — switching to Red + server.', 'info', 3500);
@@ -1412,7 +1626,6 @@
                     return;
                 }
             }
-            // Red + needs the TMDB id.
             if (currentServer === 'main' && !currentTmdbId) {
                 if (currentOmdbId) {
                     showToast('Red + server needs a TMDB ID — switching to Red server.', 'info', 3500);
@@ -1423,7 +1636,11 @@
                 }
             }
 
-            const url = buildPlayerUrl(currentServer, currentTmdbId, currentOmdbId, currentType, currentSeason, currentEpisode);
+            const url = buildPlayerUrl(
+                currentServer, currentTmdbId, currentOmdbId,
+                currentType, currentSeason, currentEpisode
+            );
+
             if (!url) {
                 showToast('Failed to build player URL.', 'error');
                 return;
@@ -1441,10 +1658,12 @@
 
             syncServerButtons();
 
-            const isSeries = currentType === 'series' || currentType === 'tv' || currentType === 'anime';
-            document.getElementById('episodeControls').classList.toggle('visible', isSeries);
+            document.getElementById('episodeControls').classList.toggle('visible', isSeries());
 
-            showToast(`🔴 ${SERVERS[currentServer].name} server loading…`, 'success', 2000);
+            updateUrl();
+
+            const epLabel = isSeries() ? ` • S${currentSeason}E${currentEpisode}` : '';
+            showToast(`🔴 ${SERVERS[currentServer].name} server loading${epLabel}…`, 'success', 2000);
         }
 
         // ============================================================
@@ -1516,24 +1735,9 @@
         }
 
         // ============================================================
-        //  UPDATE UI
+        //  SERVER SWITCH
         // ============================================================
-        function updateUIWithMetadata(data) {
-            if (!data) return;
-            document.getElementById('movieTitle').textContent = data.Title || 'Untitled';
-            document.getElementById('movieType').textContent = data.Type || 'movie';
-            document.getElementById('movieYear').textContent = data.Year || '—';
-            document.getElementById('movieRating').innerHTML = `<i class="fas fa-star"></i> ${data.imdbRating || '—'}`;
-            document.getElementById('movieRuntime').textContent = data.Runtime || '—';
-            document.getElementById('movieGenre').textContent = data.Genre || '—';
-            document.getElementById('moviePlot').textContent = data.Plot || 'No description available.';
-        }
-
         function switchServer(server) {
-            if (server === currentServer) {
-                loadPlayer();
-                return;
-            }
             currentServer = server;
             loadPlayer();
             document.getElementById('serverIssueOverlay').classList.remove('visible');
@@ -1564,25 +1768,26 @@
         // ============================================================
         async function init() {
             const params = new URLSearchParams(window.location.search);
-            const rawId = params.get('id');                                  // TMDB id (or a raw IMDb id)
-            const omdbParam = params.get('omdbId') || params.get('imdbId');  // OMDb / IMDb id
-            const type = params.get('type') || 'movie';
+            const rawId = params.get('id');                                   // TMDB id OR raw IMDb id
+            const omdbParam = params.get('omdbId') || params.get('imdbId');   // OMDb / IMDb id
+            const typeParam = (params.get('type') || 'movie').toLowerCase();
 
             loadPauseAdScript();
 
-            // ---- Resolve the two IDs -------------------------------------
-            // Red +  -> TMDB id   (the "show id")
-            // Red    -> OMDb id   (the fetched / passed IMDb id)
-            // Green  -> OMDb id   (the fetched / passed IMDb id)
+            if (!tmdbReady()) {
+                console.warn('⚠️ TMDB API key missing — falling back to OMDb only. Add your key to TMDB_API_KEY.');
+            }
+
+            // ---- Resolve the IDs -----------------------------------------
             let tmdbId = null;
             let omdbId = omdbParam || null;
 
             if (rawId) {
                 if (/^tt\d+$/i.test(rawId)) {
-                    // The id itself is an IMDb id (2nd-code style link)
                     if (!omdbId) omdbId = rawId;
+                } else if (/^\d+$/.test(rawId)) {
+                    tmdbId = rawId;
                 } else {
-                    // The id is a TMDB id (1st-code style link)
                     tmdbId = rawId;
                 }
             }
@@ -1594,86 +1799,92 @@
                 return;
             }
 
+            currentType = isTvType(typeParam) ? 'tv' : 'movie';
             currentTmdbId = tmdbId;
             currentOmdbId = omdbId;
-            currentType = type;
 
-            // If there is no TMDB id we cannot use Red +, so start on Red.
+            // ---- If we only have an IMDb id, find the TMDB id -------------
             if (!currentTmdbId && currentOmdbId) {
-                currentServer = 'red';
-                syncServerButtons();
+                const found = await tmdbFindByImdb(currentOmdbId);
+                if (found) {
+                    currentTmdbId = found.id;
+                    currentType = found.type;
+                }
             }
 
-            try {
-                // Fetch metadata using the OMDb id (if we have one)
-                if (currentOmdbId) {
-                    metadata = await fetchOmdbById(currentOmdbId);
-                }
-
-                if (metadata) {
-                    updateUIWithMetadata(metadata);
-                    if (metadata.Type) currentType = metadata.Type.toLowerCase();
-                    // The OMDb id that comes back from the API is the one that
-                    // replaces the "show id" for the Red / Green servers.
-                    if (metadata.imdbID) {
-                        currentOmdbId = metadata.imdbID;
+            // ---- Fetch full details from TMDB -----------------------------
+            let tmdbData = null;
+            if (currentTmdbId) {
+                tmdbData = await tmdbGetDetails(currentTmdbId, currentType);
+                if (!tmdbData) {
+                    // Maybe the type was wrong — try the other one
+                    const other = currentType === 'tv' ? 'movie' : 'tv';
+                    const alt = await tmdbGetDetails(currentTmdbId, other);
+                    if (alt) {
+                        tmdbData = alt;
+                        currentType = other;
                     }
+                }
+            }
+
+            if (tmdbData) {
+                applyTmdbMetadata(tmdbData, currentType);
+            } else if (currentOmdbId) {
+                // ---- OMDb fallback ---------------------------------------
+                const omdbData = await fetchOmdbById(currentOmdbId);
+                if (omdbData) {
+                    currentType = isTvType(omdbData.Type) ? 'tv' : 'movie';
+                    if (omdbData.imdbID) currentOmdbId = omdbData.imdbID;
+                    applyOmdbMetadata(omdbData);
                 } else {
                     document.getElementById('movieTitle').textContent = 'RX Player Content';
                     document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
                 }
-            } catch (e) {
-                console.error('Metadata fetch error:', e);
+            } else {
+                document.getElementById('movieTitle').textContent = 'RX Player Content';
+                document.getElementById('moviePlot').textContent = 'Streaming via Red + Server.';
             }
 
-            const isSeries = currentType === 'series' || currentType === 'tv' || currentType === 'anime';
-            if (isSeries && metadata && metadata.totalSeasons) {
-                const totalSeasons = parseInt(metadata.totalSeasons) || 1;
-                populateSeasonDropdown(totalSeasons);
+            // ---- Season / Episode setup -----------------------------------
+            const seasonSelect = document.getElementById('seasonSelect');
+            const episodeSelect = document.getElementById('episodeSelect');
 
-                const seasonParam = params.get('season');
-                if (seasonParam) {
-                    const s = parseInt(seasonParam);
-                    if (s >= 1 && s <= totalSeasons) currentSeason = s;
-                } else {
-                    currentSeason = 1;
-                }
-                document.getElementById('seasonSelect').value = currentSeason;
+            if (isSeries()) {
+                document.getElementById('episodeControls').classList.add('visible');
 
-                if (currentOmdbId) {
-                    await loadEpisodes(currentOmdbId, currentSeason);
-                }
+                populateSeasonDropdown();
 
-                const episodeParam = params.get('episode');
-                if (episodeParam) {
-                    const e = parseInt(episodeParam);
-                    const select = document.getElementById('episodeSelect');
-                    const exists = Array.from(select.options).some(o => o.value == e);
-                    if (exists) {
-                        currentEpisode = e;
-                        select.value = e;
-                    } else {
-                        currentEpisode = parseInt(select.value);
-                    }
-                } else {
-                    currentEpisode = parseInt(document.getElementById('episodeSelect').value) || 1;
+                // Initial season (from URL, else first option)
+                const seasonParam = parseInt(params.get('season'), 10);
+                const seasonExists = !isNaN(seasonParam) &&
+                    Array.from(seasonSelect.options).some(o => parseInt(o.value, 10) === seasonParam);
+
+                currentSeason = seasonExists ? seasonParam : (parseInt(seasonSelect.value, 10) || 1);
+                seasonSelect.value = currentSeason;
+
+                // Load the episode list for that season
+                currentEpisode = parseInt(params.get('episode'), 10) || 1;
+                await loadEpisodes(currentSeason);
+
+                // Make sure the requested episode really exists
+                const epExists = !isNaN(currentEpisode) &&
+                    Array.from(episodeSelect.options).some(o => parseInt(o.value, 10) === currentEpisode);
+                if (!epExists) {
+                    currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 }
-            } else if (isSeries) {
-                populateSeasonDropdown(5);
-                document.getElementById('seasonSelect').value = 1;
-                const epSelect = document.getElementById('episodeSelect');
-                epSelect.innerHTML = '<option value="1">Episode 1</option>';
+                episodeSelect.value = currentEpisode;
             } else {
                 document.getElementById('episodeControls').classList.remove('visible');
-                const seasonParam = params.get('season');
-                const episodeParam = params.get('episode');
-                if (seasonParam) currentSeason = parseInt(seasonParam) || 1;
-                if (episodeParam) currentEpisode = parseInt(episodeParam) || 1;
+                currentSeason = 1;
+                currentEpisode = 1;
             }
 
+            // ---- First load ------------------------------------------------
             loadPlayer();
 
-            // ===== EVENT LISTENERS =====
+            // ============================================================
+            //  EVENT LISTENERS
+            // ============================================================
             document.getElementById('customFsBtn').addEventListener('click', function(e) {
                 toggleContainerFullscreen();
                 e.stopPropagation();
@@ -1707,38 +1918,29 @@
                 });
             });
 
-            const seasonSelect = document.getElementById('seasonSelect');
-            const episodeSelect = document.getElementById('episodeSelect');
-
+            // ---- Season change → always jump to Episode 1 of that season ----
             seasonSelect.addEventListener('change', async () => {
-                const s = parseInt(seasonSelect.value) || 1;
-                currentSeason = s;
-                if (currentOmdbId) {
-                    await loadEpisodes(currentOmdbId, s);
-                }
-                const firstEp = parseInt(episodeSelect.value);
-                if (!isNaN(firstEp)) {
-                    currentEpisode = firstEp;
-                } else {
-                    currentEpisode = 1;
-                    episodeSelect.value = 1;
-                }
-                loadPlayer();
+                currentSeason = parseInt(seasonSelect.value, 10) || 1;
+                currentEpisode = 1;                       // 👈 Season X, Episode 1
+                await loadEpisodes(currentSeason);        // repopulates episode list
+                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
+                loadPlayer();                             // link now has /season/episode
+                showToast(`📺 Season ${currentSeason}, Episode ${currentEpisode}`, 'info', 2200);
             });
 
+            // ---- Episode change → reload immediately ----
             episodeSelect.addEventListener('change', () => {
-                const e = parseInt(episodeSelect.value) || 1;
-                currentEpisode = e;
+                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 loadPlayer();
+                showToast(`▶️ Season ${currentSeason}, Episode ${currentEpisode}`, 'info', 2000);
             });
 
+            // ---- Apply button ----
             document.getElementById('applyEpBtn').addEventListener('click', () => {
-                const s = parseInt(seasonSelect.value) || 1;
-                const e = parseInt(episodeSelect.value) || 1;
-                currentSeason = s;
-                currentEpisode = e;
+                currentSeason = parseInt(seasonSelect.value, 10) || 1;
+                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 loadPlayer();
-                showToast(`Season ${s}, Episode ${e} loaded`, 'info', 2000);
+                showToast(`Season ${currentSeason}, Episode ${currentEpisode} loaded`, 'success', 2000);
             });
 
             const header = document.getElementById('mainHeader');
@@ -1802,7 +2004,6 @@
 
         window.addEventListener('error', (e) => {
             console.error('Uncaught error:', e.message);
-            showToast('Something went wrong. Please refresh.', 'error', 4000);
         });
 
         // Block right-click
