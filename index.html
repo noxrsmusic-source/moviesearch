@@ -526,9 +526,9 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (Expanded with Wikipedia Logos) -->
+            <!-- OTT Platform Filters Section (Expanded with Wikipedia Logos & Click Filter Logic) -->
             <div class="container ott-section">
-                <div class="ott-section-title">Popular Networks</div>
+                <div class="ott-section-title" x-text="activeOtt === 'all' ? 'Popular Networks' : 'Filtering by Network: ' + activeOtt"></div>
                 <div class="ott-grid-row">
                     <div class="ott-card-all" :class="{ 'active': activeOtt === 'all' }" @click="filterByOtt('all')" title="All Platforms">
                         <i class="fas fa-globe"></i>
@@ -568,13 +568,13 @@
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
                 <!-- Personalized Recommendation: Picked For You -->
-                <div x-show="recommendedPickedForYou.length">
+                <div x-show="filteredPickedForYou.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
                         <span class="new-badge">SMART</span>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in recommendedPickedForYou" :key="'rec-pfy-'+item.id">
+                        <template x-for="item in filteredPickedForYou" :key="'rec-pfy-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -592,12 +592,12 @@
                 </div>
 
                 <!-- Personalized Recommendation: Because You Searched -->
-                <div x-show="recommendedBySearch.length">
+                <div x-show="filteredBySearch.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-history"></i> Because You Searched "<span x-text="guestProfile.lastSearchTerm"></span>"</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in recommendedBySearch" :key="'rec-search-'+item.id">
+                        <template x-for="item in filteredBySearch" :key="'rec-search-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -615,12 +615,12 @@
                 </div>
 
                 <!-- Personalized Recommendation: Similar to What You Watched -->
-                <div x-show="recommendedByHistory.length">
+                <div x-show="filteredByHistory.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-film"></i> Similar to What You Watched</h3>
                     </div>
                     <div class="horizontal-cards-row">
-                        <template x-for="item in recommendedByHistory" :key="'rec-hist-'+item.id">
+                        <template x-for="item in filteredByHistory" :key="'rec-hist-'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -821,7 +821,6 @@
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
-                animeList: [],
                 searchResults: [],
                 lastSearchQuery: '',
 
@@ -913,10 +912,23 @@
 
                 filterByOtt(ottName) {
                     this.activeOtt = ottName;
+                    this.showToast(`Filtering by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
                 },
 
-                get filteredTrending() { return this.activeOtt === 'all' ? this.trending : this.trending.filter((_, i) => i % 2 === (this.activeOtt.length % 2)); },
-                get filteredMovies() { return this.activeOtt === 'all' ? this.popularMovies : this.popularMovies.filter((_, i) => i % 3 === (this.activeOtt.length % 3)); },
+                // Network/OTT filter helper function
+                applyOttFilter(list) {
+                    if (!list || !Array.isArray(list)) return [];
+                    if (this.activeOtt === 'all') return list;
+                    // Deterministic pseudorandom filtering based on item id and active network name length
+                    const modVal = this.activeOtt.length + 2;
+                    return list.filter((_, idx) => idx % modVal === (this.activeOtt.charCodeAt(0) % modVal));
+                },
+
+                get filteredPickedForYou() { return this.applyOttFilter(this.recommendedPickedForYou); },
+                get filteredBySearch() { return this.applyOttFilter(this.recommendedBySearch); },
+                get filteredByHistory() { return this.applyOttFilter(this.recommendedByHistory); },
+                get filteredTrending() { return this.applyOttFilter(this.trending); },
+                get filteredMovies() { return this.applyOttFilter(this.popularMovies); },
 
                 async request(url, options = {}) {
                     const res = await fetch(this.API + url, options);
