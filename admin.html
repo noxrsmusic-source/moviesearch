@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RX PLAYER — Admin Panel</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-red: #E50914;
+            --primary-green: #22C55E;
+            --primary-gold: #F59E0B;
+            --telegram-blue: #0088cc;
+            --bg-primary: #0A0A0F;
+            --bg-card: #1A1A24;
+            --bg-secondary: #14141C;
+            --text-white: #FFFFFF;
+            --text-muted: #A0A0AA;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-height: 68px;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-white);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+        }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        input, select, textarea { font-family: var(--font); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-red); }
+        .container { max-width: 1380px; margin: 0 auto; padding: 0 24px; }
+
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: var(--bg-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 12px 0; height: var(--header-height);
+            display: flex; align-items: center; transition: var(--transition);
+        }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+        .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 18px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .header-actions .badge {
+            font-size: 12px; padding: 4px 12px; border-radius: 20px;
+            background: rgba(255, 255, 255, 0.06); color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .header-actions .badge .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .header-actions .badge .dot.active { background: var(--primary-green); }
+        .header-actions .badge .dot.inactive { background: #ef4444; }
+        .header-actions .btn-back {
+            padding: 8px 16px; border-radius: 30px;
+            background: rgba(255, 255, 255, 0.06); font-size: 13px; font-weight: 600;
+            transition: var(--transition); display: flex; align-items: center; gap: 6px;
+        }
+        .header-actions .btn-back:hover { background: rgba(255, 255, 255, 0.12); }
+
+        .admin-layout {
+            display: grid; grid-template-columns: 280px 1fr; gap: 24px;
+            padding: 24px 0 60px; min-height: calc(100vh - var(--header-height) - 40px);
+        }
+        @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; gap: 20px; } }
+
+        .admin-sidebar {
+            background: var(--bg-card); border-radius: var(--radius);
+            padding: 20px; border: 1px solid rgba(255, 255, 255, 0.04);
+            height: fit-content; position: sticky; top: calc(var(--header-height) + 20px);
+        }
+        .sidebar-nav-tabs {
+            display: flex; flex-direction: column; gap: 6px;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .sidebar-tab-btn {
+            padding: 10px 14px; border-radius: var(--radius-sm);
+            font-size: 13.5px; font-weight: 600; color: var(--text-muted);
+            display: flex; align-items: center; gap: 10px;
+            transition: var(--transition); width: 100%; text-align: left;
+        }
+        .sidebar-tab-btn:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+        .sidebar-tab-btn.active {
+            background: rgba(229, 9, 20, 0.15); color: var(--primary-red);
+            border: 1px solid rgba(229, 9, 20, 0.3);
+        }
+        .admin-sidebar .sidebar-title {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-muted);
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .admin-sidebar .sidebar-title i { color: var(--primary-red); }
+        .admin-sidebar .stat-item {
+            display: flex; justify-content: space-between; padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 13.5px;
+        }
+        .admin-sidebar .stat-item:last-child { border-bottom: none; }
+        .admin-sidebar .stat-item .label { color: var(--text-muted); }
+        .admin-sidebar .stat-item .value { font-weight: 600; }
+        .admin-sidebar .stat-item .value.green { color: var(--primary-green); }
+        .admin-sidebar .stat-item .value.red { color: var(--primary-red); }
+        .admin-sidebar .stat-item .value.gold { color: #f59e0b; }
+
+        .admin-sidebar .quick-actions { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .admin-sidebar .quick-actions button {
+            padding: 10px 14px; border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.04); font-size: 13px; font-weight: 600;
+            text-align: left; transition: var(--transition);
+            display: flex; align-items: center; gap: 10px;
+            border: 1px solid transparent;
+        }
+        .admin-sidebar .quick-actions button:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.06); }
+        .admin-sidebar .quick-actions button i { color: var(--text-muted); font-size: 14px; width: 20px; text-align: center; }
+        .admin-sidebar .quick-actions button.danger:hover { background: rgba(229, 9, 20, 0.15); border-color: var(--primary-red); }
+        .admin-sidebar .quick-actions button.danger i { color: var(--primary-red); }
+
+        .admin-main {
+            background: var(--bg-card); border-radius: var(--radius);
+            padding: 24px; border: 1px solid rgba(255, 255, 255, 0.04);
+            min-height: 400px;
+        }
+        .admin-main .page-title {
+            font-size: 22px; font-weight: 700; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .admin-main .page-subtitle { color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .admin-form-card {
+            background: var(--bg-secondary); border-radius: var(--radius-sm);
+            padding: 20px; margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .form-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px; margin-bottom: 12px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-size: 12px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 14px; border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04); color: var(--text-white);
+            font-size: 14px; outline: none; transition: var(--transition);
+            width: 100%;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-red); background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* TMDB input row with fetch button — layout fix */
+        .tmdb-input-row {
+            display: flex; gap: 6px; align-items: stretch; width: 100%;
+        }
+        .tmdb-input-row input {
+            flex: 1; min-width: 0;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-white);
+            font-size: 14px; outline: none;
+        }
+        .tmdb-input-row input:focus { border-color: var(--primary-red); }
+        .tmdb-input-row .btn-fetch {
+            flex-shrink: 0; white-space: nowrap;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(229, 9, 20, 0.15);
+            border: 1.5px solid var(--primary-red);
+            color: #fff; font-weight: 700; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: var(--transition);
+        }
+        .tmdb-input-row .btn-fetch:hover { background: var(--primary-red); }
+        .tmdb-input-row .btn-fetch:disabled { opacity: 0.5; cursor: wait; }
+
+        .btn-primary {
+            padding: 10px 22px; border-radius: var(--radius-sm);
+            background: var(--primary-red); font-weight: 700; font-size: 14px; color: #fff;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            transition: var(--transition);
+        }
+        .btn-primary:hover { background: #b20710; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            padding: 10px 18px; border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.08); font-weight: 600;
+            font-size: 13.5px; color: #fff;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .table-wrap {
+            overflow-x: auto; border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        table th {
+            text-align: left; padding: 12px 16px; background: var(--bg-secondary);
+            color: var(--text-muted); font-weight: 600; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 0.3px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04); white-space: nowrap;
+        }
+        table td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); vertical-align: middle; }
+        table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        table .key-text {
+            font-family: monospace; font-size: 13px;
+            background: rgba(255, 255, 255, 0.04); padding: 2px 8px; border-radius: 4px;
+        }
+        table .status-badge {
+            padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            text-transform: capitalize; display: inline-block;
+        }
+        table .status-badge.active, table .status-badge.approved, table .status-badge.movie {
+            background: rgba(34, 197, 94, 0.2); color: var(--primary-green);
+        }
+        table .status-badge.exhausted, table .status-badge.rejected {
+            background: rgba(239, 68, 68, 0.2); color: #ef4444;
+        }
+        table .status-badge.disabled { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
+        table .status-badge.anime { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        table .status-badge.series, table .status-badge.music { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+        table .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+        table .btn-action-sm {
+            padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;
+            transition: var(--transition); margin: 0 2px;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        table .btn-action-sm.activate { background: rgba(34, 197, 94, 0.15); color: var(--primary-green); }
+        table .btn-action-sm.deactivate { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        table .btn-action-sm.delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        table .btn-action-sm.edit { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        table .btn-action-sm.set-active { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        table .btn-action-sm.manage { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        table .btn-action-sm.song-btn { background: rgba(34, 197, 94, 0.15); color: var(--primary-green); }
+        table .btn-action-sm.reset-btn { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        table .btn-action-sm.move-up, table .btn-action-sm.move-down { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+
+        .table-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .table-empty i { font-size: 32px; opacity: 0.3; margin-bottom: 10px; display: block; }
+
+        .section-card-item {
+            background: var(--bg-secondary); border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;
+        }
+        .section-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-wrap: wrap; gap: 10px;
+        }
+        .section-card-header h4 {
+            font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+        }
+        .section-movies-flex { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; min-height: 60px; }
+        .mini-movie-card {
+            flex: 0 0 110px; background: var(--bg-card); border-radius: 6px;
+            overflow: hidden; position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .mini-movie-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .mini-movie-card .info { padding: 6px; }
+        .mini-movie-card .info h5 {
+            font-size: 11px; font-weight: 600;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mini-movie-card .info span {
+            font-size: 9.5px; color: var(--text-muted); display: block;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .mini-movie-card .remove-btn {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(229, 9, 20, 0.85); color: #fff;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 10px;
+        }
+        .mini-movie-card .type-pill {
+            position: absolute; top: 4px; left: 4px;
+            font-size: 8px; font-weight: 800; padding: 1px 4px;
+            border-radius: 3px; background: rgba(0,0,0,0.7); text-transform: uppercase;
+        }
+        .mini-movie-card .type-pill.song { background: var(--primary-green); color: #000; }
+        .mini-movie-card .type-pill.movie { background: var(--primary-red); color: #fff; }
+
+        .search-results-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px; max-height: 380px; overflow-y: auto;
+            margin-top: 14px; padding: 4px;
+        }
+        .search-movie-item {
+            background: var(--bg-card); border-radius: 6px; overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08); cursor: pointer;
+            transition: var(--transition); text-align: left; position: relative;
+        }
+        .search-movie-item:hover { border-color: var(--primary-red); transform: scale(1.02); }
+        .search-movie-item img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+        .search-movie-item.song-item-grid img { aspect-ratio: 1/1; }
+        .search-movie-item .p-2 { padding: 6px; }
+        .search-movie-item h6 { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .search-movie-item span { font-size: 10px; color: var(--text-muted); }
+        .search-movie-item .source-badge {
+            position: absolute; top: 4px; left: 4px;
+            background: rgba(229, 9, 20, 0.85); color: #fff;
+            font-size: 9px; font-weight: 700; padding: 2px 5px;
+            border-radius: 3px; text-transform: uppercase;
+        }
+        .search-movie-item .source-badge.song {
+            background: var(--primary-green); color: #000;
+        }
+
+        .admin-modal {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px); z-index: 10000; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .admin-modal.open { display: flex; }
+        .admin-modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius); max-width: 660px; width: 100%;
+            padding: 24px; box-shadow: var(--shadow);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .admin-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .admin-modal-close { font-size: 18px; color: var(--text-muted); }
+
+        .toast-container {
+            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
+            display: flex; flex-direction: column; gap: 10px;
+            max-width: 380px; width: 100%;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: var(--radius-sm);
+            background: var(--bg-card); border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow); display: flex; align-items: center;
+            gap: 10px; animation: slideUp 0.3s ease; font-size: 13.5px;
+        }
+        .toast.success { border-left-color: var(--primary-green); }
+        .toast.error { border-left-color: var(--primary-red); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .login-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-overlay .login-box {
+            background: var(--bg-card); padding: 40px 32px;
+            border-radius: var(--radius); max-width: 400px; width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: var(--shadow);
+        }
+        .login-overlay .login-box h2 { font-size: 24px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+        .login-overlay .login-box h2 i { color: var(--primary-red); }
+        .login-overlay .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+        .login-overlay .login-box input {
+            width: 100%; padding: 12px 16px; border-radius: var(--radius-sm);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04); color: var(--text-white);
+            font-size: 15px; outline: none; margin-bottom: 12px;
+        }
+        .login-overlay .login-box input:focus { border-color: var(--primary-red); }
+        .login-overlay .login-box .btn-login {
+            width: 100%; padding: 12px; border-radius: var(--radius-sm);
+            background: var(--primary-red); font-weight: 700; font-size: 16px;
+        }
+        .login-overlay .login-box .login-error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
+
+        .download-stat-banner {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(20, 20, 30, 0.8) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: var(--radius-sm); padding: 16px 20px;
+            margin-bottom: 18px; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 12px;
+        }
+        .download-stat-info h3 {
+            font-size: 24px; font-weight: 900;
+            color: var(--primary-green); line-height: 1; margin-bottom: 4px;
+        }
+        .download-stat-info p { font-size: 12.5px; color: var(--text-muted); }
+
+        .section-sub-block {
+            margin-top: 14px; padding-top: 12px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.06);
+        }
+        .section-sub-label {
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px; display: block;
+        }
+        .hide-id-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 3px 8px; border-radius: 4px;
+            font-family: monospace; font-size: 12px;
+            margin: 3px 4px 3px 0;
+        }
+        .hide-id-chip button { color: #ef4444; font-size: 11px; display: flex; align-items: center; }
+
+        .file-upload-area {
+            padding: 14px; border: 1.5px dashed rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.02);
+            text-align: center; font-size: 12.5px; color: var(--text-muted);
+            cursor: pointer; position: relative;
+        }
+        .file-upload-area:hover { border-color: var(--primary-red); }
+        .file-upload-area input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer;
+        }
+        .file-upload-area .upload-icon { font-size: 20px; color: var(--primary-red); margin-bottom: 6px; }
+        .upload-progress-container {
+            display: none; margin: 12px 0;
+            padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;
+        }
+        .upload-progress-container.visible { display: block; }
+        .upload-progress-bar-wrap {
+            height: 5px; background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px; overflow: hidden;
+        }
+        .upload-progress-fill {
+            height: 100%; width: 0%; background: var(--primary-red);
+            transition: width 0.3s;
+        }
+        .upload-progress-text {
+            display: flex; justify-content: space-between; font-size: 12px;
+            margin-top: 6px; color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header" id="mainHeader">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+            </a>
+            <div class="header-actions">
+                <span class="badge" id="apiStatusBadge">
+                    <span class="dot active" id="statusDot"></span>
+                    <span id="statusLabel">Loading…</span>
+                </span>
+                <a href="index.html" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Player
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2><i class="fas fa-shield-alt"></i> Admin Access</h2>
+            <p>Enter the admin password to access system controls.</p>
+            <input type="password" id="loginPassword" placeholder="Enter admin password" />
+            <button class="btn-login" id="loginBtn"><i class="fas fa-unlock"></i> Unlock</button>
+            <div class="login-error" id="loginError">Invalid password. Please try again.</div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="admin-layout">
+
+            <aside class="admin-sidebar" id="adminSidebar">
+                <div class="sidebar-nav-tabs">
+                    <button class="sidebar-tab-btn active" id="tabNavKeys" onclick="switchAdminTab('keys')">
+                        <i class="fas fa-key"></i> API Key Manager
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavUsers" onclick="switchAdminTab('users')">
+                        <i class="fas fa-user-friends"></i> Users Manager
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavMedia" onclick="switchAdminTab('media')">
+                        <i class="fas fa-film"></i> Media Catalog
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavSections" onclick="switchAdminTab('sections')">
+                        <i class="fas fa-layer-group"></i> Home Sections
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavMusic" onclick="switchAdminTab('music')">
+                        <i class="fas fa-music"></i> Music Manager
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavRequests" onclick="switchAdminTab('requests')">
+                        <i class="fas fa-paper-plane"></i> Content Requests
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavBugReports" onclick="switchAdminTab('bugreports')">
+                        <i class="fas fa-bug"></i> Bug Reports
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavVersion" onclick="switchAdminTab('version')">
+                        <i class="fas fa-mobile-alt"></i> App Update
+                    </button>
+                    <button class="sidebar-tab-btn" id="tabNavCreators" onclick="switchAdminTab('creators')">
+                        <i class="fas fa-users"></i> Micro Creators
+                    </button>
+                </div>
+
+                <div class="sidebar-title">
+                    <i class="fas fa-chart-pie"></i> Dashboard Stats
+                </div>
+                <div class="stat-item">
+                    <span class="label"><i class="fas fa-download" style="color:var(--primary-green);margin-right:5px;"></i> Total Downloads</span>
+                    <span class="value green" id="sidebarTotalDownloads">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Total Users</span>
+                    <span class="value green" id="sidebarTotalUsers">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Total API Keys</span>
+                    <span class="value" id="totalKeys">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Active Keys</span>
+                    <span class="value green" id="activeKeys">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Total Media Items</span>
+                    <span class="value green" id="totalMediaCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Custom Section Items</span>
+                    <span class="value gold" id="totalSectionsCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Bug Reports</span>
+                    <span class="value red" id="totalBugReports">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Total Songs</span>
+                    <span class="value green" id="totalSongs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Content Requests</span>
+                    <span class="value gold" id="totalRequests">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">Live App Version</span>
+                    <span class="value green" id="sidebarAppVersion">1.0.0</span>
+                </div>
+
+                <div class="quick-actions">
+                    <button id="refreshBtn"><i class="fas fa-sync"></i> Refresh Data</button>
+                    <button id="resetAllUsageBtn" class="danger"><i class="fas fa-undo"></i> Reset Key Usage</button>
+                </div>
+            </aside>
+
+            <section class="admin-main">
+
+                <!-- TAB: API KEYS -->
+                <div class="tab-content active" id="tabContentKeys">
+                    <h1 class="page-title"><i class="fas fa-key" style="color:var(--primary-red);"></i> API Key Manager</h1>
+                    <p class="page-subtitle">Manage OMDb API keys with auto-rotation once limit hits.</p>
+
+                    <div class="admin-form-card">
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="newApiKeyInput" placeholder="Enter new OMDb API key" style="flex:1; padding:10px 14px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); color:#fff;" />
+                            <button class="btn-primary" id="addKeyBtn"><i class="fas fa-plus"></i> Add Key</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>API Key</th>
+                                    <th>Status</th>
+                                    <th>Usage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keysTableBody">
+                                <tr><td colspan="5" style="text-align:center;">Loading keys…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: USERS MANAGER -->
+                <div class="tab-content" id="tabContentUsers">
+                    <h1 class="page-title"><i class="fas fa-user-friends" style="color:var(--primary-red);"></i> Users Directory</h1>
+                    <p class="page-subtitle">Manage all registered user accounts with user name, email, registration date & one-click password reset link.</p>
+
+                    <div style="margin-bottom:16px; display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+                        <input type="text" id="userSearchInput" placeholder="Search users by name or email…" oninput="filterUsersTable(this.value)" style="flex:1; max-width:320px; padding:9px 14px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); color:#fff;" />
+                        <button class="btn-secondary" onclick="loadUsers()"><i class="fas fa-sync"></i> Refresh Users</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User Name</th>
+                                    <th>Email</th>
+                                    <th>Registered Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="5" style="text-align:center;">Loading users…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: MEDIA CATALOG (TMDB) -->
+                <div class="tab-content" id="tabContentMedia">
+                    <h1 class="page-title"><i class="fas fa-film" style="color:var(--primary-red);"></i> Media Catalog Manager</h1>
+                    <p class="page-subtitle">Enter a TMDB ID, click Fetch to auto-fill all details via proxy, then save to catalog (Movies / Anime / Series).</p>
+
+                    <div class="admin-form-card">
+                        <h4 id="mediaFormHeading" style="margin-bottom:14px; font-size:14px;"><i class="fas fa-plus-circle"></i> Add New Title from TMDB</h4>
+                        <input type="hidden" id="editingMediaDocId" value="" />
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Content Category</label>
+                                <select id="mediaTypeSelect">
+                                    <option value="movie">Movie</option>
+                                    <option value="anime">Anime</option>
+                                    <option value="series">Web Series / TV Show</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>TMDB ID</label>
+                                <div class="tmdb-input-row">
+                                    <input type="text" id="mediaTmdbIdInput" placeholder="e.g. 550" autocomplete="off" />
+                                    <button type="button" class="btn-fetch" id="fetchTmdbBtn" onclick="autoFillMediaFromTmdb()">
+                                        <i class="fas fa-bolt"></i> Fetch
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" id="mediaTitleInput" placeholder="Auto-filled from TMDB" />
+                            </div>
+                            <div class="form-group">
+                                <label>Release Year</label>
+                                <input type="number" id="mediaYearInput" placeholder="Auto-filled" min="1900" max="2099" />
+                            </div>
+                            <div class="form-group">
+                                <label>Rating (TMDB)</label>
+                                <input type="text" id="mediaRatingInput" placeholder="Auto-filled" />
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Poster Image URL</label>
+                                <input type="url" id="mediaPosterInput" placeholder="Auto-filled from TMDB" />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Description / Synopsis</label>
+                            <textarea id="mediaDescInput" rows="3" placeholder="Auto-filled from TMDB…"></textarea>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-primary" id="saveMediaBtn"><i class="fas fa-save"></i> <span id="saveMediaBtnText">Save to Catalog</span></button>
+                            <button class="btn-secondary" id="cancelEditMediaBtn" style="display:none;" onclick="cancelMediaEdit()"><i class="fas fa-times"></i> Cancel Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Poster</th>
+                                    <th>Title</th>
+                                    <th>Year</th>
+                                    <th>Category</th>
+                                    <th>TMDB ID</th>
+                                    <th>Rating</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mediaTableBody">
+                                <tr><td colspan="8" style="text-align:center;">Loading catalog items…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: HOME SECTIONS (Fixed sections matching home page) -->
+                <div class="tab-content" id="tabContentSections">
+                    <h1 class="page-title"><i class="fas fa-layer-group" style="color:var(--primary-red);"></i> Home Sections Manager</h1>
+                    <p class="page-subtitle">These are the fixed sections shown on the home page. Add custom TMDB items, or hide default items by their TMDB ID. The home page layout stays the same.</p>
+
+                    <div id="sectionsListContainer">
+                        <div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading sections…</div>
+                    </div>
+                </div>
+
+                <!-- TAB: MUSIC MANAGER -->
+                <div class="tab-content" id="tabContentMusic">
+                    <h1 class="page-title"><i class="fas fa-music" style="color:var(--primary-red);"></i> Music Manager</h1>
+                    <p class="page-subtitle">Upload, edit, and manage all songs with search keywords. Admin-uploaded songs appear in Global section automatically.</p>
+
+                    <div class="admin-form-card">
+                        <h4 id="songFormHeading" style="margin-bottom:12px; font-size:14px;"><i class="fas fa-upload"></i> Upload New Song</h4>
+                        <form id="adminSongForm">
+                            <input type="hidden" id="editingSongId" value="" />
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Song Title</label>
+                                    <input type="text" id="adminSongTitle" placeholder="e.g. Blinding Lights" required />
+                                </div>
+                                <div class="form-group">
+                                    <label>Artist</label>
+                                    <input type="text" id="adminSongArtist" placeholder="e.g. The Weeknd" required />
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label>Search Keywords / Tags</label>
+                                <input type="text" id="adminSongKeywords" placeholder="e.g. pop, synthwave, 80s, english, trending (comma separated)" />
+                            </div>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label>Cover Image</label>
+                                <div class="file-upload-area" id="adminCoverDropArea">
+                                    <div class="upload-icon"><i class="fas fa-image"></i></div>
+                                    <p>Tap to choose cover (JPG, PNG) — leave empty to keep existing</p>
+                                    <div class="file-name" id="adminCoverFileName" style="font-size:11px;margin-top:4px;">📎 <span id="adminCoverFileLabel"></span></div>
+                                    <input type="file" id="adminCoverFile" accept="image/*" />
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:12px;">
+                                <label>Audio File (only needed for new songs)</label>
+                                <div class="file-upload-area" id="adminAudioDropArea">
+                                    <div class="upload-icon"><i class="fas fa-music"></i></div>
+                                    <p>Tap to choose audio file (MP3, M4A, etc.)</p>
+                                    <div class="file-name" id="adminAudioFileName" style="font-size:11px;margin-top:4px;">📎 <span id="adminAudioFileLabel"></span></div>
+                                    <input type="file" id="adminAudioFile" accept="audio/*" />
+                                </div>
+                            </div>
+                            <div class="upload-progress-container" id="adminUploadProgress">
+                                <div class="upload-progress-bar-wrap">
+                                    <div class="upload-progress-fill" id="adminUploadProgressFill"></div>
+                                </div>
+                                <div class="upload-progress-text">
+                                    <span id="adminUploadProgressLabel">Uploading…</span>
+                                    <span id="adminUploadProgressPercent">0%</span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary" id="adminUploadSongBtn"><i class="fas fa-cloud-upload-alt"></i> <span id="adminUploadBtnText">Upload Song</span></button>
+                            <button type="button" class="btn-secondary" id="cancelEditSongBtn" style="display:none; margin-top:8px;" onclick="cancelSongEdit()"><i class="fas fa-times"></i> Cancel Edit</button>
+                        </form>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cover</th>
+                                    <th>Title</th>
+                                    <th>Artist</th>
+                                    <th>Keywords</th>
+                                    <th>Status</th>
+                                    <th>Uploaded By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="songsTableBody">
+                                <tr><td colspan="8" style="text-align:center;">Loading songs…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: CONTENT REQUESTS -->
+                <div class="tab-content" id="tabContentRequests">
+                    <h1 class="page-title"><i class="fas fa-paper-plane" style="color:var(--primary-gold);"></i> Content Requests</h1>
+                    <p class="page-subtitle">All requests from users (Music, Movies, Series, Anime) – from both Music page and Request Content page.</p>
+
+                    <div style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-secondary" id="refreshRequestsBtn" onclick="loadRequests()"><i class="fas fa-sync"></i> Refresh</button>
+                        <button class="btn-secondary" id="deleteAllRequestsBtn" style="color:#ef4444;" onclick="deleteAllRequests()"><i class="fas fa-trash"></i> Delete All</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Title</th>
+                                    <th>Artist / Details</th>
+                                    <th>Requested By</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTableBody">
+                                <tr><td colspan="8" style="text-align:center;">Loading requests…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: BUG REPORTS -->
+                <div class="tab-content" id="tabContentBugReports">
+                    <h1 class="page-title"><i class="fas fa-bug" style="color:var(--primary-red);"></i> Bug Reports</h1>
+                    <p class="page-subtitle">View and manage bug reports submitted by users from the app.</p>
+
+                    <div style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-secondary" id="refreshBugReportsBtn" onclick="loadBugReports()"><i class="fas fa-sync"></i> Refresh</button>
+                        <button class="btn-secondary" id="deleteAllBugReportsBtn" style="color:#ef4444;" onclick="deleteAllBugReports()"><i class="fas fa-trash"></i> Delete All</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Description</th>
+                                    <th>Device</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Screenshot</th>
+                                    <th>Submitted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bugReportsTableBody">
+                                <tr><td colspan="8" style="text-align:center;">Loading bug reports…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: APP VERSION -->
+                <div class="tab-content" id="tabContentVersion">
+                    <h1 class="page-title"><i class="fas fa-mobile-alt" style="color:var(--primary-gold);"></i> App Version & Forced Update</h1>
+                    <p class="page-subtitle">Control the minimum required version and monitor APK downloads in real-time.</p>
+
+                    <div class="download-stat-banner">
+                        <div class="download-stat-info">
+                            <h3 id="panelTotalDownloads">0</h3>
+                            <p>Total APK Downloads recorded from website</p>
+                        </div>
+                        <button class="btn-secondary" onclick="resetDownloadCount()" style="color:#ef4444;"><i class="fas fa-undo"></i> Reset Count</button>
+                    </div>
+
+                    <div class="admin-form-card" style="max-width: 600px;">
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Required Minimum App Version</label>
+                            <input type="text" id="appVersionInput" placeholder="e.g. 1.0.0" />
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label>Download / APK Link</label>
+                            <input type="text" id="appDownloadUrlInput" placeholder="e.g. https://www.mediafire.com/file/..." />
+                        </div>
+                        <div class="form-group" style="margin-bottom:18px;">
+                            <label>Update Modal Notice / Message</label>
+                            <textarea id="appUpdateMsgInput" rows="3" placeholder="Explain what is new in this update…"></textarea>
+                        </div>
+                        <button class="btn-primary" id="saveVersionBtn"><i class="fas fa-cloud-upload-alt"></i> Publish App Update</button>
+                    </div>
+                </div>
+
+                <!-- TAB: CREATOR APPLICATIONS -->
+                <div class="tab-content" id="tabContentCreators">
+                    <h1 class="page-title"><i class="fas fa-user-check" style="color:var(--primary-gold);"></i> Micro Creators Directory</h1>
+                    <p class="page-subtitle">Creators registered to partner with RX Player.</p>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Creator Name</th>
+                                    <th>Instagram</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="creatorsTableBody">
+                                <tr><td colspan="5" style="text-align:center;">Loading creators…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- TMDB SEARCH MODAL -->
+    <div class="admin-modal" id="movieSearchModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <h3><i class="fas fa-film" style="color:var(--primary-red);"></i> Search TMDB & Add to Section</h3>
+                <button class="admin-modal-close" onclick="closeMovieModal()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                <input type="text" id="modalMovieSearchInput" placeholder="Search TMDB by title (e.g. Inception, Naruto…)" style="flex:2; min-width:180px; padding:10px 14px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); color:#fff;" />
+                <select id="modalMovieTypeSelect" style="flex:1; min-width:100px; max-width:130px; padding:10px 10px; background:#1e1e2c; border:1.5px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); color:#fff;">
+                    <option value="">All Types</option>
+                    <option value="movie">Movie</option>
+                    <option value="tv">TV / Anime</option>
+                </select>
+                <button class="btn-primary" id="modalSearchBtn" style="padding:10px 16px;"><i class="fas fa-search"></i> Search</button>
+            </div>
+
+            <div class="search-results-grid" id="modalSearchResults"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // ============================================================
+        // FIREBASE CONFIG
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            databaseURL: "https://rxplayer-a2582-default-rtdb.firebaseio.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc",
+            measurementId: "G-28GFZHBB6P"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const ADMIN_PASSWORD = 'admin123';
+        const MAX_LIMIT = 1000;
+        const CLOUDINARY_CLOUD_NAME = 'du9nysbwl';
+        const CLOUDINARY_UPLOAD_PRESET = 'Spotifreebyadmin';
+
+        // Robust API base
+        const API_BASE = (() => {
+            if (location.protocol === 'file:') {
+                console.warn('[RX Admin] Opened via file:// — API calls will fail. Deploy admin.html to same origin as index.html.');
+            }
+            return location.origin;
+        })();
+        const TMDB_PROXY = API_BASE + '/api/tmdb-proxy?endpoint=';
+        const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
+
+        // Fixed sections (must match home page)
+        const FIXED_SECTIONS = [
+            { key: 'picked',   title: 'Picked For You',  icon: 'fa-wand-magic-sparkles' },
+            { key: 'series',   title: 'Web Series',      icon: 'fa-tv' },
+            { key: 'kdrama',   title: 'K-Drama Series',  icon: 'fa-heart' },
+            { key: 'anime',    title: 'Anime Series',    icon: 'fa-dragon' },
+            { key: 'trending', title: 'Trending Today',  icon: 'fa-fire' },
+            { key: 'movies',   title: 'Popular Movies',  icon: 'fa-film' }
+        ];
+
+        let allKeys = [];
+        let allMedia = [];
+        let allCreators = [];
+        let allBugReports = [];
+        let allSongs = [];
+        let allRequests = [];
+        let allUsers = [];
+        let totalDownloadsCount = 0;
+        let activeKeyId = null;
+
+        let sectionsConfig = {};
+        let targetSectionKeyForMovie = null;
+        let modalSearchResults = [];
+
+        // ============================================================
+        // TOAST + TAB
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function switchAdminTab(tabName) {
+            const tabs = ['keys','users','media','sections','music','requests','bugreports','version','creators'];
+            const tabMap = { keys:'Keys', users:'Users', media:'Media', sections:'Sections', music:'Music', requests:'Requests', bugreports:'BugReports', version:'Version', creators:'Creators' };
+            tabs.forEach(t => {
+                const navBtn = document.getElementById('tabNav' + tabMap[t]);
+                const content = document.getElementById('tabContent' + tabMap[t]);
+                if (navBtn) navBtn.classList.toggle('active', t === tabName);
+                if (content) content.classList.toggle('active', t === tabName);
+            });
+        }
+
+        // ============================================================
+        // LOGIN
+        // ============================================================
+        function checkLogin() {
+            const overlay = document.getElementById('loginOverlay');
+            if (sessionStorage.getItem('rx_admin_logged_in') === 'true') {
+                overlay.style.display = 'none';
+                loadAllData();
+                listenToDownloads();
+                return;
+            }
+            overlay.style.display = 'flex';
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const pwd = document.getElementById('loginPassword').value;
+            if (pwd === ADMIN_PASSWORD) {
+                sessionStorage.setItem('rx_admin_logged_in', 'true');
+                document.getElementById('loginOverlay').style.display = 'none';
+                loadAllData();
+                listenToDownloads();
+                showToast('Welcome, Admin!', 'success');
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+
+        // ============================================================
+        // DOWNLOADS
+        // ============================================================
+        function listenToDownloads() {
+            db.collection('analytics').doc('downloads').onSnapshot(doc => {
+                totalDownloadsCount = doc.exists ? (doc.data().totalDownloads || 0) : 0;
+                const sideEl = document.getElementById('sidebarTotalDownloads');
+                const mainEl = document.getElementById('panelTotalDownloads');
+                if (sideEl) sideEl.textContent = totalDownloadsCount;
+                if (mainEl) mainEl.textContent = totalDownloadsCount;
+            }, err => console.error("Downloads listener err:", err));
+        }
+
+        async function resetDownloadCount() {
+            if (!confirm('Reset total APK downloads count to 0?')) return;
+            try {
+                await db.collection('analytics').doc('downloads').set({
+                    totalDownloads: 0,
+                    resetAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                showToast('Download count reset to 0.', 'info');
+            } catch(e) { showToast('Error resetting download count.', 'error'); }
+        }
+
+        // ============================================================
+        // LOAD ALL
+        // ============================================================
+        async function loadAllData() {
+            await Promise.all([
+                loadKeys(), loadUsers(), loadActiveKey(), loadMediaCatalog(),
+                loadSectionsConfig(), loadSongs(), loadRequests(),
+                loadBugReports(), loadAppVersionConfig(), loadCreators()
+            ]);
+            updateDashboard();
+        }
+
+        // ============================================================
+        // USERS
+        // ============================================================
+        async function loadUsers() {
+            try {
+                const snap = await db.collection('users').get();
+                allUsers = [];
+                snap.forEach(doc => allUsers.push({ id: doc.id, ...doc.data() }));
+                renderUsersTable(allUsers);
+                document.getElementById('sidebarTotalUsers').textContent = allUsers.length;
+            } catch (e) {
+                console.error("Error loading users:", e);
+                const tbody = document.getElementById('usersTableBody');
+                if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Error loading users collection.</td></tr>`;
+            }
+        }
+
+        function renderUsersTable(userList) {
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+            if (!userList.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No registered users found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = userList.map((u, i) => {
+                const registeredName = u.displayName || u.name || u.username || 'User';
+                const email = u.email || 'No email';
+                let dateStr = 'N/A';
+                if (u.createdAt) {
+                    if (u.createdAt.toDate) dateStr = u.createdAt.toDate().toLocaleDateString();
+                    else if (u.createdAt.seconds) dateStr = new Date(u.createdAt.seconds * 1000).toLocaleDateString();
+                    else dateStr = new Date(u.createdAt).toLocaleDateString();
+                }
+                return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong><i class="fas fa-user-circle" style="color:var(--primary-red);margin-right:6px;"></i>${registeredName}</strong></td>
+                        <td><span class="key-text">${email}</span></td>
+                        <td style="font-size:12.5px;">${dateStr}</td>
+                        <td>
+                            <button class="btn-action-sm reset-btn" onclick="sendResetPasswordEmail('${email}')">
+                                <i class="fas fa-envelope"></i> Send Reset Link
+                            </button>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function filterUsersTable(term) {
+            const q = (term || '').toLowerCase().trim();
+            const filtered = allUsers.filter(u => {
+                const name = (u.displayName || u.name || u.username || '').toLowerCase();
+                const email = (u.email || '').toLowerCase();
+                return name.includes(q) || email.includes(q);
+            });
+            renderUsersTable(filtered);
+        }
+
+        async function sendResetPasswordEmail(email) {
+            if (!email || email === 'No email') return showToast('User email not available!', 'error');
+            if (!confirm(`Send password reset email to ${email}?`)) return;
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showToast(`Password reset link sent to ${email}!`, 'success');
+            } catch (err) {
+                console.error("Reset email error:", err);
+                showToast('Failed: ' + err.message, 'error');
+            }
+        }
+
+        // ============================================================
+        // API KEYS
+        // ============================================================
+        async function loadKeys() {
+            try {
+                const snap = await db.collection('apiKeys').orderBy('addedAt', 'desc').get();
+                allKeys = [];
+                snap.forEach(doc => allKeys.push({ id: doc.id, ...doc.data() }));
+                renderKeysTable();
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadActiveKey() {
+            try {
+                const doc = await db.collection('config').doc('current').get();
+                if (doc.exists) activeKeyId = doc.data().activeKeyId;
+                updateStatusBadge();
+            } catch (e) { activeKeyId = null; }
+        }
+
+        function updateStatusBadge() {
+            const dot = document.getElementById('statusDot');
+            const label = document.getElementById('statusLabel');
+            if (activeKeyId) {
+                const key = allKeys.find(k => k.id === activeKeyId);
+                if (key) {
+                    dot.className = 'dot active';
+                    label.textContent = `Active API: ${key.key.slice(0, 6)}…`;
+                    return;
+                }
+            }
+            dot.className = 'dot inactive';
+            label.textContent = 'No active key';
+        }
+
+        function renderKeysTable() {
+            const tbody = document.getElementById('keysTableBody');
+            if (!allKeys.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No API keys found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allKeys.map((k, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><span class="key-text">${k.key}</span></td>
+                    <td><span class="status-badge ${k.id === activeKeyId ? 'active' : 'disabled'}">${k.id === activeKeyId ? 'Active' : 'Standby'}</span></td>
+                    <td>${k.usageCount || 0} / ${k.maxLimit || MAX_LIMIT}</td>
+                    <td>
+                        ${k.id !== activeKeyId ? `<button class="btn-action-sm set-active" onclick="setActiveKey('${k.id}')">Set Active</button>` : ''}
+                        <button class="btn-action-sm delete" onclick="deleteKey('${k.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function setActiveKey(id) {
+            await db.collection('config').doc('current').set({ activeKeyId: id }, { merge: true });
+            activeKeyId = id;
+            showToast('Active API key updated!', 'success');
+            loadKeys(); updateStatusBadge();
+        }
+
+        async function deleteKey(id) {
+            if (!confirm('Delete this key?')) return;
+            await db.collection('apiKeys').doc(id).delete();
+            showToast('Key deleted.', 'info');
+            loadKeys();
+        }
+
+        document.getElementById('addKeyBtn').addEventListener('click', async () => {
+            const input = document.getElementById('newApiKeyInput');
+            const key = input.value.trim();
+            if (!key) return showToast('Please enter an API key', 'error');
+            await db.collection('apiKeys').add({
+                key, usageCount: 0, maxLimit: MAX_LIMIT, addedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+            showToast('Key added!', 'success');
+            loadKeys();
+        });
+
+        // ============================================================
+        // TMDB FETCH (robust)
+        // ============================================================
+        async function tmdbFetch(endpoint) {
+            const url = TMDB_PROXY + encodeURIComponent(endpoint);
+            let res;
+            try {
+                res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            } catch (networkErr) {
+                throw new Error('Network error: cannot reach proxy. Check deployment. (' + networkErr.message + ')');
+            }
+
+            const ct = (res.headers.get('content-type') || '').toLowerCase();
+            if (!ct.includes('application/json')) {
+                const text = await res.text().catch(() => '');
+                const preview = text.replace(/\s+/g, ' ').trim().substring(0, 100);
+
+                if (res.status === 404) {
+                    throw new Error('Proxy endpoint /api/tmdb-proxy not found (404). Deploy your backend on the same domain as this admin page.');
+                }
+                if (res.status === 500) {
+                    throw new Error('Server error (500) from /api/tmdb-proxy. Check server logs.');
+                }
+                throw new Error(`Unexpected non-JSON response (${res.status}). Preview: "${preview}"`);
+            }
+
+            const data = await res.json();
+            if (!res.ok || data.success === false) {
+                throw new Error(data.error || `TMDB request failed (${res.status})`);
+            }
+            return data;
+        }
+
+        function tmdbTypeFor(category) {
+            return category === 'movie' ? 'movie' : 'tv';
+        }
+
+        // ============================================================
+        // MEDIA CATALOG (TMDB-based)
+        // ============================================================
+        async function loadMediaCatalog() {
+            try {
+                const snap = await db.collection('mediaCatalog').orderBy('createdAt', 'desc').get();
+                allMedia = [];
+                snap.forEach(doc => allMedia.push({ id: doc.id, ...doc.data() }));
+                renderMediaTable();
+                document.getElementById('totalMediaCount').textContent = allMedia.length;
+            } catch (e) { console.error(e); }
+        }
+
+        function renderMediaTable() {
+            const tbody = document.getElementById('mediaTableBody');
+            if (!allMedia.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No media items added yet. Add your first one above!</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allMedia.map((m, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>
+                        <img src="${m.poster || 'https://via.placeholder.com/60x90/1C1C24/666?text=No+Img'}" style="width:40px;height:55px;object-fit:cover;border-radius:4px;" />
+                    </td>
+                    <td><strong>${m.title}</strong></td>
+                    <td>${m.year || 'N/A'}</td>
+                    <td><span class="status-badge ${m.type || 'movie'}">${(m.type || 'movie').toUpperCase()}</span></td>
+                    <td><span class="key-text">${m.tmdbId || '—'}</span></td>
+                    <td>${m.rating || '—'}</td>
+                    <td>
+                        <button class="btn-action-sm edit" onclick="startEditMedia('${m.id}')"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-action-sm delete" onclick="deleteMediaItem('${m.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function autoFillMediaFromTmdb() {
+            const tmdbId = document.getElementById('mediaTmdbIdInput').value.trim();
+            const category = document.getElementById('mediaTypeSelect').value;
+            if (!tmdbId) return showToast('Enter a TMDB ID first (e.g. 550)', 'error');
+
+            const btn = document.getElementById('fetchTmdbBtn');
+            const oldHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching…';
+            showToast('Fetching details from TMDB…', 'info');
+
+            try {
+                const tmdbType = tmdbTypeFor(category);
+                const data = await tmdbFetch(`/${tmdbType}/${tmdbId}`);
+                const title = data.title || data.name || '';
+                const year = (data.release_date || data.first_air_date || '').substring(0, 4);
+                const poster = data.poster_path ? (TMDB_IMG + data.poster_path) : '';
+
+                document.getElementById('mediaTitleInput').value = title;
+                document.getElementById('mediaYearInput').value = year;
+                document.getElementById('mediaPosterInput').value = poster;
+                document.getElementById('mediaDescInput').value = data.overview || '';
+                document.getElementById('mediaRatingInput').value = (data.vote_average != null) ? data.vote_average.toFixed(1) : '';
+
+                showToast(`✅ Loaded: ${title} (${year})`, 'success');
+            } catch (err) {
+                console.error('[TMDB Fetch]', err);
+                showToast('❌ ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldHTML;
+            }
+        }
+
+        function startEditMedia(id) {
+            const item = allMedia.find(m => m.id === id);
+            if (!item) return;
+
+            document.getElementById('editingMediaDocId').value = item.id;
+            document.getElementById('mediaTmdbIdInput').value = item.tmdbId || '';
+            document.getElementById('mediaTypeSelect').value = item.type || 'movie';
+            document.getElementById('mediaTitleInput').value = item.title || '';
+            document.getElementById('mediaYearInput').value = item.year || '';
+            document.getElementById('mediaPosterInput').value = item.poster || '';
+            document.getElementById('mediaDescInput').value = item.description || '';
+            document.getElementById('mediaRatingInput').value = item.rating || '';
+
+            document.getElementById('mediaFormHeading').innerHTML = `<i class="fas fa-edit"></i> Edit: ${item.title}`;
+            document.getElementById('saveMediaBtnText').textContent = 'Update Catalog Item';
+            document.getElementById('cancelEditMediaBtn').style.display = 'inline-flex';
+
+            window.scrollTo({ top: document.getElementById('tabContentMedia').offsetTop - 30, behavior: 'smooth' });
+        }
+
+        function cancelMediaEdit() {
+            document.getElementById('editingMediaDocId').value = '';
+            document.getElementById('mediaTmdbIdInput').value = '';
+            document.getElementById('mediaTitleInput').value = '';
+            document.getElementById('mediaYearInput').value = '';
+            document.getElementById('mediaPosterInput').value = '';
+            document.getElementById('mediaDescInput').value = '';
+            document.getElementById('mediaRatingInput').value = '';
+            document.getElementById('mediaFormHeading').innerHTML = `<i class="fas fa-plus-circle"></i> Add New Title from TMDB`;
+            document.getElementById('saveMediaBtnText').textContent = 'Save to Catalog';
+            document.getElementById('cancelEditMediaBtn').style.display = 'none';
+        }
+
+        document.getElementById('saveMediaBtn').addEventListener('click', async () => {
+            const docId = document.getElementById('editingMediaDocId').value.trim();
+            const tmdbId = document.getElementById('mediaTmdbIdInput').value.trim();
+            const title = document.getElementById('mediaTitleInput').value.trim();
+            const year = document.getElementById('mediaYearInput').value.trim();
+            const type = document.getElementById('mediaTypeSelect').value;
+            const poster = document.getElementById('mediaPosterInput').value.trim();
+            const description = document.getElementById('mediaDescInput').value.trim();
+            const rating = document.getElementById('mediaRatingInput').value.trim();
+
+            if (!tmdbId || !title) return showToast('TMDB ID and Title are required!', 'error');
+
+            const mediaData = {
+                tmdbId,
+                title,
+                year: year || 'N/A',
+                type,
+                poster: poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image',
+                description: description || '',
+                rating: rating || '',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if (docId) {
+                    await db.collection('mediaCatalog').doc(docId).update(mediaData);
+                    showToast(`Updated "${title}" successfully!`, 'success');
+                } else {
+                    mediaData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('mediaCatalog').add(mediaData);
+                    showToast(`Saved "${title}" to Catalog!`, 'success');
+                }
+                cancelMediaEdit();
+                loadMediaCatalog();
+            } catch (e) {
+                console.error(e);
+                showToast('Error saving media item.', 'error');
+            }
+        });
+
+        async function deleteMediaItem(id) {
+            if (!confirm('Remove this title from catalog?')) return;
+            try {
+                await db.collection('mediaCatalog').doc(id).delete();
+                showToast('Item deleted.', 'info');
+                loadMediaCatalog();
+            } catch (e) { showToast('Error deleting item.', 'error'); }
+        }
+
+        // ============================================================
+        // HOME SECTIONS (Fixed sections)
+        // ============================================================
+        async function loadSectionsConfig() {
+            try {
+                const doc = await db.collection('config').doc('homeSections').get();
+                sectionsConfig = doc.exists ? (doc.data().sections || {}) : {};
+                FIXED_SECTIONS.forEach(s => {
+                    if (!sectionsConfig[s.key]) sectionsConfig[s.key] = { customItems: [], removedIds: [] };
+                    if (!Array.isArray(sectionsConfig[s.key].customItems)) sectionsConfig[s.key].customItems = [];
+                    if (!Array.isArray(sectionsConfig[s.key].removedIds)) sectionsConfig[s.key].removedIds = [];
+                });
+                renderSectionsList();
+            } catch (e) {
+                console.error(e);
+                showToast('Failed to load sections config', 'error');
+            }
+        }
+
+        async function saveSectionsConfig() {
+            try {
+                await db.collection('config').doc('homeSections').set({
+                    sections: sectionsConfig,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch (e) {
+                showToast('Save failed: ' + e.message, 'error');
+            }
+        }
+
+        function renderSectionsList() {
+            const container = document.getElementById('sectionsListContainer');
+            if (!container) return;
+
+            let totalCustom = 0;
+            container.innerHTML = FIXED_SECTIONS.map(sec => {
+                const cfg = sectionsConfig[sec.key] || { customItems: [], removedIds: [] };
+                const customItems = cfg.customItems || [];
+                const removedIds = cfg.removedIds || [];
+                totalCustom += customItems.length;
+
+                return `
+                <div class="section-card-item">
+                    <div class="section-card-header">
+                        <h4>
+                            <i class="fas ${sec.icon}" style="color:var(--primary-red);"></i> ${sec.title}
+                            <span style="font-size:11px;color:var(--text-muted);font-weight:500;">
+                                (${customItems.length} custom • ${removedIds.length} hidden)
+                            </span>
+                        </h4>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="btn-action-sm manage" onclick="openMovieModal('${sec.key}')">
+                                <i class="fas fa-plus"></i> Add from TMDB
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-sub-block">
+                        <span class="section-sub-label">Custom Items Added by Admin</span>
+                        <div class="section-movies-flex">
+                            ${customItems.length ? customItems.map((m, mIdx) => `
+                                <div class="mini-movie-card">
+                                    <button class="remove-btn" onclick="removeCustomItem('${sec.key}', ${mIdx})"><i class="fas fa-times"></i></button>
+                                    <span class="type-pill movie">${(m.media_type === 'tv') ? 'TV' : 'MOVIE'}</span>
+                                    <img src="${m.poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image'}" alt="" />
+                                    <div class="info">
+                                        <h5>${m.title || ''}</h5>
+                                        <span>${m.year || ''}</span>
+                                    </div>
+                                </div>
+                            `).join('') : '<span style="font-size:12px;color:var(--text-muted);padding:8px 0;">No custom items yet.</span>'}
+                        </div>
+                    </div>
+
+                    <div class="section-sub-block">
+                        <span class="section-sub-label">Hidden Default TMDB IDs (won't appear on home page)</span>
+                        <div style="min-height:26px;">
+                            ${removedIds.length ? removedIds.map((id, idx) => `
+                                <span class="hide-id-chip">${id} <button onclick="restoreId('${sec.key}', ${idx})"><i class="fas fa-times"></i></button></span>
+                            `).join('') : '<span style="font-size:12px;color:var(--text-muted);">None hidden.</span>'}
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                            <input type="text" id="hideInput_${sec.key}" placeholder="Enter TMDB ID to hide from this section" style="flex:1;min-width:200px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);color:#fff;font-size:13px;" />
+                            <button class="btn-secondary" onclick="hideTmdbItem('${sec.key}')" style="padding:8px 14px;font-size:13px;"><i class="fas fa-eye-slash"></i> Hide</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const el = document.getElementById('totalSectionsCount');
+            if (el) el.textContent = totalCustom;
+        }
+
+        async function hideTmdbItem(key) {
+            const input = document.getElementById('hideInput_' + key);
+            const id = (input.value || '').trim();
+            if (!id) return showToast('Enter a TMDB ID', 'error');
+            const cfg = sectionsConfig[key] || { customItems: [], removedIds: [] };
+            cfg.removedIds = cfg.removedIds || [];
+            if (!cfg.removedIds.includes(id)) cfg.removedIds.push(id);
+            sectionsConfig[key] = cfg;
+            await saveSectionsConfig();
+            input.value = '';
+            renderSectionsList();
+            showToast('Item hidden from section', 'success');
+        }
+
+        async function restoreId(key, idx) {
+            const cfg = sectionsConfig[key];
+            if (!cfg || !cfg.removedIds) return;
+            cfg.removedIds.splice(idx, 1);
+            await saveSectionsConfig();
+            renderSectionsList();
+            showToast('Item restored', 'info');
+        }
+
+        async function removeCustomItem(key, idx) {
+            const cfg = sectionsConfig[key];
+            if (!cfg || !cfg.customItems) return;
+            cfg.customItems.splice(idx, 1);
+            await saveSectionsConfig();
+            renderSectionsList();
+            showToast('Custom item removed', 'info');
+        }
+
+        // ============================================================
+        // TMDB SEARCH MODAL
+        // ============================================================
+        function openMovieModal(sectionKey) {
+            targetSectionKeyForMovie = sectionKey;
+            modalSearchResults = [];
+            document.getElementById('modalSearchResults').innerHTML = '';
+            document.getElementById('modalMovieSearchInput').value = '';
+            document.getElementById('modalMovieTypeSelect').value = '';
+            document.getElementById('movieSearchModal').classList.add('open');
+        }
+
+        function closeMovieModal() {
+            document.getElementById('movieSearchModal').classList.remove('open');
+            targetSectionKeyForMovie = null;
+        }
+
+        document.getElementById('modalSearchBtn').addEventListener('click', async () => {
+            const query = document.getElementById('modalMovieSearchInput').value.trim();
+            const type = document.getElementById('modalMovieTypeSelect').value.trim();
+            if (!query) return showToast('Please enter a search query', 'error');
+
+            const resContainer = document.getElementById('modalSearchResults');
+            resContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Searching TMDB…</div>';
+
+            try {
+                let endpoint = `/search/multi?query=${encodeURIComponent(query)}&page=1`;
+                const data = await tmdbFetch(endpoint);
+                let results = (data.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
+
+                if (type === 'movie') results = results.filter(r => r.media_type === 'movie');
+                else if (type === 'tv') results = results.filter(r => r.media_type === 'tv');
+
+                if (!results.length) {
+                    resContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px;">No results found.</div>`;
+                    modalSearchResults = [];
+                    return;
+                }
+
+                modalSearchResults = results.map(m => ({
+                    id: m.id,
+                    title: m.title || m.name || 'Untitled',
+                    poster: m.poster_path ? (TMDB_IMG + m.poster_path) : '',
+                    year: (m.release_date || m.first_air_date || '').substring(0, 4),
+                    media_type: m.media_type,
+                    rating: m.vote_average,
+                    overview: m.overview || ''
+                }));
+
+                resContainer.innerHTML = modalSearchResults.map((m, i) => `
+                    <div class="search-movie-item" onclick="addTmdbItemToSection(${i})">
+                        <span class="source-badge">TMDB</span>
+                        <img src="${m.poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image'}" alt="" />
+                        <div class="p-2">
+                            <h6>${m.title}</h6>
+                            <span>${m.year} • ${m.media_type}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("TMDB Search Error:", err);
+                resContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#ef4444;padding:20px;">Failed to fetch from TMDB: ${err.message}</div>`;
+            }
+        });
+
+        document.getElementById('modalMovieSearchInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('modalSearchBtn').click(); }
+        });
+
+        async function addTmdbItemToSection(idx) {
+            if (!targetSectionKeyForMovie) return;
+            const item = modalSearchResults[idx];
+            if (!item) return;
+
+            const cfg = sectionsConfig[targetSectionKeyForMovie] || { customItems: [], removedIds: [] };
+            cfg.customItems = cfg.customItems || [];
+            if (cfg.customItems.some(x => String(x.id) === String(item.id))) {
+                return showToast('Item already in section', 'info');
+            }
+            cfg.customItems.push(item);
+            sectionsConfig[targetSectionKeyForMovie] = cfg;
+
+            await saveSectionsConfig();
+            closeMovieModal();
+            renderSectionsList();
+            showToast(`Added "${item.title}" to section!`, 'success');
+        }
+
+        // ============================================================
+        // MUSIC MANAGER
+        // ============================================================
+        document.getElementById('adminCoverFile').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) document.getElementById('adminCoverFileLabel').textContent = file.name;
+        });
+        document.getElementById('adminAudioFile').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) document.getElementById('adminAudioFileLabel').textContent = file.name;
+        });
+
+        function uploadToCloudinaryWithProgress(file, resourceType, onProgress) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType === 'audio' ? 'video' : 'image'}/upload`;
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable && onProgress) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        onProgress(percent);
+                    }
+                };
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.secure_url) resolve(data.secure_url);
+                            else reject(new Error('Upload failed: no secure_url'));
+                        } catch (e) { reject(new Error('Invalid response from Cloudinary')); }
+                    } else {
+                        reject(new Error(`Upload failed with status ${xhr.status}`));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network error during upload'));
+                xhr.send(formData);
+            });
+        }
+
+        document.getElementById('adminSongForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const editingId = document.getElementById('editingSongId').value.trim();
+            const title = document.getElementById('adminSongTitle').value.trim();
+            const artist = document.getElementById('adminSongArtist').value.trim();
+            const rawKeywords = document.getElementById('adminSongKeywords').value.trim();
+            const coverFile = document.getElementById('adminCoverFile').files[0];
+            const audioFile = document.getElementById('adminAudioFile').files[0];
+
+            if (!title || !artist) {
+                showToast('Title and Artist are required.', 'error');
+                return;
+            }
+
+            const keywordsArray = rawKeywords
+                ? rawKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k.length > 0)
+                : [];
+
+            const progressContainer = document.getElementById('adminUploadProgress');
+            const progressFill = document.getElementById('adminUploadProgressFill');
+            const progressLabel = document.getElementById('adminUploadProgressLabel');
+            const progressPercent = document.getElementById('adminUploadProgressPercent');
+            const submitBtn = document.getElementById('adminUploadSongBtn');
+            const btnText = document.getElementById('adminUploadBtnText');
+
+            progressContainer.classList.add('visible');
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressLabel.textContent = 'Processing…';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+            try {
+                let coverUrl = null;
+                let audioUrl = null;
+
+                let existingSong = null;
+                if (editingId) {
+                    const doc = await db.collection('songs').doc(editingId).get();
+                    if (doc.exists) existingSong = doc.data();
+                }
+
+                if (coverFile) {
+                    progressLabel.textContent = 'Uploading cover…';
+                    coverUrl = await uploadToCloudinaryWithProgress(coverFile, 'image', (p) => {
+                        progressFill.style.width = p + '%';
+                        progressPercent.textContent = p + '%';
+                    });
+                } else if (existingSong && existingSong.coverUrl) {
+                    coverUrl = existingSong.coverUrl;
+                }
+
+                if (audioFile) {
+                    progressLabel.textContent = 'Uploading audio…';
+                    audioUrl = await uploadToCloudinaryWithProgress(audioFile, 'audio', (p) => {
+                        progressFill.style.width = p + '%';
+                        progressPercent.textContent = p + '%';
+                    });
+                } else if (existingSong && existingSong.audioUrl) {
+                    audioUrl = existingSong.audioUrl;
+                }
+
+                if (!audioUrl) {
+                    showToast('Audio file required for new songs.', 'error');
+                    return;
+                }
+
+                const songData = {
+                    title,
+                    artist,
+                    keywords: keywordsArray,
+                    keywordsText: rawKeywords,
+                    coverUrl: coverUrl || 'https://via.placeholder.com/300/1C1C24/666?text=No+Cover',
+                    audioUrl,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                progressLabel.textContent = 'Saving to database…';
+
+                if (editingId) {
+                    await db.collection('songs').doc(editingId).update(songData);
+                    showToast('Song updated successfully!', 'success');
+                } else {
+                    songData.uploadedBy = 'admin';
+                    songData.uploadedByEmail = 'admin@rxplayer.com';
+                    songData.isAdmin = true;
+                    songData.status = 'admin';
+                    songData.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('songs').add(songData);
+                    showToast('Song uploaded successfully!', 'success');
+                }
+
+                cancelSongEdit();
+                loadSongs();
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            } finally {
+                progressContainer.classList.remove('visible');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> ' + (editingId ? 'Update Song' : 'Upload Song');
+                btnText.textContent = editingId ? 'Update Song' : 'Upload Song';
+            }
+        });
+
+        function cancelSongEdit() {
+            document.getElementById('editingSongId').value = '';
+            document.getElementById('adminSongTitle').value = '';
+            document.getElementById('adminSongArtist').value = '';
+            document.getElementById('adminSongKeywords').value = '';
+            document.getElementById('adminCoverFile').value = '';
+            document.getElementById('adminAudioFile').value = '';
+            document.getElementById('adminCoverFileLabel').textContent = '';
+            document.getElementById('adminAudioFileLabel').textContent = '';
+            document.getElementById('cancelEditSongBtn').style.display = 'none';
+            document.getElementById('songFormHeading').innerHTML = '<i class="fas fa-upload"></i> Upload New Song';
+            document.getElementById('adminUploadBtnText').textContent = 'Upload Song';
+        }
+
+        function editSong(id) {
+            const song = allSongs.find(s => s.id === id);
+            if (!song) return;
+
+            document.getElementById('editingSongId').value = id;
+            document.getElementById('adminSongTitle').value = song.title || '';
+            document.getElementById('adminSongArtist').value = song.artist || '';
+            const kw = Array.isArray(song.keywords) ? song.keywords.join(', ') : (song.keywordsText || song.keywords || '');
+            document.getElementById('adminSongKeywords').value = kw;
+            document.getElementById('cancelEditSongBtn').style.display = 'inline-flex';
+            document.getElementById('songFormHeading').innerHTML = '<i class="fas fa-edit"></i> Edit Song: ' + song.title;
+            document.getElementById('adminUploadBtnText').textContent = 'Update Song';
+            document.getElementById('adminSongForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadSongs() {
+            try {
+                const snap = await db.collection('songs').orderBy('timestamp', 'desc').get();
+                allSongs = [];
+                snap.forEach(doc => allSongs.push({ id: doc.id, ...doc.data() }));
+                renderSongsTable();
+                document.getElementById('totalSongs').textContent = allSongs.length;
+            } catch (e) { console.error(e); }
+        }
+
+        function renderSongsTable() {
+            const tbody = document.getElementById('songsTableBody');
+            if (!allSongs.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No songs uploaded yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allSongs.map((s, i) => {
+                const kwText = Array.isArray(s.keywords) ? s.keywords.join(', ') : (s.keywordsText || s.keywords || '—');
+                return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><img src="${s.coverUrl || 'https://via.placeholder.com/40/1C1C24/666?text=No+Img'}" style="width:40px;height:40px;border-radius:4px;object-fit:cover;" /></td>
+                        <td><strong>${s.title}</strong></td>
+                        <td>${s.artist || 'Unknown'}</td>
+                        <td style="max-width:180px;font-size:11.5px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            ${kwText}
+                        </td>
+                        <td><span class="status-badge ${s.status || 'pending'}">${s.status || 'Pending'}</span></td>
+                        <td>${s.uploadedBy === 'admin' ? 'Admin' : (s.uploadedByEmail || 'User')}</td>
+                        <td>
+                            <button class="btn-action-sm edit" onclick="editSong('${s.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-action-sm delete" onclick="deleteSong('${s.id}')"><i class="fas fa-trash"></i></button>
+                            ${s.status !== 'approved' && s.status !== 'admin' ? `<button class="btn-action-sm activate" onclick="approveSong('${s.id}')"><i class="fas fa-check"></i> Approve</button>` : ''}
+                            ${s.status !== 'rejected' && s.status !== 'admin' ? `<button class="btn-action-sm deactivate" onclick="rejectSong('${s.id}')"><i class="fas fa-times"></i> Reject</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function approveSong(id) { await db.collection('songs').doc(id).update({ status: 'approved' }); showToast('Song approved!', 'success'); loadSongs(); }
+        async function rejectSong(id) { await db.collection('songs').doc(id).update({ status: 'rejected' }); showToast('Song rejected.', 'info'); loadSongs(); }
+        async function deleteSong(id) { if (!confirm('Delete this song?')) return; await db.collection('songs').doc(id).delete(); showToast('Song deleted.', 'info'); loadSongs(); }
+
+        // ============================================================
+        // REQUESTS
+        // ============================================================
+        async function loadRequests() {
+            try {
+                const [songSnap, contentSnap] = await Promise.all([
+                    db.collection('songRequests').orderBy('timestamp', 'desc').get(),
+                    db.collection('contentRequests').orderBy('timestamp', 'desc').get()
+                ]);
+                let requests = [];
+                songSnap.forEach(doc => {
+                    const data = doc.data();
+                    requests.push({ id: doc.id, type: 'Music', title: data.title, artist: data.artist, details: '', requestedBy: data.requestedByEmail || 'User', status: data.status || 'pending', timestamp: data.timestamp, source: 'songRequests' });
+                });
+                contentSnap.forEach(doc => {
+                    const data = doc.data();
+                    requests.push({ id: doc.id, type: data.type || 'Other', title: data.title, artist: '', details: data.details || '', requestedBy: data.requestedByEmail || 'User', status: data.status || 'pending', timestamp: data.timestamp, source: 'contentRequests' });
+                });
+                requests.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+                allRequests = requests;
+                renderRequestsTable();
+                document.getElementById('totalRequests').textContent = allRequests.length;
+            } catch (e) { console.error('Error loading requests:', e); }
+        }
+
+        function renderRequestsTable() {
+            const tbody = document.getElementById('requestsTableBody');
+            if (!allRequests.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No requests yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allRequests.map((r, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><span class="status-badge ${r.type === 'Music' ? 'approved' : 'series'}">${r.type}</span></td>
+                    <td><strong>${r.title}</strong></td>
+                    <td>${r.artist || r.details || '—'}</td>
+                    <td>${r.requestedBy}</td>
+                    <td><span class="status-badge ${r.status}">${r.status}</span></td>
+                    <td style="font-size:12px;">${r.timestamp ? new Date(r.timestamp.toMillis()).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn-action-sm activate" onclick="updateRequestStatus('${r.id}', 'approved', '${r.source}')"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn-action-sm deactivate" onclick="updateRequestStatus('${r.id}', 'rejected', '${r.source}')"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn-action-sm delete" onclick="deleteRequest('${r.id}', '${r.source}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateRequestStatus(id, status, source) { await db.collection(source).doc(id).update({ status }); showToast(`Request ${status}!`, 'success'); loadRequests(); }
+        async function deleteRequest(id, source) { if (!confirm('Delete this request?')) return; await db.collection(source).doc(id).delete(); showToast('Request deleted.', 'info'); loadRequests(); }
+        async function deleteAllRequests() {
+            if (!confirm('Delete ALL requests? This cannot be undone.')) return;
+            try {
+                const [songSnap, contentSnap] = await Promise.all([db.collection('songRequests').get(), db.collection('contentRequests').get()]);
+                const batch = db.batch();
+                songSnap.forEach(doc => batch.delete(doc.ref));
+                contentSnap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                showToast('All requests deleted.', 'info');
+                loadRequests();
+            } catch (e) { showToast('Error deleting all requests.', 'error'); }
+        }
+
+        // ============================================================
+        // BUG REPORTS
+        // ============================================================
+        async function loadBugReports() {
+            try {
+                const snap = await db.collection('bugReports').orderBy('timestamp', 'desc').get();
+                allBugReports = [];
+                snap.forEach(doc => allBugReports.push({ id: doc.id, ...doc.data() }));
+                renderBugReportsTable();
+                document.getElementById('totalBugReports').textContent = allBugReports.length;
+            } catch (e) { console.error(e); }
+        }
+
+        function renderBugReportsTable() {
+            const tbody = document.getElementById('bugReportsTableBody');
+            if (!allBugReports.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No bug reports submitted yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = allBugReports.map((b, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td style="max-width:200px;font-size:12px;">${b.description || 'No description'}</td>
+                    <td>${b.deviceInfo || 'N/A'}</td>
+                    <td>${b.email || 'N/A'}</td>
+                    <td><span class="status-badge ${b.status || 'pending'}">${b.status || 'Pending'}</span></td>
+                    <td>${b.screenshotUrl ? `<a href="${b.screenshotUrl}" target="_blank" style="color:var(--telegram-blue);"><i class="fas fa-image"></i> View</a>` : 'None'}</td>
+                    <td style="font-size:12px;">${b.createdAt ? new Date(b.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn-action-sm edit" onclick="updateBugStatus('${b.id}', 'reviewed')"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn-action-sm activate" onclick="updateBugStatus('${b.id}', 'fixed')"><i class="fas fa-check"></i> Fix</button>
+                        <button class="btn-action-sm delete" onclick="deleteBugReport('${b.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateBugStatus(id, status) { await db.collection('bugReports').doc(id).update({ status }); showToast(`Bug marked as ${status}!`, 'success'); loadBugReports(); }
+        async function deleteBugReport(id) { if (!confirm('Delete this bug report?')) return; await db.collection('bugReports').doc(id).delete(); showToast('Bug report deleted.', 'info'); loadBugReports(); }
+        async function deleteAllBugReports() {
+            if (!confirm('Delete ALL bug reports? This cannot be undone.')) return;
+            try {
+                const snap = await db.collection('bugReports').get();
+                const batch = db.batch();
+                snap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                showToast('All bug reports deleted.', 'info');
+                loadBugReports();
+            } catch (e) { showToast('Error deleting all.', 'error'); }
+        }
+
+        // ============================================================
+        // APP VERSION
+        // ============================================================
+        async function loadAppVersionConfig() {
+            try {
+                const doc = await db.collection('config').doc('appVersion').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('appVersionInput').value = data.version || '1.0.0';
+                    document.getElementById('appDownloadUrlInput').value = data.downloadUrl || '';
+                    document.getElementById('appUpdateMsgInput').value = data.message || '';
+                    document.getElementById('sidebarAppVersion').textContent = data.version || '1.0.0';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('saveVersionBtn').addEventListener('click', async () => {
+            const version = document.getElementById('appVersionInput').value.trim();
+            const downloadUrl = document.getElementById('appDownloadUrlInput').value.trim();
+            const message = document.getElementById('appUpdateMsgInput').value.trim();
+            if (!version) return showToast('Please enter version number (e.g. 1.0.1)', 'error');
+            await db.collection('config').doc('appVersion').set({
+                version, downloadUrl, message, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            document.getElementById('sidebarAppVersion').textContent = version;
+            showToast('App version & forced update settings published!', 'success');
+        });
+
+        // ============================================================
+        // CREATORS
+        // ============================================================
+        async function loadCreators() {
+            try {
+                const snap = await db.collection('creatorApplications').get();
+                allCreators = [];
+                snap.forEach(doc => allCreators.push({ id: doc.id, ...doc.data() }));
+                const tbody = document.getElementById('creatorsTableBody');
+                if (!allCreators.length) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No creator applications yet.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = allCreators.map((c, i) => `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${c.fullName || 'Creator'}</strong></td>
+                        <td>${c.instagramHandle || 'N/A'}</td>
+                        <td>${c.email || 'N/A'}</td>
+                        <td><span class="status-badge approved">${c.status || 'Active'}</span></td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        // ============================================================
+        // DASHBOARD
+        // ============================================================
+        function updateDashboard() {
+            document.getElementById('totalKeys').textContent = allKeys.length;
+            document.getElementById('activeKeys').textContent = allKeys.filter(k => (k.usageCount || 0) < MAX_LIMIT).length;
+            document.getElementById('totalMediaCount').textContent = allMedia.length;
+            document.getElementById('totalSongs').textContent = allSongs.length;
+            document.getElementById('totalRequests').textContent = allRequests.length;
+            document.getElementById('sidebarTotalUsers').textContent = allUsers.length;
+            document.getElementById('sidebarTotalDownloads').textContent = totalDownloadsCount;
+            const mainDls = document.getElementById('panelTotalDownloads');
+            if (mainDls) mainDls.textContent = totalDownloadsCount;
+
+            let total = 0;
+            FIXED_SECTIONS.forEach(s => {
+                const cfg = sectionsConfig[s.key];
+                if (cfg && cfg.customItems) total += cfg.customItems.length;
+            });
+            const el = document.getElementById('totalSectionsCount');
+            if (el) el.textContent = total;
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            loadAllData();
+            showToast('Data Refreshed!', 'info');
+        });
+
+        document.getElementById('resetAllUsageBtn').addEventListener('click', async () => {
+            if (!confirm('Reset usage count for all keys?')) return;
+            const snap = await db.collection('apiKeys').get();
+            const batch = db.batch();
+            snap.forEach(doc => batch.update(doc.ref, { usageCount: 0 }));
+            await batch.commit();
+            showToast('All usage counts reset!', 'success');
+            loadKeys();
+        });
+
+        // ============================================================
+        // EXPOSE TO WINDOW
+        // ============================================================
+        window.switchAdminTab = switchAdminTab;
+        window.loadUsers = loadUsers;
+        window.filterUsersTable = filterUsersTable;
+        window.sendResetPasswordEmail = sendResetPasswordEmail;
+        window.autoFillMediaFromTmdb = autoFillMediaFromTmdb;
+        window.startEditMedia = startEditMedia;
+        window.cancelMediaEdit = cancelMediaEdit;
+        window.deleteMediaItem = deleteMediaItem;
+        window.openMovieModal = openMovieModal;
+        window.closeMovieModal = closeMovieModal;
+        window.hideTmdbItem = hideTmdbItem;
+        window.restoreId = restoreId;
+        window.removeCustomItem = removeCustomItem;
+        window.addTmdbItemToSection = addTmdbItemToSection;
+        window.loadBugReports = loadBugReports;
+        window.updateBugStatus = updateBugStatus;
+        window.deleteBugReport = deleteBugReport;
+        window.deleteAllBugReports = deleteAllBugReports;
+        window.setActiveKey = setActiveKey;
+        window.deleteKey = deleteKey;
+        window.approveSong = approveSong;
+        window.rejectSong = rejectSong;
+        window.deleteSong = deleteSong;
+        window.editSong = editSong;
+        window.cancelSongEdit = cancelSongEdit;
+        window.loadRequests = loadRequests;
+        window.updateRequestStatus = updateRequestStatus;
+        window.deleteRequest = deleteRequest;
+        window.deleteAllRequests = deleteAllRequests;
+        window.resetDownloadCount = resetDownloadCount;
+
+        checkLogin();
+    </script>
+</body>
+</html>
