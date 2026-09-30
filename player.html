@@ -590,11 +590,11 @@
         function buildPlayerUrl() {
             if (!currentTmdbId) return null;
             if (currentType === 'movie') {
-                return `${STREAM_BASE}/movie/${currentTmdbId}?branding=RX+Player&loading=1&back=false`;
+                return `${STREAM_BASE}/movie/${currentTmdbId}?branding=RX+Player&server=centaurus&loading=1&back=false`;
             }
             const s = currentSeason || 1;
             const e = currentEpisode || 1;
-            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?branding=RX+Player&loading=1&back=false`;
+            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?branding=RX+Player&server=centaurus&loading=1&back=false`;
         }
 
         function loadPlayer() {
