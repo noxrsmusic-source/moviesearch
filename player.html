@@ -316,7 +316,17 @@
         <div class="player-row">
             <div class="player-wrapper" id="playerWrapper">
 
-                <iframe id="playerIframe" allow="fullscreen" allowfullscreen></iframe>
+                <iframe id="playerIframe" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
+
+                <!-- Branding overlay (inside wrapper) -->
+                <div class="player-branding">
+                    <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+                </div>
+
+                <!-- Custom fullscreen button (was missing — now added) -->
+                <button class="custom-fs-btn" id="customFsBtn" title="Fullscreen" aria-label="Toggle fullscreen">
+                    <i class="fas fa-expand" id="fsIcon"></i>
+                </button>
 
                 <div class="pause-ad-overlay top" id="pauseAdTop">
                     <span class="ad-label"><i class="fas fa-pause"></i> Paused</span>
@@ -410,6 +420,7 @@
         let episodeList = [];
         let tmdbMetadata = null;
         let isPaused = false;
+        let iframeReloadTimer = null;
 
         function isTvType(t) {
             if (!t) return false;
@@ -431,6 +442,7 @@
 
         function updateFsButtonState() {
             const fsIcon = document.getElementById('fsIcon');
+            if (!fsIcon) return;
             const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
             fsIcon.className = isFs ? 'fas fa-compress' : 'fas fa-expand';
         }
@@ -594,9 +606,11 @@
             }
             const s = currentSeason || 1;
             const e = currentEpisode || 1;
+            // Path-based season/episode (vidstuck embed URL pattern)
             return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?branding=RX+Player&server=centaurus&loading=1&back=false`;
         }
 
+        // Force a fresh iframe load — cancels any pending navigation and uses cache-buster
         function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             hidePauseAds();
@@ -612,10 +626,26 @@
                 return;
             }
 
-            iframe.style.display = 'block';
-            iframe.src = url;
-            updateUrl();
+            // Cancel any pending reload to avoid race conditions
+            if (iframeReloadTimer) {
+                clearTimeout(iframeReloadTimer);
+                iframeReloadTimer = null;
+            }
 
+            // Reset the iframe first (guarantees fresh navigation)
+            try { iframe.src = 'about:blank'; } catch (e) {}
+
+            // Add cache-buster so the embed provider cannot serve a cached old episode
+            const cb = (url.includes('?') ? '&' : '?') + '_rxr=' + Date.now();
+            const finalUrl = url + cb;
+
+            iframeReloadTimer = setTimeout(() => {
+                iframe.style.display = 'block';
+                iframe.src = finalUrl;
+                iframeReloadTimer = null;
+            }, 40);
+
+            updateUrl();
             document.getElementById('episodeControls').classList.toggle('visible', isSeries());
         }
 
@@ -702,26 +732,43 @@
                 episodeSelect.value = currentEpisode;
             }
 
+            // Load the initial player
             loadPlayer();
 
-            document.getElementById('customFsBtn').addEventListener('click', (e) => {
-                toggleContainerFullscreen();
-                e.stopPropagation();
-            });
+            // ====== Attach event listeners (defensive — never assume element exists) ======
+            const fsBtn = document.getElementById('customFsBtn');
+            if (fsBtn) {
+                fsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleContainerFullscreen();
+                });
+            }
 
+            // Season change → reload episodes + player
             seasonSelect.addEventListener('change', async () => {
-                currentSeason = parseInt(seasonSelect.value, 10) || 1;
+                const newSeason = parseInt(seasonSelect.value, 10) || 1;
+                if (newSeason === currentSeason && episodeList.length > 0) {
+                    // Same season, just refresh if needed
+                }
+                currentSeason = newSeason;
                 currentEpisode = 1;
                 await loadEpisodes(currentSeason);
+                episodeSelect.value = currentEpisode;
                 loadPlayer();
                 showToast(`📺 Season ${currentSeason} loaded`, 'info', 2000);
             });
 
+            // Episode change → just remember the value (only applied on button click)
+            episodeSelect.addEventListener('change', () => {
+                // Pre-selection only; actual apply happens on Apply button or auto
+            });
+
+            // Apply Episode button
             document.getElementById('applyEpBtn').addEventListener('click', () => {
                 currentSeason = parseInt(seasonSelect.value, 10) || 1;
                 currentEpisode = parseInt(episodeSelect.value, 10) || 1;
                 loadPlayer();
-                showToast(`▶️ S${currentSeason} E${currentEpisode} playing`, 'success', 2000);
+                showToast(`▶️ Playing S${currentSeason} E${currentEpisode}`, 'success', 2000);
             });
 
             window.addEventListener('scroll', () => {
@@ -735,6 +782,7 @@
             const playerWrapper = document.getElementById('playerWrapper');
             playerWrapper.addEventListener('click', function(e) {
                 const target = e.target;
+                // Only toggle ads on clicks to the wrapper itself or the ad/badge layers
                 if (target === this || target.closest('.pause-ad-overlay') || target.closest('.pause-badge')) {
                     togglePauseAds();
                 }
