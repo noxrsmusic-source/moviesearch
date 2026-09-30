@@ -157,7 +157,6 @@
         }
         .header-search .clear-btn.visible { display: block; }
 
-        /* Live search indicator */
         .search-live-indicator {
             position: absolute; right: 46px; top: 50%; transform: translateY(-50%);
             font-size: 11px; color: var(--text-muted);
@@ -726,7 +725,7 @@
                     </div>
                 </div>
 
-                <!-- Latest TV Shows (NEW) -->
+                <!-- Latest Web Series (NEW — FIXED: only recent shows) -->
                 <div x-show="latestTv.length">
                     <div class="section-heading-wrap">
                         <h3>
@@ -737,6 +736,33 @@
                     </div>
                     <div class="horizontal-cards-row">
                         <template x-for="item in latestTv" :key="'latest-tv'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="year(item)"></span>
+                                        <span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Latest Anime (NEW) -->
+                <div x-show="latestAnime.length">
+                    <div class="section-heading-wrap">
+                        <h3>
+                            <i class="fas fa-dragon"></i>
+                            <span x-text="activeOtt === 'all' ? 'Latest Anime' : activeOtt + ' Latest Anime'"></span>
+                            <span class="new-badge">NEW</span>
+                        </h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in latestAnime" :key="'latest-an'+item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -1069,8 +1095,9 @@
                 tvShows: [],
                 animeList: [],
                 musicList: [],
-                latestMovies: [],      // NEW
-                latestTv: [],          // NEW
+                latestMovies: [],
+                latestTv: [],
+                latestAnime: [],
                 searchResults: [],
 
                 // ===== Search state =====
@@ -1081,8 +1108,7 @@
                 searchLoadingMore: false,
                 searchLiveLoading: false,
                 searchDebounceTimer: null,
-                searchCache: {},        // { query_page: {results, totalPages, totalResults} }
-                searchAbortController: null,
+                searchCache: {},
 
                 // ===== Other state =====
                 updateRequired: false,
@@ -1113,7 +1139,6 @@
                     });
                     this.checkAppVersion();
 
-                    // Parallel load — home + latest + music
                     this.loadHomeData();
                     this.loadLatestData();
                     this.loadMusicData();
@@ -1356,20 +1381,50 @@
                 },
 
                 // ============================================================
-                //  LATEST DATA (NEW)
+                //  LATEST DATA (FIXED — truly latest shows only)
                 // ============================================================
                 async loadLatestData() {
                     try {
-                        const [moviesRes, tvRes] = await Promise.all([
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/movie/now_playing?language=en-US&page=1")),
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/tv/on_the_air?language=en-US&page=1"))
+                        // Get date 90 days ago — only shows first aired within last 90 days
+                        const cutoffDate = new Date();
+                        cutoffDate.setDate(cutoffDate.getDate() - 90);
+                        const dateStr = cutoffDate.toISOString().split('T')[0];
+
+                        const [moviesRes, tvRes, animeRes] = await Promise.all([
+                            // Latest Movies — now playing in theaters
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
+                                "/movie/now_playing?language=en-US&page=1"
+                            )),
+
+                            // Latest Web Series — recent first_air_date, exclude talk/reality/news
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
+                                `/discover/tv?language=en-US&sort_by=first_air_date.desc&first_air_date.gte=${dateStr}&without_genres=10767,10764,10763&vote_count.gte=5&page=1`
+                            )),
+
+                            // Latest Anime — recent first_air_date, Japanese animation only
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(
+                                `/discover/tv?language=en-US&sort_by=first_air_date.desc&first_air_date.gte=${dateStr}&with_genres=16&with_original_language=ja&vote_count.gte=3&page=1`
+                            ))
                         ]);
+
+                        // Extra safety filter: exclude talk/late-night shows by name
+                        const blockWords = ['tonight show', 'late night', 'late show', 'watch what happens',
+                                            'daily show', 'saturday night', 'jimmy fallon', 'jimmy kimmel',
+                                            'seth meyers', 'james corden', 'andy cohen', 'running man'];
 
                         this.latestMovies = (moviesRes.results || [])
                             .map(i => ({ ...i, media_type: 'movie' }))
                             .slice(0, 20);
 
                         this.latestTv = (tvRes.results || [])
+                            .map(i => ({ ...i, media_type: 'tv' }))
+                            .filter(i => {
+                                const name = ((i.name || i.original_name || '') + '').toLowerCase();
+                                return !blockWords.some(w => name.includes(w));
+                            })
+                            .slice(0, 20);
+
+                        this.latestAnime = (animeRes.results || [])
                             .map(i => ({ ...i, media_type: 'tv' }))
                             .slice(0, 20);
                     } catch (e) {
@@ -1378,13 +1433,12 @@
                 },
 
                 // ============================================================
-                //  LIVE SEARCH (debounced)
+                //  LIVE SEARCH
                 // ============================================================
                 onSearchInput(value) {
                     clearTimeout(this.searchDebounceTimer);
                     const q = (value || this.searchQuery || '').trim();
 
-                    // If cleared → return to home
                     if (q.length === 0) {
                         this.searchResults = [];
                         this.lastSearchQuery = '';
@@ -1393,23 +1447,19 @@
                         return;
                     }
 
-                    // Need at least 2 characters for live search (avoid spamming API)
                     if (q.length < 2) {
                         this.searchLiveLoading = false;
                         return;
                     }
 
-                    // Show loading indicator immediately
                     this.searchLiveLoading = true;
 
-                    // Debounce: wait 500ms after user stops typing
                     this.searchDebounceTimer = setTimeout(async () => {
                         await this.performSearch(q, 1, false);
                         this.searchLiveLoading = false;
                     }, 500);
                 },
 
-                // Called when user hits Enter
                 async searchNow() {
                     clearTimeout(this.searchDebounceTimer);
                     const q = this.searchQuery.trim();
@@ -1419,13 +1469,11 @@
                     this.searchLiveLoading = false;
                 },
 
-                // Main search function
                 async performSearch(query, page = 1, append = false) {
                     if (!query || query.length < 2) return;
 
                     const cacheKey = `${query.toLowerCase()}_p${page}`;
 
-                    // Check cache first (avoid extra API calls)
                     if (this.searchCache[cacheKey]) {
                         const cached = this.searchCache[cacheKey];
                         if (append) {
@@ -1448,19 +1496,16 @@
                     }
 
                     try {
-                        // Use TMDB proxy for pagination support
                         const endpoint = `/search/multi?language=en-US&query=${encodeURIComponent(query)}&page=${page}&include_adult=false`;
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
 
-                        // Filter only movies & TV (skip persons)
                         const results = (data.results || []).filter(r =>
                             r.media_type === 'movie' || r.media_type === 'tv'
                         );
 
-                        const totalPages = Math.min(data.total_pages || 1, 20); // Cap at 20 pages
+                        const totalPages = Math.min(data.total_pages || 1, 20);
                         const totalResults = data.total_results || results.length;
 
-                        // Cache it
                         this.searchCache[cacheKey] = { results, totalPages, totalResults };
 
                         if (append) {
@@ -1488,7 +1533,6 @@
                     }
                 },
 
-                // Load more button handler
                 async loadMoreSearchResults() {
                     if (this.searchLoadingMore) return;
                     if (this.searchPage >= this.searchTotalPages) return;
@@ -1505,9 +1549,6 @@
                     this.goHome();
                 },
 
-                // ============================================================
-                //  NAVIGATION
-                // ============================================================
                 goHome() {
                     this.page = 'home';
                     this.searchQuery = '';
@@ -1525,9 +1566,6 @@
                     }
                 },
 
-                // ============================================================
-                //  OPEN DETAILS
-                // ============================================================
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
                     this.loading = true;
@@ -1548,9 +1586,6 @@
                     }
                 },
 
-                // ============================================================
-                //  HELPERS
-                // ============================================================
                 poster(item) {
                     if (item && item.poster_path) {
                         return "https://image.tmdb.org/t/p/w500" + item.poster_path;
@@ -1565,9 +1600,6 @@
                 },
                 rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
 
-                // ============================================================
-                //  AUTH
-                // ============================================================
                 async login() {
                     try {
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
