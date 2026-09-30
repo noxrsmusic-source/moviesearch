@@ -14,7 +14,7 @@
             --primary-red: #E50914; --primary-green: #22C55E; --primary-gold: #F59E0B;
             --telegram-blue: #0088cc; --bg-primary: #0A0A0F; --bg-card: #1A1A24;
             --bg-secondary: #14141C; --text-white: #FFFFFF; --text-muted: #A0A0AA;
-            --shadow: 0 12px 48px rgba(0, 0, 0, 0.7); --radius: 12px; --radius-sm: 8px;
+            --shadow: 0 12px 48px rgba(0,0,0,0.7); --radius: 12px; --radius-sm: 8px;
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-height: 68px;
@@ -175,22 +175,54 @@
         .upload-progress-fill { height: 100%; width: 0%; background: var(--primary-red); transition: width 0.3s; }
         .upload-progress-text { display: flex; justify-content: space-between; font-size: 12px; margin-top: 6px; color: var(--text-muted); }
 
-        /* OTT Preview styles */
         .ott-preview-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
         .ott-preview-card { background: var(--bg-card); border: 1.5px solid rgba(255,255,255,0.08); border-radius: var(--radius-sm); padding: 8px; width: 120px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative; }
         .ott-preview-card img { max-width: 100%; max-height: 42px; object-fit: contain; filter: brightness(0.95); }
         .ott-preview-card .ott-name { font-size: 9px; color: var(--text-muted); text-align: center; }
         .ott-preview-card .ott-remove { position: absolute; top: 2px; right: 2px; background: rgba(229,9,20,0.9); color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer; }
         .ott-preview-card .ott-remove:hover { background: #b20710; }
+
+        /* OTT context bar in Home Sections */
+        .ott-context-bar {
+            margin-bottom: 18px; padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(229,9,20,0.10) 0%, var(--bg-secondary) 100%);
+            border: 1.5px solid rgba(229,9,20,0.3);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .ott-context-bar .ctx-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            color: var(--text-muted); letter-spacing: 0.5px;
+        }
+        .ott-context-bar select {
+            padding: 9px 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius-sm);
+            color: #fff; font-size: 14px; font-weight: 700;
+            outline: none; min-width: 240px; cursor: pointer;
+        }
+        .ott-context-bar select:focus { border-color: var(--primary-red); }
+        .ott-context-bar .ctx-hint {
+            font-size: 12px; color: var(--text-muted); flex: 1; min-width: 200px;
+        }
+        .ott-context-bar .ctx-badge {
+            font-size: 11px; font-weight: 800; padding: 3px 10px;
+            border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .ott-context-bar .ctx-badge.all {
+            background: rgba(56,189,248,0.2); color: #38bdf8;
+        }
+        .ott-context-bar .ctx-badge.specific {
+            background: rgba(229,9,20,0.2); color: var(--primary-red);
+        }
     </style>
 </head>
 <body>
 
     <header class="header" id="mainHeader">
         <div class="container header-inner">
-            <a href="index.html" class="logo">
-                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
-            </a>
+            <a href="index.html" class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
             <div class="header-actions">
                 <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Player</a>
             </div>
@@ -260,7 +292,6 @@
                 <div class="tab-content" id="tabContentMedia">
                     <h1 class="page-title"><i class="fas fa-film" style="color:var(--primary-red);"></i> Media Catalog Manager</h1>
                     <p class="page-subtitle">Enter a TMDB ID, click Fetch to auto-fill all details via proxy, then save to catalog.</p>
-
                     <div class="admin-form-card">
                         <h4 id="mediaFormHeading" style="margin-bottom:14px; font-size:14px;"><i class="fas fa-plus-circle"></i> Add New Title from TMDB</h4>
                         <input type="hidden" id="editingMediaDocId" value="" />
@@ -291,7 +322,6 @@
                             <button class="btn-secondary" id="cancelEditMediaBtn" style="display:none;" onclick="cancelMediaEdit()"><i class="fas fa-times"></i> Cancel Edit</button>
                         </div>
                     </div>
-
                     <div class="table-wrap">
                         <table>
                             <thead><tr><th>#</th><th>Poster</th><th>Title</th><th>Year</th><th>Category</th><th>TMDB ID</th><th>Rating</th><th>Actions</th></tr></thead>
@@ -300,10 +330,14 @@
                     </div>
                 </div>
 
-                <!-- HOME SECTIONS (live preview) -->
+                <!-- HOME SECTIONS (per-OTT) -->
                 <div class="tab-content" id="tabContentSections">
                     <h1 class="page-title"><i class="fas fa-layer-group" style="color:var(--primary-red);"></i> Home Sections Manager</h1>
-                    <p class="page-subtitle">Live preview of the exact items shown on the home page. Click <i class="fas fa-times" style="color:#ef4444;"></i> on any poster to hide it from the home page. Custom TMDB items appear at the top with a green pill.</p>
+                    <p class="page-subtitle">Pick an OTT view below to see exactly what users see when they click that platform. Hide default items (✕), or add custom TMDB items. Each OTT has its own independent config.</p>
+
+                    <div class="ott-context-bar" id="sectionContextBar">
+                        <!-- filled by JS -->
+                    </div>
 
                     <div style="margin-bottom:16px;">
                         <button class="btn-secondary" onclick="refreshLiveSections()"><i class="fas fa-sync"></i> Refresh Live Data</button>
@@ -322,18 +356,9 @@
                     <div class="admin-form-card">
                         <h4 style="margin-bottom:14px; font-size:14px;"><i class="fas fa-plus-circle"></i> Add New OTT Platform</h4>
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label>Platform Name</label>
-                                <input type="text" id="newOttName" placeholder="e.g. Hulu, Paramount+" />
-                            </div>
-                            <div class="form-group">
-                                <label>Logo URL</label>
-                                <input type="url" id="newOttLogo" placeholder="https://upload.wikimedia.org/…" />
-                            </div>
-                            <div class="form-group">
-                                <label>Search Query Keyword</label>
-                                <input type="text" id="newOttQuery" placeholder="e.g. Hulu, Paramount" />
-                            </div>
+                            <div class="form-group"><label>Platform Name</label><input type="text" id="newOttName" placeholder="e.g. Hulu, Paramount+" /></div>
+                            <div class="form-group"><label>Logo URL</label><input type="url" id="newOttLogo" placeholder="https://upload.wikimedia.org/…" /></div>
+                            <div class="form-group"><label>Search Query Keyword</label><input type="text" id="newOttQuery" placeholder="e.g. Hulu, Paramount" /></div>
                             <div class="form-group">
                                 <label>Card Type</label>
                                 <select id="newOttType">
@@ -350,19 +375,8 @@
 
                     <div class="table-wrap" style="margin-top:20px;">
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Logo</th>
-                                    <th>Name</th>
-                                    <th>Query</th>
-                                    <th>Type</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ottTableBody">
-                                <tr><td colspan="6" style="text-align:center;">Loading OTT platforms…</td></tr>
-                            </tbody>
+                            <thead><tr><th>#</th><th>Logo</th><th>Name</th><th>Query</th><th>Type</th><th>Actions</th></tr></thead>
+                            <tbody id="ottTableBody"><tr><td colspan="6" style="text-align:center;">Loading OTT platforms…</td></tr></tbody>
                         </table>
                     </div>
                 </div>
@@ -371,7 +385,6 @@
                 <div class="tab-content" id="tabContentMusic">
                     <h1 class="page-title"><i class="fas fa-music" style="color:var(--primary-red);"></i> Music Manager</h1>
                     <p class="page-subtitle">Upload, edit, and manage all songs with search keywords.</p>
-
                     <div class="admin-form-card">
                         <h4 id="songFormHeading" style="margin-bottom:12px; font-size:14px;"><i class="fas fa-upload"></i> Upload New Song</h4>
                         <form id="adminSongForm">
@@ -407,7 +420,6 @@
                             <button type="button" class="btn-secondary" id="cancelEditSongBtn" style="display:none; margin-top:8px;" onclick="cancelSongEdit()"><i class="fas fa-times"></i> Cancel Edit</button>
                         </form>
                     </div>
-
                     <div class="table-wrap">
                         <table>
                             <thead><tr><th>#</th><th>Cover</th><th>Title</th><th>Artist</th><th>Keywords</th><th>Status</th><th>Uploaded By</th><th>Actions</th></tr></thead>
@@ -484,7 +496,7 @@
     <div class="admin-modal" id="movieSearchModal">
         <div class="admin-modal-box">
             <div class="admin-modal-header">
-                <h3><i class="fas fa-film" style="color:var(--primary-red);"></i> Search TMDB & Add to Section</h3>
+                <h3><i class="fas fa-film" style="color:var(--primary-red);"></i> <span id="modalTitle">Search TMDB & Add to Section</span></h3>
                 <button class="admin-modal-close" onclick="closeMovieModal()"><i class="fas fa-times"></i></button>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -531,7 +543,6 @@
         const TMDB_PROXY = API_BASE + '/api/tmdb-proxy?endpoint=';
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
-        // Fixed sections matching home page exactly
         const FIXED_SECTIONS = [
             { key: 'picked',   title: 'Picked For You',  icon: 'fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' },
             { key: 'series',   title: 'Web Series',      icon: 'fa-tv',                   endpoint: '/tv/popular?language=en-US&page=1' },
@@ -541,7 +552,6 @@
             { key: 'movies',   title: 'Popular Movies',  icon: 'fa-film',                 endpoint: '/movie/popular?language=en-US&page=1' }
         ];
 
-        // Default OTT list (matches home page currently)
         const DEFAULT_OTTS = [
             { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
             { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',  type: 'music' },
@@ -562,9 +572,11 @@
         let allUsers = [];
         let totalDownloadsCount = 0;
 
+        // sectionsConfig shape: { [ottName|'all']: { [sectionKey]: {customItems: [], removedIds: []} } }
         let sectionsConfig = {};
-        let homeSectionData = {};       // { key: [tmdb items] }
-        let ottsConfig = [];            // [{ name, logo, query, type }]
+        let homeSectionData = {};       // live TMDB items for currently previewed OTT
+        let ottsConfig = [];
+        let activeSectionOtt = 'all';   // which OTT is being edited in Home Sections tab
         let targetSectionKeyForMovie = null;
         let modalSearchResults = [];
 
@@ -647,9 +659,11 @@
         // LOAD ALL
         // ============================================================
         async function loadAllData() {
+            // Load OTT first (Home Sections needs OTT list for its selector)
+            await loadOttConfig();
             await Promise.all([
                 loadUsers(), loadMediaCatalog(), loadSectionsConfig(),
-                loadOttConfig(), loadSongs(), loadRequests(),
+                loadSongs(), loadRequests(),
                 loadBugReports(), loadAppVersionConfig(), loadCreators()
             ]);
             updateDashboard();
@@ -734,6 +748,29 @@
         }
 
         function tmdbTypeFor(category) { return category === 'movie' ? 'movie' : 'tv'; }
+
+        // Mirrors home page logic: prioritizes current/last year, falls back to keep sections full
+        function filterBySmartYearLocal(items, minCount = 10) {
+            if (!items || !items.length) return [];
+            const currentYear = new Date().getFullYear();
+            let filtered = items.filter(item => {
+                const dateStr = item.release_date || item.first_air_date || '';
+                if (!dateStr) return false;
+                const year = parseInt(dateStr.substring(0, 4), 10);
+                return year >= (currentYear - 1);
+            });
+            if (filtered.length < minCount) {
+                const additional = items.filter(item => {
+                    if (filtered.includes(item)) return false;
+                    const dateStr = item.release_date || item.first_air_date || '';
+                    if (!dateStr) return false;
+                    const year = parseInt(dateStr.substring(0, 4), 10);
+                    return year >= (currentYear - 3);
+                });
+                filtered = [...filtered, ...additional];
+            }
+            return filtered.length > 0 ? filtered : items;
+        }
 
         // ============================================================
         // MEDIA CATALOG
@@ -851,39 +888,93 @@
         }
 
         // ============================================================
-        // HOME SECTIONS (Live preview + hide/remove)
+        // HOME SECTIONS (per-OTT)
         // ============================================================
+        function getSectionCfg(ott, key) {
+            if (!sectionsConfig[ott]) sectionsConfig[ott] = {};
+            if (!sectionsConfig[ott][key]) sectionsConfig[ott][key] = { customItems: [], removedIds: [] };
+            if (!Array.isArray(sectionsConfig[ott][key].customItems)) sectionsConfig[ott][key].customItems = [];
+            if (!Array.isArray(sectionsConfig[ott][key].removedIds)) sectionsConfig[ott][key].removedIds = [];
+            return sectionsConfig[ott][key];
+        }
+
         async function loadSectionsConfig() {
             try {
                 const doc = await db.collection('config').doc('homeSections').get();
-                sectionsConfig = doc.exists ? (doc.data().sections || {}) : {};
-                FIXED_SECTIONS.forEach(s => {
-                    if (!sectionsConfig[s.key]) sectionsConfig[s.key] = { customItems: [], removedIds: [] };
-                    if (!Array.isArray(sectionsConfig[s.key].customItems)) sectionsConfig[s.key].customItems = [];
-                    if (!Array.isArray(sectionsConfig[s.key].removedIds)) sectionsConfig[s.key].removedIds = [];
-                });
+                let raw = doc.exists ? (doc.data().sections || {}) : {};
+
+                // Auto-migrate from old flat format → wrap under "all"
+                const sectionKeys = FIXED_SECTIONS.map(s => s.key);
+                const looksOldFormat = sectionKeys.some(k => raw[k] && (raw[k].customItems !== undefined || raw[k].removedIds !== undefined));
+                if (looksOldFormat) {
+                    sectionsConfig = { all: raw };
+                    console.log('[RX Admin] Migrated old section config to new per-OTT format');
+                } else {
+                    sectionsConfig = raw || {};
+                }
+
+                // Ensure "all" group exists with all sections
+                if (!sectionsConfig.all) sectionsConfig.all = {};
+                FIXED_SECTIONS.forEach(s => getSectionCfg('all', s.key));
+
+                // Ensure currently active OTT group exists
+                FIXED_SECTIONS.forEach(s => getSectionCfg(activeSectionOtt, s.key));
+
                 renderSectionsList();
-                // Also fetch live TMDB data for preview
                 loadHomeSectionData();
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error('Sections config load failed', e); }
         }
 
+        // Load TMDB items matching what home page shows for activeSectionOtt
         async function loadHomeSectionData() {
             const container = document.getElementById('sectionsListContainer');
-            if (container) container.innerHTML = `<div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading live items from TMDB…</div>`;
+            if (container) container.innerHTML = `<div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading live items for <b>${activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt}</b>…</div>`;
+            homeSectionData = {};
             try {
-                const results = await Promise.all(FIXED_SECTIONS.map(s => tmdbFetch(s.endpoint).catch(() => ({ results: [] }))));
-                FIXED_SECTIONS.forEach((s, i) => {
-                    const items = (results[i].results || []).filter(r => r.poster_path);
-                    homeSectionData[s.key] = items.slice(0, 20).map(r => ({
-                        id: r.id,
-                        title: r.title || r.name || 'Untitled',
-                        poster: r.poster_path ? (TMDB_IMG + r.poster_path) : '',
-                        year: (r.release_date || r.first_air_date || '').substring(0, 4),
-                        media_type: r.media_type || (s.key === 'movies' ? 'movie' : 'tv'),
-                        rating: r.vote_average
-                    }));
-                });
+                if (activeSectionOtt === 'all') {
+                    // Default global endpoints (same as home page for "all")
+                    const results = await Promise.all(FIXED_SECTIONS.map(s => tmdbFetch(s.endpoint).catch(() => ({ results: [] }))));
+                    FIXED_SECTIONS.forEach((s, i) => {
+                        const items = (results[i].results || []).filter(r => r.poster_path);
+                        homeSectionData[s.key] = items.slice(0, 20).map(r => ({
+                            id: r.id,
+                            title: r.title || r.name || 'Untitled',
+                            poster: r.poster_path ? (TMDB_IMG + r.poster_path) : '',
+                            year: (r.release_date || r.first_air_date || '').substring(0, 4),
+                            media_type: r.media_type || (s.key === 'movies' ? 'movie' : 'tv'),
+                            rating: r.vote_average
+                        }));
+                    });
+                } else {
+                    // OTT-specific: use search/multi with the OTT's query keyword (same as home page filterByOtt)
+                    const ott = ottsConfig.find(o => o.name === activeSectionOtt);
+                    const keyword = ott ? ott.query : activeSectionOtt;
+                    const res = await tmdbFetch(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`);
+                    const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
+                    const smartItems = filterBySmartYearLocal(items, 6);
+
+                    // Mirror home page slicing
+                    const pools = {
+                        trending: smartItems.slice(0, 12),
+                        movies:   smartItems.slice(2, 14).reverse(),
+                        picked:   smartItems.slice(4, 16),
+                        series:   smartItems.filter(i => i.media_type === 'tv').slice(0, 10),
+                        kdrama:   smartItems.filter(i => i.original_language === 'ko').slice(0, 10),
+                        anime:    smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10)
+                    };
+
+                    FIXED_SECTIONS.forEach(s => {
+                        const arr = pools[s.key] || [];
+                        homeSectionData[s.key] = arr.map(r => ({
+                            id: r.id,
+                            title: r.title || r.name || 'Untitled',
+                            poster: r.poster_path ? (TMDB_IMG + r.poster_path) : '',
+                            year: (r.release_date || r.first_air_date || '').substring(0, 4),
+                            media_type: r.media_type || 'movie',
+                            rating: r.vote_average
+                        }));
+                    });
+                }
                 renderSectionsList();
             } catch (e) {
                 console.error('Live fetch failed', e);
@@ -891,8 +982,33 @@
             }
         }
 
+        function renderContextBar() {
+            const bar = document.getElementById('sectionContextBar');
+            if (!bar) return;
+            const isAll = activeSectionOtt === 'all';
+            bar.innerHTML = `
+                <span class="ctx-label">Editing for:</span>
+                <select id="sectionOttSelector" onchange="switchSectionOtt(this.value)">
+                    <option value="all" ${isAll ? 'selected' : ''}>🌐 All Platforms (Default)</option>
+                    ${ottsConfig.filter(o => o.type !== 'music').map(o => `
+                        <option value="${o.name}" ${activeSectionOtt === o.name ? 'selected' : ''}>${o.name}</option>
+                    `).join('')}
+                </select>
+                <span class="ctx-badge ${isAll ? 'all' : 'specific'}">${isAll ? 'DEFAULT VIEW' : activeSectionOtt.toUpperCase()}</span>
+                <span class="ctx-hint">Changes here affect only the <b>${isAll ? 'All Platforms' : activeSectionOtt}</b> view on the home page.</span>
+            `;
+        }
+
+        async function switchSectionOtt(ottName) {
+            activeSectionOtt = ottName;
+            // Ensure group exists
+            FIXED_SECTIONS.forEach(s => getSectionCfg(activeSectionOtt, s.key));
+            renderContextBar();
+            await loadHomeSectionData();
+            showToast(`Preview switched to: ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info');
+        }
+
         async function refreshLiveSections() {
-            homeSectionData = {};
             await loadHomeSectionData();
             showToast('Live data refreshed', 'success');
         }
@@ -907,16 +1023,18 @@
         }
 
         function renderSectionsList() {
+            renderContextBar();
             const container = document.getElementById('sectionsListContainer');
             if (!container) return;
 
             let totalCustom = 0;
+            const ottLabel = activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt;
+
             container.innerHTML = FIXED_SECTIONS.map(sec => {
-                const cfg = sectionsConfig[sec.key] || { customItems: [], removedIds: [] };
+                const cfg = getSectionCfg(activeSectionOtt, sec.key);
                 const customItems = cfg.customItems || [];
                 const removedIds = (cfg.removedIds || []).map(String);
                 totalCustom += customItems.length;
-
                 const liveItems = (homeSectionData[sec.key] || []).filter(item => !removedIds.includes(String(item.id)));
 
                 return `
@@ -926,6 +1044,7 @@
                             <i class="fas ${sec.icon}" style="color:var(--primary-red);"></i> ${sec.title}
                             <span style="font-size:11px;color:var(--text-muted);font-weight:500;">
                                 (${customItems.length} custom • ${liveItems.length} live • ${removedIds.length} hidden)
+                                — for <b style="color:var(--primary-gold);">${ottLabel}</b>
                             </span>
                         </h4>
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -937,7 +1056,7 @@
 
                     ${customItems.length ? `
                     <div class="section-sub-block">
-                        <span class="section-sub-label">⭐ Custom Items (shown first on home page)</span>
+                        <span class="section-sub-label">⭐ Custom Items (shown first in "${ottLabel}" view)</span>
                         <div class="section-movies-flex">
                             ${customItems.map((m, mIdx) => `
                                 <div class="mini-movie-card">
@@ -956,12 +1075,12 @@
                     <div class="section-sub-block">
                         <span class="section-sub-label">
                             <i class="fas fa-satellite-dish" style="color:var(--primary-green);"></i>
-                            Live from Home Page (click <i class="fas fa-times" style="color:#ef4444;"></i> to hide)
+                            Live from "${ottLabel}" view (click <i class="fas fa-times" style="color:#ef4444;"></i> to hide)
                         </span>
                         <div class="section-movies-flex">
                             ${liveItems.length ? liveItems.map(item => `
                                 <div class="mini-movie-card">
-                                    <button class="remove-btn" onclick="hideLiveItem('${sec.key}', ${item.id})" title="Hide from home page"><i class="fas fa-times"></i></button>
+                                    <button class="remove-btn" onclick="hideLiveItem('${sec.key}', ${item.id})" title="Hide from ${ottLabel} view"><i class="fas fa-times"></i></button>
                                     <span class="type-pill movie">${item.media_type === 'tv' ? 'TV' : 'MOVIE'}</span>
                                     <span class="live-dot"></span>
                                     <img src="${item.poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image'}" alt="" />
@@ -970,12 +1089,12 @@
                                         <span>${item.year} • TMDB #${item.id}</span>
                                     </div>
                                 </div>
-                            `).join('') : '<span style="font-size:12px;color:var(--text-muted);padding:8px 0;">No live items (or all hidden). Click "Refresh Live Data" if proxy issue.</span>'}
+                            `).join('') : '<span style="font-size:12px;color:var(--text-muted);padding:8px 0;">No live items. Click "Refresh Live Data" if proxy issue.</span>'}
                         </div>
                     </div>
 
                     <div class="section-sub-block">
-                        <span class="section-sub-label">Hidden TMDB IDs</span>
+                        <span class="section-sub-label">Hidden TMDB IDs (in "${ottLabel}" view)</span>
                         <div style="min-height:26px;">
                             ${removedIds.length ? removedIds.map((id, idx) => `
                                 <span class="hide-id-chip">#${id} <button onclick="restoreId('${sec.key}', ${idx})" title="Restore"><i class="fas fa-times"></i></button></span>
@@ -994,33 +1113,28 @@
         }
 
         async function hideLiveItem(key, tmdbId) {
-            if (!confirm(`Hide TMDB #${tmdbId} from "${key}" section on home page?`)) return;
-            const cfg = sectionsConfig[key] || { customItems: [], removedIds: [] };
-            cfg.removedIds = cfg.removedIds || [];
+            if (!confirm(`Hide TMDB #${tmdbId} from "${key}" section in the "${activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt}" view?`)) return;
+            const cfg = getSectionCfg(activeSectionOtt, key);
             if (!cfg.removedIds.map(String).includes(String(tmdbId))) cfg.removedIds.push(String(tmdbId));
-            sectionsConfig[key] = cfg;
             await saveSectionsConfig();
             renderSectionsList();
-            showToast(`Hidden #${tmdbId} from ${key}`, 'success');
+            showToast(`Hidden #${tmdbId}`, 'success');
         }
 
         async function hideTmdbItem(key) {
             const input = document.getElementById('hideInput_' + key);
             const id = (input.value || '').trim();
             if (!id) return showToast('Enter a TMDB ID', 'error');
-            const cfg = sectionsConfig[key] || { customItems: [], removedIds: [] };
-            cfg.removedIds = cfg.removedIds || [];
+            const cfg = getSectionCfg(activeSectionOtt, key);
             if (!cfg.removedIds.map(String).includes(String(id))) cfg.removedIds.push(String(id));
-            sectionsConfig[key] = cfg;
             await saveSectionsConfig();
             input.value = '';
             renderSectionsList();
-            showToast('Item hidden from section', 'success');
+            showToast('Item hidden', 'success');
         }
 
         async function restoreId(key, idx) {
-            const cfg = sectionsConfig[key];
-            if (!cfg || !cfg.removedIds) return;
+            const cfg = getSectionCfg(activeSectionOtt, key);
             cfg.removedIds.splice(idx, 1);
             await saveSectionsConfig();
             renderSectionsList();
@@ -1028,8 +1142,7 @@
         }
 
         async function removeCustomItem(key, idx) {
-            const cfg = sectionsConfig[key];
-            if (!cfg || !cfg.customItems) return;
+            const cfg = getSectionCfg(activeSectionOtt, key);
             cfg.customItems.splice(idx, 1);
             await saveSectionsConfig();
             renderSectionsList();
@@ -1037,7 +1150,7 @@
         }
 
         // ============================================================
-        // TMDB SEARCH MODAL
+        // TMDB SEARCH MODAL (add to currently-active OTT + section)
         // ============================================================
         function openMovieModal(sectionKey) {
             targetSectionKeyForMovie = sectionKey;
@@ -1045,6 +1158,9 @@
             document.getElementById('modalSearchResults').innerHTML = '';
             document.getElementById('modalMovieSearchInput').value = '';
             document.getElementById('modalMovieTypeSelect').value = '';
+            const secTitle = (FIXED_SECTIONS.find(s => s.key === sectionKey) || {}).title || sectionKey;
+            const ottLabel = activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt;
+            document.getElementById('modalTitle').textContent = `Add to "${secTitle}" — for ${ottLabel}`;
             document.getElementById('movieSearchModal').classList.add('open');
         }
         function closeMovieModal() {
@@ -1097,17 +1213,15 @@
             if (!targetSectionKeyForMovie) return;
             const item = modalSearchResults[idx];
             if (!item) return;
-            const cfg = sectionsConfig[targetSectionKeyForMovie] || { customItems: [], removedIds: [] };
-            cfg.customItems = cfg.customItems || [];
+            const cfg = getSectionCfg(activeSectionOtt, targetSectionKeyForMovie);
             if (cfg.customItems.some(x => String(x.id) === String(item.id))) return showToast('Item already in section', 'info');
             cfg.customItems.push(item);
-            // Also auto-remove from hidden list if it was hidden before
             cfg.removedIds = (cfg.removedIds || []).filter(x => String(x) !== String(item.id));
-            sectionsConfig[targetSectionKeyForMovie] = cfg;
             await saveSectionsConfig();
             closeMovieModal();
             renderSectionsList();
-            showToast(`Added "${item.title}" to section!`, 'success');
+            const ottLabel = activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt;
+            showToast(`Added "${item.title}" to ${ottLabel}!`, 'success');
         }
 
         // ============================================================
@@ -1121,12 +1235,11 @@
                 } else {
                     ottsConfig = JSON.parse(JSON.stringify(DEFAULT_OTTS));
                 }
-                renderOttList();
             } catch (e) {
                 console.error('OTT config load failed', e);
                 ottsConfig = JSON.parse(JSON.stringify(DEFAULT_OTTS));
-                renderOttList();
             }
+            renderOttList();
         }
 
         async function saveOttConfig() {
@@ -1145,7 +1258,6 @@
 
             if (countEl) countEl.textContent = ottsConfig.length;
 
-            // Preview row
             if (previewRow) {
                 previewRow.innerHTML = ottsConfig.map((o, i) => `
                     <div class="ott-preview-card">
@@ -1156,7 +1268,6 @@
                 `).join('') || '<span style="color:var(--text-muted);font-size:13px;">No OTT platforms. Add one above.</span>';
             }
 
-            // Table
             if (tbody) {
                 if (!ottsConfig.length) {
                     tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No OTT platforms configured.</td></tr>`;
@@ -1169,9 +1280,7 @@
                         <td><strong>${o.name}</strong></td>
                         <td><span class="key-text">${o.query}</span></td>
                         <td><span class="status-badge ${o.type === 'music' ? 'music' : 'series'}">${o.type === 'music' ? 'MUSIC' : 'OTT'}</span></td>
-                        <td>
-                            <button class="btn-action-sm delete" onclick="removeOtt(${i})"><i class="fas fa-trash"></i> Remove</button>
-                        </td>
+                        <td><button class="btn-action-sm delete" onclick="removeOtt(${i})"><i class="fas fa-trash"></i> Remove</button></td>
                     </tr>
                 `).join('');
             }
@@ -1190,13 +1299,18 @@
             document.getElementById('newOttQuery').value = '';
             document.getElementById('newOttType').value = 'ott';
             renderOttList();
+            // Ensure new OTT group exists in sections config
+            FIXED_SECTIONS.forEach(s => getSectionCfg(name, s.key));
             showToast(`Added "${name}"!`, 'success');
         });
 
         async function removeOtt(idx) {
-            if (!confirm(`Remove "${ottsConfig[idx].name}" from home page?`)) return;
+            const name = ottsConfig[idx].name;
+            if (!confirm(`Remove "${name}" from home page? Its section config will also be cleared.`)) return;
             ottsConfig.splice(idx, 1);
+            delete sectionsConfig[name];
             await saveOttConfig();
+            await saveSectionsConfig();
             renderOttList();
             showToast('OTT platform removed', 'info');
         }
@@ -1543,15 +1657,22 @@
             document.getElementById('totalOttCount').textContent = ottsConfig.length;
             const mainDls = document.getElementById('panelTotalDownloads');
             if (mainDls) mainDls.textContent = totalDownloadsCount;
+
+            // Count ALL custom items across ALL OTT groups
             let total = 0;
-            FIXED_SECTIONS.forEach(s => { const cfg = sectionsConfig[s.key]; if (cfg && cfg.customItems) total += cfg.customItems.length; });
+            Object.keys(sectionsConfig).forEach(ott => {
+                FIXED_SECTIONS.forEach(s => {
+                    const cfg = sectionsConfig[ott] && sectionsConfig[ott][s.key];
+                    if (cfg && cfg.customItems) total += cfg.customItems.length;
+                });
+            });
             const el = document.getElementById('totalSectionsCount');
             if (el) el.textContent = total;
         }
 
         document.getElementById('refreshBtn').addEventListener('click', () => {
-            loadAllData();
             homeSectionData = {};
+            loadAllData();
             showToast('Data Refreshed!', 'info');
         });
 
@@ -1567,6 +1688,7 @@
         window.cancelMediaEdit = cancelMediaEdit;
         window.deleteMediaItem = deleteMediaItem;
         window.refreshLiveSections = refreshLiveSections;
+        window.switchSectionOtt = switchSectionOtt;
         window.openMovieModal = openMovieModal;
         window.closeMovieModal = closeMovieModal;
         window.hideLiveItem = hideLiveItem;
