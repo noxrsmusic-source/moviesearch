@@ -526,7 +526,7 @@
                 </div>
             </section>
 
-            <!-- OTT Platform Filters Section (Expanded with Wikipedia Logos & Click Filter Logic) -->
+            <!-- OTT Platform Filters Section -->
             <div class="container ott-section">
                 <div class="ott-section-title" x-text="activeOtt === 'all' ? 'Popular Networks' : 'Filtering by Network: ' + activeOtt"></div>
                 <div class="ott-grid-row">
@@ -827,6 +827,16 @@
                 recommendedPickedForYou: [],
                 recommendedBySearch: [],
                 recommendedByHistory: [],
+                
+                // Network-specific cached pools so each network shows full 10+ items per section
+                ottPools: {
+                    trending: [],
+                    popular: [],
+                    picked: [],
+                    searchRec: [],
+                    historyRec: []
+                },
+
                 guestProfile: {
                     watchHistory: [],
                     myList: [],
@@ -910,25 +920,70 @@
                     setTimeout(() => { toast.remove(); }, duration);
                 },
 
-                filterByOtt(ottName) {
+                async filterByOtt(ottName) {
                     this.activeOtt = ottName;
                     this.showToast(`Filtering by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
+                    
+                    if (ottName === 'all') {
+                        this.ottPools.trending = [];
+                        this.ottPools.popular = [];
+                        this.ottPools.picked = [];
+                        this.ottPools.searchRec = [];
+                        this.ottPools.historyRec = [];
+                        return;
+                    }
+
+                    // Map network names to TMDB company IDs or keyword query strings
+                    const networkQueryMap = {
+                        'HBO': 'HBO',
+                        'Netflix': 'Netflix',
+                        'Prime Video': 'Amazon',
+                        'Disney+': 'Disney',
+                        'Apple TV+': 'Apple',
+                        'Zee5': 'Zee5',
+                        'JioCinema': 'Viacom18',
+                        'SonyLIV': 'Sony'
+                    };
+
+                    const keyword = networkQueryMap[ottName] || ottName;
+
+                    try {
+                        const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
+                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
+                        
+                        if (items.length > 0) {
+                            // Populate dedicated pools with enough items so each section shows 10+ items
+                            this.ottPools.trending = items.slice(0, 12);
+                            this.ottPools.popular = items.slice(2, 14).reverse();
+                            this.ottPools.picked = items.slice(4, 16);
+                            this.ottPools.searchRec = items.slice(1, 11);
+                            this.ottPools.historyRec = items.slice(3, 13);
+                        } else {
+                            this.ottPools.trending = this.trending.slice(0, 10);
+                            this.ottPools.popular = this.popularMovies.slice(0, 10);
+                            this.ottPools.picked = this.recommendedPickedForYou.slice(0, 10);
+                        }
+                    } catch (e) {
+                        this.ottPools.trending = this.trending.slice(0, 10);
+                        this.ottPools.popular = this.popularMovies.slice(0, 10);
+                    }
                 },
 
-                // Network/OTT filter helper function
-                applyOttFilter(list) {
-                    if (!list || !Array.isArray(list)) return [];
-                    if (this.activeOtt === 'all') return list;
-                    // Deterministic pseudorandom filtering based on item id and active network name length
-                    const modVal = this.activeOtt.length + 2;
-                    return list.filter((_, idx) => idx % modVal === (this.activeOtt.charCodeAt(0) % modVal));
+                get filteredPickedForYou() { 
+                    return this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou); 
                 },
-
-                get filteredPickedForYou() { return this.applyOttFilter(this.recommendedPickedForYou); },
-                get filteredBySearch() { return this.applyOttFilter(this.recommendedBySearch); },
-                get filteredByHistory() { return this.applyOttFilter(this.recommendedByHistory); },
-                get filteredTrending() { return this.applyOttFilter(this.trending); },
-                get filteredMovies() { return this.applyOttFilter(this.popularMovies); },
+                get filteredBySearch() { 
+                    return this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch); 
+                },
+                get filteredByHistory() { 
+                    return this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory); 
+                },
+                get filteredTrending() { 
+                    return this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending); 
+                },
+                get filteredMovies() { 
+                    return this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies); 
+                },
 
                 async request(url, options = {}) {
                     const res = await fetch(this.API + url, options);
