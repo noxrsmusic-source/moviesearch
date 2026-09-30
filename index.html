@@ -403,6 +403,189 @@
             padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted);
         }
         .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 12px; }
+
+        /* ===================== NETFLIX-STYLE INFO MODAL ===================== */
+        .detail-modal-overlay {
+            position: fixed; inset: 0; z-index: 2147483000;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; align-items: flex-start; justify-content: center;
+            padding: 30px 16px 40px; overflow-y: auto;
+        }
+        .detail-modal-overlay.open { display: flex; }
+
+        .detail-modal-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            max-width: 880px; width: 100%;
+            max-height: none; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+            position: relative;
+            animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+
+        .detail-modal-close {
+            position: absolute; top: 14px; right: 14px; z-index: 10;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(0,0,0,0.75); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(8px);
+        }
+        .detail-modal-close:hover { background: var(--primary-red); transform: rotate(90deg); }
+
+        .detail-modal-loading {
+            padding: 100px 20px; text-align: center;
+            font-size: 32px; color: var(--primary-red);
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .detail-modal-loading span { font-size: 14px; color: var(--text-muted); }
+
+        .detail-backdrop {
+            position: relative; width: 100%;
+            aspect-ratio: 16 / 9; min-height: 240px;
+            background-size: cover; background-position: center top;
+            background-color: #0a0a0f;
+        }
+        .detail-backdrop-gradient {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(20,20,31,0.10) 0%,
+                rgba(20,20,31,0.55) 45%,
+                rgba(20,20,31,0.88) 75%,
+                var(--bg-card) 100%
+            );
+        }
+        .detail-header-content {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 28px 28px 20px;
+        }
+        .detail-header-content h2 {
+            font-size: 30px; font-weight: 900; margin-bottom: 10px;
+            letter-spacing: -0.5px; line-height: 1.15;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.85);
+            color: #fff;
+        }
+        .detail-meta {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            font-size: 13px; color: #e5e5e5; margin-bottom: 10px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+        }
+        .detail-badge {
+            font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+            padding: 3px 10px; border-radius: 4px;
+            background: rgba(229,9,20,0.9); color: #fff;
+            text-transform: uppercase;
+        }
+        .detail-rating {
+            color: #F5C518; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .detail-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .detail-genre-chip {
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e5e5e5;
+            backdrop-filter: blur(6px);
+        }
+        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+        .detail-watch-btn {
+            padding: 12px 30px; border-radius: 30px;
+            background: #fff; color: #000;
+            font-weight: 800; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: var(--transition);
+            border: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
+        .detail-watch-btn i { font-size: 14px; }
+        .detail-watch-btn:disabled { opacity: 0.6; cursor: wait; }
+
+        .detail-body { padding: 20px 28px 28px; }
+
+        .detail-info-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 640px) {
+            .detail-info-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+
+        .detail-overview {
+            font-size: 14.5px; line-height: 1.7;
+            color: rgba(255,255,255,0.88);
+        }
+
+        .detail-facts { display: flex; flex-direction: column; gap: 10px; }
+        .detail-fact {
+            font-size: 13px;
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .detail-fact .fact-label {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;
+            color: var(--text-muted); text-transform: uppercase;
+        }
+        .detail-fact .fact-value { color: #fff; font-weight: 600; }
+
+        .detail-cast h4 {
+            font-size: 13px; font-weight: 800; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            color: var(--text-muted);
+        }
+        .detail-cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .detail-cast-item {
+            background: var(--bg-secondary);
+            border-radius: 8px; padding: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.04);
+            transition: var(--transition);
+        }
+        .detail-cast-item:hover { border-color: rgba(229,9,20,0.4); transform: translateY(-2px); }
+        .detail-cast-avatar {
+            width: 58px; height: 58px; border-radius: 50%;
+            margin: 0 auto 8px;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: var(--text-muted); font-size: 20px;
+            border: 2px solid rgba(255,255,255,0.08);
+        }
+        .detail-cast-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .detail-cast-item span {
+            display: block; font-size: 11.5px; font-weight: 600;
+            line-height: 1.3; color: #fff;
+            overflow: hidden; text-overflow: ellipsis;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .detail-cast-item small {
+            display: block; font-size: 10px; color: var(--text-muted);
+            margin-top: 3px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+            .detail-modal-overlay { padding: 0; align-items: flex-start; }
+            .detail-modal-box { border-radius: 0; max-width: 100%; }
+            .detail-backdrop { min-height: 200px; aspect-ratio: 16/10; }
+            .detail-header-content h2 { font-size: 22px; }
+            .detail-header-content { padding: 20px 18px 14px; }
+            .detail-actions { width: 100%; }
+            .detail-watch-btn { width: 100%; justify-content: center; }
+            .detail-body { padding: 16px 18px 24px; }
+            .detail-cast-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+            .detail-cast-avatar { width: 48px; height: 48px; }
+        }
     </style>
 </head>
 <body x-data="rxPlayerApp()" x-init="init()">
@@ -644,6 +827,100 @@
         </div>
     </div>
 
+    <!-- ===================== DETAIL INFO MODAL (Netflix-style) ===================== -->
+    <div class="detail-modal-overlay"
+         :class="{ 'open': detailModalOpen }"
+         @click.self="closeDetailModal()"
+         @keydown.escape.window="closeDetailModal()"
+         x-cloak>
+        <div class="detail-modal-box">
+            <button class="detail-modal-close" @click="closeDetailModal()" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Loading state -->
+            <div x-show="detailLoading" class="detail-modal-loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Loading details…</span>
+            </div>
+
+            <!-- Loaded state -->
+            <template x-if="!detailLoading && detailData">
+                <div>
+                    <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
+                        <div class="detail-backdrop-gradient"></div>
+                        <div class="detail-header-content">
+                            <h2 x-text="detailTitle(detailData)"></h2>
+                            <div class="detail-meta">
+                                <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
+                                <span x-text="detailYear(detailData)"></span>
+                                <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
+                                <span x-text="detailRuntimeVal(detailData)"></span>
+                            </div>
+                            <div class="detail-genres" x-show="detailData.genres && detailData.genres.length">
+                                <template x-for="g in detailData.genres" :key="'g-' + g.id">
+                                    <span class="detail-genre-chip" x-text="g.name"></span>
+                                </template>
+                            </div>
+                            <div class="detail-actions">
+                                <button class="detail-watch-btn" @click="goToPlayer()">
+                                    <i class="fas fa-play"></i>
+                                    <span>Watch Now</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-body">
+                        <div class="detail-info-grid">
+                            <div>
+                                <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                            </div>
+                            <div class="detail-facts">
+                                <div class="detail-fact" x-show="detailOriginalLanguage(detailData)">
+                                    <span class="fact-label">Language</span>
+                                    <span class="fact-value" x-text="detailOriginalLanguage(detailData)"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_episodes">
+                                    <span class="fact-label">Total Episodes</span>
+                                    <span class="fact-value" x-text="detailData.number_of_episodes"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_seasons">
+                                    <span class="fact-label">Seasons</span>
+                                    <span class="fact-value" x-text="detailData.number_of_seasons"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailStatus(detailData)">
+                                    <span class="fact-label">Status</span>
+                                    <span class="fact-value" x-text="detailStatus(detailData)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-cast" x-show="detailCastList.length">
+                            <h4><i class="fas fa-users" style="color: var(--primary-red); margin-right: 6px;"></i> Top Cast</h4>
+                            <div class="detail-cast-grid">
+                                <template x-for="c in detailCastList" :key="'cast-' + c.id">
+                                    <div class="detail-cast-item">
+                                        <div class="detail-cast-avatar">
+                                            <template x-if="c.profile_path">
+                                                <img :src="'https://image.tmdb.org/t/p/w185' + c.profile_path" :alt="c.name" loading="lazy" />
+                                            </template>
+                                            <template x-if="!c.profile_path">
+                                                <i class="fas fa-user"></i>
+                                            </template>
+                                        </div>
+                                        <span x-text="c.name"></span>
+                                        <small x-text="c.character || ''"></small>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <footer class="seo-footer">
@@ -703,10 +980,16 @@
                 recommendedBySearch: [],
                 recommendedByHistory: [],
 
+                // Detail modal state
+                detailModalOpen: false,
+                detailLoading: false,
+                detailData: null,
+                detailItem: { id: null, type: 'movie' },
+
                 // Admin-managed config: { all: {picked:{...}, ...}, Netflix: {...}, ... }
                 homeSectionsConfig: {},
 
-                // Dynamic OTT platforms (loaded from Firestore config/ottFilters, with defaults)
+                // Dynamic OTT platforms
                 ottPlatforms: [
                     { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
                     { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',  type: 'music' },
@@ -746,7 +1029,6 @@
 
                     this.loadGuestProfile();
 
-                    // Load both configs in parallel
                     await Promise.all([
                         this.loadOttPlatforms(),
                         this.loadSectionConfig()
@@ -756,7 +1038,6 @@
                     this.computePersonalizedRecommendations();
                 },
 
-                // Load OTT platforms from admin config
                 async loadOttPlatforms() {
                     try {
                         const doc = await db.collection('config').doc('ottFilters').get();
@@ -768,7 +1049,6 @@
                     }
                 },
 
-                // Load admin-managed section config
                 async loadSectionConfig() {
                     try {
                         const doc = await db.collection('config').doc('homeSections').get();
@@ -780,20 +1060,15 @@
                     }
                 },
 
-                // Apply admin config per-OTT: remove hidden IDs and prepend custom items
                 applySectionConfig(key, items) {
                     const all = this.homeSectionsConfig || {};
-
-                    // Detect old flat format: if `all.picked` doesn't exist but `picked` does at top level
                     const sectionKeys = ['picked', 'series', 'kdrama', 'anime', 'trending', 'movies'];
                     const looksOldFormat = sectionKeys.some(k => all[k] && (all[k].customItems !== undefined || all[k].removedIds !== undefined));
 
                     let group;
                     if (looksOldFormat) {
-                        // Old flat config — applies to all views
                         group = all;
                     } else {
-                        // New per-OTT config: prefer active OTT group, fall back to 'all'
                         group = all[this.activeOtt] || all['all'] || {};
                     }
 
@@ -887,7 +1162,6 @@
                         return;
                     }
 
-                    // Dynamic query from admin-managed OTT config
                     const ott = (this.ottPlatforms || []).find(o => o.name === ottName);
                     const keyword = ott ? (ott.query || ott.name) : ottName;
 
@@ -915,7 +1189,6 @@
                     }
                 },
 
-                // ====== Getters with Admin Config Applied (per-OTT aware) ======
                 get filteredPickedForYou() {
                     const base = this.activeOtt === 'all' ? this.recommendedPickedForYou : (this.ottPools.picked.length ? this.ottPools.picked : this.recommendedPickedForYou);
                     return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
@@ -1034,18 +1307,97 @@
                 closeDrawer() { this.drawerOpen = false; },
                 openMusicPage() { window.location.href = 'music.html'; },
 
+                // ============================================================
+                // DETAIL MODAL — Open card, fetch full TMDB details
+                // ============================================================
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
+                    const normType = (type === 'tv' || type === 'series' || type === 'anime' || type === 'show') ? 'tv' : 'movie';
+
+                    // Track history for recommendation engine
                     const item = [...this.trending, ...this.popularMovies, ...this.tvShows].find(x => x.id === id) || { id };
-                    this.recordWatchHistory(item, type);
+                    this.recordWatchHistory(item, normType);
 
-                    let omdbId = '';
+                    // Open modal in loading state
+                    this.detailItem = { id, type: normType };
+                    this.detailData = null;
+                    this.detailLoading = true;
+                    this.detailModalOpen = true;
+
+                    // Prevent body scroll while modal is open
+                    document.body.style.overflow = 'hidden';
+
                     try {
-                        const detailData = await this.request(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
-                        if (detailData?.details?.imdb_id) omdbId = detailData.details.imdb_id;
-                    } catch (e) {}
+                        const endpoint = normType === 'tv'
+                            ? `/tv/${id}?language=en-US&append_to_response=credits`
+                            : `/movie/${id}?language=en-US&append_to_response=credits`;
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+                        this.detailData = data;
+                    } catch (e) {
+                        console.warn('Detail fetch failed:', e);
+                        this.showToast('Failed to load details. Please try again.', 'error');
+                        this.closeDetailModal();
+                    } finally {
+                        this.detailLoading = false;
+                    }
+                },
 
-                    window.location.href = `${WATCH_PAGE_URL}?id=${id}&type=${type}${omdbId ? '&omdbId=' + omdbId : ''}`;
+                closeDetailModal() {
+                    this.detailModalOpen = false;
+                    document.body.style.overflow = '';
+                    // Optional: keep detailData around so re-open is instant — clear after animation
+                    setTimeout(() => {
+                        if (!this.detailModalOpen) {
+                            this.detailData = null;
+                            this.detailItem = { id: null, type: 'movie' };
+                        }
+                    }, 300);
+                },
+
+                // Navigate to player.html — only called from modal's Watch button
+                goToPlayer() {
+                    if (!this.detailItem || !this.detailItem.id) return;
+                    const { id, type } = this.detailItem;
+                    window.location.href = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                },
+
+                // Modal display helpers
+                detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
+                detailYear(d) {
+                    if (!d) return '—';
+                    const dt = d.release_date || d.first_air_date || '';
+                    return dt ? dt.substring(0, 4) : '—';
+                },
+                detailRatingVal(d) {
+                    if (!d || d.vote_average == null) return '—';
+                    return Number(d.vote_average).toFixed(1);
+                },
+                detailRuntimeVal(d) {
+                    if (!d) return '—';
+                    if (this.detailItem.type === 'tv') {
+                        const n = d.number_of_seasons || (Array.isArray(d.seasons) ? d.seasons.length : 0);
+                        return n ? `${n} Season${n > 1 ? 's' : ''}` : '—';
+                    }
+                    return d.runtime ? `${d.runtime} min` : '—';
+                },
+                detailBackdrop(d) {
+                    if (!d) return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
+                    if (d.backdrop_path) return `https://image.tmdb.org/t/p/original${d.backdrop_path}`;
+                    if (d.poster_path) return `https://image.tmdb.org/t/p/w780${d.poster_path}`;
+                    return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
+                },
+                detailOriginalLanguage(d) {
+                    if (!d || !d.original_language) return '';
+                    return String(d.original_language).toUpperCase();
+                },
+                detailStatus(d) {
+                    if (!d || !d.status) return '';
+                    return d.status;
+                },
+                get detailCastList() {
+                    if (!this.detailData || !this.detailData.credits) return [];
+                    const cast = this.detailData.credits.cast || [];
+                    return cast.slice(0, 12);
                 },
 
                 poster(item) {
