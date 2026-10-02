@@ -1409,6 +1409,7 @@ const FIREBASE_CONFIG = {
 const CLOUDINARY_CLOUD_NAME = 'du9nysbwl';
 const CLOUDINARY_UPLOAD_PRESET = 'Spotifreebyadmin';
 const VERCEL_API = 'https://music-psi-sand.vercel.app/api/search';
+const LYRICS_API = 'https://music-psi-sand.vercel.app/api/lyrics';
 const FALLBACK_COVER = 'https://placehold.co/300x300/161622/ffffff?text=Music';
 const NOW_PLAYING_KEY = 'rx_now_playing';
 
@@ -1452,20 +1453,20 @@ const SEARCH_CACHE = new Map();
 const MAX_SEARCH_CACHE = 60;
 let lastSaveTime = 0;
 
-/* ---- NEW: listening statistics (plays / skips / completions) ---- */
+/* ---- listening statistics (plays / skips / completions) ---- */
 let songStats = {};
 const SONG_STATS_KEY = 'rx_song_stats';
 const SONG_STATS_LIMIT = 600;
 
-/* ---- NEW: Picked For You state ---- */
+/* ---- Picked For You state ---- */
 let pickedForYouCache = { key:'', songs:[], subtitle:'' };
 let isBuildingPicked = false;
 let pickedRefreshTimer = null;
 
-/* ---- NEW: Lyrics state ---- */
+/* ---- Lyrics state (synced-only, served from /api/lyrics) ---- */
 const LYRICS_CACHE_KEY = 'rx_lyrics_cache';
 const LYRICS_CACHE_LIMIT = 80;
-const LYRICS_NOT_FOUND_TTL = 24 * 60 * 60 * 1000; // retry missing lyrics after 24h
+const LYRICS_NOT_FOUND_TTL = 24 * 60 * 60 * 1000;
 let lyricsCache = {};
 let lyricsRequestId = 0;
 let currentLyrics = null;
@@ -1495,7 +1496,7 @@ const trendingScroller = document.getElementById('trendingScroller');
 const albumsScroller = document.getElementById('albumsScroller');
 const greetingMessage = document.getElementById('greetingMessage');
 
-/* NEW: Picked For You elements */
+/* Picked For You elements */
 const pickedForYouScroller = document.getElementById('pickedForYouScroller');
 const pickedForYouSubtitle = document.getElementById('pickedForYouSubtitle');
 
@@ -1580,12 +1581,12 @@ const fsLoopBtn = document.getElementById('fsLoopBtn');
 const fsLikeBtn = document.getElementById('fsLikeBtn');
 const fsAddToPlaylistBtn = document.getElementById('fsAddToPlaylistBtn');
 
-/* NEW: player extras */
+/* player extras */
 const fsLyricsBtn = document.getElementById('fsLyricsBtn');
 const fsDownloadBtn = document.getElementById('fsDownloadBtn');
 const fsDownloadLabel = document.getElementById('fsDownloadLabel');
 
-/* NEW: lyrics panel elements */
+/* lyrics panel elements */
 const lyricsPanel = document.getElementById('lyricsPanel');
 const lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
 const lyricsCover = document.getElementById('lyricsCover');
@@ -1690,7 +1691,6 @@ function resumeFromSavedState(){
   return true;
 }
 
-/* Save state before any link-triggered navigation away from this page */
 document.addEventListener('click', e => {
   const link = e.target.closest('a');
   if (link && link.href) {
@@ -1740,7 +1740,6 @@ function escapeHtml(str){
     .replace(/"/g,'&quot;').replace(/\'/g,'&#039;');
 }
 
-/* Deterministic string hash — used instead of Math.random() for scoring */
 function hashString(str){
   const s = String(str == null ? '' : str);
   let h = 2166136261;
@@ -1751,8 +1750,6 @@ function hashString(str){
   return h >>> 0;
 }
 
-/* Deterministic 0..1 value for a given song + user-state salt.
-   Same user state → same value → same recommendation order. */
 function deterministicJitter(songId, salt){
   const h = hashString(`${songId}|${salt}`);
   return (h % 1000) / 1000;
@@ -1829,7 +1826,6 @@ function saveTaste(){
   try { localStorage.setItem(TASTE_KEY, JSON.stringify(tasteProfile)); } catch(e){}
 }
 
-/* ---- NEW: song statistics (plays / skips / completions) ---- */
 function loadSongStats(){
   try {
     const raw = localStorage.getItem(SONG_STATS_KEY);
@@ -2165,7 +2161,6 @@ function normalizeVercelSong(raw){
   const rawArtist = raw.artist || raw.artistName || raw.primaryArtist || raw.singer || '';
   let id = String(raw.id || raw.songId || raw.trackId || '');
   if (!id){
-    // deterministic id (no Math.random — keeps recommendations stable)
     id = 'h' + hashString(`${rawTitle}|${rawArtist}|${raw.album || ''}`).toString(36);
   }
   let title = rawTitle || 'Untitled';
@@ -2812,7 +2807,7 @@ async function removeFromPlaylist(playlistId, songId){
 }
 
 /* ============================================================
- *  TASTE TRACKING (now also records skip / completion stats)
+ *  TASTE TRACKING (plays / skips / completions)
  * ============================================================ */
 function recordListeningStats(){
   if (!previousTracking) return;
@@ -2887,9 +2882,12 @@ function playSongAtIndex(index){
 
   previousTracking = { song, listenedRatio: 0 };
 
-  /* lyrics: reload if panel is open, otherwise invalidate stale data */
+  /* Song changed → invalidate any in-flight lyrics request.
+     Only auto-load lyrics if the lyrics panel is currently open. */
+  lyricsRequestId++;
+  currentLyrics = null;
+  lyricsActiveIndex = -1;
   if (lyricsOpen) loadLyricsForSong(song);
-  else { lyricsRequestId++; currentLyrics = null; }
 
   updatePlayingHighlight();
   saveNowPlaying();
@@ -2916,9 +2914,8 @@ function updatePlayPauseIcon(playing){
 }
 
 /* ============================================================
- *  RECOMMENDATION ENGINE  (shared by Picked For You + autoplay)
+ *  RECOMMENDATION ENGINE
  * ============================================================ */
-
 function getTopEntry(obj){
   let best = null, bestV = -Infinity;
   Object.entries(obj || {}).forEach(([k, v]) => {
@@ -2980,60 +2977,47 @@ function buildRecommendationQueries(ctx){
   return Array.from(new Set(q)).slice(0, 6);
 }
 
-/* Deterministic scoring — no Math.random() anywhere in scoring. */
 function computeRecommendationScore(song, ctx){
   let score = 0;
   const artists = getSongArtists(song);
   const st = getSongStats(song.id);
 
-  /* Familiar favourites */
   if (likedSongs.has(song.id)) score += 12;
 
-  /* Seed (currently playing) artist */
   if (ctx.seedArtists && ctx.seedArtists.length){
     artists.forEach(a => { if (ctx.seedArtists.indexOf(a) >= 0) score += 22; });
   }
 
-  /* Frequently played artists */
   artists.forEach(a => {
     if (tasteProfile.artists[a]) score += Math.min(24, tasteProfile.artists[a] * 2.2);
   });
 
-  /* Genres */
   if (song.genre && tasteProfile.genres[song.genre]){
     score += Math.min(14, tasteProfile.genres[song.genre] * 1.6);
   }
-  /* Languages */
   if (song.language && tasteProfile.languages[song.language]){
     score += Math.min(10, tasteProfile.languages[song.language] * 1.2);
   }
-  /* Moods */
   if (ctx.mood && song.mood && ctx.mood === song.mood) score += 9;
   else if (song.mood && tasteProfile.moods[song.mood]){
     score += Math.min(8, tasteProfile.moods[song.mood] * 1.2);
   }
 
-  /* Controlled discovery */
   score += Math.min(7, (song.popularity || 50) * 0.07);
-  if (!st.plays && !likedSongs.has(song.id)) score += 4;   /* something new */
+  if (!st.plays && !likedSongs.has(song.id)) score += 4;
 
-  /* Recently played → push down (avoid repeats) */
   if (ctx.recentIds && ctx.recentIds.has(song.id)) score -= 34;
 
-  /* Skip behaviour */
   score -= (st.skips || 0) * 9;
   if ((st.skips || 0) >= 2 && (st.plays || 0) <= (st.skips || 0)) score -= 45;
 
-  /* Completion percentage / repeats */
   if (st.completions > 0) score += Math.min(6, st.completions * 1.5);
 
-  /* Deterministic tie-breaker (no Math.random) */
   score += deterministicJitter(song.id, ctx.salt) * 6;
 
   return score;
 }
 
-/* ---- Picked For You ---- */
 async function buildPickedForYou(force){
   const ctx = buildTasteContext();
   const cacheKey = [
@@ -3071,7 +3055,6 @@ async function buildPickedForYou(force){
       if (pool.length >= 70) break;
     }
 
-    /* Offline / API failure fallback — use local library */
     if (pool.length < 8){
       const localPool = firestoreSongs.concat(Array.from(songCache.values()));
       localPool.forEach(s => {
@@ -3087,7 +3070,6 @@ async function buildPickedForYou(force){
       .map(s => ({ song: s, score: computeRecommendationScore(s, ctx) }))
       .sort((a, b) => b.score - a.score);
 
-    /* De-duplicate + cap songs per artist */
     const out = [];
     const usedIds = new Set();
     const artistCount = {};
@@ -3136,7 +3118,6 @@ function schedulePickedRefresh(){
   }, 6000);
 }
 
-/* ---- Autoplay queue (reuses the same deterministic scoring) ---- */
 async function ensureAutoplayQueue(seedSong, force = false){
   if (isFetchingAutoplay) return;
   if (!force && autoplayQueue.length >= 5) return;
@@ -3265,10 +3246,9 @@ async function playFromAutoplay(){
 }
 
 /* ============================================================
- *  LYRICS  —  fetchLyrics() + Spotify-style synced panel
+ *  LYRICS  —  Synced-only, served from /api/lyrics
  * ============================================================ */
 
-/* Load cached lyrics from localStorage */
 (function loadLyricsCache(){
   try {
     const raw = localStorage.getItem(LYRICS_CACHE_KEY);
@@ -3317,24 +3297,15 @@ function parseSyncedLyrics(lrc){
   return lines;
 }
 
-/* Plain lyrics → [{time:null, text}] (keeps blank lines for spacing) */
-function parsePlainLyrics(text){
-  return String(text).split(/\r?\n/).map(l => ({
-    time: null,
-    text: l.replace(/\s+$/g, '').trim()
-  }));
-}
-
 /* ---- MAIN LYRICS FETCHER ----
-   Uses LRCLIB (timestamped) first, then lyrics.ovh (plain) as fallback.
-   Caches locally so the same song never hits the API twice. */
+   Calls ONLY the backend /api/lyrics endpoint.
+   Only synced lyrics are accepted. Plain lyrics are never used. */
 async function fetchLyrics(song){
   if (!song) return { found:false, synced:false, lines:[], ts:Date.now() };
 
   const key = lyricsCacheKey(song);
   const cached = lyricsCache[key];
   if (cached){
-    /* Negative results are retried after a while, positives are kept */
     const fresh = cached.found || (Date.now() - (cached.ts || 0)) < LYRICS_NOT_FOUND_TTL;
     if (fresh) return cached;
   }
@@ -3349,73 +3320,25 @@ async function fetchLyrics(song){
 
   const artists = getSongArtists(song).filter(a => a && a !== 'Unknown Artist');
   const artist = (artists[0] || String(song.artist || '').split(',')[0] || '').trim();
-  const album = String(song.album || '').trim();
-  const duration = Math.round(Number(song.duration) || 0);
 
   let result = { found:false, synced:false, lines:[], ts: Date.now() };
 
-  /* 1) LRCLIB exact match — gives real timestamps when available */
   if (title && artist){
     try {
-      const params = new URLSearchParams({ track_name: title, artist_name: artist });
-      if (album) params.set('album_name', album);
-      if (duration) params.set('duration', String(duration));
-      const res = await fetch('https://lrclib.net/api/get?' + params.toString(), {
+      const params = new URLSearchParams({ title, artist });
+      const res = await fetch(`${LYRICS_API}?${params.toString()}`, {
         headers: { 'Accept': 'application/json' }
       });
       if (res.ok){
         const data = await res.json();
-        if (data && data.syncedLyrics){
+        /* Only accept responses with a real syncedLyrics string. */
+        if (data && data.found === true && typeof data.syncedLyrics === 'string' && data.syncedLyrics.length){
           const lines = parseSyncedLyrics(data.syncedLyrics);
           if (lines.length) result = { found:true, synced:true, lines, ts: Date.now() };
-        } else if (data && data.plainLyrics){
-          const lines = parsePlainLyrics(data.plainLyrics);
-          if (lines.length) result = { found:true, synced:false, lines, ts: Date.now() };
         }
       }
     } catch (e){
-      console.warn('Lyrics: LRCLIB get failed', e);
-    }
-  }
-
-  /* 2) LRCLIB search fallback */
-  if (!result.found && title && artist){
-    try {
-      const params = new URLSearchParams({ track_name: title, artist_name: artist });
-      const res = await fetch('https://lrclib.net/api/search?' + params.toString(), {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok){
-        const arr = await res.json();
-        if (Array.isArray(arr) && arr.length){
-          const best = arr.find(i => i && i.syncedLyrics) || arr[0];
-          if (best && best.syncedLyrics){
-            const lines = parseSyncedLyrics(best.syncedLyrics);
-            if (lines.length) result = { found:true, synced:true, lines, ts: Date.now() };
-          } else if (best && best.plainLyrics){
-            const lines = parsePlainLyrics(best.plainLyrics);
-            if (lines.length) result = { found:true, synced:false, lines, ts: Date.now() };
-          }
-        }
-      }
-    } catch (e){
-      console.warn('Lyrics: LRCLIB search failed', e);
-    }
-  }
-
-  /* 3) lyrics.ovh fallback (unsynchronised) */
-  if (!result.found && title && artist){
-    try {
-      const res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
-      if (res.ok){
-        const data = await res.json();
-        if (data && data.lyrics && data.lyrics.trim()){
-          const lines = parsePlainLyrics(data.lyrics);
-          if (lines.length) result = { found:true, synced:false, lines, ts: Date.now() };
-        }
-      }
-    } catch (e){
-      console.warn('Lyrics: lyrics.ovh failed', e);
+      console.warn('Lyrics API failed:', e);
     }
   }
 
@@ -3424,7 +3347,7 @@ async function fetchLyrics(song){
   return result;
 }
 
-/* ---- Lyrics panel rendering ---- */
+/* ---- Lyrics panel ---- */
 function openLyricsPanel(){
   if (!currentSong){
     showToast('No song playing.', 'info');
@@ -3454,7 +3377,7 @@ async function loadLyricsForSong(song){
 
   currentLyrics = null;
   lyricsActiveIndex = -1;
-  lyricsBody.innerHTML = '<div class="lyrics-status"><i class="fas fa-spinner fa-spin"></i> Loading lyrics…</div>';
+  lyricsBody.innerHTML = '<div class="lyrics-status"><i class="fas fa-spinner fa-spin"></i> Loading synced lyrics…</div>';
   lyricsBody.scrollTop = 0;
 
   const data = await fetchLyrics(song);
@@ -3465,8 +3388,8 @@ async function loadLyricsForSong(song){
 
   currentLyrics = data;
 
-  if (!data || !data.found || !data.lines || !data.lines.length){
-    lyricsBody.innerHTML = '<div class="lyrics-status">Lyrics aren\'t available for this song.</div>';
+  if (!data || !data.found || !data.synced || !data.lines || !data.lines.length){
+    lyricsBody.innerHTML = '<div class="lyrics-status"><i class="fas fa-music"></i> Synced lyrics aren\'t available for this song.</div>';
     return;
   }
 
@@ -3484,8 +3407,8 @@ async function loadLyricsForSong(song){
 }
 
 function syncLyricsToTime(time, instant){
-  if (!currentLyrics || !currentLyrics.found) return;
-  if (!currentLyrics.synced || !currentLyrics.lines.length) return;
+  if (!currentLyrics || !currentLyrics.found || !currentLyrics.synced) return;
+  if (!currentLyrics.lines.length) return;
 
   const lines = currentLyrics.lines;
   let idx = -1;
@@ -3580,7 +3503,6 @@ async function downloadSong(song){
     return;
   }
 
-  /* Restore the button if the user switched songs mid-download */
   const targetId = song.id;
   setDownloadButtonState('busy', 'Downloading…');
 
@@ -3634,7 +3556,6 @@ async function downloadSong(song){
     }, 4000);
 
   } catch (err){
-    /* Honest failure — never fake a "Downloaded" state */
     console.warn('Download failed for song:', song && song.title, err);
     setDownloadButtonState('retry');
     showToast('Download unavailable for this song', 'error', 4000);
@@ -3661,7 +3582,6 @@ audio.addEventListener('timeupdate', () => {
     fsTotalTime.textContent = formatTime(audio.duration);
   }
 
-  /* lyrics follow the existing global audio element */
   if (lyricsOpen){
     syncLyricsToTime(audio.currentTime || 0, false);
     updateLyricsProgress();
@@ -3846,7 +3766,6 @@ lyricsPanel.addEventListener('click', e => {
   if (e.target === lyricsPanel) closeLyricsPanel();
 });
 
-/* Tap the lyrics progress bar to seek */
 lyricsProgressWrap.addEventListener('click', e => {
   if (!audio.duration) return;
   const rect = lyricsProgressWrap.getBoundingClientRect();
@@ -4123,8 +4042,6 @@ async function loadHomeFeed(){
     console.warn('Home feed error', e);
   }
 
-  /* Picked For You renders with whatever local taste data exists right now,
-     then again once the network pool arrives. */
   renderPickedForYou(true).catch(()=>{});
 }
 
@@ -4155,7 +4072,6 @@ loadSongStats();
 loadGlobalSongs();
 loadHomeFeed();
 
-/* Always refresh UI, then attempt to resume saved state (from index.html or previous visit) */
 const resumed = resumeFromSavedState();
 updateLoopUI();
 updateFeedVisibility();
@@ -4167,7 +4083,7 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v16 — Picked For You + Lyrics + Download ready');
+console.log('🔊 RX PLAYER v17 — Synced Lyrics via /api/lyrics');
 </script>
 
 <script>
