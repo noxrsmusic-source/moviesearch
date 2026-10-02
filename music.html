@@ -1122,7 +1122,7 @@ img{ display:block; max-width:100%; object-fit:cover; }
       </div>
     </section>
 
-    <!-- 🎵 PICKED FOR YOU (single personalized section) -->
+    <!-- 🎵 PICKED FOR YOU -->
     <section id="pickedForYouSection">
       <div class="section-header"><h3>🎵 Picked For You</h3></div>
       <p class="picked-subtitle" id="pickedForYouSubtitle">Picked from your taste</p>
@@ -1262,7 +1262,6 @@ img{ display:block; max-width:100%; object-fit:cover; }
 <div class="fullscreen-player-overlay" id="fullscreenPlayer">
   <button class="close-btn" id="fsCloseBtn"><i class="fas fa-times"></i></button>
   <div class="fs-content-container">
-     <!--full screen ads-->
     <div class="fs-ad-banner" id="fsAdTop">
       <script>
         atOptions = { 'key':'c858000fd6435f9dbc23628e60fdc3cb', 'format':'iframe', 'height':90, 'width':728, 'params':{} };
@@ -1299,7 +1298,7 @@ img{ display:block; max-width:100%; object-fit:cover; }
       <button id="fsDownloadBtn" title="Download song"><i class="fas fa-download"></i> <span id="fsDownloadLabel">Download</span></button>
       <button id="fsAddToPlaylistBtn"><i class="fas fa-list"></i> Add to Playlist</button>
     </div>
- <!--full screen ads-->
+
     <div class="fs-ad-banner" id="fsAdBottom">
       <script>
         atOptions = { 'key':'c858000fd6435f9dbc23628e60fdc3cb', 'format':'iframe', 'height':90, 'width':728, 'params':{} };
@@ -1453,17 +1452,15 @@ const SEARCH_CACHE = new Map();
 const MAX_SEARCH_CACHE = 60;
 let lastSaveTime = 0;
 
-/* ---- listening statistics (plays / skips / completions) ---- */
 let songStats = {};
 const SONG_STATS_KEY = 'rx_song_stats';
 const SONG_STATS_LIMIT = 600;
 
-/* ---- Picked For You state ---- */
 let pickedForYouCache = { key:'', songs:[], subtitle:'' };
 let isBuildingPicked = false;
 let pickedRefreshTimer = null;
 
-/* ---- Lyrics state (synced-only, served from /api/lyrics) ---- */
+/* ---- Lyrics state ---- */
 const LYRICS_CACHE_KEY = 'rx_lyrics_cache';
 const LYRICS_CACHE_LIMIT = 80;
 const LYRICS_NOT_FOUND_TTL = 24 * 60 * 60 * 1000;
@@ -1496,7 +1493,6 @@ const trendingScroller = document.getElementById('trendingScroller');
 const albumsScroller = document.getElementById('albumsScroller');
 const greetingMessage = document.getElementById('greetingMessage');
 
-/* Picked For You elements */
 const pickedForYouScroller = document.getElementById('pickedForYouScroller');
 const pickedForYouSubtitle = document.getElementById('pickedForYouSubtitle');
 
@@ -1581,12 +1577,10 @@ const fsLoopBtn = document.getElementById('fsLoopBtn');
 const fsLikeBtn = document.getElementById('fsLikeBtn');
 const fsAddToPlaylistBtn = document.getElementById('fsAddToPlaylistBtn');
 
-/* player extras */
 const fsLyricsBtn = document.getElementById('fsLyricsBtn');
 const fsDownloadBtn = document.getElementById('fsDownloadBtn');
 const fsDownloadLabel = document.getElementById('fsDownloadLabel');
 
-/* lyrics panel elements */
 const lyricsPanel = document.getElementById('lyricsPanel');
 const lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
 const lyricsCover = document.getElementById('lyricsCover');
@@ -1605,7 +1599,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 const toastContainer = document.getElementById('toastContainer');
 
 /* ============================================================
- *  SAVE / SYNC NOW PLAYING STATE  (music.html ↔ index.html)
+ *  SAVE / SYNC NOW PLAYING STATE
  * ============================================================ */
 function saveNowPlaying(){
   if (!currentSong || !currentSong.audioUrl) return;
@@ -2096,32 +2090,76 @@ function decryptSaavnMediaUrl(encryptedUrl){
   } catch (e){ return ''; }
 }
 
+/* ============================================================
+ *  ARTIST NAME EXTRACTION — prefers JioSaavn's real artist fields
+ * ============================================================ */
+const PLACEHOLDER_ARTIST_NAMES = new Set([
+  'bollywood artist','unknown artist','artist','various artists',
+  'hindi artist','punjabi artist','unknown','dj','remix',
+  'music','song','audio','bollywood','hindi','punjabi'
+]);
+
+function isPlaceholderArtistName(name){
+  if (!name) return true;
+  const n = String(name).toLowerCase().trim();
+  if (!n || n.length < 3) return true;
+  if (PLACEHOLDER_ARTIST_NAMES.has(n)) return true;
+  return false;
+}
+
 function extractArtistNames(item){
   if (!item || typeof item !== 'object') return ['Unknown Artist'];
   const set = new Set();
+
   function add(val){
     if (!val) return;
     if (typeof val === 'string'){
       val.split(',').forEach(part => {
-        const clean = part.replace(/&quot;/g,'"').replace(/&#039;/g,"'").replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
-        if (clean && clean.toLowerCase() !== 'null' && clean.toLowerCase() !== 'undefined') set.add(clean);
+        const clean = part.replace(/&quot;/g,'"').replace(/&#039;/g,"'")
+                          .replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+        if (!clean) return;
+        if (clean.toLowerCase() === 'null') return;
+        if (clean.toLowerCase() === 'undefined') return;
+        if (isPlaceholderArtistName(clean)) return;
+        set.add(clean);
       });
     } else if (typeof val === 'object'){
       if (val.name) add(val.name);
       else if (val.title) add(val.title);
     }
   }
-  [item.artist, item.artistName, item.primaryArtist, item.singer, item.author, item.creator, item.singers, item.subtitle].forEach(add);
-  if (Array.isArray(item.artists)) item.artists.forEach(add);
+
+  /* PRIORITY 1: JioSaavn more_info.artistMap.primary_artists (REAL names) */
   const mi = item.more_info || item.moreInfo || {};
-  [mi.singers, mi.music, mi.album_artist].forEach(add);
   if (mi.artistMap && typeof mi.artistMap === 'object'){
-    ['primary_artists','featured_artists','artists'].forEach(key => {
-      if (Array.isArray(mi.artistMap[key])) mi.artistMap[key].forEach(a => add(a && a.name ? a.name : a));
-    });
+    if (Array.isArray(mi.artistMap.primary_artists)){
+      mi.artistMap.primary_artists.forEach(a => add(a && a.name ? a.name : a));
+    }
+    if (Array.isArray(mi.artistMap.featured_artists)){
+      mi.artistMap.featured_artists.forEach(a => add(a && a.name ? a.name : a));
+    }
   }
-  if (item.album && typeof item.album === 'object' && item.album.artist) add(item.album.artist);
-  return set.size > 0 ? Array.from(set) : ['Unknown Artist'];
+
+  /* PRIORITY 2: top-level primaryArtists / primary_artists string */
+  add(item.primaryArtists);
+  add(item.primary_artists);
+
+  /* PRIORITY 3: singers */
+  if (mi.singers) add(mi.singers);
+  add(item.singers);
+
+  /* PRIORITY 4: less reliable fields */
+  add(item.artist);
+  add(item.artistName);
+  add(item.singer);
+  add(item.author);
+  add(item.creator);
+
+  if (Array.isArray(item.artists)) item.artists.forEach(add);
+
+  /* Fallback */
+  if (set.size === 0) return ['Unknown Artist'];
+  return Array.from(set);
 }
 
 function extractCoverImage(item){
@@ -2807,7 +2845,7 @@ async function removeFromPlaylist(playlistId, songId){
 }
 
 /* ============================================================
- *  TASTE TRACKING (plays / skips / completions)
+ *  TASTE TRACKING
  * ============================================================ */
 function recordListeningStats(){
   if (!previousTracking) return;
@@ -2882,8 +2920,6 @@ function playSongAtIndex(index){
 
   previousTracking = { song, listenedRatio: 0 };
 
-  /* Song changed → invalidate any in-flight lyrics request.
-     Only auto-load lyrics if the lyrics panel is currently open. */
   lyricsRequestId++;
   currentLyrics = null;
   lyricsActiveIndex = -1;
@@ -3246,7 +3282,7 @@ async function playFromAutoplay(){
 }
 
 /* ============================================================
- *  LYRICS  —  Synced-only, served from /api/lyrics
+ *  LYRICS — Synced-only, served from /api/lyrics
  * ============================================================ */
 
 (function loadLyricsCache(){
@@ -3273,7 +3309,6 @@ function saveLyricsCache(){
   } catch(e){}
 }
 
-/* LRC "[mm:ss.xx] text" → [{time, text}] */
 function parseSyncedLyrics(lrc){
   const lines = [];
   const lineTag = /\[(\d{1,2}):(\d{1,2})(?:[.:](\d{1,3}))?\]/g;
@@ -3297,9 +3332,45 @@ function parseSyncedLyrics(lrc){
   return lines;
 }
 
-/* ---- MAIN LYRICS FETCHER ----
-   Calls ONLY the backend /api/lyrics endpoint.
-   Only synced lyrics are accepted. Plain lyrics are never used. */
+/* Clean song title for search */
+function buildCleanTitle(title){
+  return String(title || '')
+    .replace(/\(.*?\)/g, '')
+    .replace(/\[.*?\]/g, '')
+    .replace(/\s*\|\s*.*$/, '')
+    .replace(/\s*-\s*(from|feat\.?|ft\.?).*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* Single attempt with given title+artist */
+async function tryLyrics(title, artist){
+  if (!title) return { found:false };
+  try {
+    const params = new URLSearchParams({ title });
+    if (artist) params.set('artist', artist);
+    const url = `${LYRICS_API}?${params.toString()}`;
+    console.log('[Lyrics] Trying:', url);
+
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return { found:false };
+
+    const data = await res.json();
+    if (data && data.found === true
+        && typeof data.syncedLyrics === 'string'
+        && data.syncedLyrics.length){
+      const lines = parseSyncedLyrics(data.syncedLyrics);
+      if (lines.length){
+        return { found:true, synced:true, lines, ts: Date.now() };
+      }
+    }
+  } catch(e){
+    console.warn('[Lyrics] attempt failed:', e);
+  }
+  return { found:false };
+}
+
+/* MAIN FETCHER — tries multiple title/artist combinations */
 async function fetchLyrics(song){
   if (!song) return { found:false, synced:false, lines:[], ts:Date.now() };
 
@@ -3311,36 +3382,55 @@ async function fetchLyrics(song){
   }
 
   const rawTitle = String(song.title || '').trim();
-  const title = rawTitle
-    .replace(/\(.*?\)/g, '')
-    .replace(/\[.*?\]/g, '')
-    .replace(/\s*-\s*(from|feat\.?|ft\.?).*$/i, '')
-    .replace(/\s+/g, ' ')
-    .trim() || rawTitle;
+  const cleanTitle = buildCleanTitle(rawTitle) || rawTitle;
 
-  const artists = getSongArtists(song).filter(a => a && a !== 'Unknown Artist');
-  const artist = (artists[0] || String(song.artist || '').split(',')[0] || '').trim();
+  const allArtists = getSongArtists(song).filter(a => a && a !== 'Unknown Artist');
+  const realArtists = allArtists.filter(a => !isPlaceholderArtistName(a));
+  const primary = (realArtists[0] || '').trim();
 
   let result = { found:false, synced:false, lines:[], ts: Date.now() };
 
-  if (title && artist){
-    try {
-      const params = new URLSearchParams({ title, artist });
-      const res = await fetch(`${LYRICS_API}?${params.toString()}`, {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok){
-        const data = await res.json();
-        /* Only accept responses with a real syncedLyrics string. */
-        if (data && data.found === true && typeof data.syncedLyrics === 'string' && data.syncedLyrics.length){
-          const lines = parseSyncedLyrics(data.syncedLyrics);
-          if (lines.length) result = { found:true, synced:true, lines, ts: Date.now() };
-        }
-      }
-    } catch (e){
-      console.warn('Lyrics API failed:', e);
+  /* Build candidate list */
+  const candidates = [];
+  const seen = new Set();
+  function addCandidate(t, a){
+    const k = `${t}|${a}`;
+    if (seen.has(k)) return;
+    seen.add(k);
+    candidates.push({ title: t, artist: a });
+  }
+
+  /* 1. Clean title + real primary artist */
+  if (primary) addCandidate(cleanTitle, primary);
+
+  /* 2. Clean title + other real artists */
+  realArtists.slice(1).forEach(a => addCandidate(cleanTitle, a));
+
+  /* 3. Raw title + real primary artist */
+  if (cleanTitle !== rawTitle && primary) addCandidate(rawTitle, primary);
+
+  /* 4. Title-only (clean) */
+  addCandidate(cleanTitle, '');
+
+  /* 5. Title-only (raw) */
+  if (cleanTitle !== rawTitle) addCandidate(rawTitle, '');
+
+  /* 6. Clean title + placeholder primary (rarely helps but try last) */
+  const allPrimary = allArtists[0] || '';
+  if (allPrimary && !realArtists.includes(allPrimary)) addCandidate(cleanTitle, allPrimary);
+
+  console.log('[Lyrics] Candidates:', candidates);
+
+  for (const c of candidates){
+    const attempt = await tryLyrics(c.title, c.artist);
+    if (attempt.found){
+      console.log('[Lyrics] ✅ Found with:', c);
+      result = attempt;
+      break;
     }
   }
+
+  if (!result.found) console.warn('[Lyrics] ❌ No synced lyrics for:', cleanTitle);
 
   lyricsCache[key] = result;
   saveLyricsCache();
@@ -3382,7 +3472,6 @@ async function loadLyricsForSong(song){
 
   const data = await fetchLyrics(song);
 
-  /* Ignore stale responses (user changed songs quickly) */
   if (reqId !== lyricsRequestId) return;
   if (!currentSong || currentSong.id !== song.id) return;
 
@@ -3759,7 +3848,6 @@ fsLikeBtn.addEventListener('click', () => {
   toggleLike(currentSong.id);
 });
 
-/* ---- Lyrics / Download wiring ---- */
 fsLyricsBtn.addEventListener('click', openLyricsPanel);
 lyricsCloseBtn.addEventListener('click', closeLyricsPanel);
 lyricsPanel.addEventListener('click', e => {
@@ -4083,10 +4171,20 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v17 — Synced Lyrics via /api/lyrics');
+console.log('🔊 RX PLAYER v18 — Smart lyrics via /api/lyrics');
 </script>
 
-
+<script>
+document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+document.addEventListener('keydown', e => {
+  const key = e.keyCode || e.which;
+  if (key === 123) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.shiftKey && (key === 73 || key === 74 || key === 67)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && (key === 85 || key === 83)) { e.preventDefault(); return false; }
+  if (e.metaKey && e.altKey && key === 73) { e.preventDefault(); return false; }
+  return true;
+});
+</script>
 
 </body>
 </html>
