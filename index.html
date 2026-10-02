@@ -771,73 +771,10 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='picks.html'">
+                        <div class="explore-more-card" @click="exploreMore('picks.html')">
                             <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
                             <h5>Explore More</h5>
                             <p>See all picks</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ WEB SERIES ============ -->
-                <div x-show="filteredSeries.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="window.location.href='webseries.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All web series</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ K-DRAMA SERIES ============ -->
-                <div x-show="filteredKDrama.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="window.location.href='kdrama.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All K-Dramas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ ANIME SERIES ============ -->
-                <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="window.location.href='anime.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All anime</p>
                         </div>
                     </div>
                 </div>
@@ -857,7 +794,7 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='trending.html'">
+                        <div class="explore-more-card" @click="exploreMore('trending.html')">
                             <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
                             <h5>Explore More</h5>
                             <p>See what's hot</p>
@@ -880,10 +817,136 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='movies.html'">
+                        <div class="explore-more-card" @click="exploreMore('movies.html')">
                             <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
                             <h5>Explore More</h5>
                             <p>All movies</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ WEB SERIES ============ -->
+                <div x-show="filteredSeries.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('webseries.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All web series</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ ANIME SERIES ============ -->
+                <div x-show="filteredAnime.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('anime.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All anime</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ K-DRAMA (ALL view only) ============ -->
+                <div x-show="activeOtt === 'all' && filteredKDrama.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('kdrama.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All K-Dramas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ INDIAN SERIES (ALL view only) ============ -->
+                <div x-show="activeOtt === 'all' && filteredIndianSeries.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-om"></i> Indian Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredIndianSeries" :key="'indian-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('indianseries.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All Indian series</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ C-DRAMA (ALL view only) ============ -->
+                <div x-show="activeOtt === 'all' && filteredCDrama.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-yin-yang"></i> C-Drama Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredCDrama" :key="'cdrama-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('cdrama.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All C-Dramas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ P-DRAMA (ALL view only) ============ -->
+                <div x-show="activeOtt === 'all' && filteredPDrama.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-sun"></i> P-Drama Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredPDrama" :key="'pdrama-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('pdrama.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All P-Dramas</p>
                         </div>
                     </div>
                 </div>
@@ -1093,6 +1156,9 @@
                 tvShows: [],
                 kdramaList: [],
                 animeList: [],
+                indianSeriesList: [],
+                cdramaList: [],
+                pdramaList: [],
                 searchResults: [],
                 lastSearchQuery: '',
                 searchLiveLoading: false,
@@ -1120,15 +1186,16 @@
                 homeSectionsConfig: {},
 
                 ottPlatforms: [
-                    { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
-                    { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',  type: 'music' },
-                    { name: 'Netflix',     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                     query: 'Netflix',  type: 'ott' },
-                    { name: 'Prime Video', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',   type: 'ott' },
-                    { name: 'Disney+',     logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                        query: 'Disney',   type: 'ott' },
-                    { name: 'Apple TV+',   logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                    query: 'Apple',    type: 'ott' },
-                    { name: 'Zee5',        logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',     type: 'ott' },
-                    { name: 'JioCinema',   logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',            query: 'Viacom18', type: 'ott' },
-                    { name: 'SonyLIV',     logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                          query: 'Sony',     type: 'ott' }
+                    { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',         type: 'ott' },
+                    { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',     type: 'music' },
+                    { name: 'Netflix',     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                     query: 'Netflix',     type: 'ott' },
+                    { name: 'Prime Video', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',      type: 'ott' },
+                    { name: 'Disney+',     logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                        query: 'Disney',      type: 'ott' },
+                    { name: 'Apple TV+',   logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                    query: 'Apple',       type: 'ott' },
+                    { name: 'Zee5',        logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',        type: 'ott' },
+                    { name: 'JioCinema',   logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',            query: 'Viacom18',    type: 'ott' },
+                    { name: 'SonyLIV',     logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                          query: 'Sony',        type: 'ott' },
+                    { name: 'Crunchyroll', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.svg',                      query: 'Crunchyroll', type: 'ott' }
                 ],
 
                 ottPools: {
@@ -1191,7 +1258,7 @@
 
                 applySectionConfig(key, items) {
                     const all = this.homeSectionsConfig || {};
-                    const sectionKeys = ['picked', 'series', 'kdrama', 'anime', 'trending', 'movies'];
+                    const sectionKeys = ['picked', 'series', 'kdrama', 'anime', 'trending', 'movies', 'indianseries', 'cdrama', 'pdrama'];
                     const looksOldFormat = sectionKeys.some(k => all[k] && (all[k].customItems !== undefined || all[k].removedIds !== undefined));
 
                     let group;
@@ -1327,7 +1394,6 @@
                             this.ottPools.popular = smartItems.slice(2, 14).reverse();
                             this.ottPools.picked = smartItems.slice(4, 16);
                             this.ottPools.series = smartItems.filter(i => i.media_type === 'tv').slice(0, 10);
-                            this.ottPools.kdrama = smartItems.filter(i => i.original_language === 'ko').slice(0, 10);
                             this.ottPools.anime = smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10);
                             this.ottPools.searchRec = smartItems.slice(1, 11);
                             this.ottPools.historyRec = smartItems.slice(3, 13);
@@ -1344,10 +1410,6 @@
 
                 /* =====================================================
                  *  PICKED FOR YOU — only on the ALL / Home view.
-                 *  OTT platform views (Netflix, Prime, Disney+, ...) do
-                 *  NOT show this section. The personalized engine and all
-                 *  its state (recommendedPickedForYou, recWeights, recCache,
-                 *  refreshPersonalizedRecommendations) remain untouched.
                  * ===================================================== */
                 get filteredPickedForYou() {
                     if (this.activeOtt !== 'all') return [];
@@ -1360,9 +1422,22 @@
                     const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
                     return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
                 },
+                /* K-Drama, Indian, C-Drama, P-Drama — ALL view only */
                 get filteredKDrama() {
-                    const base = this.activeOtt === 'all' ? this.kdramaList : (this.ottPools.kdrama.length ? this.ottPools.kdrama : this.kdramaList);
-                    return this.applySectionConfig('kdrama', this.filterBySmartYear(base, 6));
+                    if (this.activeOtt !== 'all') return [];
+                    return this.applySectionConfig('kdrama', this.filterBySmartYear(this.kdramaList, 6));
+                },
+                get filteredIndianSeries() {
+                    if (this.activeOtt !== 'all') return [];
+                    return this.applySectionConfig('indianseries', this.filterBySmartYear(this.indianSeriesList, 6));
+                },
+                get filteredCDrama() {
+                    if (this.activeOtt !== 'all') return [];
+                    return this.applySectionConfig('cdrama', this.filterBySmartYear(this.cdramaList, 6));
+                },
+                get filteredPDrama() {
+                    if (this.activeOtt !== 'all') return [];
+                    return this.applySectionConfig('pdrama', this.filterBySmartYear(this.pdramaList, 6));
                 },
                 get filteredAnime() {
                     const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
@@ -1408,12 +1483,20 @@
 
                         const animeRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1"));
                         this.animeList = (animeRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const indianRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=hi&sort_by=popularity.desc&page=1"));
+                        this.indianSeriesList = (indianRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const cdramaRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=zh&sort_by=popularity.desc&page=1"));
+                        this.cdramaList = (cdramaRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
+
+                        const pdramaRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1"));
+                        this.pdramaList = (pdramaRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
                     } catch (e) { console.warn('loadHomeData error:', e); }
                 },
 
                 /* ============================================================
                  *  RECOMMENDATION ENGINE v2 — Personalized, Adaptive
-                 *  (Unchanged — Picked For You is only rendered when activeOtt === 'all')
                  * ============================================================ */
 
                 _tsDecay(ts, halfLifeDays = 30) {
@@ -1599,6 +1682,9 @@
                     (this.tvShows || []).forEach(i => addCandidate(i, 'tv'));
                     (this.animeList || []).forEach(i => addCandidate(i, 'anime'));
                     (this.kdramaList || []).forEach(i => addCandidate(i, 'kdrama'));
+                    (this.indianSeriesList || []).forEach(i => addCandidate(i, 'indianseries'));
+                    (this.cdramaList || []).forEach(i => addCandidate(i, 'cdrama'));
+                    (this.pdramaList || []).forEach(i => addCandidate(i, 'pdrama'));
 
                     const recentWatches = (this.guestProfile.watchHistory || []).slice(0, 3);
                     const recsPromises = [];
@@ -1887,7 +1973,6 @@
                 /* ------------------------------------------------------------------
                  *  Platform card click handler.
                  *  — Spotify (by name or type:'music') → direct music.html redirect.
-                 *    Bypasses OTT filtering entirely.
                  *  — All other platforms → existing filterByOtt() behavior.
                  * ------------------------------------------------------------------ */
                 handlePlatformClick(ott) {
@@ -1899,6 +1984,38 @@
                         return;
                     }
                     this.filterByOtt(ott.name);
+                },
+
+                /* ------------------------------------------------------------------
+                 *  Explore More click handler.
+                 *  — When an OTT platform is active (Netflix, Prime, etc.),
+                 *    redirect to that platform's dedicated page (e.g., netflix.html).
+                 *  — On the ALL view, redirect to the section's own page
+                 *    (webseries.html, anime.html, kdrama.html, ...).
+                 * ------------------------------------------------------------------ */
+                _platformSlug(name) {
+                    const map = {
+                        'netflix': 'netflix',
+                        'prime video': 'prime-video',
+                        'disney+': 'disneyplus',
+                        'apple tv+': 'apple-tv-plus',
+                        'zee5': 'zee5',
+                        'jiocinema': 'jiocinema',
+                        'sonyliv': 'sonyliv',
+                        'hbo': 'hbo',
+                        'crunchyroll': 'crunchyroll'
+                    };
+                    const key = String(name || '').trim().toLowerCase();
+                    if (map[key]) return map[key];
+                    return key.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                },
+
+                exploreMore(sectionPage) {
+                    if (this.activeOtt && this.activeOtt !== 'all') {
+                        window.location.href = `${this._platformSlug(this.activeOtt)}.html`;
+                        return;
+                    }
+                    window.location.href = sectionPage;
                 },
 
                 async openDetails(id, type = 'movie') {
