@@ -314,6 +314,12 @@
             height: 100%; background: var(--primary-red); border-radius: 4px;
             width: 0%; position: relative; pointer-events: none;
         }
+        .mini-player .mini-progress-fill::after {
+            content: ''; position: absolute; right: -5px; top: 50%;
+            transform: translateY(-50%);
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.7);
+        }
         .mini-player .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
         .mini-player .mini-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
         .mini-player .mini-cover { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #1e1e2c; flex-shrink: 0; }
@@ -809,7 +815,11 @@
                 <img class="mini-cover" id="miniCover" src="https://placehold.co/60/1C1C24/666?text=Music" alt="cover" />
                 <div class="mini-info"><h5 id="miniTitle">—</h5><span id="miniArtist">—</span></div>
             </div>
-            <div class="mini-btns"><button class="mini-play-btn" id="miniPlayPauseBtn" title="Play/Pause"><i class="fas fa-play"></i></button></div>
+            <div class="mini-btns">
+                <button id="miniPrevBtn" title="Previous"><i class="fas fa-step-backward"></i></button>
+                <button class="mini-play-btn" id="miniPlayPauseBtn" title="Play/Pause"><i class="fas fa-play"></i></button>
+                <button id="miniNextBtn" title="Next"><i class="fas fa-step-forward"></i></button>
+            </div>
         </div>
     </div>
 
@@ -838,13 +848,11 @@
                 <i class="fas fa-times"></i>
             </button>
 
-            <!-- Loading state -->
             <div x-show="detailLoading" class="detail-modal-loading">
                 <i class="fas fa-circle-notch fa-spin"></i>
                 <span>Loading details…</span>
             </div>
 
-            <!-- Loaded state -->
             <template x-if="!detailLoading && detailData">
                 <div>
                     <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
@@ -980,16 +988,13 @@
                 recommendedBySearch: [],
                 recommendedByHistory: [],
 
-                // Detail modal state
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
                 detailItem: { id: null, type: 'movie' },
 
-                // Admin-managed config: { all: {picked:{...}, ...}, Netflix: {...}, ... }
                 homeSectionsConfig: {},
 
-                // Dynamic OTT platforms
                 ottPlatforms: [
                     { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
                     { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',  type: 'music' },
@@ -1307,24 +1312,18 @@
                 closeDrawer() { this.drawerOpen = false; },
                 openMusicPage() { window.location.href = 'music.html'; },
 
-                // ============================================================
-                // DETAIL MODAL — Open card, fetch full TMDB details
-                // ============================================================
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
                     const normType = (type === 'tv' || type === 'series' || type === 'anime' || type === 'show') ? 'tv' : 'movie';
 
-                    // Track history for recommendation engine
                     const item = [...this.trending, ...this.popularMovies, ...this.tvShows].find(x => x.id === id) || { id };
                     this.recordWatchHistory(item, normType);
 
-                    // Open modal in loading state
                     this.detailItem = { id, type: normType };
                     this.detailData = null;
                     this.detailLoading = true;
                     this.detailModalOpen = true;
 
-                    // Prevent body scroll while modal is open
                     document.body.style.overflow = 'hidden';
 
                     try {
@@ -1345,7 +1344,6 @@
                 closeDetailModal() {
                     this.detailModalOpen = false;
                     document.body.style.overflow = '';
-                    // Optional: keep detailData around so re-open is instant — clear after animation
                     setTimeout(() => {
                         if (!this.detailModalOpen) {
                             this.detailData = null;
@@ -1354,14 +1352,12 @@
                     }, 300);
                 },
 
-                // Navigate to player.html — only called from modal's Watch button
                 goToPlayer() {
                     if (!this.detailItem || !this.detailItem.id) return;
                     const { id, type } = this.detailItem;
                     window.location.href = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
                 },
 
-                // Modal display helpers
                 detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
                 detailYear(d) {
                     if (!d) return '—';
@@ -1426,5 +1422,223 @@
             };
         }
     </script>
+
+    <!-- ============================================================
+         MINI MUSIC PLAYER — sync with music.html via localStorage
+         index.html = mini player, music.html = full player
+         Communication channel: localStorage["rx_now_playing"]
+         ============================================================ -->
+    <script>
+    (function () {
+        const NOW_PLAYING_KEY = 'rx_now_playing';
+        const MUSIC_FALLBACK_COVER = 'https://placehold.co/300x300/161622/ffffff?text=Music';
+        const MUSIC_PAGE_URL = 'music.html';
+
+        const miniAudio = new Audio();
+        let miniPlaylist = [];
+        let miniIndex = 0;
+        let miniCurrentSong = null;
+        let miniIsPlaying = false;
+        let miniDragging = false;
+        let lastSave = 0;
+
+        const miniPlayer        = document.getElementById('miniPlayer');
+        const miniCover         = document.getElementById('miniCover');
+        const miniTitle         = document.getElementById('miniTitle');
+        const miniArtist        = document.getElementById('miniArtist');
+        const miniPlayPauseBtn  = document.getElementById('miniPlayPauseBtn');
+        const miniPrevBtn       = document.getElementById('miniPrevBtn');
+        const miniNextBtn       = document.getElementById('miniNextBtn');
+        const miniProgressWrap  = document.getElementById('miniProgressWrap');
+        const miniProgressFill  = document.getElementById('miniProgressFill');
+        const miniLeft          = document.getElementById('miniLeft');
+
+        if (!miniPlayer) return;
+
+        const safeParse = (j, f) => { try { return JSON.parse(j); } catch (e) { return f; } };
+
+        function loadNowPlaying() {
+            try {
+                const raw = localStorage.getItem(NOW_PLAYING_KEY);
+                if (!raw) return null;
+                const state = safeParse(raw, null);
+                if (!state || !state.song || !state.song.audioUrl) return null;
+                if (state.updatedAt && (Date.now() - state.updatedAt) > 6 * 60 * 60 * 1000) {
+                    localStorage.removeItem(NOW_PLAYING_KEY);
+                    return null;
+                }
+                return state;
+            } catch (e) { return null; }
+        }
+
+        function saveNowPlaying() {
+            if (!miniCurrentSong || !miniCurrentSong.audioUrl) return;
+            try {
+                localStorage.setItem(NOW_PLAYING_KEY, JSON.stringify({
+                    song: miniCurrentSong,
+                    currentTime: miniAudio.currentTime || 0,
+                    isPlaying: !!miniIsPlaying,
+                    playlist: miniPlaylist.slice(0, 50),
+                    index: miniIndex,
+                    updatedAt: Date.now()
+                }));
+            } catch (e) {}
+        }
+
+        function showMiniPlayer(song) {
+            if (!song) return;
+            miniPlayer.classList.add('visible');
+            document.body.classList.add('has-mini-player');
+            miniCover.src = song.coverUrl || MUSIC_FALLBACK_COVER;
+            miniTitle.textContent = song.title || 'Unknown';
+            miniArtist.textContent = song.artist || 'Unknown';
+        }
+
+        function updateMiniPlayIcon(playing) {
+            miniIsPlaying = playing;
+            miniPlayPauseBtn.innerHTML = `<i class="fas ${playing ? 'fa-pause' : 'fa-play'}"></i>`;
+        }
+
+        function loadSongIntoMini(song, index, playlist) {
+            if (!song || !song.audioUrl) return;
+            miniCurrentSong = song;
+            if (typeof index === 'number') miniIndex = index;
+            if (Array.isArray(playlist)) miniPlaylist = playlist;
+
+            miniAudio.src = song.audioUrl;
+            miniAudio.load();
+            showMiniPlayer(song);
+            miniProgressFill.style.width = '0%';
+
+            miniAudio.play().then(() => {
+                updateMiniPlayIcon(true); saveNowPlaying();
+            }).catch(() => {
+                updateMiniPlayIcon(false); saveNowPlaying();
+            });
+        }
+
+        function resumeFromSavedState() {
+            const state = loadNowPlaying();
+            if (!state || !state.song) return;
+
+            miniPlaylist = Array.isArray(state.playlist) && state.playlist.length ? state.playlist : [state.song];
+            miniIndex = typeof state.index === 'number' ? state.index : 0;
+            if (miniIndex < 0 || miniIndex >= miniPlaylist.length) miniIndex = 0;
+            if (!miniPlaylist.find(s => s.id === state.song.id)) miniPlaylist.unshift(state.song);
+
+            miniCurrentSong = state.song;
+            miniAudio.src = state.song.audioUrl;
+            miniAudio.load();
+            showMiniPlayer(state.song);
+
+            const restore = () => {
+                try { miniAudio.currentTime = state.currentTime || 0; } catch (e) {}
+                if (state.isPlaying) {
+                    miniAudio.play().then(() => updateMiniPlayIcon(true)).catch(() => updateMiniPlayIcon(false));
+                } else {
+                    updateMiniPlayIcon(false);
+                }
+                miniAudio.removeEventListener('loadedmetadata', restore);
+            };
+            miniAudio.addEventListener('loadedmetadata', restore);
+        }
+
+        miniPlayPauseBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (!miniAudio.src) return;
+            if (miniIsPlaying) miniAudio.pause();
+            else miniAudio.play().catch(() => {});
+        });
+
+        miniPrevBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (!miniPlaylist.length) return;
+            if (miniAudio.currentTime > 3) {
+                miniAudio.currentTime = 0;
+                miniAudio.play().catch(() => {});
+                return;
+            }
+            let prev = miniIndex - 1;
+            if (prev < 0) prev = miniPlaylist.length - 1;
+            loadSongIntoMini(miniPlaylist[prev], prev, miniPlaylist);
+        });
+
+        miniNextBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (!miniPlaylist.length) return;
+            let next = miniIndex + 1;
+            if (next >= miniPlaylist.length) next = 0;
+            loadSongIntoMini(miniPlaylist[next], next, miniPlaylist);
+        });
+
+        function miniSeek(clientX) {
+            if (!miniAudio.duration) return;
+            const rect = miniProgressWrap.getBoundingClientRect();
+            let ratio = (clientX - rect.left) / rect.width;
+            ratio = Math.max(0, Math.min(1, ratio));
+            miniAudio.currentTime = ratio * miniAudio.duration;
+            miniProgressFill.style.width = (ratio * 100) + '%';
+        }
+        miniProgressWrap.addEventListener('mousedown', e => { miniDragging = true; miniSeek(e.clientX); });
+        miniProgressWrap.addEventListener('touchstart', e => {
+            if (e.touches && e.touches[0]) { miniDragging = true; miniSeek(e.touches[0].clientX); }
+        }, { passive: true });
+        document.addEventListener('mousemove', e => { if (miniDragging) miniSeek(e.clientX); });
+        document.addEventListener('touchmove', e => {
+            if (miniDragging && e.touches && e.touches[0]) miniSeek(e.touches[0].clientX);
+        }, { passive: true });
+        document.addEventListener('mouseup', () => { miniDragging = false; });
+        document.addEventListener('touchend', () => { miniDragging = false; });
+
+        miniLeft.addEventListener('click', () => {
+            saveNowPlaying();
+            if (miniCurrentSong && miniCurrentSong.id) {
+                window.location.href = `${MUSIC_PAGE_URL}?playId=${encodeURIComponent(miniCurrentSong.id)}`;
+            } else {
+                window.location.href = MUSIC_PAGE_URL;
+            }
+        });
+
+        miniAudio.addEventListener('timeupdate', () => {
+            if (miniAudio.duration && !miniDragging) {
+                const pct = (miniAudio.currentTime / miniAudio.duration) * 100;
+                miniProgressFill.style.width = pct + '%';
+            }
+            const now = Date.now();
+            if (miniIsPlaying && miniCurrentSong && (now - lastSave) > 3000) {
+                lastSave = now;
+                saveNowPlaying();
+            }
+        });
+        miniAudio.addEventListener('play',  () => { updateMiniPlayIcon(true);  saveNowPlaying(); });
+        miniAudio.addEventListener('pause', () => { updateMiniPlayIcon(false); saveNowPlaying(); });
+        miniAudio.addEventListener('ended', () => {
+            if (!miniPlaylist.length) return;
+            let next = miniIndex + 1;
+            if (next >= miniPlaylist.length) next = 0;
+            loadSongIntoMini(miniPlaylist[next], next, miniPlaylist);
+        });
+
+        window.addEventListener('beforeunload', saveNowPlaying);
+        window.addEventListener('pagehide', saveNowPlaying);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveNowPlaying();
+        });
+
+        /* Save state before user navigates away via any link */
+        document.addEventListener('click', e => {
+            const link = e.target.closest('a');
+            if (link && link.href) {
+                try {
+                    const targetUrl = new URL(link.href, window.location.origin);
+                    if (targetUrl.pathname !== window.location.pathname) saveNowPlaying();
+                } catch (err) {}
+            }
+        });
+
+        resumeFromSavedState();
+    })();
+    </script>
+
 </body>
 </html>
