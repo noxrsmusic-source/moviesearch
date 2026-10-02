@@ -802,6 +802,28 @@
                     </div>
                 </div>
 
+                                <!-- ============ ANIME SERIES ============ -->
+                <div x-show="filteredAnime.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('anime.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All anime</p>
+                        </div>
+                    </div>
+                </div>
+
+
                                 <!-- ============ WEB SERIES ============ -->
                 <div x-show="filteredSeries.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
@@ -819,27 +841,6 @@
                             <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
                             <h5>Explore More</h5>
                             <p>All web series</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ ANIME SERIES ============ -->
-                <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('anime.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All anime</p>
                         </div>
                     </div>
                 </div>
