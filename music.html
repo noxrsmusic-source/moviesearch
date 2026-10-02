@@ -1414,7 +1414,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 const toastContainer = document.getElementById('toastContainer');
 
 /* ============================================================
- *  SAVE / SYNC NOW PLAYING STATE
+ *  SAVE / SYNC NOW PLAYING STATE  (music.html ↔ index.html)
  * ============================================================ */
 function saveNowPlaying(){
   if (!currentSong || !currentSong.audioUrl) return;
@@ -1500,14 +1500,14 @@ function resumeFromSavedState(){
   return true;
 }
 
-// When navigating away to index.html, save current state so index.html can resume it
+/* Save state before any link-triggered navigation away from this page */
 document.addEventListener('click', e => {
   const link = e.target.closest('a');
   if (link && link.href) {
-    const targetUrl = new URL(link.href, window.location.origin);
-    if (targetUrl.pathname !== window.location.pathname) {
-      saveNowPlaying();
-    }
+    try {
+      const targetUrl = new URL(link.href, window.location.origin);
+      if (targetUrl.pathname !== window.location.pathname) saveNowPlaying();
+    } catch (err) {}
   }
 });
 window.addEventListener('beforeunload', saveNowPlaying);
@@ -3252,10 +3252,12 @@ loadTaste();
 loadGlobalSongs();
 loadHomeFeed();
 
-// Check if resuming from index.html
-if (!resumeFromSavedState()){
-  updateLoopUI();
-  updateFeedVisibility();
+/* Always refresh UI, then attempt to resume saved state (from index.html or previous visit) */
+const resumed = resumeFromSavedState();
+updateLoopUI();
+updateFeedVisibility();
+if (!resumed) {
+  // no prior session — nothing else to do
 }
 
 auth.onAuthStateChanged(user => {
