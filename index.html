@@ -272,83 +272,6 @@
             .horizontal-cards-row { gap: 16px; }
         }
 
-        /* ===== EXPLORE MORE CARD (end of every section) ===== */
-        .horizontal-cards-row .explore-more-card {
-            flex: 0 0 125px;
-            scroll-snap-align: start;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, rgba(229,9,20,0.18) 0%, rgba(229,9,20,0.04) 100%);
-            border: 1.5px dashed rgba(229,9,20,0.45);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all var(--transition);
-            text-align: center;
-            padding: 14px 10px;
-            min-height: 100%;
-            user-select: none;
-            position: relative;
-            overflow: hidden;
-        }
-        .horizontal-cards-row .explore-more-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at center, rgba(229,9,20,0.15) 0%, transparent 70%);
-            opacity: 0;
-            transition: var(--transition);
-        }
-        .horizontal-cards-row .explore-more-card:hover {
-            background: linear-gradient(135deg, rgba(229,9,20,0.30) 0%, rgba(229,9,20,0.10) 100%);
-            border-color: var(--primary-red);
-            border-style: solid;
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(229,9,20,0.28), var(--shadow);
-        }
-        .horizontal-cards-row .explore-more-card:hover::before { opacity: 1; }
-        .horizontal-cards-row .explore-more-card .explore-icon {
-            width: 52px; height: 52px;
-            border-radius: 50%;
-            background: var(--primary-red);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 19px;
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(229,9,20,0.5);
-            transition: var(--transition);
-            position: relative;
-            z-index: 1;
-        }
-        .horizontal-cards-row .explore-more-card:hover .explore-icon {
-            transform: scale(1.12) rotate(-15deg);
-            box-shadow: 0 10px 30px rgba(229,9,20,0.8);
-        }
-        .horizontal-cards-row .explore-more-card h5 {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--text-white);
-            letter-spacing: -0.2px;
-            position: relative;
-            z-index: 1;
-            line-height: 1.2;
-        }
-        .horizontal-cards-row .explore-more-card p {
-            font-size: 10.5px;
-            color: var(--text-muted);
-            line-height: 1.3;
-            margin-top: -6px;
-            position: relative;
-            z-index: 1;
-        }
-        @media (min-width: 768px) {
-            .horizontal-cards-row .explore-more-card { flex: 0 0 170px; padding: 18px 12px; }
-            .horizontal-cards-row .explore-more-card .explore-icon { width: 58px; height: 58px; font-size: 22px; }
-            .horizontal-cards-row .explore-more-card h5 { font-size: 14px; }
-            .horizontal-cards-row .explore-more-card p { font-size: 11.5px; }
-        }
-
         .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         @media (min-width: 768px) {
             .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
@@ -745,7 +668,7 @@
                     <template x-for="(ott, idx) in ottPlatforms" :key="'ott-' + idx">
                         <div class="ott-card-logo"
                              :class="{ 'active': activeOtt === ott.name }"
-                             @click="ott.type === 'music' ? openMusicPage() : filterByOtt(ott.name)"
+                             @click="handlePlatformClick(ott)"
                              :title="ott.name">
                             <img :src="ott.logo" :alt="ott.name" loading="lazy" @error="event.target.style.display='none'" />
                         </div>
@@ -755,7 +678,6 @@
 
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
-                <!-- ============ PICKED FOR YOU ============ -->
                 <div x-show="filteredPickedForYou.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
@@ -771,15 +693,54 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='picks.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>See all picks</p>
-                        </div>
                     </div>
                 </div>
 
-                <!-- ============ TRENDING ============ -->
+                <div x-show="filteredSeries.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div x-show="filteredKDrama.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div x-show="filteredAnime.length">
+                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
@@ -794,15 +755,9 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='trending.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>See what's hot</p>
-                        </div>
                     </div>
                 </div>
 
-                <!-- ============ POPULAR MOVIES ============ -->
                 <div x-show="filteredMovies.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
@@ -817,53 +772,6 @@
                                 </div>
                             </div>
                         </template>
-                        <div class="explore-more-card" @click="window.location.href='movies.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All movies</p>
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- ============ WEB SERIES ============ -->
-                <div x-show="filteredSeries.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="window.location.href='webseries.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All web series</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ ANIME SERIES ============ -->
-                <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="window.location.href='anime.html'">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All anime</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1080,6 +988,17 @@
                 recommendedBySearch: [],
                 recommendedByHistory: [],
 
+                recCache: {
+                    tmdbRecommendations: {},
+                    tmdbSimilar: {},
+                    searchResults: {},
+                    lastRefresh: 0,
+                    refreshDebounceTimer: null,
+                    _refreshing: false
+                },
+                recReasons: {},
+                recDebug: { lastRefresh: 0, candidateCount: 0, topScores: [] },
+
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
@@ -1189,7 +1108,16 @@
                 loadGuestProfile() {
                     try {
                         const saved = localStorage.getItem(GUEST_PROFILE_KEY);
-                        if (saved) this.guestProfile = JSON.parse(saved);
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            this.guestProfile = {
+                                watchHistory: parsed.watchHistory || [],
+                                myList: parsed.myList || [],
+                                recentSearches: parsed.recentSearches || [],
+                                genreAffinity: parsed.genreAffinity || {},
+                                lastSearchTerm: parsed.lastSearchTerm || ''
+                            };
+                        }
                     } catch (e) {
                         this.guestProfile = { watchHistory: [], myList: [], recentSearches: [], genreAffinity: {}, lastSearchTerm: '' };
                     }
@@ -1201,15 +1129,29 @@
 
                 recordWatchHistory(item, type) {
                     if (!item || !item.id) return;
-                    const entry = { id: item.id, type: type || 'movie', genres: item.genre_ids || [], timestamp: Date.now() };
-                    this.guestProfile.watchHistory = [entry, ...this.guestProfile.watchHistory.filter(x => x.id !== item.id)].slice(0, 30);
+                    const entry = {
+                        id: item.id,
+                        type: type || 'movie',
+                        title: item.title || item.name || '',
+                        genres: item.genre_ids || (item.genres || []).map(g => g.id) || [],
+                        original_language: item.original_language || '',
+                        vote_average: item.vote_average || 0,
+                        timestamp: Date.now(),
+                        progress: 0.8
+                    };
+                    this.guestProfile.watchHistory = [
+                        entry,
+                        ...this.guestProfile.watchHistory.filter(x => !(x.id === item.id && x.type === entry.type))
+                    ].slice(0, 30);
+
                     if (item.genre_ids) {
                         item.genre_ids.forEach(g => {
                             this.guestProfile.genreAffinity[g] = (this.guestProfile.genreAffinity[g] || 0) + 1;
                         });
                     }
+
                     this.saveGuestProfile();
-                    this.computePersonalizedRecommendations();
+                    this.refreshPersonalizedRecommendations().catch(()=>{});
                 },
 
                 recordSearchIntent(query) {
@@ -1217,6 +1159,7 @@
                     this.guestProfile.lastSearchTerm = query;
                     this.guestProfile.recentSearches = [query, ...this.guestProfile.recentSearches.filter(q => q !== query)].slice(0, 10);
                     this.saveGuestProfile();
+                    this.refreshPersonalizedRecommendations().catch(()=>{});
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
@@ -1294,6 +1237,10 @@
                     const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
                     return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
                 },
+                get filteredKDrama() {
+                    const base = this.activeOtt === 'all' ? this.kdramaList : (this.ottPools.kdrama.length ? this.ottPools.kdrama : this.kdramaList);
+                    return this.applySectionConfig('kdrama', this.filterBySmartYear(base, 6));
+                },
                 get filteredAnime() {
                     const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
                     return this.applySectionConfig('anime', this.filterBySmartYear(base, 6));
@@ -1341,38 +1288,451 @@
                     } catch (e) { console.warn('loadHomeData error:', e); }
                 },
 
-                async computePersonalizedRecommendations() {
+                /* ============================================================
+                 *  RECOMMENDATION ENGINE v2 — Personalized, Adaptive
+                 * ============================================================ */
+
+                _tsDecay(ts, halfLifeDays = 30) {
+                    if (!ts) return 0.3;
+                    const ageDays = (Date.now() - ts) / 86400000;
+                    return Math.pow(0.5, ageDays / halfLifeDays);
+                },
+
+                _normalizeMap(map) {
+                    const vals = Object.values(map);
+                    if (!vals.length) return {};
+                    const max = Math.max(...vals, 0);
+                    if (max <= 0) return map;
+                    const out = {};
+                    for (const [k, v] of Object.entries(map)) out[k] = v / max;
+                    return out;
+                },
+
+                calculateGenreAffinity() {
+                    const aff = {};
+                    (this.guestProfile.watchHistory || []).forEach(w => {
+                        const decay = this._tsDecay(w.timestamp, 30);
+                        const completion = typeof w.progress === 'number' ? Math.min(1, w.progress) : 0.75;
+                        const weight = decay * (0.5 + completion);
+                        (w.genres || []).forEach(g => { aff[g] = (aff[g] || 0) + weight; });
+                    });
+                    (this.guestProfile.myList || []).forEach(m => {
+                        const decay = this._tsDecay(m.timestamp, 60);
+                        (m.genres || []).forEach(g => { aff[g] = (aff[g] || 0) + decay * 0.55; });
+                    });
+                    const searchGenreMap = {
+                        'action': 28, 'comedy': 35, 'horror': 27, 'romance': 10749,
+                        'thriller': 53, 'sci-fi': 878, 'scifi': 878, 'science fiction': 878,
+                        'drama': 18, 'animation': 16, 'anime': 16, 'documentary': 99,
+                        'fantasy': 14, 'mystery': 9648, 'crime': 80, 'adventure': 12,
+                        'family': 10751, 'history': 36, 'war': 10752, 'music': 10402,
+                        'western': 37
+                    };
+                    (this.guestProfile.recentSearches || []).forEach((s, idx) => {
+                        const decay = Math.pow(0.7, idx);
+                        const lower = String(s).toLowerCase();
+                        for (const [kw, gid] of Object.entries(searchGenreMap)) {
+                            if (lower.includes(kw)) aff[gid] = (aff[gid] || 0) + decay * 0.9;
+                        }
+                    });
+                    return this._normalizeMap(aff);
+                },
+
+                calculateLanguageAffinity() {
+                    const aff = {};
+                    (this.guestProfile.watchHistory || []).forEach(w => {
+                        if (!w.original_language) return;
+                        aff[w.original_language] = (aff[w.original_language] || 0) + this._tsDecay(w.timestamp, 30);
+                    });
+                    (this.guestProfile.myList || []).forEach(m => {
+                        if (!m.original_language) return;
+                        aff[m.original_language] = (aff[m.original_language] || 0) + this._tsDecay(m.timestamp, 60) * 0.6;
+                    });
+                    return this._normalizeMap(aff);
+                },
+
+                _searchIntentGenres() {
+                    const intent = new Set();
+                    const map = {
+                        'action': 28, 'comedy': 35, 'horror': 27, 'romance': 10749,
+                        'thriller': 53, 'sci-fi': 878, 'scifi': 878, 'science fiction': 878,
+                        'drama': 18, 'animation': 16, 'anime': 16, 'documentary': 99,
+                        'fantasy': 14, 'mystery': 9648, 'crime': 80, 'adventure': 12,
+                        'korean': 18, 'kdrama': 18, 'k-drama': 18, 'japanese': 16,
+                        'bollywood': 18, 'hindi': 18, 'tamil': 18, 'telugu': 18
+                    };
+                    const recent = (this.guestProfile.recentSearches || []).slice(0, 5);
+                    recent.forEach(s => {
+                        const lower = String(s).toLowerCase();
+                        for (const [kw, gid] of Object.entries(map)) {
+                            if (lower.includes(kw)) intent.add(gid);
+                        }
+                    });
+                    return Array.from(intent);
+                },
+
+                _calculateGenreScore(item, genreAffinity) {
+                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
+                    if (!genres.length) return 0.25;
+                    let score = 0;
+                    genres.forEach(g => { score += genreAffinity[g] || 0; });
+                    return Math.min(1, (score / genres.length) * 1.35);
+                },
+
+                _calculateSimilarityScore(item, sourceSimilarity) {
+                    const key = `${item.media_type || 'movie'}:${item.id}`;
+                    return sourceSimilarity.has(key) ? 1 : 0;
+                },
+
+                _calculateMyListScore(item, myListGenreAff, myListLang) {
+                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
+                    let gScore = 0;
+                    genres.forEach(g => { gScore += myListGenreAff[g] || 0; });
+                    gScore = genres.length ? gScore / genres.length : 0;
+                    const lScore = myListLang[item.original_language] || 0;
+                    return Math.min(1, gScore * 0.7 + lScore * 0.3);
+                },
+
+                _calculateSearchIntentScore(item, intentGenres) {
+                    if (!intentGenres.length) return 0;
+                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
+                    if (!genres.length) return 0;
+                    let match = 0;
+                    genres.forEach(g => { if (intentGenres.includes(g)) match++; });
+                    return Math.min(1, match / Math.max(2, intentGenres.length));
+                },
+
+                _calculatePopularityScore(item) {
+                    const rating = (item.vote_average || 0) / 10;
+                    const votes = Math.min(1, (item.vote_count || 0) / 5000);
+                    const pop = Math.min(1, (item.popularity || 0) / 500);
+                    return Math.min(1, rating * 0.6 + votes * 0.25 + pop * 0.15);
+                },
+
+                _calculateLanguageScore(item, languageAffinity) {
+                    if (!Object.keys(languageAffinity).length) return 0.5;
+                    const lang = item.original_language || 'en';
+                    const aff = languageAffinity[lang] || 0;
+                    return aff > 0 ? Math.min(1, aff * 0.8 + 0.2) : 0.2;
+                },
+
+                _calculateDiversityScore(item, seenGenres, seenLangs, seenTypes) {
+                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
+                    const lang = item.original_language || 'en';
+                    const type = item.media_type || 'movie';
+                    let novelty = 0;
+                    if (!genres.some(g => seenGenres.has(g))) novelty += 0.5;
+                    if (!seenLangs.has(lang)) novelty += 0.3;
+                    if (!seenTypes.has(type)) novelty += 0.2;
+                    return Math.min(1, novelty);
+                },
+
+                async _fetchTmdbRecommendations(type, id) {
+                    const key = `${type}:${id}`;
+                    if (this.recCache.tmdbRecommendations[key]) return this.recCache.tmdbRecommendations[key];
                     try {
-                        const pool = [...this.trending, ...this.popularMovies, ...this.tvShows];
-                        const watchedIds = new Set(this.guestProfile.watchHistory.map(w => w.id));
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${type}/${id}/recommendations?language=en-US&page=1`));
+                        const results = (data.results || []).filter(r => r.poster_path).map(r => ({ ...r, media_type: type }));
+                        this.recCache.tmdbRecommendations[key] = results;
+                        return results;
+                    } catch (e) {
+                        this.recCache.tmdbRecommendations[key] = [];
+                        return [];
+                    }
+                },
 
-                        const scoredPool = pool.filter(item => !watchedIds.has(item.id)).map(item => {
-                            let score = 0;
-                            score += ((item.vote_average || 5) / 10) * this.recWeights.popularityRating * 100;
-                            if (item.genre_ids) {
-                                item.genre_ids.forEach(g => {
-                                    if (this.guestProfile.genreAffinity[g]) {
-                                        score += this.guestProfile.genreAffinity[g] * this.recWeights.genreAffinity * 10;
-                                    }
-                                });
+                async _fetchTmdbSimilar(type, id) {
+                    const key = `${type}:${id}`;
+                    if (this.recCache.tmdbSimilar[key]) return this.recCache.tmdbSimilar[key];
+                    try {
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${type}/${id}/similar?language=en-US&page=1`));
+                        const results = (data.results || []).filter(r => r.poster_path).map(r => ({ ...r, media_type: type }));
+                        this.recCache.tmdbSimilar[key] = results;
+                        return results;
+                    } catch (e) {
+                        this.recCache.tmdbSimilar[key] = [];
+                        return [];
+                    }
+                },
+
+                async buildRecommendationCandidates() {
+                    const candidates = new Map();
+                    const sourceSimilarity = new Set();
+
+                    const addCandidate = (item, source) => {
+                        if (!item || !item.id) return;
+                        const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
+                        const key = `${type}:${item.id}`;
+                        if (!candidates.has(key)) {
+                            candidates.set(key, { item: { ...item, media_type: type }, sources: new Set() });
+                        }
+                        candidates.get(key).sources.add(source);
+                        if (source === 'tmdb_rec' || source === 'tmdb_sim') sourceSimilarity.add(key);
+                    };
+
+                    (this.trending || []).forEach(i => addCandidate(i, 'trending'));
+                    (this.popularMovies || []).forEach(i => addCandidate(i, 'popular'));
+                    (this.tvShows || []).forEach(i => addCandidate(i, 'tv'));
+                    (this.animeList || []).forEach(i => addCandidate(i, 'anime'));
+                    (this.kdramaList || []).forEach(i => addCandidate(i, 'kdrama'));
+
+                    const recentWatches = (this.guestProfile.watchHistory || []).slice(0, 3);
+                    const recsPromises = [];
+                    recentWatches.forEach(w => {
+                        const t = w.type || 'movie';
+                        recsPromises.push(this._fetchTmdbRecommendations(t, w.id));
+                        recsPromises.push(this._fetchTmdbSimilar(t, w.id));
+                    });
+                    const recResults = await Promise.all(recsPromises);
+                    recResults.forEach(results => results.forEach(r => addCandidate(r, 'tmdb_rec')));
+
+                    const recentSearches = (this.guestProfile.recentSearches || []).slice(0, 3);
+                    const searchPromises = recentSearches.map(s => {
+                        const cacheKey = String(s).toLowerCase();
+                        if (this.recCache.searchResults[cacheKey]) return Promise.resolve(this.recCache.searchResults[cacheKey]);
+                        return this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(s)}&page=1`))
+                            .then(d => {
+                                const r = (d.results || []).filter(x => x.poster_path && (x.media_type === 'movie' || x.media_type === 'tv'));
+                                this.recCache.searchResults[cacheKey] = r;
+                                return r;
+                            })
+                            .catch(() => []);
+                    });
+                    const searchResults = await Promise.all(searchPromises);
+                    searchResults.forEach(list => list.forEach(r => addCandidate(r, 'search')));
+
+                    const myListItems = (this.guestProfile.myList || []).slice(0, 2);
+                    const myListPromises = myListItems.map(m => this._fetchTmdbRecommendations(m.type || 'movie', m.id));
+                    const myListRecs = await Promise.all(myListPromises);
+                    myListRecs.forEach(results => results.forEach(r => addCandidate(r, 'myList')));
+
+                    return { candidates: Array.from(candidates.values()), sourceSimilarity };
+                },
+
+                scoreRecommendation(item, ctx) {
+                    const {
+                        genreAffinity, languageAffinity, myListGenreAff, myListLang,
+                        intentGenres, sourceSimilarity, seenGenres, seenLangs, seenTypes
+                    } = ctx;
+
+                    const genreScore = this._calculateGenreScore(item, genreAffinity);
+                    const similarityScore = this._calculateSimilarityScore(item, sourceSimilarity);
+                    const myListScore = this._calculateMyListScore(item, myListGenreAff, myListLang);
+                    const searchIntentScore = this._calculateSearchIntentScore(item, intentGenres);
+                    const popularityScore = this._calculatePopularityScore(item);
+                    const languageScore = this._calculateLanguageScore(item, languageAffinity);
+                    const diversityScore = this._calculateDiversityScore(item, seenGenres, seenLangs, seenTypes);
+
+                    const w = this.recWeights;
+                    const finalScore =
+                        genreScore * w.genreAffinity +
+                        similarityScore * w.tmdbSimilarity +
+                        myListScore * w.myListSimilarity +
+                        searchIntentScore * w.searchIntent +
+                        popularityScore * w.popularityRating +
+                        languageScore * w.languageCompatibility +
+                        diversityScore * w.discoveryDiversity;
+
+                    let reason = '';
+                    if (similarityScore > 0.5) reason = 'Similar to your watch history';
+                    else if (myListScore > 0.4) reason = 'Based on your list';
+                    else if (searchIntentScore > 0.4) reason = 'Based on your recent searches';
+                    else if (genreScore > 0.45) reason = 'Because you like this genre';
+                    else if (languageScore > 0.65) reason = 'In your preferred language';
+                    else if (popularityScore > 0.7) reason = 'Trending in your interests';
+
+                    return { finalScore, reason };
+                },
+
+                _applyDiversity(scoredList, maxItems) {
+                    const out = [];
+                    const usedGenres = new Set();
+                    const usedLangs = new Set();
+                    for (const s of scoredList) {
+                        if (out.length >= maxItems) break;
+                        const genres = s.item.genre_ids || [];
+                        const lang = s.item.original_language || 'en';
+                        const genreOverload = genres.length && genres.every(g => usedGenres.has(g));
+                        if (genreOverload && out.length >= maxItems * 0.6) continue;
+                        out.push(s);
+                        genres.forEach(g => usedGenres.add(g));
+                        usedLangs.add(lang);
+                    }
+                    if (out.length < maxItems) {
+                        for (const s of scoredList) {
+                            if (out.length >= maxItems) break;
+                            if (!out.includes(s)) out.push(s);
+                        }
+                    }
+                    return out;
+                },
+
+                async refreshPersonalizedRecommendations() {
+                    return new Promise((resolve) => {
+                        if (this.recCache.refreshDebounceTimer) {
+                            clearTimeout(this.recCache.refreshDebounceTimer);
+                        }
+                        this.recCache.refreshDebounceTimer = setTimeout(async () => {
+                            this.recCache.refreshDebounceTimer = null;
+                            if (this.recCache._refreshing) { resolve(); return; }
+                            this.recCache._refreshing = true;
+                            try {
+                                await this._doRefreshPersonalizedRecommendations();
+                            } catch (e) {
+                                console.warn('refreshPersonalizedRecommendations error:', e);
+                            } finally {
+                                this.recCache._refreshing = false;
+                                this.recCache.lastRefresh = Date.now();
                             }
-                            return { ...item, _score: score };
-                        });
-                        scoredPool.sort((a, b) => b._score - a._score);
-                        this.recommendedPickedForYou = scoredPool.slice(0, 12);
+                            resolve();
+                        }, 800);
+                    });
+                },
 
-                        if (this.guestProfile.lastSearchTerm) {
-                            const searchRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(this.guestProfile.lastSearchTerm)}&page=1`));
-                            this.recommendedBySearch = (searchRes.results || []).filter(r => r.poster_path).slice(0, 10);
+                async _doRefreshPersonalizedRecommendations() {
+                    const genreAffinity = this.calculateGenreAffinity();
+                    const languageAffinity = this.calculateLanguageAffinity();
+                    const intentGenres = this._searchIntentGenres();
+
+                    const myListGenreAff = {};
+                    const myListLang = {};
+                    (this.guestProfile.myList || []).forEach(m => {
+                        (m.genres || []).forEach(g => { myListGenreAff[g] = (myListGenreAff[g] || 0) + 1; });
+                        if (m.original_language) myListLang[m.original_language] = (myListLang[m.original_language] || 0) + 1;
+                    });
+                    Object.assign(myListGenreAff, this._normalizeMap(myListGenreAff));
+                    Object.assign(myListLang, this._normalizeMap(myListLang));
+
+                    const watchedKeys = new Set();
+                    (this.guestProfile.watchHistory || []).forEach(w => watchedKeys.add(`${w.type || 'movie'}:${w.id}`));
+                    (this.guestProfile.myList || []).forEach(m => watchedKeys.add(`${m.type || 'movie'}:${m.id}`));
+
+                    let candidateData;
+                    try {
+                        candidateData = await this.buildRecommendationCandidates();
+                    } catch (e) {
+                        console.warn('Candidate build failed, using fallback:', e);
+                        candidateData = {
+                            candidates: [
+                                ...(this.trending || []).map(i => ({ item: i, sources: new Set(['trending']) })),
+                                ...(this.popularMovies || []).map(i => ({ item: i, sources: new Set(['popular']) })),
+                                ...(this.tvShows || []).map(i => ({ item: { ...i, media_type: 'tv' }, sources: new Set(['tv']) }))
+                            ],
+                            sourceSimilarity: new Set()
+                        };
+                    }
+
+                    const filtered = candidateData.candidates.filter(c => {
+                        const key = `${c.item.media_type || 'movie'}:${c.item.id}`;
+                        return !watchedKeys.has(key);
+                    });
+
+                    const seenGenres = new Set();
+                    const seenLangs = new Set();
+                    const seenTypes = new Set();
+                    const scored = [];
+                    for (const c of filtered) {
+                        const { finalScore, reason } = this.scoreRecommendation(c.item, {
+                            genreAffinity, languageAffinity, myListGenreAff, myListLang,
+                            intentGenres, sourceSimilarity: candidateData.sourceSimilarity,
+                            seenGenres, seenLangs, seenTypes
+                        });
+                        let bonus = 0;
+                        if (c.sources.has('tmdb_rec')) bonus += 0.03;
+                        if (c.sources.has('tmdb_sim')) bonus += 0.02;
+                        if (c.sources.has('search')) bonus += 0.02;
+                        scored.push({ item: c.item, score: finalScore + bonus, reason });
+                    }
+
+                    scored.sort((a, b) => b.score - a.score);
+                    const diversified = this._applyDiversity(scored, 20);
+                    const top = diversified.slice(0, 20).map(s => s.item);
+
+                    const reasonMap = {};
+                    diversified.forEach(s => {
+                        const key = `${s.item.media_type || 'movie'}:${s.item.id}`;
+                        reasonMap[key] = s.reason;
+                    });
+                    this.recReasons = reasonMap;
+
+                    this.recommendedPickedForYou = top;
+                    this.recDebug = {
+                        lastRefresh: Date.now(),
+                        candidateCount: filtered.length,
+                        topScores: diversified.slice(0, 5).map(s => ({
+                            id: s.item.id,
+                            title: s.item.title || s.item.name,
+                            score: Math.round(s.score * 1000) / 1000,
+                            reason: s.reason
+                        }))
+                    };
+
+                    this._updateSecondaryPools();
+                },
+
+                _updateSecondaryPools() {
+                    const recentSearches = (this.guestProfile.recentSearches || []).slice(0, 1);
+                    if (recentSearches.length) {
+                        const q = recentSearches[0];
+                        const cacheKey = String(q).toLowerCase();
+                        if (this.recCache.searchResults[cacheKey]) {
+                            this.recommendedBySearch = this.recCache.searchResults[cacheKey].slice(0, 10);
                         }
-                        if (this.guestProfile.watchHistory.length > 0) {
-                            const lastWatched = this.guestProfile.watchHistory[0];
-                            const similarRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/${lastWatched.type}/${lastWatched.id}/recommendations`));
-                            this.recommendedByHistory = (similarRes.results || []).filter(r => r.poster_path).slice(0, 10);
-                        } else {
-                            this.recommendedByHistory = this.popularMovies.slice(5, 15);
+                    }
+                    const recentWatches = (this.guestProfile.watchHistory || []).slice(0, 1);
+                    if (recentWatches.length) {
+                        const w = recentWatches[0];
+                        const key = `${w.type || 'movie'}:${w.id}`;
+                        if (this.recCache.tmdbRecommendations[key]) {
+                            this.recommendedByHistory = this.recCache.tmdbRecommendations[key].slice(0, 10);
+                        } else if (this.recCache.tmdbSimilar[key]) {
+                            this.recommendedByHistory = this.recCache.tmdbSimilar[key].slice(0, 10);
                         }
-                    } catch (e) { console.warn('reco error:', e); }
+                    }
+                },
+
+                _buildColdStartRecommendations() {
+                    const pool = [
+                        ...(this.trending || []).slice(0, 8),
+                        ...(this.popularMovies || []).slice(0, 8),
+                        ...(this.tvShows || []).slice(0, 8),
+                        ...(this.animeList || []).slice(0, 4)
+                    ];
+                    const seen = new Set();
+                    const unique = [];
+                    for (const i of pool) {
+                        const type = i.media_type || 'movie';
+                        const key = `${type}:${i.id}`;
+                        if (seen.has(key)) continue;
+                        seen.add(key);
+                        unique.push(i);
+                    }
+                    unique.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+                    const diverse = [];
+                    const usedGenres = new Set();
+                    for (const i of unique) {
+                        if (diverse.length >= 15) break;
+                        const genres = i.genre_ids || [];
+                        const overloaded = genres.length && genres.every(g => usedGenres.has(g));
+                        if (overloaded && diverse.length > 6) continue;
+                        diverse.push(i);
+                        genres.forEach(g => usedGenres.add(g));
+                    }
+                    return diverse;
+                },
+
+                async computePersonalizedRecommendations() {
+                    const hasHistory = (this.guestProfile.watchHistory || []).length > 0;
+                    const hasList = (this.guestProfile.myList || []).length > 0;
+                    const hasSearches = (this.guestProfile.recentSearches || []).length > 0;
+
+                    if (!hasHistory && !hasList && !hasSearches) {
+                        this.recommendedPickedForYou = this._buildColdStartRecommendations();
+                        this.recommendedByHistory = this.popularMovies.slice(5, 15);
+                        return;
+                    }
+
+                    await this._doRefreshPersonalizedRecommendations();
                 },
 
                 async onSearchInput(val) {
@@ -1399,6 +1759,24 @@
                 openDrawer() { this.drawerOpen = true; },
                 closeDrawer() { this.drawerOpen = false; },
                 openMusicPage() { window.location.href = 'music.html'; },
+
+                /* ------------------------------------------------------------------
+                 *  Platform card click handler.
+                 *  — Spotify (by name or type:'music') → direct music.html redirect.
+                 *    Bypasses OTT filtering entirely.
+                 *  — All other platforms → existing filterByOtt() behavior.
+                 *  Works from anywhere the card is rendered (mobile + desktop + row).
+                 * ------------------------------------------------------------------ */
+                handlePlatformClick(ott) {
+                    if (!ott) return;
+                    const name = String(ott.name || '').trim().toLowerCase();
+                    const isMusicDest = ott.type === 'music' || name === 'spotify';
+                    if (isMusicDest) {
+                        window.location.href = 'music.html';
+                        return;
+                    }
+                    this.filterByOtt(ott.name);
+                },
 
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
@@ -1514,7 +1892,6 @@
     <!-- ============================================================
          MINI MUSIC PLAYER — sync with music.html via localStorage
          index.html = mini player, music.html = full player
-         Communication channel: localStorage["rx_now_playing"]
          ============================================================ -->
     <script>
     (function () {
@@ -1713,7 +2090,6 @@
             if (document.visibilityState === 'hidden') saveNowPlaying();
         });
 
-        /* Save state before user navigates away via any link */
         document.addEventListener('click', e => {
             const link = e.target.closest('a');
             if (link && link.href) {
