@@ -4174,17 +4174,7 @@ auth.onAuthStateChanged(user => {
 console.log('🔊 RX PLAYER v18 — Smart lyrics via /api/lyrics');
 </script>
 
-<script>
-document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-document.addEventListener('keydown', e => {
-  const key = e.keyCode || e.which;
-  if (key === 123) { e.preventDefault(); return false; }
-  if (e.ctrlKey && e.shiftKey && (key === 73 || key === 74 || key === 67)) { e.preventDefault(); return false; }
-  if (e.ctrlKey && (key === 85 || key === 83)) { e.preventDefault(); return false; }
-  if (e.metaKey && e.altKey && key === 73) { e.preventDefault(); return false; }
-  return true;
-});
-</script>
+
 
 </body>
 </html>
