@@ -272,6 +272,83 @@
             .horizontal-cards-row { gap: 16px; }
         }
 
+        /* ===== EXPLORE MORE CARD (end of every section) ===== */
+        .horizontal-cards-row .explore-more-card {
+            flex: 0 0 125px;
+            scroll-snap-align: start;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, rgba(229,9,20,0.18) 0%, rgba(229,9,20,0.04) 100%);
+            border: 1.5px dashed rgba(229,9,20,0.45);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+            padding: 14px 10px;
+            min-height: 100%;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .horizontal-cards-row .explore-more-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(229,9,20,0.15) 0%, transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .horizontal-cards-row .explore-more-card:hover {
+            background: linear-gradient(135deg, rgba(229,9,20,0.30) 0%, rgba(229,9,20,0.10) 100%);
+            border-color: var(--primary-red);
+            border-style: solid;
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(229,9,20,0.28), var(--shadow);
+        }
+        .horizontal-cards-row .explore-more-card:hover::before { opacity: 1; }
+        .horizontal-cards-row .explore-more-card .explore-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: var(--primary-red);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 19px;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(229,9,20,0.5);
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
+        }
+        .horizontal-cards-row .explore-more-card:hover .explore-icon {
+            transform: scale(1.12) rotate(-15deg);
+            box-shadow: 0 10px 30px rgba(229,9,20,0.8);
+        }
+        .horizontal-cards-row .explore-more-card h5 {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-white);
+            letter-spacing: -0.2px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+        .horizontal-cards-row .explore-more-card p {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            line-height: 1.3;
+            margin-top: -6px;
+            position: relative;
+            z-index: 1;
+        }
+        @media (min-width: 768px) {
+            .horizontal-cards-row .explore-more-card { flex: 0 0 170px; padding: 18px 12px; }
+            .horizontal-cards-row .explore-more-card .explore-icon { width: 58px; height: 58px; font-size: 22px; }
+            .horizontal-cards-row .explore-more-card h5 { font-size: 14px; }
+            .horizontal-cards-row .explore-more-card p { font-size: 11.5px; }
+        }
+
         .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         @media (min-width: 768px) {
             .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
@@ -678,6 +755,7 @@
 
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
+                <!-- ============ PICKED FOR YOU ============ -->
                 <div x-show="filteredPickedForYou.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
@@ -693,9 +771,15 @@
                                 </div>
                             </div>
                         </template>
+                        <div class="explore-more-card" @click="window.location.href='picks.html'">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>See all picks</p>
+                        </div>
                     </div>
                 </div>
 
+                <!-- ============ WEB SERIES ============ -->
                 <div x-show="filteredSeries.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -708,24 +792,15 @@
                                 </div>
                             </div>
                         </template>
+                        <div class="explore-more-card" @click="window.location.href='webseries.html'">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All web series</p>
+                        </div>
                     </div>
                 </div>
 
-                <div x-show="filteredKDrama.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
+                <!-- ============ ANIME SERIES ============ -->
                 <div x-show="filteredAnime.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -738,9 +813,15 @@
                                 </div>
                             </div>
                         </template>
+                        <div class="explore-more-card" @click="window.location.href='anime.html'">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All anime</p>
+                        </div>
                     </div>
                 </div>
 
+                <!-- ============ TRENDING ============ -->
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
@@ -755,9 +836,15 @@
                                 </div>
                             </div>
                         </template>
+                        <div class="explore-more-card" @click="window.location.href='trending.html'">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>See what's hot</p>
+                        </div>
                     </div>
                 </div>
 
+                <!-- ============ POPULAR MOVIES ============ -->
                 <div x-show="filteredMovies.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
@@ -772,6 +859,11 @@
                                 </div>
                             </div>
                         </template>
+                        <div class="explore-more-card" @click="window.location.href='movies.html'">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All movies</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1201,10 +1293,6 @@
                 get filteredSeries() {
                     const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
                     return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
-                },
-                get filteredKDrama() {
-                    const base = this.activeOtt === 'all' ? this.kdramaList : (this.ottPools.kdrama.length ? this.ottPools.kdrama : this.kdramaList);
-                    return this.applySectionConfig('kdrama', this.filterBySmartYear(base, 6));
                 },
                 get filteredAnime() {
                     const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
