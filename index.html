@@ -802,30 +802,7 @@
                     </div>
                 </div>
 
-                <!-- ============ POPULAR MOVIES ============ -->
-                <div x-show="filteredMovies.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredMovies" :key="'pop'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'movie')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span>movie</span><span x-text="year(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('movies.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All movies</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ============ WEB SERIES ============ -->
+                                <!-- ============ WEB SERIES ============ -->
                 <div x-show="filteredSeries.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -863,6 +840,29 @@
                             <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
                             <h5>Explore More</h5>
                             <p>All anime</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ POPULAR MOVIES ============ -->
+                <div x-show="filteredMovies.length">
+                    <div class="section-heading-wrap">
+                        <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in filteredMovies" :key="'pop'+item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'movie')">
+                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta"><span>movie</span><span x-text="year(item)"></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="explore-more-card" @click="exploreMore('movies.html')">
+                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                            <h5>Explore More</h5>
+                            <p>All movies</p>
                         </div>
                     </div>
                 </div>
