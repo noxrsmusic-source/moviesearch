@@ -710,6 +710,38 @@ img{ display:block; max-width:100%; object-fit:cover; }
   border-radius:4px; transition:width 0.15s linear;
 }
 
+/* ============================================================
+   LYRICS MINI CONTROLS (Play/Pause, Next, Prev)
+   ============================================================ */
+.lyrics-controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+  flex-shrink:0;
+  padding:14px 0 6px;
+}
+.lyrics-ctrl-btn{
+  width:46px; height:46px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; color:var(--text-white);
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  transition:var(--transition);
+  flex-shrink:0;
+}
+.lyrics-ctrl-btn:hover{ background:rgba(255,255,255,0.14); transform:scale(1.05); }
+.lyrics-ctrl-btn:active{ transform:scale(0.95); }
+.lyrics-play-pause-btn{
+  width:56px; height:56px;
+  font-size:20px;
+  background:var(--primary-red);
+  border-color:var(--primary-red);
+  box-shadow:0 6px 20px rgba(229,9,20,0.35);
+}
+.lyrics-play-pause-btn:hover{ background:var(--primary-red-hover); }
+
 /* MODALS */
 .modal-overlay{
   position:fixed; inset:0;
@@ -984,6 +1016,9 @@ img{ display:block; max-width:100%; object-fit:cover; }
   .lyrics-close-btn{ width:44px; height:44px; font-size:18px; }
   .fs-player-extra{ gap:8px; }
   .fs-player-extra button{ padding:9px 14px; font-size:13px; min-height:42px; }
+  .lyrics-controls{ gap:22px; padding:10px 0 4px; }
+  .lyrics-ctrl-btn{ width:44px; height:44px; font-size:16px; }
+  .lyrics-play-pause-btn{ width:54px; height:54px; font-size:19px; }
 }
 </style>
 </head>
@@ -1329,6 +1364,18 @@ img{ display:block; max-width:100%; object-fit:cover; }
       </div>
       <span class="lyrics-time right" id="lyricsTotalTime">0:00</span>
     </div>
+    <!-- NEW: Mini player controls -->
+    <div class="lyrics-controls" id="lyricsControls">
+      <button class="lyrics-ctrl-btn" id="lyricsPrevBtn" aria-label="Previous song">
+        <i class="fas fa-step-backward"></i>
+      </button>
+      <button class="lyrics-ctrl-btn lyrics-play-pause-btn" id="lyricsPlayPauseBtn" aria-label="Play or Pause">
+        <i class="fas fa-play"></i>
+      </button>
+      <button class="lyrics-ctrl-btn" id="lyricsNextBtn" aria-label="Next song">
+        <i class="fas fa-step-forward"></i>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1591,6 +1638,11 @@ const lyricsCurrentTime = document.getElementById('lyricsCurrentTime');
 const lyricsTotalTime = document.getElementById('lyricsTotalTime');
 const lyricsProgressFill = document.getElementById('lyricsProgressFill');
 const lyricsProgressWrap = document.getElementById('lyricsProgressWrap');
+
+/* NEW: lyrics mini controls */
+const lyricsPrevBtn = document.getElementById('lyricsPrevBtn');
+const lyricsPlayPauseBtn = document.getElementById('lyricsPlayPauseBtn');
+const lyricsNextBtn = document.getElementById('lyricsNextBtn');
 
 const userStatus = document.getElementById('userStatus');
 const userDisplayName = document.getElementById('userDisplayName');
@@ -2129,7 +2181,6 @@ function extractArtistNames(item){
     }
   }
 
-  /* PRIORITY 1: JioSaavn more_info.artistMap.primary_artists (REAL names) */
   const mi = item.more_info || item.moreInfo || {};
   if (mi.artistMap && typeof mi.artistMap === 'object'){
     if (Array.isArray(mi.artistMap.primary_artists)){
@@ -2140,15 +2191,10 @@ function extractArtistNames(item){
     }
   }
 
-  /* PRIORITY 2: top-level primaryArtists / primary_artists string */
   add(item.primaryArtists);
   add(item.primary_artists);
-
-  /* PRIORITY 3: singers */
   if (mi.singers) add(mi.singers);
   add(item.singers);
-
-  /* PRIORITY 4: less reliable fields */
   add(item.artist);
   add(item.artistName);
   add(item.singer);
@@ -2157,7 +2203,6 @@ function extractArtistNames(item){
 
   if (Array.isArray(item.artists)) item.artists.forEach(add);
 
-  /* Fallback */
   if (set.size === 0) return ['Unknown Artist'];
   return Array.from(set);
 }
@@ -2946,6 +2991,8 @@ function updatePlayPauseIcon(playing){
   const icon = playing ? 'fa-pause' : 'fa-play';
   bottomPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
   fsPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
+  /* NEW: sync lyrics mini play/pause button */
+  if (lyricsPlayPauseBtn) lyricsPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
   updatePlayingHighlight();
 }
 
@@ -3332,7 +3379,6 @@ function parseSyncedLyrics(lrc){
   return lines;
 }
 
-/* Clean song title for search */
 function buildCleanTitle(title){
   return String(title || '')
     .replace(/\(.*?\)/g, '')
@@ -3343,7 +3389,6 @@ function buildCleanTitle(title){
     .trim();
 }
 
-/* Single attempt with given title+artist */
 async function tryLyrics(title, artist){
   if (!title) return { found:false };
   try {
@@ -3370,7 +3415,6 @@ async function tryLyrics(title, artist){
   return { found:false };
 }
 
-/* MAIN FETCHER — tries multiple title/artist combinations */
 async function fetchLyrics(song){
   if (!song) return { found:false, synced:false, lines:[], ts:Date.now() };
 
@@ -3390,7 +3434,6 @@ async function fetchLyrics(song){
 
   let result = { found:false, synced:false, lines:[], ts: Date.now() };
 
-  /* Build candidate list */
   const candidates = [];
   const seen = new Set();
   function addCandidate(t, a){
@@ -3400,22 +3443,11 @@ async function fetchLyrics(song){
     candidates.push({ title: t, artist: a });
   }
 
-  /* 1. Clean title + real primary artist */
   if (primary) addCandidate(cleanTitle, primary);
-
-  /* 2. Clean title + other real artists */
   realArtists.slice(1).forEach(a => addCandidate(cleanTitle, a));
-
-  /* 3. Raw title + real primary artist */
   if (cleanTitle !== rawTitle && primary) addCandidate(rawTitle, primary);
-
-  /* 4. Title-only (clean) */
   addCandidate(cleanTitle, '');
-
-  /* 5. Title-only (raw) */
   if (cleanTitle !== rawTitle) addCandidate(rawTitle, '');
-
-  /* 6. Clean title + placeholder primary (rarely helps but try last) */
   const allPrimary = allArtists[0] || '';
   if (allPrimary && !realArtists.includes(allPrimary)) addCandidate(cleanTitle, allPrimary);
 
@@ -3437,7 +3469,6 @@ async function fetchLyrics(song){
   return result;
 }
 
-/* ---- Lyrics panel ---- */
 function openLyricsPanel(){
   if (!currentSong){
     showToast('No song playing.', 'info');
@@ -3450,6 +3481,10 @@ function openLyricsPanel(){
   lyricsPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
   fsLyricsBtn.classList.add('active');
+  /* NEW: sync mini play/pause icon on open */
+  if (lyricsPlayPauseBtn) {
+    lyricsPlayPauseBtn.innerHTML = `<i class="fas ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>`;
+  }
   updateLyricsProgress();
   loadLyricsForSong(currentSong);
 }
@@ -3718,6 +3753,11 @@ bottomNextBtn.addEventListener('click', e => { e.stopPropagation(); nextSong(); 
 fsPlayPauseBtn.addEventListener('click', togglePlay);
 fsPrevBtn.addEventListener('click', prevSong);
 fsNextBtn.addEventListener('click', nextSong);
+
+/* NEW: lyrics mini controls */
+if (lyricsPlayPauseBtn) lyricsPlayPauseBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+if (lyricsPrevBtn) lyricsPrevBtn.addEventListener('click', e => { e.stopPropagation(); prevSong(); });
+if (lyricsNextBtn) lyricsNextBtn.addEventListener('click', e => { e.stopPropagation(); nextSong(); });
 
 fsShuffleBtn.addEventListener('click', () => {
   shuffle = !shuffle;
@@ -4171,7 +4211,7 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v18 — Smart lyrics via /api/lyrics');
+console.log('🔊 RX PLAYER v19 — Smart lyrics + mini controls');
 </script>
 
 
