@@ -596,14 +596,6 @@
         }
         .detail-selector-group select:focus { border-color: var(--primary-red); }
 
-        /* Trailer Container Styles */
-        .detail-trailer-wrap {
-            margin-bottom: 20px; border-radius: 10px; overflow: hidden;
-            background: #000; border: 1px solid rgba(255,255,255,0.08);
-            aspect-ratio: 16/9; position: relative;
-        }
-        .detail-trailer-wrap iframe { width: 100%; height: 100%; border: none; }
-
         .detail-body { padding: 0 24px 28px; }
         @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
 
@@ -1078,11 +1070,6 @@
                     </div>
 
                     <div class="detail-body">
-                        <!-- Trailer Player -->
-                        <div class="detail-trailer-wrap" x-show="detailTrailerKey">
-                            <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=0&rel=0'" allowfullscreen></iframe>
-                        </div>
-
                         <div class="detail-info-grid">
                             <div>
                                 <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
@@ -1209,7 +1196,6 @@
                 detailLoading: false,
                 detailData: null,
                 detailItem: { id: null, type: 'movie' },
-                detailTrailerKey: '',
                 selectedSeason: 1,
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
@@ -1785,7 +1771,6 @@
 
                     this.detailItem = { id, type: normType };
                     this.detailData = null;
-                    this.detailTrailerKey = '';
                     this.selectedSeason = 1;
                     this.selectedEpisode = 1;
                     this.currentSeasonEpisodesCount = 1;
@@ -1796,16 +1781,10 @@
 
                     try {
                         const endpoint = normType === 'tv'
-                            ? `/tv/${id}?language=en-US&append_to_response=credits,videos`
-                            : `/movie/${id}?language=en-US&append_to_response=credits,videos`;
+                            ? `/tv/${id}?language=en-US&append_to_response=credits`
+                            : `/movie/${id}?language=en-US&append_to_response=credits`;
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                         this.detailData = data;
-
-                        // Find Trailer
-                        if (data.videos && Array.isArray(data.videos.results)) {
-                            const trailer = data.videos.results.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
-                            if (trailer) this.detailTrailerKey = trailer.key;
-                        }
 
                         // Setup Seasons
                         if (normType === 'tv' && data.seasons && data.seasons.length > 0) {
@@ -1840,7 +1819,6 @@
                         if (!this.detailModalOpen) {
                             this.detailData = null;
                             this.detailItem = { id: null, type: 'movie' };
-                            this.detailTrailerKey = '';
                         }
                     }, 300);
                 },
@@ -1921,3 +1899,4 @@
     </script>
 </body>
 </html>
+```[cite: 1]
