@@ -272,7 +272,6 @@
             .horizontal-cards-row { gap: 16px; }
         }
 
-        /* ===== EXPLORE MORE CARD (end of every section) ===== */
         .horizontal-cards-row .explore-more-card {
             flex: 0 0 125px;
             scroll-snap-align: start;
@@ -450,21 +449,6 @@
         .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .modal-header h3 i { color: var(--primary-red); }
         .modal-close { font-size: 18px; color: var(--text-muted); padding: 4px; }
-        .auth-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
-        .auth-tabs button { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.04); color: var(--text-muted); }
-        .auth-tabs button.active { background: var(--primary-red); color: #fff; }
-        .auth-form .form-group { margin-bottom: 12px; }
-        .auth-form .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .auth-form .form-group input {
-            width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
-            border: 1.5px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.04); color: #fff; font-size: 14px; outline: none;
-        }
-        .auth-form .btn-primary {
-            width: 100%; padding: 12px; border-radius: var(--radius-sm);
-            background: var(--primary-red); font-weight: 700; font-size: 14px; color: #fff;
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;
-        }
 
         .toast-container {
             position: fixed; bottom: 130px; right: 24px; z-index: 999999;
@@ -491,8 +475,8 @@
         .detail-modal-overlay {
             position: fixed; inset: 0; z-index: 2147483000;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
-            display: none; align-items: flex-start; justify-content: center;
-            padding: 30px 16px 40px; overflow-y: auto;
+            display: none; align-items: center; justify-content: center;
+            padding: 16px; overflow-y: auto;
         }
         .detail-modal-overlay.open { display: flex; }
 
@@ -500,10 +484,12 @@
             background: var(--bg-card);
             border-radius: var(--radius);
             max-width: 880px; width: 100%;
-            max-height: none; overflow: hidden;
+            max-height: 90vh; overflow-y: auto;
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 24px 80px rgba(0,0,0,0.9);
             position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
             animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
         }
         @keyframes modalIn {
@@ -512,7 +498,7 @@
         }
 
         .detail-modal-close {
-            position: absolute; top: 14px; right: 14px; z-index: 10;
+            position: absolute; top: 14px; right: 14px; z-index: 20;
             width: 38px; height: 38px; border-radius: 50%;
             background: rgba(0,0,0,0.75); color: #fff;
             display: flex; align-items: center; justify-content: center;
@@ -531,7 +517,7 @@
 
         .detail-backdrop {
             position: relative; width: 100%;
-            aspect-ratio: 16 / 9; min-height: 240px;
+            aspect-ratio: 16 / 9; min-height: 220px;
             background-size: cover; background-position: center top;
             background-color: #0a0a0f;
         }
@@ -539,18 +525,22 @@
             position: absolute; inset: 0;
             background: linear-gradient(
                 to bottom,
-                rgba(20,20,31,0.10) 0%,
-                rgba(20,20,31,0.55) 45%,
-                rgba(20,20,31,0.88) 75%,
+                rgba(20,20,31,0.20) 0%,
+                rgba(20,20,31,0.70) 60%,
                 var(--bg-card) 100%
             );
         }
         .detail-header-content {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 28px 28px 20px;
+            position: relative;
+            padding: 24px 24px 16px;
+            margin-top: -60px;
+            z-index: 2;
+        }
+        @media (min-width: 768px) {
+            .detail-header-content { margin-top: -80px; padding: 28px 28px 20px; }
         }
         .detail-header-content h2 {
-            font-size: 30px; font-weight: 900; margin-bottom: 10px;
+            font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px;
             letter-spacing: -0.5px; line-height: 1.15;
             text-shadow: 0 2px 14px rgba(0,0,0,0.85);
             color: #fff;
@@ -579,21 +569,43 @@
             color: #e5e5e5;
             backdrop-filter: blur(6px);
         }
-        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-        .detail-watch-btn {
-            padding: 12px 30px; border-radius: 30px;
-            background: #fff; color: #000;
-            font-weight: 800; font-size: 14px;
+        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .detail-watch-btn, .detail-watchlist-btn {
+            padding: 10px 24px; border-radius: 30px;
+            font-weight: 800; font-size: 13.5px;
             display: inline-flex; align-items: center; gap: 8px;
-            transition: var(--transition);
-            border: none;
+            transition: var(--transition); border: none;
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
+        .detail-watch-btn { background: #fff; color: #000; }
         .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
-        .detail-watch-btn i { font-size: 14px; }
-        .detail-watch-btn:disabled { opacity: 0.6; cursor: wait; }
+        .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
 
-        .detail-body { padding: 20px 28px 28px; }
+        /* Season & Episode Selector Styles */
+        .detail-selector-row {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .detail-selector-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+        .detail-selector-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .detail-selector-group select {
+            background: var(--bg-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; font-family: var(--font);
+        }
+        .detail-selector-group select:focus { border-color: var(--primary-red); }
+
+        /* Trailer Container Styles */
+        .detail-trailer-wrap {
+            margin-bottom: 20px; border-radius: 10px; overflow: hidden;
+            background: #000; border: 1px solid rgba(255,255,255,0.08);
+            aspect-ratio: 16/9; position: relative;
+        }
+        .detail-trailer-wrap iframe { width: 100%; height: 100%; border: none; }
+
+        .detail-body { padding: 0 24px 28px; }
+        @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
 
         .detail-info-grid {
             display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;
@@ -604,14 +616,13 @@
         }
 
         .detail-overview {
-            font-size: 14.5px; line-height: 1.7;
+            font-size: 14px; line-height: 1.6;
             color: rgba(255,255,255,0.88);
         }
 
         .detail-facts { display: flex; flex-direction: column; gap: 10px; }
         .detail-fact {
-            font-size: 13px;
-            display: flex; flex-direction: column; gap: 2px;
+            font-size: 13px; display: flex; flex-direction: column; gap: 2px;
         }
         .detail-fact .fact-label {
             font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;
@@ -626,7 +637,7 @@
         }
         .detail-cast-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
             gap: 12px;
         }
         .detail-cast-item {
@@ -637,37 +648,31 @@
         }
         .detail-cast-item:hover { border-color: rgba(229,9,20,0.4); transform: translateY(-2px); }
         .detail-cast-avatar {
-            width: 58px; height: 58px; border-radius: 50%;
+            width: 52px; height: 52px; border-radius: 50%;
             margin: 0 auto 8px;
             background: rgba(255,255,255,0.06);
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden; color: var(--text-muted); font-size: 20px;
+            overflow: hidden; color: var(--text-muted); font-size: 18px;
             border: 2px solid rgba(255,255,255,0.08);
         }
         .detail-cast-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .detail-cast-item span {
-            display: block; font-size: 11.5px; font-weight: 600;
+            display: block; font-size: 11px; font-weight: 600;
             line-height: 1.3; color: #fff;
             overflow: hidden; text-overflow: ellipsis;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
         .detail-cast-item small {
-            display: block; font-size: 10px; color: var(--text-muted);
-            margin-top: 3px;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            display: block; font-size: 9.5px; color: var(--text-muted);
+            margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
 
         @media (max-width: 640px) {
-            .detail-modal-overlay { padding: 0; align-items: flex-start; }
-            .detail-modal-box { border-radius: 0; max-width: 100%; }
-            .detail-backdrop { min-height: 200px; aspect-ratio: 16/10; }
-            .detail-header-content h2 { font-size: 22px; }
-            .detail-header-content { padding: 20px 18px 14px; }
-            .detail-actions { width: 100%; }
-            .detail-watch-btn { width: 100%; justify-content: center; }
-            .detail-body { padding: 16px 18px 24px; }
-            .detail-cast-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
-            .detail-cast-avatar { width: 48px; height: 48px; }
+            .detail-modal-overlay { padding: 10px; align-items: center; }
+            .detail-modal-box { border-radius: var(--radius); max-height: 92vh; }
+            .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; }
+            .detail-actions { width: 100%; flex-direction: column; }
+            .detail-watch-btn, .detail-watchlist-btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -755,7 +760,6 @@
 
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
-                <!-- ============ PICKED FOR YOU (ALL view only) ============ -->
                 <div x-show="activeOtt === 'all' && filteredPickedForYou.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
@@ -779,7 +783,6 @@
                     </div>
                 </div>
 
-                <!-- ============ TRENDING ============ -->
                 <div x-show="filteredTrending.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
@@ -802,7 +805,6 @@
                     </div>
                 </div>
 
-                                <!-- ============ ANIME SERIES ============ -->
                 <div x-show="filteredAnime.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -823,8 +825,6 @@
                     </div>
                 </div>
 
-
-                                <!-- ============ WEB SERIES ============ -->
                 <div x-show="filteredSeries.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -845,7 +845,6 @@
                     </div>
                 </div>
 
-                <!-- ============ POPULAR MOVIES ============ -->
                 <div x-show="filteredMovies.length">
                     <div class="section-heading-wrap">
                         <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
@@ -868,7 +867,6 @@
                     </div>
                 </div>
 
-                <!-- ============ K-DRAMA (ALL view only) ============ -->
                 <div x-show="activeOtt === 'all' && filteredKDrama.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -889,7 +887,6 @@
                     </div>
                 </div>
 
-                <!-- ============ INDIAN SERIES (ALL view only) ============ -->
                 <div x-show="activeOtt === 'all' && filteredIndianSeries.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-om"></i> Indian Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -910,7 +907,6 @@
                     </div>
                 </div>
 
-                <!-- ============ C-DRAMA (ALL view only) ============ -->
                 <div x-show="activeOtt === 'all' && filteredCDrama.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-yin-yang"></i> C-Drama Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -931,7 +927,6 @@
                     </div>
                 </div>
 
-                <!-- ============ P-DRAMA (ALL view only) ============ -->
                 <div x-show="activeOtt === 'all' && filteredPDrama.length">
                     <div class="section-heading-wrap"><h3><i class="fas fa-sun"></i> P-Drama Series</h3></div>
                     <div class="horizontal-cards-row">
@@ -1034,29 +1029,60 @@
                 <div>
                     <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
                         <div class="detail-backdrop-gradient"></div>
-                        <div class="detail-header-content">
-                            <h2 x-text="detailTitle(detailData)"></h2>
-                            <div class="detail-meta">
-                                <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
-                                <span x-text="detailYear(detailData)"></span>
-                                <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
-                                <span x-text="detailRuntimeVal(detailData)"></span>
+                    </div>
+
+                    <div class="detail-header-content">
+                        <h2 x-text="detailTitle(detailData)"></h2>
+                        <div class="detail-meta">
+                            <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
+                            <span x-text="detailYear(detailData)"></span>
+                            <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
+                            <span x-text="detailRuntimeVal(detailData)"></span>
+                        </div>
+                        <div class="detail-genres" x-show="detailData.genres && detailData.genres.length">
+                            <template x-for="g in detailData.genres" :key="'g-' + g.id">
+                                <span class="detail-genre-chip" x-text="g.name"></span>
+                            </template>
+                        </div>
+
+                        <!-- Season & Episode Pickers for TV/Anime/Series -->
+                        <div class="detail-selector-row" x-show="detailItem.type === 'tv'">
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-layer-group"></i> Select Season</label>
+                                <select x-model="selectedSeason" @change="onSeasonChange()">
+                                    <template x-for="s in detailSeasonsList" :key="s.season_number">
+                                        <option :value="s.season_number" x-text="s.name + ' (' + s.episode_count + ' Eps)'"></option>
+                                    </template>
+                                </select>
                             </div>
-                            <div class="detail-genres" x-show="detailData.genres && detailData.genres.length">
-                                <template x-for="g in detailData.genres" :key="'g-' + g.id">
-                                    <span class="detail-genre-chip" x-text="g.name"></span>
-                                </template>
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-list-ol"></i> Select Episode</label>
+                                <select x-model="selectedEpisode">
+                                    <template x-for="epNum in currentSeasonEpisodesCount" :key="epNum">
+                                        <option :value="epNum" x-text="'Episode ' + epNum"></option>
+                                    </template>
+                                </select>
                             </div>
-                            <div class="detail-actions">
-                                <button class="detail-watch-btn" @click="goToPlayer()">
-                                    <i class="fas fa-play"></i>
-                                    <span>Watch Now</span>
-                                </button>
-                            </div>
+                        </div>
+
+                        <div class="detail-actions">
+                            <button class="detail-watch-btn" @click="goToPlayer()">
+                                <i class="fas fa-play"></i>
+                                <span>Watch Now</span>
+                            </button>
+                            <button class="detail-watchlist-btn" @click="toggleWatchlist()">
+                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i>
+                                <span x-text="isInWatchlist ? 'In Watchlist' : 'Watch Later'"></span>
+                            </button>
                         </div>
                     </div>
 
                     <div class="detail-body">
+                        <!-- Trailer Player -->
+                        <div class="detail-trailer-wrap" x-show="detailTrailerKey">
+                            <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=0&rel=0'" allowfullscreen></iframe>
+                        </div>
+
                         <div class="detail-info-grid">
                             <div>
                                 <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
@@ -1183,20 +1209,24 @@
                 detailLoading: false,
                 detailData: null,
                 detailItem: { id: null, type: 'movie' },
+                detailTrailerKey: '',
+                selectedSeason: 1,
+                selectedEpisode: 1,
+                currentSeasonEpisodesCount: 1,
 
                 homeSectionsConfig: {},
 
                 ottPlatforms: [
-                    { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',         type: 'ott' },
-                    { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                     query: 'Spotify',     type: 'music' },
-                    { name: 'Netflix',     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                     query: 'Netflix',     type: 'ott' },
-                    { name: 'Prime Video', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',      type: 'ott' },
-                    { name: 'Disney+',     logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                        query: 'Disney',      type: 'ott' },
-                    { name: 'Apple TV+',   logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                    query: 'Apple',       type: 'ott' },
-                    { name: 'Zee5',        logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',        type: 'ott' },
-                    { name: 'JioCinema',   logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',            query: 'Viacom18',    type: 'ott' },
-                    { name: 'SonyLIV',     logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                          query: 'Sony',        type: 'ott' },
-                    { name: 'Crunchyroll', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.svg',                      query: 'Crunchyroll', type: 'ott' }
+                    { name: 'HBO',        logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                            query: 'HBO',         type: 'ott' },
+                    { name: 'Spotify',    logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                   query: 'Spotify',     type: 'music' },
+                    { name: 'Netflix',    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                   query: 'Netflix',     type: 'ott' },
+                    { name: 'Prime Video',logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',      type: 'ott' },
+                    { name: 'Disney+',    logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                         query: 'Disney',      type: 'ott' },
+                    { name: 'Apple TV+',  logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                  query: 'Apple',       type: 'ott' },
+                    { name: 'Zee5',       logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',        type: 'ott' },
+                    { name: 'JioCinema',  logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',          query: 'Viacom18',    type: 'ott' },
+                    { name: 'SonyLIV',    logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                        query: 'Sony',        type: 'ott' },
+                    { name: 'Crunchyroll',logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.svg',                    query: 'Crunchyroll', type: 'ott' }
                 ],
 
                 ottPools: {
@@ -1308,6 +1338,36 @@
                     try { localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(this.guestProfile)); } catch (e) {}
                 },
 
+                get isInWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id) return false;
+                    return (this.guestProfile.myList || []).some(m => m.id === this.detailItem.id && m.type === this.detailItem.type);
+                },
+
+                toggleWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id || !this.detailData) return;
+                    const exists = this.isInWatchlist;
+                    if (exists) {
+                        this.guestProfile.myList = (this.guestProfile.myList || []).filter(m => !(m.id === this.detailItem.id && m.type === this.detailItem.type));
+                        this.showToast('Removed from Watchlist', 'info');
+                    } else {
+                        const itemEntry = {
+                            id: this.detailItem.id,
+                            type: this.detailItem.type,
+                            title: this.detailTitle(this.detailData),
+                            poster_path: this.detailData.poster_path || '',
+                            vote_average: this.detailData.vote_average || 0,
+                            release_date: this.detailData.release_date || this.detailData.first_air_date || '',
+                            genres: (this.detailData.genres || []).map(g => g.id),
+                            original_language: this.detailData.original_language || '',
+                            timestamp: Date.now()
+                        };
+                        this.guestProfile.myList = [itemEntry, ...(this.guestProfile.myList || [])];
+                        this.showToast('Added to Watchlist', 'success');
+                    }
+                    this.saveGuestProfile();
+                    this.refreshPersonalizedRecommendations().catch(()=>{});
+                },
+
                 recordWatchHistory(item, type) {
                     if (!item || !item.id) return;
                     const entry = {
@@ -1409,21 +1469,14 @@
                     }
                 },
 
-                /* =====================================================
-                 *  PICKED FOR YOU — only on the ALL / Home view.
-                 * ===================================================== */
                 get filteredPickedForYou() {
                     if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig(
-                        'picked',
-                        this.filterBySmartYear(this.recommendedPickedForYou, 6)
-                    );
+                    return this.applySectionConfig('picked', this.filterBySmartYear(this.recommendedPickedForYou, 6));
                 },
                 get filteredSeries() {
                     const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
                     return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
                 },
-                /* K-Drama, Indian, C-Drama, P-Drama — ALL view only */
                 get filteredKDrama() {
                     if (this.activeOtt !== 'all') return [];
                     return this.applySectionConfig('kdrama', this.filterBySmartYear(this.kdramaList, 6));
@@ -1443,14 +1496,6 @@
                 get filteredAnime() {
                     const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
                     return this.applySectionConfig('anime', this.filterBySmartYear(base, 6));
-                },
-                get filteredBySearch() {
-                    const base = this.activeOtt === 'all' ? this.recommendedBySearch : (this.ottPools.searchRec.length ? this.ottPools.searchRec : this.recommendedBySearch);
-                    return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
-                },
-                get filteredByHistory() {
-                    const base = this.activeOtt === 'all' ? this.recommendedByHistory : (this.ottPools.historyRec.length ? this.ottPools.historyRec : this.recommendedByHistory);
-                    return this.applySectionConfig('picked', this.filterBySmartYear(base, 6));
                 },
                 get filteredTrending() {
                     const base = this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending);
@@ -1496,10 +1541,6 @@
                     } catch (e) { console.warn('loadHomeData error:', e); }
                 },
 
-                /* ============================================================
-                 *  RECOMMENDATION ENGINE v2 — Personalized, Adaptive
-                 * ============================================================ */
-
                 _tsDecay(ts, halfLifeDays = 30) {
                     if (!ts) return 0.3;
                     const ageDays = (Date.now() - ts) / 86400000;
@@ -1528,21 +1569,6 @@
                         const decay = this._tsDecay(m.timestamp, 60);
                         (m.genres || []).forEach(g => { aff[g] = (aff[g] || 0) + decay * 0.55; });
                     });
-                    const searchGenreMap = {
-                        'action': 28, 'comedy': 35, 'horror': 27, 'romance': 10749,
-                        'thriller': 53, 'sci-fi': 878, 'scifi': 878, 'science fiction': 878,
-                        'drama': 18, 'animation': 16, 'anime': 16, 'documentary': 99,
-                        'fantasy': 14, 'mystery': 9648, 'crime': 80, 'adventure': 12,
-                        'family': 10751, 'history': 36, 'war': 10752, 'music': 10402,
-                        'western': 37
-                    };
-                    (this.guestProfile.recentSearches || []).forEach((s, idx) => {
-                        const decay = Math.pow(0.7, idx);
-                        const lower = String(s).toLowerCase();
-                        for (const [kw, gid] of Object.entries(searchGenreMap)) {
-                            if (lower.includes(kw)) aff[gid] = (aff[gid] || 0) + decay * 0.9;
-                        }
-                    });
                     return this._normalizeMap(aff);
                 },
 
@@ -1552,10 +1578,6 @@
                         if (!w.original_language) return;
                         aff[w.original_language] = (aff[w.original_language] || 0) + this._tsDecay(w.timestamp, 30);
                     });
-                    (this.guestProfile.myList || []).forEach(m => {
-                        if (!m.original_language) return;
-                        aff[m.original_language] = (aff[m.original_language] || 0) + this._tsDecay(m.timestamp, 60) * 0.6;
-                    });
                     return this._normalizeMap(aff);
                 },
 
@@ -1563,14 +1585,9 @@
                     const intent = new Set();
                     const map = {
                         'action': 28, 'comedy': 35, 'horror': 27, 'romance': 10749,
-                        'thriller': 53, 'sci-fi': 878, 'scifi': 878, 'science fiction': 878,
-                        'drama': 18, 'animation': 16, 'anime': 16, 'documentary': 99,
-                        'fantasy': 14, 'mystery': 9648, 'crime': 80, 'adventure': 12,
-                        'korean': 18, 'kdrama': 18, 'k-drama': 18, 'japanese': 16,
-                        'bollywood': 18, 'hindi': 18, 'tamil': 18, 'telugu': 18
+                        'thriller': 53, 'sci-fi': 878, 'drama': 18, 'animation': 16, 'anime': 16
                     };
-                    const recent = (this.guestProfile.recentSearches || []).slice(0, 5);
-                    recent.forEach(s => {
+                    (this.guestProfile.recentSearches || []).slice(0, 5).forEach(s => {
                         const lower = String(s).toLowerCase();
                         for (const [kw, gid] of Object.entries(map)) {
                             if (lower.includes(kw)) intent.add(gid);
@@ -1587,54 +1604,6 @@
                     return Math.min(1, (score / genres.length) * 1.35);
                 },
 
-                _calculateSimilarityScore(item, sourceSimilarity) {
-                    const key = `${item.media_type || 'movie'}:${item.id}`;
-                    return sourceSimilarity.has(key) ? 1 : 0;
-                },
-
-                _calculateMyListScore(item, myListGenreAff, myListLang) {
-                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
-                    let gScore = 0;
-                    genres.forEach(g => { gScore += myListGenreAff[g] || 0; });
-                    gScore = genres.length ? gScore / genres.length : 0;
-                    const lScore = myListLang[item.original_language] || 0;
-                    return Math.min(1, gScore * 0.7 + lScore * 0.3);
-                },
-
-                _calculateSearchIntentScore(item, intentGenres) {
-                    if (!intentGenres.length) return 0;
-                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
-                    if (!genres.length) return 0;
-                    let match = 0;
-                    genres.forEach(g => { if (intentGenres.includes(g)) match++; });
-                    return Math.min(1, match / Math.max(2, intentGenres.length));
-                },
-
-                _calculatePopularityScore(item) {
-                    const rating = (item.vote_average || 0) / 10;
-                    const votes = Math.min(1, (item.vote_count || 0) / 5000);
-                    const pop = Math.min(1, (item.popularity || 0) / 500);
-                    return Math.min(1, rating * 0.6 + votes * 0.25 + pop * 0.15);
-                },
-
-                _calculateLanguageScore(item, languageAffinity) {
-                    if (!Object.keys(languageAffinity).length) return 0.5;
-                    const lang = item.original_language || 'en';
-                    const aff = languageAffinity[lang] || 0;
-                    return aff > 0 ? Math.min(1, aff * 0.8 + 0.2) : 0.2;
-                },
-
-                _calculateDiversityScore(item, seenGenres, seenLangs, seenTypes) {
-                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
-                    const lang = item.original_language || 'en';
-                    const type = item.media_type || 'movie';
-                    let novelty = 0;
-                    if (!genres.some(g => seenGenres.has(g))) novelty += 0.5;
-                    if (!seenLangs.has(lang)) novelty += 0.3;
-                    if (!seenTypes.has(type)) novelty += 0.2;
-                    return Math.min(1, novelty);
-                },
-
                 async _fetchTmdbRecommendations(type, id) {
                     const key = `${type}:${id}`;
                     if (this.recCache.tmdbRecommendations[key]) return this.recCache.tmdbRecommendations[key];
@@ -1644,7 +1613,6 @@
                         this.recCache.tmdbRecommendations[key] = results;
                         return results;
                     } catch (e) {
-                        this.recCache.tmdbRecommendations[key] = [];
                         return [];
                     }
                 },
@@ -1658,7 +1626,6 @@
                         this.recCache.tmdbSimilar[key] = results;
                         return results;
                     } catch (e) {
-                        this.recCache.tmdbSimilar[key] = [];
                         return [];
                     }
                 },
@@ -1683,118 +1650,39 @@
                     (this.tvShows || []).forEach(i => addCandidate(i, 'tv'));
                     (this.animeList || []).forEach(i => addCandidate(i, 'anime'));
                     (this.kdramaList || []).forEach(i => addCandidate(i, 'kdrama'));
-                    (this.indianSeriesList || []).forEach(i => addCandidate(i, 'indianseries'));
-                    (this.cdramaList || []).forEach(i => addCandidate(i, 'cdrama'));
-                    (this.pdramaList || []).forEach(i => addCandidate(i, 'pdrama'));
-
-                    const recentWatches = (this.guestProfile.watchHistory || []).slice(0, 3);
-                    const recsPromises = [];
-                    recentWatches.forEach(w => {
-                        const t = w.type || 'movie';
-                        recsPromises.push(this._fetchTmdbRecommendations(t, w.id));
-                        recsPromises.push(this._fetchTmdbSimilar(t, w.id));
-                    });
-                    const recResults = await Promise.all(recsPromises);
-                    recResults.forEach(results => results.forEach(r => addCandidate(r, 'tmdb_rec')));
-
-                    const recentSearches = (this.guestProfile.recentSearches || []).slice(0, 3);
-                    const searchPromises = recentSearches.map(s => {
-                        const cacheKey = String(s).toLowerCase();
-                        if (this.recCache.searchResults[cacheKey]) return Promise.resolve(this.recCache.searchResults[cacheKey]);
-                        return this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(s)}&page=1`))
-                            .then(d => {
-                                const r = (d.results || []).filter(x => x.poster_path && (x.media_type === 'movie' || x.media_type === 'tv'));
-                                this.recCache.searchResults[cacheKey] = r;
-                                return r;
-                            })
-                            .catch(() => []);
-                    });
-                    const searchResults = await Promise.all(searchPromises);
-                    searchResults.forEach(list => list.forEach(r => addCandidate(r, 'search')));
-
-                    const myListItems = (this.guestProfile.myList || []).slice(0, 2);
-                    const myListPromises = myListItems.map(m => this._fetchTmdbRecommendations(m.type || 'movie', m.id));
-                    const myListRecs = await Promise.all(myListPromises);
-                    myListRecs.forEach(results => results.forEach(r => addCandidate(r, 'myList')));
 
                     return { candidates: Array.from(candidates.values()), sourceSimilarity };
                 },
 
                 scoreRecommendation(item, ctx) {
-                    const {
-                        genreAffinity, languageAffinity, myListGenreAff, myListLang,
-                        intentGenres, sourceSimilarity, seenGenres, seenLangs, seenTypes
-                    } = ctx;
-
+                    const { genreAffinity, sourceSimilarity } = ctx;
                     const genreScore = this._calculateGenreScore(item, genreAffinity);
-                    const similarityScore = this._calculateSimilarityScore(item, sourceSimilarity);
-                    const myListScore = this._calculateMyListScore(item, myListGenreAff, myListLang);
-                    const searchIntentScore = this._calculateSearchIntentScore(item, intentGenres);
-                    const popularityScore = this._calculatePopularityScore(item);
-                    const languageScore = this._calculateLanguageScore(item, languageAffinity);
-                    const diversityScore = this._calculateDiversityScore(item, seenGenres, seenLangs, seenTypes);
+                    const similarityScore = sourceSimilarity.has(`${item.media_type || 'movie'}:${item.id}`) ? 1 : 0;
+                    const popularityScore = Math.min(1, ((item.vote_average || 0) / 10) * 0.6 + ((item.popularity || 0) / 500) * 0.4);
 
-                    const w = this.recWeights;
-                    const finalScore =
-                        genreScore * w.genreAffinity +
-                        similarityScore * w.tmdbSimilarity +
-                        myListScore * w.myListSimilarity +
-                        searchIntentScore * w.searchIntent +
-                        popularityScore * w.popularityRating +
-                        languageScore * w.languageCompatibility +
-                        diversityScore * w.discoveryDiversity;
-
-                    let reason = '';
-                    if (similarityScore > 0.5) reason = 'Similar to your watch history';
-                    else if (myListScore > 0.4) reason = 'Based on your list';
-                    else if (searchIntentScore > 0.4) reason = 'Based on your recent searches';
-                    else if (genreScore > 0.45) reason = 'Because you like this genre';
-                    else if (languageScore > 0.65) reason = 'In your preferred language';
-                    else if (popularityScore > 0.7) reason = 'Trending in your interests';
-
-                    return { finalScore, reason };
+                    const finalScore = genreScore * 0.4 + similarityScore * 0.4 + popularityScore * 0.2;
+                    return { finalScore, reason: similarityScore ? 'Similar to your watch history' : 'Trending in your interests' };
                 },
 
                 _applyDiversity(scoredList, maxItems) {
                     const out = [];
                     const usedGenres = new Set();
-                    const usedLangs = new Set();
                     for (const s of scoredList) {
                         if (out.length >= maxItems) break;
-                        const genres = s.item.genre_ids || [];
-                        const lang = s.item.original_language || 'en';
-                        const genreOverload = genres.length && genres.every(g => usedGenres.has(g));
-                        if (genreOverload && out.length >= maxItems * 0.6) continue;
                         out.push(s);
-                        genres.forEach(g => usedGenres.add(g));
-                        usedLangs.add(lang);
-                    }
-                    if (out.length < maxItems) {
-                        for (const s of scoredList) {
-                            if (out.length >= maxItems) break;
-                            if (!out.includes(s)) out.push(s);
-                        }
+                        (s.item.genre_ids || []).forEach(g => usedGenres.add(g));
                     }
                     return out;
                 },
 
                 async refreshPersonalizedRecommendations() {
                     return new Promise((resolve) => {
-                        if (this.recCache.refreshDebounceTimer) {
-                            clearTimeout(this.recCache.refreshDebounceTimer);
-                        }
+                        if (this.recCache.refreshDebounceTimer) clearTimeout(this.recCache.refreshDebounceTimer);
                         this.recCache.refreshDebounceTimer = setTimeout(async () => {
                             this.recCache.refreshDebounceTimer = null;
-                            if (this.recCache._refreshing) { resolve(); return; }
-                            this.recCache._refreshing = true;
                             try {
                                 await this._doRefreshPersonalizedRecommendations();
-                            } catch (e) {
-                                console.warn('refreshPersonalizedRecommendations error:', e);
-                            } finally {
-                                this.recCache._refreshing = false;
-                                this.recCache.lastRefresh = Date.now();
-                            }
+                            } catch (e) {}
                             resolve();
                         }, 800);
                     });
@@ -1802,147 +1690,31 @@
 
                 async _doRefreshPersonalizedRecommendations() {
                     const genreAffinity = this.calculateGenreAffinity();
-                    const languageAffinity = this.calculateLanguageAffinity();
-                    const intentGenres = this._searchIntentGenres();
-
-                    const myListGenreAff = {};
-                    const myListLang = {};
-                    (this.guestProfile.myList || []).forEach(m => {
-                        (m.genres || []).forEach(g => { myListGenreAff[g] = (myListGenreAff[g] || 0) + 1; });
-                        if (m.original_language) myListLang[m.original_language] = (myListLang[m.original_language] || 0) + 1;
-                    });
-                    Object.assign(myListGenreAff, this._normalizeMap(myListGenreAff));
-                    Object.assign(myListLang, this._normalizeMap(myListLang));
-
+                    const candidateData = await this.buildRecommendationCandidates();
                     const watchedKeys = new Set();
                     (this.guestProfile.watchHistory || []).forEach(w => watchedKeys.add(`${w.type || 'movie'}:${w.id}`));
-                    (this.guestProfile.myList || []).forEach(m => watchedKeys.add(`${m.type || 'movie'}:${m.id}`));
 
-                    let candidateData;
-                    try {
-                        candidateData = await this.buildRecommendationCandidates();
-                    } catch (e) {
-                        console.warn('Candidate build failed, using fallback:', e);
-                        candidateData = {
-                            candidates: [
-                                ...(this.trending || []).map(i => ({ item: i, sources: new Set(['trending']) })),
-                                ...(this.popularMovies || []).map(i => ({ item: i, sources: new Set(['popular']) })),
-                                ...(this.tvShows || []).map(i => ({ item: { ...i, media_type: 'tv' }, sources: new Set(['tv']) }))
-                            ],
-                            sourceSimilarity: new Set()
-                        };
-                    }
-
-                    const filtered = candidateData.candidates.filter(c => {
-                        const key = `${c.item.media_type || 'movie'}:${c.item.id}`;
-                        return !watchedKeys.has(key);
+                    const filtered = candidateData.candidates.filter(c => !watchedKeys.has(`${c.item.media_type || 'movie'}:${c.item.id}`));
+                    const scored = filtered.map(c => {
+                        const res = this.scoreRecommendation(c.item, { genreAffinity, sourceSimilarity: candidateData.sourceSimilarity });
+                        return { item: c.item, score: res.finalScore, reason: res.reason };
                     });
-
-                    const seenGenres = new Set();
-                    const seenLangs = new Set();
-                    const seenTypes = new Set();
-                    const scored = [];
-                    for (const c of filtered) {
-                        const { finalScore, reason } = this.scoreRecommendation(c.item, {
-                            genreAffinity, languageAffinity, myListGenreAff, myListLang,
-                            intentGenres, sourceSimilarity: candidateData.sourceSimilarity,
-                            seenGenres, seenLangs, seenTypes
-                        });
-                        let bonus = 0;
-                        if (c.sources.has('tmdb_rec')) bonus += 0.03;
-                        if (c.sources.has('tmdb_sim')) bonus += 0.02;
-                        if (c.sources.has('search')) bonus += 0.02;
-                        scored.push({ item: c.item, score: finalScore + bonus, reason });
-                    }
 
                     scored.sort((a, b) => b.score - a.score);
-                    const diversified = this._applyDiversity(scored, 20);
-                    const top = diversified.slice(0, 20).map(s => s.item);
-
-                    const reasonMap = {};
-                    diversified.forEach(s => {
-                        const key = `${s.item.media_type || 'movie'}:${s.item.id}`;
-                        reasonMap[key] = s.reason;
-                    });
-                    this.recReasons = reasonMap;
-
-                    this.recommendedPickedForYou = top;
-                    this.recDebug = {
-                        lastRefresh: Date.now(),
-                        candidateCount: filtered.length,
-                        topScores: diversified.slice(0, 5).map(s => ({
-                            id: s.item.id,
-                            title: s.item.title || s.item.name,
-                            score: Math.round(s.score * 1000) / 1000,
-                            reason: s.reason
-                        }))
-                    };
-
-                    this._updateSecondaryPools();
-                },
-
-                _updateSecondaryPools() {
-                    const recentSearches = (this.guestProfile.recentSearches || []).slice(0, 1);
-                    if (recentSearches.length) {
-                        const q = recentSearches[0];
-                        const cacheKey = String(q).toLowerCase();
-                        if (this.recCache.searchResults[cacheKey]) {
-                            this.recommendedBySearch = this.recCache.searchResults[cacheKey].slice(0, 10);
-                        }
-                    }
-                    const recentWatches = (this.guestProfile.watchHistory || []).slice(0, 1);
-                    if (recentWatches.length) {
-                        const w = recentWatches[0];
-                        const key = `${w.type || 'movie'}:${w.id}`;
-                        if (this.recCache.tmdbRecommendations[key]) {
-                            this.recommendedByHistory = this.recCache.tmdbRecommendations[key].slice(0, 10);
-                        } else if (this.recCache.tmdbSimilar[key]) {
-                            this.recommendedByHistory = this.recCache.tmdbSimilar[key].slice(0, 10);
-                        }
-                    }
+                    this.recommendedPickedForYou = this._applyDiversity(scored, 20).map(s => s.item);
                 },
 
                 _buildColdStartRecommendations() {
-                    const pool = [
-                        ...(this.trending || []).slice(0, 8),
-                        ...(this.popularMovies || []).slice(0, 8),
-                        ...(this.tvShows || []).slice(0, 8),
-                        ...(this.animeList || []).slice(0, 4)
-                    ];
-                    const seen = new Set();
-                    const unique = [];
-                    for (const i of pool) {
-                        const type = i.media_type || 'movie';
-                        const key = `${type}:${i.id}`;
-                        if (seen.has(key)) continue;
-                        seen.add(key);
-                        unique.push(i);
-                    }
-                    unique.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
-                    const diverse = [];
-                    const usedGenres = new Set();
-                    for (const i of unique) {
-                        if (diverse.length >= 15) break;
-                        const genres = i.genre_ids || [];
-                        const overloaded = genres.length && genres.every(g => usedGenres.has(g));
-                        if (overloaded && diverse.length > 6) continue;
-                        diverse.push(i);
-                        genres.forEach(g => usedGenres.add(g));
-                    }
-                    return diverse;
+                    const pool = [...(this.trending || []).slice(0, 10), ...(this.popularMovies || []).slice(0, 10)];
+                    return pool;
                 },
 
                 async computePersonalizedRecommendations() {
                     const hasHistory = (this.guestProfile.watchHistory || []).length > 0;
-                    const hasList = (this.guestProfile.myList || []).length > 0;
-                    const hasSearches = (this.guestProfile.recentSearches || []).length > 0;
-
-                    if (!hasHistory && !hasList && !hasSearches) {
+                    if (!hasHistory) {
                         this.recommendedPickedForYou = this._buildColdStartRecommendations();
-                        this.recommendedByHistory = this.popularMovies.slice(5, 15);
                         return;
                     }
-
                     await this._doRefreshPersonalizedRecommendations();
                 },
 
@@ -1969,31 +1741,17 @@
                 goHome() { this.page = 'home'; this.searchQuery = ''; },
                 openDrawer() { this.drawerOpen = true; },
                 closeDrawer() { this.drawerOpen = false; },
-                openMusicPage() { window.location.href = 'music.html'; },
 
-                /* ------------------------------------------------------------------
-                 *  Platform card click handler.
-                 *  — Spotify (by name or type:'music') → direct music.html redirect.
-                 *  — All other platforms → existing filterByOtt() behavior.
-                 * ------------------------------------------------------------------ */
                 handlePlatformClick(ott) {
                     if (!ott) return;
                     const name = String(ott.name || '').trim().toLowerCase();
-                    const isMusicDest = ott.type === 'music' || name === 'spotify';
-                    if (isMusicDest) {
+                    if (ott.type === 'music' || name === 'spotify') {
                         window.location.href = 'music.html';
                         return;
                     }
                     this.filterByOtt(ott.name);
                 },
 
-                /* ------------------------------------------------------------------
-                 *  Explore More click handler.
-                 *  — When an OTT platform is active (Netflix, Prime, etc.),
-                 *    redirect to that platform's dedicated page (e.g., netflix.html).
-                 *  — On the ALL view, redirect to the section's own page
-                 *    (webseries.html, anime.html, kdrama.html, ...).
-                 * ------------------------------------------------------------------ */
                 _platformSlug(name) {
                     const map = {
                         'netflix': 'netflix',
@@ -2007,8 +1765,7 @@
                         'crunchyroll': 'crunchyroll'
                     };
                     const key = String(name || '').trim().toLowerCase();
-                    if (map[key]) return map[key];
-                    return key.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                    return map[key] || key.replace(/[^a-z0-9]+/g, '-');
                 },
 
                 exploreMore(sectionPage) {
@@ -2021,13 +1778,17 @@
 
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
-                    const normType = (type === 'tv' || type === 'series' || type === 'anime' || type === 'show') ? 'tv' : 'movie';
+                    const normType = (['tv', 'series', 'anime', 'show'].includes(type)) ? 'tv' : 'movie';
 
                     const item = [...this.trending, ...this.popularMovies, ...this.tvShows].find(x => x.id === id) || { id };
                     this.recordWatchHistory(item, normType);
 
                     this.detailItem = { id, type: normType };
                     this.detailData = null;
+                    this.detailTrailerKey = '';
+                    this.selectedSeason = 1;
+                    this.selectedEpisode = 1;
+                    this.currentSeasonEpisodesCount = 1;
                     this.detailLoading = true;
                     this.detailModalOpen = true;
 
@@ -2035,17 +1796,41 @@
 
                     try {
                         const endpoint = normType === 'tv'
-                            ? `/tv/${id}?language=en-US&append_to_response=credits`
-                            : `/movie/${id}?language=en-US&append_to_response=credits`;
+                            ? `/tv/${id}?language=en-US&append_to_response=credits,videos`
+                            : `/movie/${id}?language=en-US&append_to_response=credits,videos`;
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                         this.detailData = data;
+
+                        // Find Trailer
+                        if (data.videos && Array.isArray(data.videos.results)) {
+                            const trailer = data.videos.results.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
+                            if (trailer) this.detailTrailerKey = trailer.key;
+                        }
+
+                        // Setup Seasons
+                        if (normType === 'tv' && data.seasons && data.seasons.length > 0) {
+                            const validSeasons = data.seasons.filter(s => s.season_number > 0);
+                            this.selectedSeason = validSeasons.length > 0 ? validSeasons[0].season_number : 1;
+                            this.onSeasonChange();
+                        }
                     } catch (e) {
-                        console.warn('Detail fetch failed:', e);
-                        this.showToast('Failed to load details. Please try again.', 'error');
+                        this.showToast('Failed to load details.', 'error');
                         this.closeDetailModal();
                     } finally {
                         this.detailLoading = false;
                     }
+                },
+
+                get detailSeasonsList() {
+                    if (!this.detailData || !this.detailData.seasons) return [];
+                    return this.detailData.seasons.filter(s => s.season_number > 0);
+                },
+
+                onSeasonChange() {
+                    if (!this.detailData || !this.detailData.seasons) return;
+                    const seasonObj = this.detailData.seasons.find(s => s.season_number == this.selectedSeason);
+                    this.currentSeasonEpisodesCount = seasonObj ? (seasonObj.episode_count || 1) : 1;
+                    this.selectedEpisode = 1;
                 },
 
                 closeDetailModal() {
@@ -2055,6 +1840,7 @@
                         if (!this.detailModalOpen) {
                             this.detailData = null;
                             this.detailItem = { id: null, type: 'movie' };
+                            this.detailTrailerKey = '';
                         }
                     }, 300);
                 },
@@ -2062,7 +1848,13 @@
                 goToPlayer() {
                     if (!this.detailItem || !this.detailItem.id) return;
                     const { id, type } = this.detailItem;
-                    window.location.href = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    let url = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    if (type === 'tv') {
+                        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    } else {
+                        url += `&season=1&episode=1`;
+                    }
+                    window.location.href = url;
                 },
 
                 detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
@@ -2099,8 +1891,7 @@
                 },
                 get detailCastList() {
                     if (!this.detailData || !this.detailData.credits) return [];
-                    const cast = this.detailData.credits.cast || [];
-                    return cast.slice(0, 12);
+                    return (this.detailData.credits.cast || []).slice(0, 12);
                 },
 
                 poster(item) {
@@ -2117,7 +1908,6 @@
                 rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
 
                 openAuthModal() { this.authModalOpen = true; },
-
                 async login() {
                     try {
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
@@ -2129,220 +1919,5 @@
             };
         }
     </script>
-
-    <!-- ============================================================
-         MINI MUSIC PLAYER — sync with music.html via localStorage
-         ============================================================ -->
-    <script>
-    (function () {
-        const NOW_PLAYING_KEY = 'rx_now_playing';
-        const MUSIC_FALLBACK_COVER = 'https://placehold.co/300x300/161622/ffffff?text=Music';
-        const MUSIC_PAGE_URL = 'music.html';
-
-        const miniAudio = new Audio();
-        let miniPlaylist = [];
-        let miniIndex = 0;
-        let miniCurrentSong = null;
-        let miniIsPlaying = false;
-        let miniDragging = false;
-        let lastSave = 0;
-
-        const miniPlayer        = document.getElementById('miniPlayer');
-        const miniCover         = document.getElementById('miniCover');
-        const miniTitle         = document.getElementById('miniTitle');
-        const miniArtist        = document.getElementById('miniArtist');
-        const miniPlayPauseBtn  = document.getElementById('miniPlayPauseBtn');
-        const miniPrevBtn       = document.getElementById('miniPrevBtn');
-        const miniNextBtn       = document.getElementById('miniNextBtn');
-        const miniProgressWrap  = document.getElementById('miniProgressWrap');
-        const miniProgressFill  = document.getElementById('miniProgressFill');
-        const miniLeft          = document.getElementById('miniLeft');
-
-        if (!miniPlayer) return;
-
-        const safeParse = (j, f) => { try { return JSON.parse(j); } catch (e) { return f; } };
-
-        function loadNowPlaying() {
-            try {
-                const raw = localStorage.getItem(NOW_PLAYING_KEY);
-                if (!raw) return null;
-                const state = safeParse(raw, null);
-                if (!state || !state.song || !state.song.audioUrl) return null;
-                if (state.updatedAt && (Date.now() - state.updatedAt) > 6 * 60 * 60 * 1000) {
-                    localStorage.removeItem(NOW_PLAYING_KEY);
-                    return null;
-                }
-                return state;
-            } catch (e) { return null; }
-        }
-
-        function saveNowPlaying() {
-            if (!miniCurrentSong || !miniCurrentSong.audioUrl) return;
-            try {
-                localStorage.setItem(NOW_PLAYING_KEY, JSON.stringify({
-                    song: miniCurrentSong,
-                    currentTime: miniAudio.currentTime || 0,
-                    isPlaying: !!miniIsPlaying,
-                    playlist: miniPlaylist.slice(0, 50),
-                    index: miniIndex,
-                    updatedAt: Date.now()
-                }));
-            } catch (e) {}
-        }
-
-        function showMiniPlayer(song) {
-            if (!song) return;
-            miniPlayer.classList.add('visible');
-            document.body.classList.add('has-mini-player');
-            miniCover.src = song.coverUrl || MUSIC_FALLBACK_COVER;
-            miniTitle.textContent = song.title || 'Unknown';
-            miniArtist.textContent = song.artist || 'Unknown';
-        }
-
-        function updateMiniPlayIcon(playing) {
-            miniIsPlaying = playing;
-            miniPlayPauseBtn.innerHTML = `<i class="fas ${playing ? 'fa-pause' : 'fa-play'}"></i>`;
-        }
-
-        function loadSongIntoMini(song, index, playlist) {
-            if (!song || !song.audioUrl) return;
-            miniCurrentSong = song;
-            if (typeof index === 'number') miniIndex = index;
-            if (Array.isArray(playlist)) miniPlaylist = playlist;
-
-            miniAudio.src = song.audioUrl;
-            miniAudio.load();
-            showMiniPlayer(song);
-            miniProgressFill.style.width = '0%';
-
-            miniAudio.play().then(() => {
-                updateMiniPlayIcon(true); saveNowPlaying();
-            }).catch(() => {
-                updateMiniPlayIcon(false); saveNowPlaying();
-            });
-        }
-
-        function resumeFromSavedState() {
-            const state = loadNowPlaying();
-            if (!state || !state.song) return;
-
-            miniPlaylist = Array.isArray(state.playlist) && state.playlist.length ? state.playlist : [state.song];
-            miniIndex = typeof state.index === 'number' ? state.index : 0;
-            if (miniIndex < 0 || miniIndex >= miniPlaylist.length) miniIndex = 0;
-            if (!miniPlaylist.find(s => s.id === state.song.id)) miniPlaylist.unshift(state.song);
-
-            miniCurrentSong = state.song;
-            miniAudio.src = state.song.audioUrl;
-            miniAudio.load();
-            showMiniPlayer(state.song);
-
-            const restore = () => {
-                try { miniAudio.currentTime = state.currentTime || 0; } catch (e) {}
-                if (state.isPlaying) {
-                    miniAudio.play().then(() => updateMiniPlayIcon(true)).catch(() => updateMiniPlayIcon(false));
-                } else {
-                    updateMiniPlayIcon(false);
-                }
-                miniAudio.removeEventListener('loadedmetadata', restore);
-            };
-            miniAudio.addEventListener('loadedmetadata', restore);
-        }
-
-        miniPlayPauseBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            if (!miniAudio.src) return;
-            if (miniIsPlaying) miniAudio.pause();
-            else miniAudio.play().catch(() => {});
-        });
-
-        miniPrevBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            if (!miniPlaylist.length) return;
-            if (miniAudio.currentTime > 3) {
-                miniAudio.currentTime = 0;
-                miniAudio.play().catch(() => {});
-                return;
-            }
-            let prev = miniIndex - 1;
-            if (prev < 0) prev = miniPlaylist.length - 1;
-            loadSongIntoMini(miniPlaylist[prev], prev, miniPlaylist);
-        });
-
-        miniNextBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            if (!miniPlaylist.length) return;
-            let next = miniIndex + 1;
-            if (next >= miniPlaylist.length) next = 0;
-            loadSongIntoMini(miniPlaylist[next], next, miniPlaylist);
-        });
-
-        function miniSeek(clientX) {
-            if (!miniAudio.duration) return;
-            const rect = miniProgressWrap.getBoundingClientRect();
-            let ratio = (clientX - rect.left) / rect.width;
-            ratio = Math.max(0, Math.min(1, ratio));
-            miniAudio.currentTime = ratio * miniAudio.duration;
-            miniProgressFill.style.width = (ratio * 100) + '%';
-        }
-        miniProgressWrap.addEventListener('mousedown', e => { miniDragging = true; miniSeek(e.clientX); });
-        miniProgressWrap.addEventListener('touchstart', e => {
-            if (e.touches && e.touches[0]) { miniDragging = true; miniSeek(e.touches[0].clientX); }
-        }, { passive: true });
-        document.addEventListener('mousemove', e => { if (miniDragging) miniSeek(e.clientX); });
-        document.addEventListener('touchmove', e => {
-            if (miniDragging && e.touches && e.touches[0]) miniSeek(e.touches[0].clientX);
-        }, { passive: true });
-        document.addEventListener('mouseup', () => { miniDragging = false; });
-        document.addEventListener('touchend', () => { miniDragging = false; });
-
-        miniLeft.addEventListener('click', () => {
-            saveNowPlaying();
-            if (miniCurrentSong && miniCurrentSong.id) {
-                window.location.href = `${MUSIC_PAGE_URL}?playId=${encodeURIComponent(miniCurrentSong.id)}`;
-            } else {
-                window.location.href = MUSIC_PAGE_URL;
-            }
-        });
-
-        miniAudio.addEventListener('timeupdate', () => {
-            if (miniAudio.duration && !miniDragging) {
-                const pct = (miniAudio.currentTime / miniAudio.duration) * 100;
-                miniProgressFill.style.width = pct + '%';
-            }
-            const now = Date.now();
-            if (miniIsPlaying && miniCurrentSong && (now - lastSave) > 3000) {
-                lastSave = now;
-                saveNowPlaying();
-            }
-        });
-        miniAudio.addEventListener('play',  () => { updateMiniPlayIcon(true);  saveNowPlaying(); });
-        miniAudio.addEventListener('pause', () => { updateMiniPlayIcon(false); saveNowPlaying(); });
-        miniAudio.addEventListener('ended', () => {
-            if (!miniPlaylist.length) return;
-            let next = miniIndex + 1;
-            if (next >= miniPlaylist.length) next = 0;
-            loadSongIntoMini(miniPlaylist[next], next, miniPlaylist);
-        });
-
-        window.addEventListener('beforeunload', saveNowPlaying);
-        window.addEventListener('pagehide', saveNowPlaying);
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') saveNowPlaying();
-        });
-
-        document.addEventListener('click', e => {
-            const link = e.target.closest('a');
-            if (link && link.href) {
-                try {
-                    const targetUrl = new URL(link.href, window.location.origin);
-                    if (targetUrl.pathname !== window.location.pathname) saveNowPlaying();
-                } catch (err) {}
-            }
-        });
-
-        resumeFromSavedState();
-    })();
-    </script>
-
 </body>
 </html>
