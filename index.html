@@ -842,7 +842,7 @@
                 </div>
             </div>
 
-            <!-- ============ DYNAMIC HOME SECTIONS (auto + admin-managed) ============ -->
+            <!-- ============ DYNAMIC HOME SECTIONS ============ -->
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
                 <template x-for="sec in renderedSections" :key="'sec-' + sec.id">
@@ -999,14 +999,13 @@
         </div>
     </div>
 
-    <!-- ===================== DETAIL INFO MODAL (Netflix-style) ===================== -->
+    <!-- ===================== DETAIL INFO MODAL ===================== -->
     <div class="detail-modal-overlay"
          :class="{ 'open': detailModalOpen }"
          @click.self="closeDetailModal()"
          @keydown.escape.window="closeDetailModal()"
          x-cloak>
          
-        <!-- ===== IN-MODAL ALERT BOX (Appears inside the movie details modal) ===== -->
         <div class="modal-alert-wrapper" x-show="modalAlert.show" x-cloak>
             <div class="modal-alert-box" :class="modalAlert.type">
                 <i class="fas" :class="modalAlert.type === 'success' ? 'fa-check-circle' : (modalAlert.type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')"></i>
@@ -1014,7 +1013,6 @@
                 <a x-show="modalAlert.show && modalAlert.type === 'success'" href="watchlater.html" style="margin-left: auto; font-size: 12px; font-weight: 800; color: var(--primary-red); text-decoration: underline; white-space: nowrap;">View List</a>
             </div>
         </div>
-        <!-- ===================================================================== -->
 
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()" aria-label="Close">
@@ -1046,7 +1044,6 @@
                             </template>
                         </div>
 
-                        <!-- Season & Episode Pickers for TV/Anime/Series -->
                         <div class="detail-selector-row" x-show="detailItem.type === 'tv'">
                             <div class="detail-selector-group">
                                 <label><i class="fas fa-layer-group"></i> Select Season</label>
@@ -1149,8 +1146,8 @@
         const WATCH_PAGE_URL = 'player.html';
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
-        /* Sections that are ALWAYS automated (admin cannot disable auto) */
-        const AUTO_SECTION_IDS = ['trending', 'picked'];
+        /* 🔒 Sections that are ALWAYS automated — admin cannot delete, only hide/add items */
+        const LOCKED_AUTO_SECTIONS = ['trending', 'picked'];
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
@@ -1187,7 +1184,7 @@
                 registerPassword: '',
                 forgotEmail: '',
 
-                /* ---------- Watch Later (Firestore, login required) ---------- */
+                /* ---------- Watch Later ---------- */
                 watchlist: [],
                 pendingWatchlist: null,
 
@@ -1303,60 +1300,25 @@
                 },
 
                 /* =========================================================
-                   SECTION CONFIG (admin controlled)
+                   DEFAULT SECTIONS (must match new admin shape)
                    ========================================================= */
                 defaultSections() {
                     return [
-                        {
-                            id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles',
-                            badge: 'SMART', auto: true, source: 'picked', enabled: true, order: 1,
-                            explorePage: 'picks.html', exploreLabel: 'See all picks',
-                            customItems: [], removedIds: []
-                        },
-                        {
-                            id: 'trending', title: 'Trending Today', icon: 'fas fa-fire',
-                            badge: '', auto: true, source: 'trending', enabled: true, order: 2,
-                            explorePage: 'trending.html', exploreLabel: "See what's hot",
-                            customItems: [], removedIds: []
-                        },
-                        {
-                            id: 'series', title: 'Web Series', icon: 'fas fa-tv',
-                            badge: '', auto: false, source: 'series', enabled: true, order: 3,
-                            explorePage: 'webseries.html', exploreLabel: 'All web series', items: []
-                        },
-                        {
-                            id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart',
-                            badge: '', auto: false, source: 'kdrama', enabled: true, order: 4,
-                            explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', items: []
-                        },
-                        {
-                            id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon',
-                            badge: '', auto: false, source: 'anime', enabled: true, order: 5,
-                            explorePage: 'anime.html', exploreLabel: 'All anime', items: []
-                        },
-                        {
-                            id: 'movies', title: 'Popular Movies', icon: 'fas fa-film',
-                            badge: '', auto: false, source: 'movies', enabled: true, order: 6,
-                            explorePage: 'movies.html', exploreLabel: 'All movies', items: []
-                        },
-                        {
-                            id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om',
-                            badge: '', auto: false, source: 'indianseries', enabled: true, order: 7,
-                            explorePage: 'indianseries.html', exploreLabel: 'All Indian series', items: []
-                        },
-                        {
-                            id: 'cdrama', title: 'C-Drama Series', icon: 'fas fa-yin-yang',
-                            badge: '', auto: false, source: 'cdrama', enabled: true, order: 8,
-                            explorePage: 'cdrama.html', exploreLabel: 'All C-Dramas', items: []
-                        },
-                        {
-                            id: 'pdrama', title: 'P-Drama Series', icon: 'fas fa-sun',
-                            badge: '', auto: false, source: 'pdrama', enabled: true, order: 9,
-                            explorePage: 'pdrama.html', exploreLabel: 'All P-Dramas', items: []
-                        }
+                        { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 1, badge: 'HOT', explorePage: 'trending.html', exploreLabel: "See what's hot", enabled: true, customItems: [], removedIds: [] },
+                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html', exploreLabel: 'See all picks', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'series', title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 3, badge: '', explorePage: 'webseries.html', exploreLabel: 'All web series', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 4, badge: '', explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 5, badge: '', explorePage: 'anime.html', exploreLabel: 'All anime', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'movies', title: 'Popular Movies', icon: 'fas fa-film', locked: false, order: 6, badge: '', explorePage: 'movies.html', exploreLabel: 'All movies', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om', locked: false, order: 7, badge: '', explorePage: 'indianseries.html', exploreLabel: 'All Indian series', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'cdrama', title: 'C-Drama Series', icon: 'fas fa-yin-yang', locked: false, order: 8, badge: '', explorePage: 'cdrama.html', exploreLabel: 'All C-Dramas', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'pdrama', title: 'P-Drama Series', icon: 'fas fa-sun', locked: false, order: 9, badge: '', explorePage: 'pdrama.html', exploreLabel: 'All P-Dramas', enabled: true, customItems: [], removedIds: [] }
                     ];
                 },
 
+                /* =========================================================
+                   LOAD SECTION CONFIG (NEW SHAPE)
+                   ========================================================= */
                 async loadSectionConfig() {
                     try {
                         const doc = await db.collection('config').doc('homeSections').get();
@@ -1366,38 +1328,42 @@
                         }
                         const data = doc.data() || {};
 
-                        let arr = null;
-                        if (Array.isArray(data.sections)) arr = data.sections;
-                        else if (Array.isArray(data)) arr = data;
-
-                        if (arr && arr.length) {
-                            this.sectionsConfig = arr
+                        // NEW SHAPE: { sections: [...], perOtt: {...} }
+                        if (Array.isArray(data.sections)) {
+                            const mapped = data.sections
                                 .filter(s => s && s.id)
                                 .map(s => ({
-                                    badge: '',
-                                    icon: 'fas fa-film',
-                                    enabled: true,
-                                    auto: false,
-                                    items: [],
-                                    customItems: [],
-                                    removedIds: [],
-                                    ...s
+                                    id: String(s.id),
+                                    title: s.title || s.id,
+                                    icon: s.icon || 'fas fa-film',
+                                    locked: s.locked === true || LOCKED_AUTO_SECTIONS.includes(String(s.id)),
+                                    order: typeof s.order === 'number' ? s.order : 99,
+                                    badge: s.badge || '',
+                                    explorePage: s.explorePage || '',
+                                    exploreLabel: s.exploreLabel || 'See all',
+                                    enabled: s.enabled !== false,
+                                    customItems: Array.isArray(s.customItems) ? s.customItems : [],
+                                    removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
                                 }))
-                                .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+                                .sort((a, b) => a.order - b.order);
+
+                            // Ensure locked sections are present
+                            LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+                                if (!mapped.find(x => x.id === lid)) {
+                                    const def = this.defaultSections().find(x => x.id === lid);
+                                    if (def) mapped.unshift({ ...def });
+                                } else {
+                                    const s = mapped.find(x => x.id === lid);
+                                    s.locked = true;
+                                }
+                            });
+
+                            this.sectionsConfig = mapped.sort((a, b) => a.order - b.order);
                             return;
                         }
 
-                        /* Legacy object format → merge into defaults */
-                        const legacy = (data.sections && typeof data.sections === 'object') ? data.sections : data;
-                        this.sectionsConfig = this.defaultSections().map(def => {
-                            const l = legacy[def.id];
-                            if (!l || typeof l !== 'object') return def;
-                            return {
-                                ...def,
-                                customItems: l.customItems || [],
-                                removedIds: l.removedIds || []
-                            };
-                        });
+                        // Legacy fallback
+                        this.sectionsConfig = this.defaultSections();
                     } catch (e) {
                         console.warn('Could not load home sections config:', e.message);
                         this.sectionsConfig = this.defaultSections();
@@ -1424,19 +1390,32 @@
                     };
                 },
 
+                /* =========================================================
+                   RENDERED SECTIONS — NEW LOGIC
+                   =========================================================
+                   - Locked auto (trending, picked): smart latest filter + custom items prepended
+                   - Manual sections: only customItems (from admin)
+                   - Per-OTT override: when activeOtt !== 'all', skip manual sections
+                   ========================================================= */
                 get renderedSections() {
                     const isAll = this.activeOtt === 'all';
                     const pools = this.poolMap;
                     const out = [];
 
-                    for (const raw of (this.sectionsConfig || [])) {
+                    // Use admin-managed sections if present, else defaults
+                    const configList = (this.sectionsConfig && this.sectionsConfig.length)
+                        ? this.sectionsConfig
+                        : this.defaultSections();
+
+                    for (const raw of configList) {
                         if (!raw) continue;
                         const id = String(raw.id || '').trim();
                         if (!id) continue;
                         if (raw.enabled === false) continue;
 
-                        const isAuto = raw.auto === true || AUTO_SECTION_IDS.includes(id);
+                        const isAuto = raw.locked === true || LOCKED_AUTO_SECTIONS.includes(id);
 
+                        // When filtered by OTT, only locked auto sections show
                         if (!isAll && !isAuto) continue;
                         if (!isAll && id === 'picked') continue;
 
@@ -1444,19 +1423,29 @@
                         const removed = (raw.removedIds || []).map(String);
 
                         if (isAuto) {
-                            let pool = pools[raw.source || id] || [];
-                            pool = this.filterBySmartYear(pool, 6);
+                            // 🔒 AUTO — smart latest year filter (2024-2026)
+                            let pool = pools[id] || [];
+                            pool = this.filterBySmartLatest(pool, 6);
                             items = pool.filter(i => i && !removed.includes(String(i.id)));
+
+                            // Prepend admin custom items
                             const customs = (raw.customItems || [])
                                 .map(c => this.normalizeAdminItem(c))
                                 .filter(Boolean);
                             if (customs.length) items = [...customs, ...items];
                         } else {
-                            items = (raw.items || [])
+                            // ✏️ MANUAL — ONLY show admin-curated items
+                            items = (raw.customItems || [])
                                 .map(c => this.normalizeAdminItem(c))
-                                .filter(i => i && (i.id !== null && i.id !== undefined && i.id !== ''));
+                                .filter(i => i && i.id !== null && i.id !== undefined && i.id !== '');
+
+                            // Nice UX fallback: if admin left it empty, show pool items
+                            if (!items.length && pools[id]) {
+                                items = this.filterBySmartLatest(pools[id], 6).slice(0, 20);
+                            }
                         }
 
+                        // Dedupe
                         const seen = new Set();
                         items = items.filter(i => {
                             const k = `${i.media_type || 'movie'}:${i.id}`;
@@ -1568,26 +1557,40 @@
                     setTimeout(() => { toast.remove(); }, duration);
                 },
 
-                filterBySmartYear(items, minCount = 10) {
-                    if (!items || !Array.isArray(items)) return [];
+                /* =========================================================
+                   🆕 SMART LATEST FILTER — 2024/2025/2026 only
+                   =========================================================
+                   Keeps only current year & previous year (e.g. 2026, 2025).
+                   Falls back to 3-year window if too few results.
+                   ========================================================= */
+                filterBySmartLatest(items, minCount = 6) {
+                    if (!items || !Array.isArray(items) || !items.length) return [];
                     const currentYear = new Date().getFullYear();
+
                     let filtered = items.filter(item => {
                         const dateStr = item.release_date || item.first_air_date || '';
                         if (!dateStr) return false;
                         const year = parseInt(dateStr.substring(0, 4), 10);
-                        return year >= (currentYear - 1);
+                        return year >= (currentYear - 1); // 2025+ when now=2026
                     });
+
                     if (filtered.length < minCount) {
                         const additional = items.filter(item => {
                             if (filtered.includes(item)) return false;
                             const dateStr = item.release_date || item.first_air_date || '';
                             if (!dateStr) return false;
                             const year = parseInt(dateStr.substring(0, 4), 10);
-                            return year >= (currentYear - 3);
+                            return year >= (currentYear - 2); // 2024+ fallback
                         });
                         filtered = [...filtered, ...additional];
                     }
-                    return filtered.length > 0 ? filtered : items;
+
+                    return filtered.length > 0 ? filtered : items.slice(0, 20);
+                },
+
+                // Legacy alias used by filterByOtt
+                filterBySmartYear(items, minCount = 10) {
+                    return this.filterBySmartLatest(items, minCount);
                 },
 
                 async filterByOtt(ottName) {
@@ -1604,7 +1607,7 @@
                     try {
                         const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
                         const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
-                        const smartItems = this.filterBySmartYear(items, 6);
+                        const smartItems = this.filterBySmartLatest(items, 6);
                         if (smartItems.length > 0) {
                             this.ottPools.trending = smartItems.slice(0, 12);
                             this.ottPools.popular = smartItems.slice(2, 14).reverse();
@@ -1614,13 +1617,13 @@
                             this.ottPools.searchRec = smartItems.slice(1, 11);
                             this.ottPools.historyRec = smartItems.slice(3, 13);
                         } else {
-                            this.ottPools.trending = this.filterBySmartYear(this.trending, 6);
-                            this.ottPools.popular = this.filterBySmartYear(this.popularMovies, 6);
-                            this.ottPools.series = this.filterBySmartYear(this.tvShows, 6);
+                            this.ottPools.trending = this.filterBySmartLatest(this.trending, 6);
+                            this.ottPools.popular = this.filterBySmartLatest(this.popularMovies, 6);
+                            this.ottPools.series = this.filterBySmartLatest(this.tvShows, 6);
                         }
                     } catch (e) {
-                        this.ottPools.trending = this.filterBySmartYear(this.trending, 6);
-                        this.ottPools.popular = this.filterBySmartYear(this.popularMovies, 6);
+                        this.ottPools.trending = this.filterBySmartLatest(this.trending, 6);
+                        this.ottPools.popular = this.filterBySmartLatest(this.popularMovies, 6);
                     }
                 },
 
@@ -1931,8 +1934,6 @@
                         if (f) return f;
                     }
                     for (const sec of (this.sectionsConfig || [])) {
-                        const f = (sec.items || []).find(x => String(x.id) === String(id));
-                        if (f) return this.normalizeAdminItem(f);
                         const c = (sec.customItems || []).find(x => String(x.id) === String(id));
                         if (c) return this.normalizeAdminItem(c);
                     }
@@ -2195,7 +2196,7 @@
                 },
 
                 /* =========================================================
-                   WATCH LATER (Firestore + login required)
+                   WATCH LATER
                    ========================================================= */
                 async loadWatchlist() {
                     if (!this.currentUser) {
@@ -2304,7 +2305,6 @@
                         const ok = await this.addToWatchlist(entry);
                         if (ok) {
                             this.showModalAlert('Added to Watch Later', 'success');
-                            // The alert box now contains a "View List" button that links to watchlater.html
                         }
                     }
                 }
