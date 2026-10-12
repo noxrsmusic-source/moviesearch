@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="rxPlayerApp()" x-init="init()">
+<html lang="en">
 <head>
     <meta name="monetag" content="4d863382031c5dad57a420bb6a4a884b">
     <meta charset="UTF-8">
@@ -238,6 +238,7 @@
         .drawer-link.api { background: rgba(56, 189, 248, 0.12); color: var(--api-blue); }
         .drawer-link.tg { background: rgba(0, 136, 204, 0.12); color: #38bdf8; }
         .drawer-link.bug { background: rgba(239, 68, 68, 0.12); color: var(--bug-red); }
+        .drawer-link.wl { background: rgba(34, 197, 94, 0.12); color: var(--primary-green); }
         .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
 
         .hero { position: relative; padding: 20px 0 10px; text-align: center; }
@@ -444,11 +445,49 @@
             background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius); max-width: 420px; width: 100%;
             padding: 24px; box-shadow: var(--shadow);
+            max-height: 92vh; overflow-y: auto;
         }
         .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .modal-header h3 i { color: var(--primary-red); }
         .modal-close { font-size: 18px; color: var(--text-muted); padding: 4px; }
+
+        /* ---------- Auth form styles (new) ---------- */
+        .auth-form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .form-group input {
+            height: 46px; padding: 0 14px; border-radius: 10px;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: #fff; font-size: 14px; outline: none;
+            font-family: var(--font); transition: var(--transition);
+        }
+        .form-group input:focus {
+            border-color: var(--primary-red);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 4px rgba(229,9,20,0.15);
+        }
+        .btn-primary {
+            height: 48px; border-radius: 30px; margin-top: 4px;
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; font-weight: 800; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 6px 20px rgba(229,9,20,0.35);
+            transition: var(--transition);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(229,9,20,0.5); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .auth-switch { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .auth-switch button { color: var(--primary-red); font-weight: 700; }
+        .auth-hint {
+            font-size: 11.5px; color: var(--text-muted); text-align: center;
+            line-height: 1.5; margin-top: 2px;
+        }
+        .auth-hint i { color: var(--primary-red); }
 
         .toast-container {
             position: fixed; bottom: 130px; right: 24px; z-index: 999999;
@@ -464,6 +503,7 @@
         }
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
+        .toast.info { border-left-color: var(--api-blue); }
 
         .seo-footer {
             background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04);
@@ -581,6 +621,7 @@
         .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
         .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
         .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
+        .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
 
         /* Season & Episode Selector Styles */
         .detail-selector-row {
@@ -712,6 +753,7 @@
             </div>
             <div class="drawer-links">
                 <a class="drawer-link active" href="#" @click.prevent="goHome(); closeDrawer();"><i class="fas fa-home"></i> Home</a>
+                <a class="drawer-link wl" href="watchlater.html"><i class="fas fa-bookmark"></i> My Watch Later</a>
                 <a class="drawer-link" href="music.html"><i class="fas fa-music"></i> Music</a>
                 <a class="drawer-link" href="request.html"><i class="fas fa-paper-plane"></i> Request Content</a>
                 <a class="drawer-link bug" href="bug.html"><i class="fas fa-bug"></i> Report a Bug</a>
@@ -750,193 +792,44 @@
                 </div>
             </div>
 
+            <!-- ============ DYNAMIC HOME SECTIONS (auto + admin-managed) ============ -->
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
 
-                <div x-show="activeOtt === 'all' && filteredPickedForYou.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h3>
-                        <span class="new-badge">SMART</span>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredPickedForYou" :key="'rec-pfy-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('picks.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>See all picks</p>
+                <template x-for="sec in renderedSections" :key="'sec-' + sec.id">
+                    <div>
+                        <div class="section-heading-wrap">
+                            <h3>
+                                <i :class="sec.icon || 'fas fa-film'"></i>
+                                <span x-text="sec.displayTitle"></span>
+                            </h3>
+                            <span class="new-badge" x-show="sec.badge" x-text="sec.badge"></span>
                         </div>
-                    </div>
-                </div>
+                        <div class="horizontal-cards-row">
+                            <template x-for="item in sec.items" :key="sec.id + '-' + item.id + '-' + (item.media_type || '')">
+                                <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
+                                    <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                    <div class="card-info">
+                                        <h4 x-text="title(item)"></h4>
+                                        <div class="card-meta">
+                                            <span x-text="year(item)"></span>
+                                            <span class="text-yellow-400" x-text="rating(item) !== 'N/A' ? '⭐ ' + rating(item) : (item.media_type === 'tv' ? 'series' : 'movie')"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
 
-                <div x-show="filteredTrending.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-fire"></i> <span x-text="activeOtt === 'all' ? 'Trending Today' : activeOtt + ' Trending'"></span></h3>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredTrending" :key="'trend'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
+                            <div class="explore-more-card" x-show="sec.explorePage" @click="exploreMore(sec.explorePage)">
+                                <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
+                                <h5>Explore More</h5>
+                                <p x-text="sec.exploreLabel || 'See all'"></p>
                             </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('trending.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>See what's hot</p>
                         </div>
                     </div>
-                </div>
+                </template>
 
-                <div x-show="filteredAnime.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-dragon"></i> Anime Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredAnime" :key="'anime-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('anime.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All anime</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="filteredSeries.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-tv"></i> Web Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredSeries" :key="'series-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('webseries.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All web series</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="filteredMovies.length">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas fa-film"></i> <span x-text="activeOtt === 'all' ? 'Popular Movies' : activeOtt + ' Movies'"></span></h3>
-                    </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredMovies" :key="'pop'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'movie')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span>movie</span><span x-text="year(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('movies.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All movies</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="activeOtt === 'all' && filteredKDrama.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-heart"></i> K-Drama Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredKDrama" :key="'kdrama-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('kdrama.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All K-Dramas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="activeOtt === 'all' && filteredIndianSeries.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-om"></i> Indian Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredIndianSeries" :key="'indian-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('indianseries.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All Indian series</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="activeOtt === 'all' && filteredCDrama.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-yin-yang"></i> C-Drama Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredCDrama" :key="'cdrama-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('cdrama.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All C-Dramas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="activeOtt === 'all' && filteredPDrama.length">
-                    <div class="section-heading-wrap"><h3><i class="fas fa-sun"></i> P-Drama Series</h3></div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="item in filteredPDrama" :key="'pdrama-'+item.id">
-                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                                <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
-                                <div class="card-info">
-                                    <h4 x-text="title(item)"></h4>
-                                    <div class="card-meta"><span x-text="year(item)"></span><span class="text-yellow-400" x-text="'⭐ ' + rating(item)"></span></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="explore-more-card" @click="exploreMore('pdrama.html')">
-                            <div class="explore-icon"><i class="fas fa-arrow-right"></i></div>
-                            <h5>Explore More</h5>
-                            <p>All P-Dramas</p>
-                        </div>
-                    </div>
+                <div x-show="!renderedSections.length && !loading" class="empty-state" style="padding: 40px 16px;">
+                    <i class="fas fa-film"></i>
+                    <p>No sections available right now.</p>
                 </div>
             </div>
         </div>
@@ -987,16 +880,46 @@
         </div>
     </div>
 
+    <!-- ===================== AUTH MODAL (login + register) ===================== -->
     <div class="modal-overlay" :class="{ 'open': authModalOpen }" @click="authModalOpen = false">
         <div class="modal-box" @click.stop="">
             <div class="modal-header">
-                <h3><i class="fas fa-user-circle"></i> <span x-text="authView === 'login' ? 'Login' : 'Register'"></span></h3>
-                <button class="modal-close" @click="authModalOpen = false"><i class="fas fa-times"></i></button>
+                <h3>
+                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : 'fa-user-plus'"></i>
+                    <span x-text="authView === 'login' ? 'Login to RX Player' : 'Create your account'"></span>
+                </h3>
+                <button class="modal-close" @click="authModalOpen = false" type="button"><i class="fas fa-times"></i></button>
             </div>
-            <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'">
-                <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required /></div>
-                <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required /></div>
-                <button type="submit" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+
+            <!-- LOGIN -->
+            <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'" x-cloak>
+                <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required autocomplete="current-password" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-sign-in-alt'"></i>
+                    <span x-text="authLoading ? 'Please wait…' : 'Login'"></span>
+                </button>
+                <div class="auth-switch">
+                    Don't have an account?
+                    <button type="button" @click="switchAuthView('register')">Create one</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-lock"></i> Login required to use Watch Later &amp; sync your list.</div>
+            </form>
+
+            <!-- REGISTER -->
+            <form @submit.prevent="register()" class="auth-form" x-show="authView === 'register'" x-cloak>
+                <div class="form-group"><label>Name</label><input type="text" x-model="registerName" placeholder="Your name" autocomplete="name" /></div>
+                <div class="form-group"><label>Email</label><input type="email" x-model="registerEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <div class="form-group"><label>Password</label><input type="password" x-model="registerPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-user-plus'"></i>
+                    <span x-text="authLoading ? 'Creating account…' : 'Create Account'"></span>
+                </button>
+                <div class="auth-switch">
+                    Already have an account?
+                    <button type="button" @click="switchAuthView('login')">Login</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-bookmark"></i> Your Watch Later list is saved to your account.</div>
             </form>
         </div>
     </div>
@@ -1062,9 +985,11 @@
                                 <i class="fas fa-play"></i>
                                 <span>Watch Now</span>
                             </button>
-                            <button class="detail-watchlist-btn" @click="toggleWatchlist()">
+                            <button class="detail-watchlist-btn"
+                                    :class="{ 'active': isInWatchlist }"
+                                    @click="toggleWatchlist()">
                                 <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i>
-                                <span x-text="isInWatchlist ? 'In Watchlist' : 'Watch Later'"></span>
+                                <span x-text="isInWatchlist ? 'In Watch Later' : 'Watch Later'"></span>
                             </button>
                         </div>
                     </div>
@@ -1138,6 +1063,9 @@
         const WATCH_PAGE_URL = 'player.html';
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
+        /* Sections that are ALWAYS automated (admin cannot disable auto) */
+        const AUTO_SECTION_IDS = ['trending', 'picked'];
+
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
             authDomain: "rxplayer-a2582.firebaseapp.com",
@@ -1161,10 +1089,28 @@
                 drawerOpen: false,
                 authModalOpen: false,
                 authView: 'login',
+                authLoading: false,
                 currentUser: null,
                 activeOtt: 'all',
 
+                /* ---------- Auth form models ---------- */
+                loginEmail: '',
+                loginPassword: '',
+                registerName: '',
+                registerEmail: '',
+                registerPassword: '',
+
+                /* ---------- Watch Later (Firestore, login required) ---------- */
+                watchlist: [],
+                pendingWatchlist: null,
+
+                /* ---------- Search ---------- */
                 searchQuery: '',
+                searchResults: [],
+                lastSearchQuery: '',
+                searchLiveLoading: false,
+
+                /* ---------- Auto pools ---------- */
                 trending: [],
                 popularMovies: [],
                 tvShows: [],
@@ -1173,13 +1119,8 @@
                 indianSeriesList: [],
                 cdramaList: [],
                 pdramaList: [],
-                searchResults: [],
-                lastSearchQuery: '',
-                searchLiveLoading: false,
 
                 recommendedPickedForYou: [],
-                recommendedBySearch: [],
-                recommendedByHistory: [],
 
                 recCache: {
                     tmdbRecommendations: {},
@@ -1192,6 +1133,7 @@
                 recReasons: {},
                 recDebug: { lastRefresh: 0, candidateCount: 0, topScores: [] },
 
+                /* ---------- Detail modal ---------- */
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
@@ -1200,7 +1142,8 @@
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
 
-                homeSectionsConfig: {},
+                /* ---------- Home sections (admin controlled) ---------- */
+                sectionsConfig: [],
 
                 ottPlatforms: [
                     { name: 'HBO',        logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                            query: 'HBO',         type: 'ott' },
@@ -1229,16 +1172,21 @@
                     searchIntent: 0.15, popularityRating: 0.10, languageCompatibility: 0.10, discoveryDiversity: 0.05
                 },
 
-                loginEmail: '',
-                loginPassword: '',
-
+                /* =========================================================
+                   INIT
+                   ========================================================= */
                 async init() {
                     setTimeout(() => {
                         const preloader = document.getElementById('preloader');
                         if (preloader) preloader.classList.add('fade-out');
                     }, 400);
 
-                    auth.onAuthStateChanged(user => { this.currentUser = user; });
+                    this.sectionsConfig = this.defaultSections();
+
+                    auth.onAuthStateChanged(async (user) => {
+                        this.currentUser = user;
+                        await this.loadWatchlist();
+                    });
 
                     this.loadGuestProfile();
 
@@ -1251,57 +1199,224 @@
                     this.computePersonalizedRecommendations();
                 },
 
-                async loadOttPlatforms() {
-                    try {
-                        const doc = await db.collection('config').doc('ottFilters').get();
-                        if (doc.exists && Array.isArray(doc.data().platforms) && doc.data().platforms.length) {
-                            this.ottPlatforms = doc.data().platforms;
+                /* =========================================================
+                   SECTION CONFIG (admin controlled)
+                   ========================================================= */
+                defaultSections() {
+                    return [
+                        {
+                            id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles',
+                            badge: 'SMART', auto: true, source: 'picked', enabled: true, order: 1,
+                            explorePage: 'picks.html', exploreLabel: 'See all picks',
+                            customItems: [], removedIds: []
+                        },
+                        {
+                            id: 'trending', title: 'Trending Today', icon: 'fas fa-fire',
+                            badge: '', auto: true, source: 'trending', enabled: true, order: 2,
+                            explorePage: 'trending.html', exploreLabel: "See what's hot",
+                            customItems: [], removedIds: []
+                        },
+                        {
+                            id: 'series', title: 'Web Series', icon: 'fas fa-tv',
+                            badge: '', auto: false, source: 'series', enabled: true, order: 3,
+                            explorePage: 'webseries.html', exploreLabel: 'All web series', items: []
+                        },
+                        {
+                            id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart',
+                            badge: '', auto: false, source: 'kdrama', enabled: true, order: 4,
+                            explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', items: []
+                        },
+                        {
+                            id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon',
+                            badge: '', auto: false, source: 'anime', enabled: true, order: 5,
+                            explorePage: 'anime.html', exploreLabel: 'All anime', items: []
+                        },
+                        {
+                            id: 'movies', title: 'Popular Movies', icon: 'fas fa-film',
+                            badge: '', auto: false, source: 'movies', enabled: true, order: 6,
+                            explorePage: 'movies.html', exploreLabel: 'All movies', items: []
+                        },
+                        {
+                            id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om',
+                            badge: '', auto: false, source: 'indianseries', enabled: true, order: 7,
+                            explorePage: 'indianseries.html', exploreLabel: 'All Indian series', items: []
+                        },
+                        {
+                            id: 'cdrama', title: 'C-Drama Series', icon: 'fas fa-yin-yang',
+                            badge: '', auto: false, source: 'cdrama', enabled: true, order: 8,
+                            explorePage: 'cdrama.html', exploreLabel: 'All C-Dramas', items: []
+                        },
+                        {
+                            id: 'pdrama', title: 'P-Drama Series', icon: 'fas fa-sun',
+                            badge: '', auto: false, source: 'pdrama', enabled: true, order: 9,
+                            explorePage: 'pdrama.html', exploreLabel: 'All P-Dramas', items: []
                         }
-                    } catch (e) {
-                        console.warn('OTT load failed, using defaults:', e.message);
-                    }
+                    ];
                 },
 
+                /**
+                 * Firestore doc: config/homeSections
+                 * NEW format (recommended for admin panel):
+                 * {
+                 *   sections: [
+                 *     { id, title, icon, badge, auto, source, enabled, order,
+                 *       explorePage, exploreLabel, items: [ {id,title,poster,year,rating,media_type} ],
+                 *       customItems: [...], removedIds: [...] }
+                 *   ]
+                 * }
+                 * OLD format (still supported): { series: {customItems, removedIds}, ... }
+                 */
                 async loadSectionConfig() {
                     try {
                         const doc = await db.collection('config').doc('homeSections').get();
-                        if (doc.exists) {
-                            this.homeSectionsConfig = doc.data().sections || {};
+                        if (!doc.exists) {
+                            this.sectionsConfig = this.defaultSections();
+                            return;
                         }
+                        const data = doc.data() || {};
+
+                        let arr = null;
+                        if (Array.isArray(data.sections)) arr = data.sections;
+                        else if (Array.isArray(data)) arr = data;
+
+                        if (arr && arr.length) {
+                            this.sectionsConfig = arr
+                                .filter(s => s && s.id)
+                                .map(s => ({
+                                    badge: '',
+                                    icon: 'fas fa-film',
+                                    enabled: true,
+                                    auto: false,
+                                    items: [],
+                                    customItems: [],
+                                    removedIds: [],
+                                    ...s
+                                }))
+                                .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+                            return;
+                        }
+
+                        /* Legacy object format → merge into defaults */
+                        const legacy = (data.sections && typeof data.sections === 'object') ? data.sections : data;
+                        this.sectionsConfig = this.defaultSections().map(def => {
+                            const l = legacy[def.id];
+                            if (!l || typeof l !== 'object') return def;
+                            return {
+                                ...def,
+                                customItems: l.customItems || [],
+                                removedIds: l.removedIds || []
+                            };
+                        });
                     } catch (e) {
                         console.warn('Could not load home sections config:', e.message);
+                        this.sectionsConfig = this.defaultSections();
                     }
                 },
 
-                applySectionConfig(key, items) {
-                    const all = this.homeSectionsConfig || {};
-                    const sectionKeys = ['picked', 'series', 'kdrama', 'anime', 'trending', 'movies', 'indianseries', 'cdrama', 'pdrama'];
-                    const looksOldFormat = sectionKeys.some(k => all[k] && (all[k].customItems !== undefined || all[k].removedIds !== undefined));
+                /* =========================================================
+                   POOLS
+                   ========================================================= */
+                get poolMap() {
+                    const ottActive = this.activeOtt !== 'all';
+                    return {
+                        trending: (ottActive && this.ottPools.trending.length) ? this.ottPools.trending : this.trending,
+                        picked: this.recommendedPickedForYou,
+                        movies: (ottActive && this.ottPools.popular.length) ? this.ottPools.popular : this.popularMovies,
+                        series: (ottActive && this.ottPools.series.length) ? this.ottPools.series : this.tvShows,
+                        anime: (ottActive && this.ottPools.anime.length) ? this.ottPools.anime : this.animeList,
+                        kdrama: this.kdramaList,
+                        indianseries: this.indianSeriesList,
+                        cdrama: this.cdramaList,
+                        pdrama: this.pdramaList,
+                        searchRec: this.ottPools.searchRec,
+                        historyRec: this.ottPools.historyRec
+                    };
+                },
 
-                    let group;
-                    if (looksOldFormat) {
-                        group = all;
-                    } else {
-                        group = all[this.activeOtt] || all['all'] || {};
+                /**
+                 * Builds the final, ordered list of sections to render.
+                 * - trending & picked => ALWAYS automated (source pool + smart year filter)
+                 * - everything else    => manual only (admin `items` array)
+                 * - during OTT filtering only automated sections are shown
+                 */
+                get renderedSections() {
+                    const isAll = this.activeOtt === 'all';
+                    const pools = this.poolMap;
+                    const out = [];
+
+                    for (const raw of (this.sectionsConfig || [])) {
+                        if (!raw) continue;
+                        const id = String(raw.id || '').trim();
+                        if (!id) continue;
+                        if (raw.enabled === false) continue;
+
+                        const isAuto = raw.auto === true || AUTO_SECTION_IDS.includes(id);
+
+                        /* Manual sections are hidden while filtering a network */
+                        if (!isAll && !isAuto) continue;
+                        if (!isAll && id === 'picked') continue;
+
+                        let items = [];
+                        const removed = (raw.removedIds || []).map(String);
+
+                        if (isAuto) {
+                            let pool = pools[raw.source || id] || [];
+                            pool = this.filterBySmartYear(pool, 6);
+                            items = pool.filter(i => i && !removed.includes(String(i.id)));
+                            const customs = (raw.customItems || [])
+                                .map(c => this.normalizeAdminItem(c))
+                                .filter(Boolean);
+                            if (customs.length) items = [...customs, ...items];
+                        } else {
+                            items = (raw.items || [])
+                                .map(c => this.normalizeAdminItem(c))
+                                .filter(i => i && (i.id !== null && i.id !== undefined && i.id !== ''));
+                        }
+
+                        /* de-dupe inside a section */
+                        const seen = new Set();
+                        items = items.filter(i => {
+                            const k = `${i.media_type || 'movie'}:${i.id}`;
+                            if (seen.has(k)) return false;
+                            seen.add(k);
+                            return true;
+                        });
+
+                        if (!items.length) continue;
+
+                        let displayTitle = raw.title || id;
+                        if (id === 'trending' && !isAll) displayTitle = this.activeOtt + ' Trending';
+                        if (id === 'movies' && !isAll) displayTitle = this.activeOtt + ' Movies';
+
+                        out.push({ ...raw, id, isAuto, items, displayTitle });
                     }
 
-                    const cfg = group[key] || { customItems: [], removedIds: [] };
-                    const removedIds = (cfg.removedIds || []).map(String);
-                    const customItems = (cfg.customItems || []).map(c => ({
-                        id: c.id,
-                        title: c.title,
-                        name: c.title,
-                        poster_path: c.poster ? c.poster.replace('https://image.tmdb.org/t/p/w500', '') : '',
-                        release_date: (c.year ? c.year + '-01-01' : ''),
-                        first_air_date: (c.year ? c.year + '-01-01' : ''),
+                    return out;
+                },
+
+                normalizeAdminItem(c) {
+                    if (!c) return null;
+                    const posterUrl = c.poster || c.poster_url || c._adminCustomPoster || '';
+                    const yearStr = String(c.year || '').trim();
+                    const rawId = c.id;
+                    return {
+                        id: (rawId !== undefined && rawId !== null && rawId !== '' && !isNaN(Number(rawId))) ? Number(rawId) : rawId,
+                        title: c.title || c.name || 'Untitled',
+                        name: c.title || c.name || 'Untitled',
+                        poster_path: posterUrl ? String(posterUrl).replace('https://image.tmdb.org/t/p/w500', '') : '',
+                        _adminCustomPoster: posterUrl,
+                        release_date: c.release_date || (yearStr ? yearStr + '-01-01' : ''),
+                        first_air_date: c.first_air_date || (yearStr ? yearStr + '-01-01' : ''),
                         media_type: c.media_type || 'movie',
-                        vote_average: typeof c.rating === 'number' ? c.rating : parseFloat(c.rating) || 0,
-                        _adminCustomPoster: c.poster
-                    }));
-                    const filtered = (items || []).filter(i => !removedIds.includes(String(i.id)));
-                    return [...customItems, ...filtered];
+                        vote_average: typeof c.rating === 'number' ? c.rating : (parseFloat(c.rating) || 0),
+                        overview: c.overview || '',
+                        genre_ids: c.genre_ids || []
+                    };
                 },
 
+                /* =========================================================
+                   GUEST PROFILE / PERSONALIZATION
+                   ========================================================= */
                 loadGuestProfile() {
                     try {
                         const saved = localStorage.getItem(GUEST_PROFILE_KEY);
@@ -1322,36 +1437,6 @@
 
                 saveGuestProfile() {
                     try { localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(this.guestProfile)); } catch (e) {}
-                },
-
-                get isInWatchlist() {
-                    if (!this.detailItem || !this.detailItem.id) return false;
-                    return (this.guestProfile.myList || []).some(m => m.id === this.detailItem.id && m.type === this.detailItem.type);
-                },
-
-                toggleWatchlist() {
-                    if (!this.detailItem || !this.detailItem.id || !this.detailData) return;
-                    const exists = this.isInWatchlist;
-                    if (exists) {
-                        this.guestProfile.myList = (this.guestProfile.myList || []).filter(m => !(m.id === this.detailItem.id && m.type === this.detailItem.type));
-                        this.showToast('Removed from Watchlist', 'info');
-                    } else {
-                        const itemEntry = {
-                            id: this.detailItem.id,
-                            type: this.detailItem.type,
-                            title: this.detailTitle(this.detailData),
-                            poster_path: this.detailData.poster_path || '',
-                            vote_average: this.detailData.vote_average || 0,
-                            release_date: this.detailData.release_date || this.detailData.first_air_date || '',
-                            genres: (this.detailData.genres || []).map(g => g.id),
-                            original_language: this.detailData.original_language || '',
-                            timestamp: Date.now()
-                        };
-                        this.guestProfile.myList = [itemEntry, ...(this.guestProfile.myList || [])];
-                        this.showToast('Added to Watchlist', 'success');
-                    }
-                    this.saveGuestProfile();
-                    this.refreshPersonalizedRecommendations().catch(()=>{});
                 },
 
                 recordWatchHistory(item, type) {
@@ -1378,7 +1463,7 @@
                     }
 
                     this.saveGuestProfile();
-                    this.refreshPersonalizedRecommendations().catch(()=>{});
+                    this.refreshPersonalizedRecommendations().catch(() => {});
                 },
 
                 recordSearchIntent(query) {
@@ -1386,12 +1471,13 @@
                     this.guestProfile.lastSearchTerm = query;
                     this.guestProfile.recentSearches = [query, ...this.guestProfile.recentSearches.filter(q => q !== query)].slice(0, 10);
                     this.saveGuestProfile();
-                    this.refreshPersonalizedRecommendations().catch(()=>{});
+                    this.refreshPersonalizedRecommendations().catch(() => {});
                 },
 
                 showToast(message, type = 'info', duration = 3500) {
                     const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
                     const container = document.getElementById('toastContainer');
+                    if (!container) return;
                     const toast = document.createElement('div');
                     toast.className = `toast ${type}`;
                     toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
@@ -1455,43 +1541,9 @@
                     }
                 },
 
-                get filteredPickedForYou() {
-                    if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig('picked', this.filterBySmartYear(this.recommendedPickedForYou, 6));
-                },
-                get filteredSeries() {
-                    const base = this.activeOtt === 'all' ? this.tvShows : (this.ottPools.series.length ? this.ottPools.series : this.tvShows);
-                    return this.applySectionConfig('series', this.filterBySmartYear(base, 6));
-                },
-                get filteredKDrama() {
-                    if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig('kdrama', this.filterBySmartYear(this.kdramaList, 6));
-                },
-                get filteredIndianSeries() {
-                    if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig('indianseries', this.filterBySmartYear(this.indianSeriesList, 6));
-                },
-                get filteredCDrama() {
-                    if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig('cdrama', this.filterBySmartYear(this.cdramaList, 6));
-                },
-                get filteredPDrama() {
-                    if (this.activeOtt !== 'all') return [];
-                    return this.applySectionConfig('pdrama', this.filterBySmartYear(this.pdramaList, 6));
-                },
-                get filteredAnime() {
-                    const base = this.activeOtt === 'all' ? this.animeList : (this.ottPools.anime.length ? this.ottPools.anime : this.animeList);
-                    return this.applySectionConfig('anime', this.filterBySmartYear(base, 6));
-                },
-                get filteredTrending() {
-                    const base = this.activeOtt === 'all' ? this.trending : (this.ottPools.trending.length ? this.ottPools.trending : this.trending);
-                    return this.applySectionConfig('trending', this.filterBySmartYear(base, 6));
-                },
-                get filteredMovies() {
-                    const base = this.activeOtt === 'all' ? this.popularMovies : (this.ottPools.popular.length ? this.ottPools.popular : this.popularMovies);
-                    return this.applySectionConfig('movies', this.filterBySmartYear(base, 6));
-                },
-
+                /* =========================================================
+                   API
+                   ========================================================= */
                 async request(url, options = {}) {
                     const res = await fetch(this.API + url, options);
                     const data = await res.json();
@@ -1499,7 +1551,19 @@
                     return data;
                 },
 
+                async loadOttPlatforms() {
+                    try {
+                        const doc = await db.collection('config').doc('ottFilters').get();
+                        if (doc.exists && Array.isArray(doc.data().platforms) && doc.data().platforms.length) {
+                            this.ottPlatforms = doc.data().platforms;
+                        }
+                    } catch (e) {
+                        console.warn('OTT load failed, using defaults:', e.message);
+                    }
+                },
+
                 async loadHomeData() {
+                    this.loading = true;
                     try {
                         const testData = await this.request("/test-tmdb");
                         this.trending = testData.results || [];
@@ -1524,9 +1588,16 @@
 
                         const pdramaRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1"));
                         this.pdramaList = (pdramaRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
-                    } catch (e) { console.warn('loadHomeData error:', e); }
+                    } catch (e) {
+                        console.warn('loadHomeData error:', e);
+                    } finally {
+                        this.loading = false;
+                    }
                 },
 
+                /* =========================================================
+                   RECOMMENDATION ENGINE
+                   ========================================================= */
                 _tsDecay(ts, halfLifeDays = 30) {
                     if (!ts) return 0.3;
                     const ageDays = (Date.now() - ts) / 86400000;
@@ -1652,11 +1723,9 @@
 
                 _applyDiversity(scoredList, maxItems) {
                     const out = [];
-                    const usedGenres = new Set();
                     for (const s of scoredList) {
                         if (out.length >= maxItems) break;
                         out.push(s);
-                        (s.item.genre_ids || []).forEach(g => usedGenres.add(g));
                     }
                     return out;
                 },
@@ -1704,6 +1773,9 @@
                     await this._doRefreshPersonalizedRecommendations();
                 },
 
+                /* =========================================================
+                   SEARCH
+                   ========================================================= */
                 async onSearchInput(val) {
                     if (val && val.trim().length >= 2) this.recordSearchIntent(val.trim());
                 },
@@ -1762,11 +1834,33 @@
                     window.location.href = sectionPage;
                 },
 
+                /* =========================================================
+                   DETAILS MODAL
+                   ========================================================= */
+                _findCachedItem(id, type) {
+                    const pools = [
+                        this.trending, this.popularMovies, this.tvShows, this.kdramaList,
+                        this.animeList, this.indianSeriesList, this.cdramaList, this.pdramaList,
+                        this.searchResults, this.recommendedPickedForYou
+                    ];
+                    for (const p of pools) {
+                        const f = (p || []).find(x => String(x.id) === String(id));
+                        if (f) return f;
+                    }
+                    for (const sec of (this.sectionsConfig || [])) {
+                        const f = (sec.items || []).find(x => String(x.id) === String(id));
+                        if (f) return this.normalizeAdminItem(f);
+                        const c = (sec.customItems || []).find(x => String(x.id) === String(id));
+                        if (c) return this.normalizeAdminItem(c);
+                    }
+                    return { id, media_type: type };
+                },
+
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
                     const normType = (['tv', 'series', 'anime', 'show'].includes(type)) ? 'tv' : 'movie';
 
-                    const item = [...this.trending, ...this.popularMovies, ...this.tvShows].find(x => x.id === id) || { id };
+                    const item = this._findCachedItem(id, normType);
                     this.recordWatchHistory(item, normType);
 
                     this.detailItem = { id, type: normType };
@@ -1786,7 +1880,6 @@
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                         this.detailData = data;
 
-                        // Setup Seasons
                         if (normType === 'tv' && data.seasons && data.seasons.length > 0) {
                             const validSeasons = data.seasons.filter(s => s.season_number > 0);
                             this.selectedSeason = validSeasons.length > 0 ? validSeasons[0].season_number : 1;
@@ -1885,18 +1978,206 @@
                 },
                 rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
 
-                openAuthModal() { this.authModalOpen = true; },
+                /* =========================================================
+                   AUTHENTICATION
+                   ========================================================= */
+                openAuthModal() {
+                    if (this.currentUser) {
+                        window.location.href = 'watchlater.html';
+                        return;
+                    }
+                    this.authModalOpen = true;
+                },
+
+                switchAuthView(view) {
+                    this.authView = view;
+                },
+
+                friendlyAuthError(e) {
+                    const code = (e && e.code) || '';
+                    const map = {
+                        'auth/invalid-email': 'Please enter a valid email address.',
+                        'auth/user-not-found': 'No account found with this email. Please create one.',
+                        'auth/wrong-password': 'Incorrect password. Please try again.',
+                        'auth/invalid-credential': 'Invalid email or password.',
+                        'auth/invalid-login-credentials': 'Invalid email or password.',
+                        'auth/email-already-in-use': 'This email is already registered. Please login instead.',
+                        'auth/weak-password': 'Password must be at least 6 characters.',
+                        'auth/too-many-requests': 'Too many attempts. Please try again later.',
+                        'auth/network-request-failed': 'Network error. Check your connection.'
+                    };
+                    return map[code] || (e && e.message) || 'Something went wrong. Please try again.';
+                },
+
                 async login() {
+                    if (!this.loginEmail || !this.loginPassword) return;
+                    this.authLoading = true;
                     try {
                         await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
-                        this.showToast('Logged in successfully!', 'success');
-                        this.authModalOpen = false;
-                    } catch (e) { this.showToast(e.message, 'error'); }
+                        this.loginEmail = '';
+                        this.loginPassword = '';
+                        await this.afterAuthSuccess('Logged in successfully!');
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
                 },
-                logout() { auth.signOut(); this.showToast('Logged out.', 'info'); }
+
+                async register() {
+                    if (!this.registerEmail || !this.registerPassword) return;
+                    this.authLoading = true;
+                    try {
+                        const cred = await auth.createUserWithEmailAndPassword(this.registerEmail, this.registerPassword);
+                        if (this.registerName && cred && cred.user) {
+                            await cred.user.updateProfile({ displayName: this.registerName });
+                            this.currentUser = auth.currentUser;
+                        }
+                        this.registerName = '';
+                        this.registerEmail = '';
+                        this.registerPassword = '';
+                        await this.afterAuthSuccess('Account created successfully!');
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async afterAuthSuccess(msg) {
+                    this.authModalOpen = false;
+                    this.showToast(msg, 'success');
+                    await this.loadWatchlist();
+
+                    /* If the user clicked Watch Later while logged out, complete it now */
+                    if (this.pendingWatchlist) {
+                        const p = this.pendingWatchlist;
+                        this.pendingWatchlist = null;
+                        const ok = await this.addToWatchlist(p);
+                        if (ok) this.showToast('Added to Watch Later', 'success');
+                    }
+                },
+
+                logout() {
+                    auth.signOut();
+                    this.watchlist = [];
+                    this.showToast('Logged out.', 'info');
+                },
+
+                /* =========================================================
+                   WATCH LATER (Firestore + login required)
+                   ========================================================= */
+                async loadWatchlist() {
+                    if (!this.currentUser) {
+                        this.watchlist = [];
+                        return;
+                    }
+                    try {
+                        const snap = await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .get();
+                        this.watchlist = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                    } catch (e) {
+                        console.warn('watchlist load failed:', e.message);
+                        this.watchlist = [];
+                    }
+                },
+
+                _watchlistKey(item) {
+                    return `${item.type || 'movie'}_${item.id}`;
+                },
+
+                get isInWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id) return false;
+                    return (this.watchlist || []).some(
+                        w => String(w.id) === String(this.detailItem.id) && (w.type || 'movie') === this.detailItem.type
+                    );
+                },
+
+                _buildWatchlistEntry() {
+                    const d = this.detailData;
+                    if (!d || !this.detailItem || !this.detailItem.id) return null;
+                    const posterPath = d.poster_path || '';
+                    return {
+                        id: this.detailItem.id,
+                        type: this.detailItem.type,
+                        media_type: this.detailItem.type,
+                        title: this.detailTitle(d),
+                        poster_path: posterPath,
+                        poster_url: posterPath ? ('https://image.tmdb.org/t/p/w500' + posterPath) : '',
+                        vote_average: d.vote_average || 0,
+                        release_date: d.release_date || d.first_air_date || '',
+                        genres: (d.genres || []).map(g => g.id),
+                        original_language: d.original_language || '',
+                        overview: d.overview || ''
+                    };
+                },
+
+                async addToWatchlist(entry) {
+                    if (!this.currentUser || !entry) return false;
+                    const docId = this._watchlistKey(entry);
+                    try {
+                        await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .doc(docId)
+                            .set({ ...entry, docId, addedAt: Date.now() }, { merge: true });
+
+                        if (!this.watchlist.some(w => w.docId === docId)) {
+                            this.watchlist = [{ ...entry, docId, addedAt: Date.now() }, ...this.watchlist];
+                        }
+                        return true;
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Could not save to Watch Later. Please try again.', 'error');
+                        return false;
+                    }
+                },
+
+                async removeFromWatchlist(entry) {
+                    if (!this.currentUser || !entry) return false;
+                    const docId = this._watchlistKey(entry);
+                    try {
+                        await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .doc(docId)
+                            .delete();
+                        this.watchlist = this.watchlist.filter(w => w.docId !== docId);
+                        return true;
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Could not remove from Watch Later. Please try again.', 'error');
+                        return false;
+                    }
+                },
+
+                async toggleWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id || !this.detailData) return;
+
+                    const entry = this._buildWatchlistEntry();
+                    if (!entry) return;
+
+                    /* ---- Login required ---- */
+                    if (!this.currentUser) {
+                        this.pendingWatchlist = entry;
+                        this.authModalOpen = true;
+                        this.authView = 'login';
+                        this.showToast('Please login or create an account to use Watch Later', 'info', 4000);
+                        return;
+                    }
+
+                    if (this.isInWatchlist) {
+                        const ok = await this.removeFromWatchlist(entry);
+                        if (ok) this.showToast('Removed from Watch Later', 'info');
+                    } else {
+                        const ok = await this.addToWatchlist(entry);
+                        if (ok) this.showToast('Added to Watch Later', 'success');
+                    }
+                }
             };
         }
     </script>
 </body>
 </html>
-```[cite: 1]
