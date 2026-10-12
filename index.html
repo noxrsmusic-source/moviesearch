@@ -1011,6 +1011,7 @@
             <div class="modal-alert-box" :class="modalAlert.type">
                 <i class="fas" :class="modalAlert.type === 'success' ? 'fa-check-circle' : (modalAlert.type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')"></i>
                 <span x-text="modalAlert.message"></span>
+                <a x-show="modalAlert.show && modalAlert.type === 'success'" href="watchlater.html" style="margin-left: auto; font-size: 12px; font-weight: 800; color: var(--primary-red); text-decoration: underline; white-space: nowrap;">View List</a>
             </div>
         </div>
         <!-- ===================================================================== -->
@@ -2301,7 +2302,10 @@
                         if (ok) this.showModalAlert('Removed from Watch Later', 'info');
                     } else {
                         const ok = await this.addToWatchlist(entry);
-                        if (ok) this.showModalAlert('Added to Watch Later', 'success');
+                        if (ok) {
+                            this.showModalAlert('Added to Watch Later', 'success');
+                            // The alert box now contains a "View List" button that links to watchlater.html
+                        }
                     }
                 }
             };
