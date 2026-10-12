@@ -296,6 +296,29 @@
         .auth-hint { font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.5; margin-top: 2px; }
         .auth-hint i { color: var(--primary-red); }
 
+        /* ---------- Google & Divider Styles ---------- */
+        .auth-divider {
+            display: flex; align-items: center; text-align: center;
+            color: var(--text-muted); font-size: 12px; margin: 4px 0;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .auth-divider:not(:empty)::before { margin-right: .5em; }
+        .auth-divider:not(:empty)::after { margin-left: .5em; }
+        
+        .btn-google {
+            height: 46px; border-radius: 30px;
+            background: #fff; color: #000;
+            font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        .btn-google:hover { background: #f1f1f1; transform: translateY(-2px); }
+        .btn-google i { color: #DB4437; font-size: 16px; }
+
         /* Detail Modal */
         .detail-modal-overlay {
             position: fixed; inset: 0; z-index: 2147483000;
@@ -518,8 +541,8 @@
         <div class="modal-box" @click.stop="">
             <div class="modal-header">
                 <h3>
-                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : 'fa-user-plus'"></i>
-                    <span x-text="authView === 'login' ? 'Login to RX Player' : 'Create your account'"></span>
+                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : (authView === 'register' ? 'fa-user-plus' : 'fa-key')"></i>
+                    <span x-text="authView === 'login' ? 'Login to RX Player' : (authView === 'register' ? 'Create your account' : 'Reset Password')"></span>
                 </h3>
                 <button class="modal-close" @click="authModalOpen = false" type="button"><i class="fas fa-times"></i></button>
             </div>
@@ -528,9 +551,16 @@
             <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'" x-cloak>
                 <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required autocomplete="email" /></div>
                 <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required autocomplete="current-password" /></div>
+                <div class="auth-switch" style="margin-top: -6px; text-align: right;">
+                    <button type="button" @click="authView = 'forgot'" style="font-size: 11px;">Forgot Password?</button>
+                </div>
                 <button type="submit" class="btn-primary" :disabled="authLoading">
                     <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-sign-in-alt'"></i>
                     <span x-text="authLoading ? 'Please wait…' : 'Login'"></span>
+                </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Continue with Google
                 </button>
                 <div class="auth-switch">
                     Don't have an account?
@@ -547,10 +577,28 @@
                     <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-user-plus'"></i>
                     <span x-text="authLoading ? 'Creating account…' : 'Create Account'"></span>
                 </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </button>
                 <div class="auth-switch">
                     Already have an account?
                     <button type="button" @click="authView = 'login'">Login</button>
                 </div>
+            </form>
+
+            <!-- FORGOT PASSWORD -->
+            <form @submit.prevent="sendPasswordReset()" class="auth-form" x-show="authView === 'forgot'" x-cloak>
+                <div class="form-group"><label>Email</label><input type="email" x-model="forgotEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-paper-plane'"></i>
+                    <span x-text="authLoading ? 'Sending…' : 'Reset Password'"></span>
+                </button>
+                <div class="auth-switch">
+                    Remember your password?
+                    <button type="button" @click="authView = 'login'">Login</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-info-circle"></i> We will send a password reset link to your email.</div>
             </form>
         </div>
     </div>
@@ -730,6 +778,7 @@
                 registerName: '',
                 registerEmail: '',
                 registerPassword: '',
+                forgotEmail: '',
 
                 // Detail modal state
                 detailModalOpen: false,
@@ -853,7 +902,9 @@
                         'auth/email-already-in-use': 'This email is already registered. Please login instead.',
                         'auth/weak-password': 'Password must be at least 6 characters.',
                         'auth/too-many-requests': 'Too many attempts. Please try again later.',
-                        'auth/network-request-failed': 'Network error. Check your connection.'
+                        'auth/network-request-failed': 'Network error. Check your connection.',
+                        'auth/popup-closed-by-user': 'Google login popup was closed. Please try again.',
+                        'auth/account-exists-with-different-credential': 'An account already exists with the same email but a different sign-in method. Please login with your original method.'
                     };
                     return map[code] || (e && e.message) || 'Something went wrong. Please try again.';
                 },
@@ -888,6 +939,38 @@
                         this.registerPassword = '';
                         this.authModalOpen = false;
                         this.showToast('Account created successfully!', 'success');
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async loginWithGoogle() {
+                    if (this.authLoading) return;
+                    this.authLoading = true;
+                    try {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        const result = await auth.signInWithPopup(provider);
+                        this.authModalOpen = false;
+                        this.showToast('Logged in with Google successfully!', 'success');
+                        await this.loadWatchlist();
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async sendPasswordReset() {
+                    if (!this.forgotEmail) return;
+                    this.authLoading = true;
+                    try {
+                        await auth.sendPasswordResetEmail(this.forgotEmail);
+                        this.showToast('Password reset email sent! Check your inbox.', 'success');
+                        this.authView = 'login';
+                        this.forgotEmail = '';
                     } catch (e) {
                         this.showToast(this.friendlyAuthError(e), 'error');
                     } finally {
