@@ -85,6 +85,10 @@
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .btn-secondary { padding: 10px 18px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.08); font-weight: 600; font-size: 13.5px; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: var(--transition); border: 1px solid rgba(255,255,255,0.1); }
         .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .btn-success { padding: 10px 18px; border-radius: var(--radius-sm); background: rgba(34,197,94,0.15); border: 1.5px solid var(--primary-green); color: var(--primary-green); font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-success:hover { background: var(--primary-green); color: #000; }
+        .btn-danger { padding: 10px 18px; border-radius: var(--radius-sm); background: rgba(239,68,68,0.12); border: 1.5px solid #ef4444; color: #ef4444; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-danger:hover { background: #ef4444; color: #fff; }
 
         .table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.04); }
         table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
@@ -216,6 +220,61 @@
         .ott-context-bar .ctx-badge.specific {
             background: rgba(229,9,20,0.2); color: var(--primary-red);
         }
+
+        /* Locked section badge */
+        .locked-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(56,189,248,0.15); color: #38bdf8;
+            font-size: 10px; font-weight: 800; padding: 2px 8px;
+            border-radius: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+            margin-left: 8px;
+        }
+        .locked-badge i { font-size: 9px; }
+
+        /* Add Section Form */
+        .add-section-form {
+            background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, var(--bg-secondary) 100%);
+            border: 1.5px dashed rgba(34,197,94,0.4);
+            border-radius: var(--radius-sm);
+            padding: 18px; margin-bottom: 20px;
+        }
+        .add-section-form h4 {
+            font-size: 14px; font-weight: 700; margin-bottom: 12px;
+            color: var(--primary-green); display: flex; align-items: center; gap: 8px;
+        }
+        .icon-picker-row {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;
+        }
+        .icon-pick-btn {
+            width: 38px; height: 38px; border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: var(--text-muted);
+            transition: var(--transition); cursor: pointer;
+        }
+        .icon-pick-btn:hover, .icon-pick-btn.selected {
+            background: rgba(229,9,20,0.15); color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        /* Section action row */
+        .section-action-row {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        }
+        .section-order-controls {
+            display: inline-flex; align-items: center; gap: 2px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 6px; padding: 2px;
+        }
+        .section-order-controls button {
+            width: 26px; height: 26px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: var(--text-muted);
+        }
+        .section-order-controls button:hover {
+            background: rgba(255,255,255,0.08); color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -330,21 +389,64 @@
                     </div>
                 </div>
 
-                <!-- HOME SECTIONS (per-OTT) -->
+                <!-- HOME SECTIONS (FULLY MANUAL NOW) -->
                 <div class="tab-content" id="tabContentSections">
                     <h1 class="page-title"><i class="fas fa-layer-group" style="color:var(--primary-red);"></i> Home Sections Manager</h1>
-                    <p class="page-subtitle">Pick an OTT view below to see exactly what users see when they click that platform. Hide default items (✕), or add custom TMDB items. Each OTT has its own independent config.</p>
+                    <p class="page-subtitle">
+                        <strong style="color:#38bdf8;">🔒 Locked Auto:</strong> Trending Now & Picked For You (automatic, latest 2024-2026) •
+                        <strong style="color:var(--primary-red);">✏️ Fully Manual:</strong> All other sections — admin creates & controls every item.
+                    </p>
 
                     <div class="ott-context-bar" id="sectionContextBar">
                         <!-- filled by JS -->
                     </div>
 
-                    <div style="margin-bottom:16px;">
+                    <!-- ADD NEW SECTION FORM -->
+                    <div class="add-section-form" id="addSectionForm">
+                        <h4><i class="fas fa-plus-circle"></i> Add New Custom Section</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Section Title</label>
+                                <input type="text" id="newSectionTitle" placeholder="e.g. Top 10 Action Movies" />
+                            </div>
+                            <div class="form-group">
+                                <label>Explore Page URL (optional)</label>
+                                <input type="text" id="newSectionExplorePage" placeholder="e.g. action.html" />
+                            </div>
+                            <div class="form-group">
+                                <label>Badge Text (optional)</label>
+                                <input type="text" id="newSectionBadge" placeholder="e.g. HOT, NEW" maxlength="8" />
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top:8px;">
+                            <label>Pick Icon</label>
+                            <div class="icon-picker-row" id="iconPickerRow">
+                                <button class="icon-pick-btn selected" data-icon="fas fa-film" title="Film"><i class="fas fa-film"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-fire" title="Fire"><i class="fas fa-fire"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-tv" title="TV"><i class="fas fa-tv"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-heart" title="Heart"><i class="fas fa-heart"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-dragon" title="Anime"><i class="fas fa-dragon"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-om" title="Indian"><i class="fas fa-om"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-yin-yang" title="C-Drama"><i class="fas fa-yin-yang"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-sun" title="P-Drama"><i class="fas fa-sun"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-star" title="Star"><i class="fas fa-star"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-bolt" title="Bolt"><i class="fas fa-bolt"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-crown" title="Crown"><i class="fas fa-crown"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-ghost" title="Ghost"><i class="fas fa-ghost"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-mask" title="Mask"><i class="fas fa-mask"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-rocket" title="Rocket"><i class="fas fa-rocket"></i></button>
+                                <button class="icon-pick-btn" data-icon="fas fa-music" title="Music"><i class="fas fa-music"></i></button>
+                            </div>
+                        </div>
+                        <button class="btn-success" id="addSectionBtn" style="margin-top:14px;"><i class="fas fa-plus"></i> Create Section</button>
+                    </div>
+
+                    <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap;">
                         <button class="btn-secondary" onclick="refreshLiveSections()"><i class="fas fa-sync"></i> Refresh Live Data</button>
                     </div>
 
                     <div id="sectionsListContainer">
-                        <div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading live sections…</div>
+                        <div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading sections…</div>
                     </div>
                 </div>
 
@@ -543,13 +645,24 @@
         const TMDB_PROXY = API_BASE + '/api/tmdb-proxy?endpoint=';
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
-        const FIXED_SECTIONS = [
-            { key: 'picked',   title: 'Picked For You',  icon: 'fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' },
-            { key: 'series',   title: 'Web Series',      icon: 'fa-tv',                   endpoint: '/tv/popular?language=en-US&page=1' },
-            { key: 'kdrama',   title: 'K-Drama Series',  icon: 'fa-heart',                endpoint: '/discover/tv?language=en-US&with_original_language=ko&sort_by=popularity.desc&page=1' },
-            { key: 'anime',    title: 'Anime Series',    icon: 'fa-dragon',               endpoint: '/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1' },
-            { key: 'trending', title: 'Trending Today',  icon: 'fa-fire',                 endpoint: '/trending/all/day?language=en-US' },
-            { key: 'movies',   title: 'Popular Movies',  icon: 'fa-film',                 endpoint: '/movie/popular?language=en-US&page=1' }
+        // 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
+        const LOCKED_AUTO_SECTIONS = ['trending', 'picked'];
+        const LOCKED_AUTO_META = {
+            trending: { title: 'Trending Now', icon: 'fas fa-fire', endpoint: '/trending/all/week?language=en-US' },
+            picked:   { title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' }
+        };
+
+        // Default sections — admin can add/remove any except LOCKED ones
+        const DEFAULT_SECTIONS = [
+            { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 1, badge: 'HOT', explorePage: 'trending.html' },
+            { id: 'picked',   title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html' },
+            { id: 'series',   title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 3, badge: '', explorePage: 'webseries.html' },
+            { id: 'kdrama',   title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 4, badge: '', explorePage: 'kdrama.html' },
+            { id: 'anime',    title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 5, badge: '', explorePage: 'anime.html' },
+            { id: 'movies',   title: 'Popular Movies', icon: 'fas fa-film', locked: false, order: 6, badge: '', explorePage: 'movies.html' },
+            { id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om', locked: false, order: 7, badge: '', explorePage: 'indianseries.html' },
+            { id: 'cdrama',   title: 'C-Drama Series', icon: 'fas fa-yin-yang', locked: false, order: 8, badge: '', explorePage: 'cdrama.html' },
+            { id: 'pdrama',   title: 'P-Drama Series', icon: 'fas fa-sun', locked: false, order: 9, badge: '', explorePage: 'pdrama.html' }
         ];
 
         const DEFAULT_OTTS = [
@@ -572,13 +685,51 @@
         let allUsers = [];
         let totalDownloadsCount = 0;
 
-        // sectionsConfig shape: { [ottName|'all']: { [sectionKey]: {customItems: [], removedIds: []} } }
-        let sectionsConfig = {};
+        // sectionsConfig NEW SHAPE:
+        // {
+        //   sections: [
+        //     { id, title, icon, locked, order, badge, explorePage, customItems, removedIds, enabled },
+        //     ...
+        //   ],
+        //   perOtt: {
+        //     "Netflix": { sections: [ ... same shape ... ] },
+        //     ...
+        //   }
+        // }
+        let sectionsConfig = { sections: [], perOtt: {} };
         let homeSectionData = {};       // live TMDB items for currently previewed OTT
         let ottsConfig = [];
         let activeSectionOtt = 'all';   // which OTT is being edited in Home Sections tab
         let targetSectionKeyForMovie = null;
         let modalSearchResults = [];
+        let selectedNewIcon = 'fas fa-film';
+
+        // ============================================================
+        // SMART YEAR FILTER — only latest 2 years (2024-2026 when now=2026)
+        // ============================================================
+        function smartLatestFilter(items, minCount = 6) {
+            if (!items || !items.length) return [];
+            const currentYear = new Date().getFullYear();
+            // Keep only current year & previous year (e.g., 2026, 2025)
+            let filtered = items.filter(item => {
+                const dateStr = item.release_date || item.first_air_date || '';
+                if (!dateStr) return false;
+                const year = parseInt(dateStr.substring(0, 4), 10);
+                return year >= (currentYear - 1);
+            });
+            // Fallback: if too few, extend to 3 years back
+            if (filtered.length < minCount) {
+                const additional = items.filter(item => {
+                    if (filtered.includes(item)) return false;
+                    const dateStr = item.release_date || item.first_air_date || '';
+                    if (!dateStr) return false;
+                    const year = parseInt(dateStr.substring(0, 4), 10);
+                    return year >= (currentYear - 2);
+                });
+                filtered = [...filtered, ...additional];
+            }
+            return filtered.length > 0 ? filtered : items.slice(0, 20);
+        }
 
         // ============================================================
         // TOAST + TAB
@@ -659,7 +810,6 @@
         // LOAD ALL
         // ============================================================
         async function loadAllData() {
-            // Load OTT first (Home Sections needs OTT list for its selector)
             await loadOttConfig();
             await Promise.all([
                 loadUsers(), loadMediaCatalog(), loadSectionsConfig(),
@@ -748,29 +898,6 @@
         }
 
         function tmdbTypeFor(category) { return category === 'movie' ? 'movie' : 'tv'; }
-
-        // Mirrors home page logic: prioritizes current/last year, falls back to keep sections full
-        function filterBySmartYearLocal(items, minCount = 10) {
-            if (!items || !items.length) return [];
-            const currentYear = new Date().getFullYear();
-            let filtered = items.filter(item => {
-                const dateStr = item.release_date || item.first_air_date || '';
-                if (!dateStr) return false;
-                const year = parseInt(dateStr.substring(0, 4), 10);
-                return year >= (currentYear - 1);
-            });
-            if (filtered.length < minCount) {
-                const additional = items.filter(item => {
-                    if (filtered.includes(item)) return false;
-                    const dateStr = item.release_date || item.first_air_date || '';
-                    if (!dateStr) return false;
-                    const year = parseInt(dateStr.substring(0, 4), 10);
-                    return year >= (currentYear - 3);
-                });
-                filtered = [...filtered, ...additional];
-            }
-            return filtered.length > 0 ? filtered : items;
-        }
 
         // ============================================================
         // MEDIA CATALOG
@@ -888,84 +1015,176 @@
         }
 
         // ============================================================
-        // HOME SECTIONS (per-OTT)
+        // HOME SECTIONS CONFIG — NEW SHAPE
         // ============================================================
-        function getSectionCfg(ott, key) {
-            if (!sectionsConfig[ott]) sectionsConfig[ott] = {};
-            if (!sectionsConfig[ott][key]) sectionsConfig[ott][key] = { customItems: [], removedIds: [] };
-            if (!Array.isArray(sectionsConfig[ott][key].customItems)) sectionsConfig[ott][key].customItems = [];
-            if (!Array.isArray(sectionsConfig[ott][key].removedIds)) sectionsConfig[ott][key].removedIds = [];
-            return sectionsConfig[ott][key];
+
+        function getDefaultSectionsDeep() {
+            return JSON.parse(JSON.stringify(DEFAULT_SECTIONS.map(s => ({
+                ...s, customItems: [], removedIds: [], enabled: true
+            }))));
+        }
+
+        // Ensure sectionsConfig always has the right shape
+        function normalizeSectionsConfig(raw) {
+            // New shape detection
+            if (raw && Array.isArray(raw.sections)) {
+                const sections = raw.sections.filter(s => s && s.id).map(s => ({
+                    id: String(s.id),
+                    title: s.title || s.id,
+                    icon: s.icon || 'fas fa-film',
+                    locked: s.locked === true || LOCKED_AUTO_SECTIONS.includes(String(s.id)),
+                    order: typeof s.order === 'number' ? s.order : 99,
+                    badge: s.badge || '',
+                    explorePage: s.explorePage || '',
+                    enabled: s.enabled !== false,
+                    customItems: Array.isArray(s.customItems) ? s.customItems : [],
+                    removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
+                })).sort((a, b) => a.order - b.order);
+
+                // Ensure locked sections exist
+                LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+                    if (!sections.find(x => x.id === lid)) {
+                        const meta = LOCKED_AUTO_META[lid];
+                        sections.unshift({
+                            id: lid, title: meta.title, icon: meta.icon,
+                            locked: true, order: i + 1, badge: lid === 'trending' ? 'HOT' : 'SMART',
+                            explorePage: lid === 'trending' ? 'trending.html' : 'picks.html',
+                            enabled: true, customItems: [], removedIds: []
+                        });
+                    } else {
+                        const s = sections.find(x => x.id === lid);
+                        s.locked = true;
+                        if (!s.title) s.title = LOCKED_AUTO_META[lid].title;
+                        if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
+                    }
+                });
+
+                const perOtt = {};
+                if (raw.perOtt && typeof raw.perOtt === 'object') {
+                    Object.keys(raw.perOtt).forEach(ottName => {
+                        const o = raw.perOtt[ottName];
+                        if (!o || !Array.isArray(o.sections)) return;
+                        perOtt[ottName] = {
+                            sections: o.sections.filter(s => s && s.id).map(s => ({
+                                id: String(s.id),
+                                title: s.title || s.id,
+                                icon: s.icon || 'fas fa-film',
+                                locked: s.locked === true || LOCKED_AUTO_SECTIONS.includes(String(s.id)),
+                                order: typeof s.order === 'number' ? s.order : 99,
+                                badge: s.badge || '',
+                                explorePage: s.explorePage || '',
+                                enabled: s.enabled !== false,
+                                customItems: Array.isArray(s.customItems) ? s.customItems : [],
+                                removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
+                            })).sort((a, b) => a.order - b.order)
+                        };
+                    });
+                }
+
+                return { sections, perOtt };
+            }
+
+            // Legacy or empty → use defaults
+            return { sections: getDefaultSectionsDeep(), perOtt: {} };
+        }
+
+        // Get the correct section list for the currently active OTT
+        function getCurrentSections() {
+            if (activeSectionOtt === 'all') return sectionsConfig.sections;
+            if (!sectionsConfig.perOtt[activeSectionOtt]) {
+                // First time this OTT is edited → clone defaults
+                sectionsConfig.perOtt[activeSectionOtt] = {
+                    sections: getDefaultSectionsDeep()
+                };
+            }
+            return sectionsConfig.perOtt[activeSectionOtt].sections;
         }
 
         async function loadSectionsConfig() {
             try {
                 const doc = await db.collection('config').doc('homeSections').get();
-                let raw = doc.exists ? (doc.data().sections || {}) : {};
-
-                // Auto-migrate from old flat format → wrap under "all"
-                const sectionKeys = FIXED_SECTIONS.map(s => s.key);
-                const looksOldFormat = sectionKeys.some(k => raw[k] && (raw[k].customItems !== undefined || raw[k].removedIds !== undefined));
-                if (looksOldFormat) {
-                    sectionsConfig = { all: raw };
-                    console.log('[RX Admin] Migrated old section config to new per-OTT format');
+                if (!doc.exists) {
+                    sectionsConfig = normalizeSectionsConfig(null);
                 } else {
-                    sectionsConfig = raw || {};
+                    sectionsConfig = normalizeSectionsConfig(doc.data());
                 }
-
-                // Ensure "all" group exists with all sections
-                if (!sectionsConfig.all) sectionsConfig.all = {};
-                FIXED_SECTIONS.forEach(s => getSectionCfg('all', s.key));
-
-                // Ensure currently active OTT group exists
-                FIXED_SECTIONS.forEach(s => getSectionCfg(activeSectionOtt, s.key));
-
                 renderSectionsList();
                 loadHomeSectionData();
-            } catch (e) { console.error('Sections config load failed', e); }
+            } catch (e) {
+                console.error('Sections config load failed', e);
+                sectionsConfig = normalizeSectionsConfig(null);
+                renderSectionsList();
+            }
         }
 
-        // Load TMDB items matching what home page shows for activeSectionOtt
+        // Live TMDB data for currently viewed OTT — smart year filtered
         async function loadHomeSectionData() {
             const container = document.getElementById('sectionsListContainer');
             if (container) container.innerHTML = `<div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading live items for <b>${activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt}</b>…</div>`;
             homeSectionData = {};
+
             try {
+                const currentSections = getCurrentSections();
+
                 if (activeSectionOtt === 'all') {
-                    // Default global endpoints (same as home page for "all")
-                    const results = await Promise.all(FIXED_SECTIONS.map(s => tmdbFetch(s.endpoint).catch(() => ({ results: [] }))));
-                    FIXED_SECTIONS.forEach((s, i) => {
-                        const items = (results[i].results || []).filter(r => r.poster_path);
-                        homeSectionData[s.key] = items.slice(0, 20).map(r => ({
+                    // Fetch defaults for all sections
+                    const promises = currentSections.map(sec => {
+                        let endpoint;
+                        if (sec.id === 'trending') endpoint = '/trending/all/week?language=en-US';
+                        else if (sec.id === 'picked') endpoint = '/movie/popular?language=en-US&page=1';
+                        else if (sec.id === 'series') endpoint = '/tv/popular?language=en-US&page=1';
+                        else if (sec.id === 'kdrama') endpoint = '/discover/tv?language=en-US&with_original_language=ko&sort_by=popularity.desc&page=1';
+                        else if (sec.id === 'anime') endpoint = '/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1';
+                        else if (sec.id === 'movies') endpoint = '/movie/popular?language=en-US&page=1';
+                        else if (sec.id === 'indianseries') endpoint = '/discover/tv?language=en-US&with_original_language=hi&sort_by=popularity.desc&page=1';
+                        else if (sec.id === 'cdrama') endpoint = '/discover/tv?language=en-US&with_original_language=zh&sort_by=popularity.desc&page=1';
+                        else if (sec.id === 'pdrama') endpoint = '/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1';
+                        else return Promise.resolve({ results: [] });
+                        return tmdbFetch(endpoint).catch(() => ({ results: [] }));
+                    });
+
+                    const results = await Promise.all(promises);
+
+                    currentSections.forEach((sec, i) => {
+                        let items = (results[i].results || []).filter(r => r.poster_path);
+                        // Apply smart year filter for trending NOW and picked
+                        if (sec.id === 'trending' || sec.id === 'picked') {
+                            items = smartLatestFilter(items, 8);
+                        }
+                        homeSectionData[sec.id] = items.slice(0, 20).map(r => ({
                             id: r.id,
                             title: r.title || r.name || 'Untitled',
                             poster: r.poster_path ? (TMDB_IMG + r.poster_path) : '',
                             year: (r.release_date || r.first_air_date || '').substring(0, 4),
-                            media_type: r.media_type || (s.key === 'movies' ? 'movie' : 'tv'),
+                            media_type: r.media_type || (sec.id === 'movies' ? 'movie' : 'tv'),
                             rating: r.vote_average
                         }));
                     });
                 } else {
-                    // OTT-specific: use search/multi with the OTT's query keyword (same as home page filterByOtt)
+                    // OTT-specific: use search/multi with the OTT's query keyword
                     const ott = ottsConfig.find(o => o.name === activeSectionOtt);
                     const keyword = ott ? ott.query : activeSectionOtt;
                     const res = await tmdbFetch(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`);
                     const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
-                    const smartItems = filterBySmartYearLocal(items, 6);
+                    const smartItems = smartLatestFilter(items, 6);
 
-                    // Mirror home page slicing
+                    // Distribute smart items across sections
                     const pools = {
                         trending: smartItems.slice(0, 12),
                         movies:   smartItems.slice(2, 14).reverse(),
                         picked:   smartItems.slice(4, 16),
                         series:   smartItems.filter(i => i.media_type === 'tv').slice(0, 10),
                         kdrama:   smartItems.filter(i => i.original_language === 'ko').slice(0, 10),
-                        anime:    smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10)
+                        anime:    smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10),
+                        indianseries: smartItems.filter(i => i.original_language === 'hi').slice(0, 10),
+                        cdrama:   smartItems.filter(i => i.original_language === 'zh').slice(0, 10),
+                        pdrama:   smartItems.filter(i => i.original_language === 'tl').slice(0, 10)
                     };
 
-                    FIXED_SECTIONS.forEach(s => {
-                        const arr = pools[s.key] || [];
-                        homeSectionData[s.key] = arr.map(r => ({
+                    currentSections.forEach(sec => {
+                        let arr = pools[sec.id] || [];
+                        if (!arr.length) arr = smartItems.slice(0, 12);
+                        homeSectionData[sec.id] = arr.map(r => ({
                             id: r.id,
                             title: r.title || r.name || 'Untitled',
                             poster: r.poster_path ? (TMDB_IMG + r.poster_path) : '',
@@ -1001,8 +1220,6 @@
 
         async function switchSectionOtt(ottName) {
             activeSectionOtt = ottName;
-            // Ensure group exists
-            FIXED_SECTIONS.forEach(s => getSectionCfg(activeSectionOtt, s.key));
             renderContextBar();
             await loadHomeSectionData();
             showToast(`Preview switched to: ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info');
@@ -1016,41 +1233,64 @@
         async function saveSectionsConfig() {
             try {
                 await db.collection('config').doc('homeSections').set({
-                    sections: sectionsConfig,
+                    sections: sectionsConfig.sections,
+                    perOtt: sectionsConfig.perOtt,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
             } catch (e) { showToast('Save failed: ' + e.message, 'error'); }
         }
 
+        // ============================================================
+        // RENDER SECTIONS LIST — with lock / add / remove / reorder
+        // ============================================================
         function renderSectionsList() {
             renderContextBar();
             const container = document.getElementById('sectionsListContainer');
             if (!container) return;
 
-            let totalCustom = 0;
-            const ottLabel = activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt;
+            const sections = getCurrentSections();
+            const isAll = activeSectionOtt === 'all';
+            const ottLabel = isAll ? 'All Platforms' : activeSectionOtt;
 
-            container.innerHTML = FIXED_SECTIONS.map(sec => {
-                const cfg = getSectionCfg(activeSectionOtt, sec.key);
-                const customItems = cfg.customItems || [];
-                const removedIds = (cfg.removedIds || []).map(String);
+            let totalCustom = 0;
+
+            if (!sections.length) {
+                container.innerHTML = `<div class="table-empty"><i class="fas fa-inbox"></i> No sections yet. Add one above.</div>`;
+                return;
+            }
+
+            container.innerHTML = sections.map((sec, secIdx) => {
+                const customItems = Array.isArray(sec.customItems) ? sec.customItems : [];
+                const removedIds = (sec.removedIds || []).map(String);
+                const liveItems = (homeSectionData[sec.id] || []).filter(item => !removedIds.includes(String(item.id)));
                 totalCustom += customItems.length;
-                const liveItems = (homeSectionData[sec.key] || []).filter(item => !removedIds.includes(String(item.id)));
+
+                const lockBadge = sec.locked
+                    ? `<span class="locked-badge"><i class="fas fa-lock"></i> AUTO · Can't delete</span>`
+                    : '';
 
                 return `
-                <div class="section-card-item">
+                <div class="section-card-item" data-section-id="${sec.id}">
                     <div class="section-card-header">
                         <h4>
-                            <i class="fas ${sec.icon}" style="color:var(--primary-red);"></i> ${sec.title}
+                            <i class="${sec.icon || 'fas fa-film'}" style="color:var(--primary-red);"></i>
+                            ${sec.title}
+                            ${lockBadge}
+                            ${sec.badge ? `<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;background:rgba(229,9,20,0.2);color:var(--primary-red);">${sec.badge}</span>` : ''}
                             <span style="font-size:11px;color:var(--text-muted);font-weight:500;">
                                 (${customItems.length} custom • ${liveItems.length} live • ${removedIds.length} hidden)
                                 — for <b style="color:var(--primary-gold);">${ottLabel}</b>
                             </span>
                         </h4>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <button class="btn-action-sm manage" onclick="openMovieModal('${sec.key}')">
-                                <i class="fas fa-plus"></i> Add Custom TMDB Item
+                        <div class="section-action-row">
+                            <div class="section-order-controls">
+                                <button onclick="moveSection('${sec.id}', -1)" title="Move Up" ${secIdx === 0 ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-arrow-up"></i></button>
+                                <button onclick="moveSection('${sec.id}', 1)" title="Move Down" ${secIdx === sections.length - 1 ? 'disabled style="opacity:0.3;"' : ''}><i class="fas fa-arrow-down"></i></button>
+                            </div>
+                            <button class="btn-action-sm manage" onclick="openMovieModal('${sec.id}')">
+                                <i class="fas fa-plus"></i> Add TMDB Item
                             </button>
+                            ${!sec.locked ? `<button class="btn-action-sm delete" onclick="deleteSection('${sec.id}')"><i class="fas fa-trash"></i> Delete Section</button>` : ''}
                         </div>
                     </div>
 
@@ -1060,7 +1300,7 @@
                         <div class="section-movies-flex">
                             ${customItems.map((m, mIdx) => `
                                 <div class="mini-movie-card">
-                                    <button class="remove-btn" onclick="removeCustomItem('${sec.key}', ${mIdx})" title="Remove custom item"><i class="fas fa-times"></i></button>
+                                    <button class="remove-btn" onclick="removeCustomItem('${sec.id}', ${mIdx})" title="Remove custom item"><i class="fas fa-times"></i></button>
                                     <span class="type-pill custom">CUSTOM</span>
                                     <img src="${m.poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image'}" alt="" />
                                     <div class="info">
@@ -1072,15 +1312,16 @@
                         </div>
                     </div>` : ''}
 
+                    ${(sec.locked || !isAll) ? `
                     <div class="section-sub-block">
                         <span class="section-sub-label">
                             <i class="fas fa-satellite-dish" style="color:var(--primary-green);"></i>
-                            Live from "${ottLabel}" view (click <i class="fas fa-times" style="color:#ef4444;"></i> to hide)
+                            ${sec.locked ? '🔒 Auto Live (2024-2026 latest)' : `Live from "${ottLabel}" view`} — click <i class="fas fa-times" style="color:#ef4444;"></i> to hide
                         </span>
                         <div class="section-movies-flex">
                             ${liveItems.length ? liveItems.map(item => `
                                 <div class="mini-movie-card">
-                                    <button class="remove-btn" onclick="hideLiveItem('${sec.key}', ${item.id})" title="Hide from ${ottLabel} view"><i class="fas fa-times"></i></button>
+                                    <button class="remove-btn" onclick="hideLiveItem('${sec.id}', ${item.id})" title="Hide"><i class="fas fa-times"></i></button>
                                     <span class="type-pill movie">${item.media_type === 'tv' ? 'TV' : 'MOVIE'}</span>
                                     <span class="live-dot"></span>
                                     <img src="${item.poster || 'https://via.placeholder.com/300x450/1C1C24/666?text=No+Image'}" alt="" />
@@ -1091,18 +1332,18 @@
                                 </div>
                             `).join('') : '<span style="font-size:12px;color:var(--text-muted);padding:8px 0;">No live items. Click "Refresh Live Data" if proxy issue.</span>'}
                         </div>
-                    </div>
+                    </div>` : ''}
 
                     <div class="section-sub-block">
                         <span class="section-sub-label">Hidden TMDB IDs (in "${ottLabel}" view)</span>
                         <div style="min-height:26px;">
                             ${removedIds.length ? removedIds.map((id, idx) => `
-                                <span class="hide-id-chip">#${id} <button onclick="restoreId('${sec.key}', ${idx})" title="Restore"><i class="fas fa-times"></i></button></span>
+                                <span class="hide-id-chip">#${id} <button onclick="restoreId('${sec.id}', ${idx})" title="Restore"><i class="fas fa-times"></i></button></span>
                             `).join('') : '<span style="font-size:12px;color:var(--text-muted);">None hidden.</span>'}
                         </div>
                         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-                            <input type="text" id="hideInput_${sec.key}" placeholder="Enter TMDB ID to hide manually" style="flex:1;min-width:200px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);color:#fff;font-size:13px;" />
-                            <button class="btn-secondary" onclick="hideTmdbItem('${sec.key}')" style="padding:8px 14px;font-size:13px;"><i class="fas fa-eye-slash"></i> Hide</button>
+                            <input type="text" id="hideInput_${sec.id}" placeholder="Enter TMDB ID to hide manually" style="flex:1;min-width:200px;padding:8px 12px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);color:#fff;font-size:13px;" />
+                            <button class="btn-secondary" onclick="hideTmdbItem('${sec.id}')" style="padding:8px 14px;font-size:13px;"><i class="fas fa-eye-slash"></i> Hide</button>
                         </div>
                     </div>
                 </div>`;
@@ -1112,53 +1353,145 @@
             if (el) el.textContent = totalCustom;
         }
 
-        async function hideLiveItem(key, tmdbId) {
-            if (!confirm(`Hide TMDB #${tmdbId} from "${key}" section in the "${activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt}" view?`)) return;
-            const cfg = getSectionCfg(activeSectionOtt, key);
-            if (!cfg.removedIds.map(String).includes(String(tmdbId))) cfg.removedIds.push(String(tmdbId));
+        // ============================================================
+        // ADD / DELETE / REORDER SECTIONS
+        // ============================================================
+        document.querySelectorAll('.icon-pick-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.icon-pick-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedNewIcon = btn.getAttribute('data-icon');
+            });
+        });
+
+        document.getElementById('addSectionBtn').addEventListener('click', async () => {
+            const title = document.getElementById('newSectionTitle').value.trim();
+            const explorePage = document.getElementById('newSectionExplorePage').value.trim();
+            const badge = document.getElementById('newSectionBadge').value.trim().toUpperCase();
+            if (!title) return showToast('Please enter a section title', 'error');
+
+            // Generate a unique slug id
+            let baseId = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            if (!baseId) baseId = 'custom-' + Date.now();
+            const sections = getCurrentSections();
+            let finalId = baseId;
+            let counter = 1;
+            while (sections.find(s => s.id === finalId)) {
+                finalId = baseId + '-' + counter++;
+            }
+
+            const maxOrder = sections.length ? Math.max(...sections.map(s => s.order || 0)) : 0;
+
+            sections.push({
+                id: finalId,
+                title,
+                icon: selectedNewIcon,
+                locked: false,
+                order: maxOrder + 1,
+                badge,
+                explorePage,
+                enabled: true,
+                customItems: [],
+                removedIds: []
+            });
+
+            await saveSectionsConfig();
+            document.getElementById('newSectionTitle').value = '';
+            document.getElementById('newSectionExplorePage').value = '';
+            document.getElementById('newSectionBadge').value = '';
+            renderSectionsList();
+            showToast(`Section "${title}" created!`, 'success');
+        });
+
+        async function deleteSection(secId) {
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === secId);
+            if (!sec) return;
+            if (sec.locked) return showToast('This is a locked auto section — cannot delete.', 'error');
+            if (!confirm(`Delete section "${sec.title}"? All custom items inside will be lost.`)) return;
+
+            const idx = sections.findIndex(s => s.id === secId);
+            if (idx >= 0) sections.splice(idx, 1);
+            delete homeSectionData[secId];
+            await saveSectionsConfig();
+            renderSectionsList();
+            showToast(`Section "${sec.title}" deleted`, 'info');
+        }
+
+        async function moveSection(secId, direction) {
+            const sections = getCurrentSections();
+            const idx = sections.findIndex(s => s.id === secId);
+            if (idx < 0) return;
+            const newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= sections.length) return;
+            // Swap order values
+            const a = sections[idx], b = sections[newIdx];
+            const tmp = a.order;
+            a.order = b.order;
+            b.order = tmp;
+            sections.sort((x, y) => x.order - y.order);
+            await saveSectionsConfig();
+            renderSectionsList();
+            showToast('Section order updated', 'success');
+        }
+
+        async function hideLiveItem(secId, tmdbId) {
+            if (!confirm(`Hide TMDB #${tmdbId} from "${secId}" section?`)) return;
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === secId);
+            if (!sec) return;
+            if (!sec.removedIds.map(String).includes(String(tmdbId))) sec.removedIds.push(String(tmdbId));
             await saveSectionsConfig();
             renderSectionsList();
             showToast(`Hidden #${tmdbId}`, 'success');
         }
 
-        async function hideTmdbItem(key) {
-            const input = document.getElementById('hideInput_' + key);
+        async function hideTmdbItem(secId) {
+            const input = document.getElementById('hideInput_' + secId);
             const id = (input.value || '').trim();
             if (!id) return showToast('Enter a TMDB ID', 'error');
-            const cfg = getSectionCfg(activeSectionOtt, key);
-            if (!cfg.removedIds.map(String).includes(String(id))) cfg.removedIds.push(String(id));
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === secId);
+            if (!sec) return;
+            if (!sec.removedIds.map(String).includes(String(id))) sec.removedIds.push(String(id));
             await saveSectionsConfig();
             input.value = '';
             renderSectionsList();
             showToast('Item hidden', 'success');
         }
 
-        async function restoreId(key, idx) {
-            const cfg = getSectionCfg(activeSectionOtt, key);
-            cfg.removedIds.splice(idx, 1);
+        async function restoreId(secId, idx) {
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === secId);
+            if (!sec) return;
+            sec.removedIds.splice(idx, 1);
             await saveSectionsConfig();
             renderSectionsList();
             showToast('Item restored', 'info');
         }
 
-        async function removeCustomItem(key, idx) {
-            const cfg = getSectionCfg(activeSectionOtt, key);
-            cfg.customItems.splice(idx, 1);
+        async function removeCustomItem(secId, idx) {
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === secId);
+            if (!sec) return;
+            sec.customItems.splice(idx, 1);
             await saveSectionsConfig();
             renderSectionsList();
             showToast('Custom item removed', 'info');
         }
 
         // ============================================================
-        // TMDB SEARCH MODAL (add to currently-active OTT + section)
+        // TMDB SEARCH MODAL
         // ============================================================
-        function openMovieModal(sectionKey) {
-            targetSectionKeyForMovie = sectionKey;
+        function openMovieModal(sectionId) {
+            targetSectionKeyForMovie = sectionId;
             modalSearchResults = [];
             document.getElementById('modalSearchResults').innerHTML = '';
             document.getElementById('modalMovieSearchInput').value = '';
             document.getElementById('modalMovieTypeSelect').value = '';
-            const secTitle = (FIXED_SECTIONS.find(s => s.key === sectionKey) || {}).title || sectionKey;
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === sectionId);
+            const secTitle = sec ? sec.title : sectionId;
             const ottLabel = activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt;
             document.getElementById('modalTitle').textContent = `Add to "${secTitle}" — for ${ottLabel}`;
             document.getElementById('movieSearchModal').classList.add('open');
@@ -1213,10 +1546,12 @@
             if (!targetSectionKeyForMovie) return;
             const item = modalSearchResults[idx];
             if (!item) return;
-            const cfg = getSectionCfg(activeSectionOtt, targetSectionKeyForMovie);
-            if (cfg.customItems.some(x => String(x.id) === String(item.id))) return showToast('Item already in section', 'info');
-            cfg.customItems.push(item);
-            cfg.removedIds = (cfg.removedIds || []).filter(x => String(x) !== String(item.id));
+            const sections = getCurrentSections();
+            const sec = sections.find(s => s.id === targetSectionKeyForMovie);
+            if (!sec) return;
+            if (sec.customItems.some(x => String(x.id) === String(item.id))) return showToast('Item already in section', 'info');
+            sec.customItems.push(item);
+            sec.removedIds = (sec.removedIds || []).filter(x => String(x) !== String(item.id));
             await saveSectionsConfig();
             closeMovieModal();
             renderSectionsList();
@@ -1299,8 +1634,6 @@
             document.getElementById('newOttQuery').value = '';
             document.getElementById('newOttType').value = 'ott';
             renderOttList();
-            // Ensure new OTT group exists in sections config
-            FIXED_SECTIONS.forEach(s => getSectionCfg(name, s.key));
             showToast(`Added "${name}"!`, 'success');
         });
 
@@ -1308,7 +1641,7 @@
             const name = ottsConfig[idx].name;
             if (!confirm(`Remove "${name}" from home page? Its section config will also be cleared.`)) return;
             ottsConfig.splice(idx, 1);
-            delete sectionsConfig[name];
+            delete sectionsConfig.perOtt[name];
             await saveOttConfig();
             await saveSectionsConfig();
             renderOttList();
@@ -1658,13 +1991,11 @@
             const mainDls = document.getElementById('panelTotalDownloads');
             if (mainDls) mainDls.textContent = totalDownloadsCount;
 
-            // Count ALL custom items across ALL OTT groups
+            // Count ALL custom items across ALL sections (default + per-OTT)
             let total = 0;
-            Object.keys(sectionsConfig).forEach(ott => {
-                FIXED_SECTIONS.forEach(s => {
-                    const cfg = sectionsConfig[ott] && sectionsConfig[ott][s.key];
-                    if (cfg && cfg.customItems) total += cfg.customItems.length;
-                });
+            (sectionsConfig.sections || []).forEach(s => { total += (s.customItems || []).length; });
+            Object.keys(sectionsConfig.perOtt || {}).forEach(ott => {
+                (sectionsConfig.perOtt[ott].sections || []).forEach(s => { total += (s.customItems || []).length; });
             });
             const el = document.getElementById('totalSectionsCount');
             if (el) el.textContent = total;
@@ -1696,6 +2027,8 @@
         window.restoreId = restoreId;
         window.removeCustomItem = removeCustomItem;
         window.addTmdbItemToSection = addTmdbItemToSection;
+        window.deleteSection = deleteSection;
+        window.moveSection = moveSection;
         window.removeOtt = removeOtt;
         window.resetOttDefaults = resetOttDefaults;
         window.loadBugReports = loadBugReports;
