@@ -452,7 +452,7 @@
         .modal-header h3 i { color: var(--primary-red); }
         .modal-close { font-size: 18px; color: var(--text-muted); padding: 4px; }
 
-        /* ---------- Auth form styles (new) ---------- */
+        /* ---------- Auth form styles ---------- */
         .auth-form { display: flex; flex-direction: column; gap: 14px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label {
@@ -488,6 +488,29 @@
             line-height: 1.5; margin-top: 2px;
         }
         .auth-hint i { color: var(--primary-red); }
+
+        /* ---------- Google & Divider Styles ---------- */
+        .auth-divider {
+            display: flex; align-items: center; text-align: center;
+            color: var(--text-muted); font-size: 12px; margin: 4px 0;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .auth-divider:not(:empty)::before { margin-right: .5em; }
+        .auth-divider:not(:empty)::after { margin-left: .5em; }
+        
+        .btn-google {
+            height: 46px; border-radius: 30px;
+            background: #fff; color: #000;
+            font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        .btn-google:hover { background: #f1f1f1; transform: translateY(-2px); }
+        .btn-google i { color: #DB4437; font-size: 16px; }
 
         .toast-container {
             position: fixed; bottom: 130px; right: 24px; z-index: 999999;
@@ -907,13 +930,13 @@
         </div>
     </div>
 
-    <!-- ===================== AUTH MODAL (login + register) ===================== -->
+    <!-- ===================== AUTH MODAL (login + register + forgot) ===================== -->
     <div class="modal-overlay" :class="{ 'open': authModalOpen }" @click="authModalOpen = false">
         <div class="modal-box" @click.stop="">
             <div class="modal-header">
                 <h3>
-                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : 'fa-user-plus'"></i>
-                    <span x-text="authView === 'login' ? 'Login to RX Player' : 'Create your account'"></span>
+                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : (authView === 'register' ? 'fa-user-plus' : 'fa-key')"></i>
+                    <span x-text="authView === 'login' ? 'Login to RX Player' : (authView === 'register' ? 'Create your account' : 'Reset Password')"></span>
                 </h3>
                 <button class="modal-close" @click="authModalOpen = false" type="button"><i class="fas fa-times"></i></button>
             </div>
@@ -922,9 +945,16 @@
             <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'" x-cloak>
                 <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required autocomplete="email" /></div>
                 <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required autocomplete="current-password" /></div>
+                <div class="auth-switch" style="margin-top: -6px; text-align: right;">
+                    <button type="button" @click="authView = 'forgot'" style="font-size: 11px;">Forgot Password?</button>
+                </div>
                 <button type="submit" class="btn-primary" :disabled="authLoading">
                     <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-sign-in-alt'"></i>
                     <span x-text="authLoading ? 'Please wait…' : 'Login'"></span>
+                </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Continue with Google
                 </button>
                 <div class="auth-switch">
                     Don't have an account?
@@ -942,11 +972,29 @@
                     <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-user-plus'"></i>
                     <span x-text="authLoading ? 'Creating account…' : 'Create Account'"></span>
                 </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </button>
                 <div class="auth-switch">
                     Already have an account?
                     <button type="button" @click="switchAuthView('login')">Login</button>
                 </div>
                 <div class="auth-hint"><i class="fas fa-bookmark"></i> Your Watch Later list is saved to your account.</div>
+            </form>
+
+            <!-- FORGOT PASSWORD -->
+            <form @submit.prevent="sendPasswordReset()" class="auth-form" x-show="authView === 'forgot'" x-cloak>
+                <div class="form-group"><label>Email</label><input type="email" x-model="forgotEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-paper-plane'"></i>
+                    <span x-text="authLoading ? 'Sending…' : 'Reset Password'"></span>
+                </button>
+                <div class="auth-switch">
+                    Remember your password?
+                    <button type="button" @click="authView = 'login'">Login</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-info-circle"></i> We will send a password reset link to your email.</div>
             </form>
         </div>
     </div>
@@ -1136,6 +1184,7 @@
                 registerName: '',
                 registerEmail: '',
                 registerPassword: '',
+                forgotEmail: '',
 
                 /* ---------- Watch Later (Firestore, login required) ---------- */
                 watchlist: [],
@@ -1179,7 +1228,7 @@
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
 
-                /* ---------- In-Modal Alert State (NEW) ---------- */
+                /* ---------- In-Modal Alert State ---------- */
                 modalAlert: { show: false, message: '', type: 'info', timer: null },
 
                 /* ---------- Home sections (admin controlled) ---------- */
@@ -1240,7 +1289,7 @@
                 },
 
                 /* =========================================================
-                   IN-MODAL ALERT SYSTEM (NEW)
+                   IN-MODAL ALERT SYSTEM
                    ========================================================= */
                 showModalAlert(message, type = 'info', duration = 3000) {
                     if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
@@ -1307,18 +1356,6 @@
                     ];
                 },
 
-                /**
-                 * Firestore doc: config/homeSections
-                 * NEW format (recommended for admin panel):
-                 * {
-                 *   sections: [
-                 *     { id, title, icon, badge, auto, source, enabled, order,
-                 *       explorePage, exploreLabel, items: [ {id,title,poster,year,rating,media_type} ],
-                 *       customItems: [...], removedIds: [...] }
-                 *   ]
-                 * }
-                 * OLD format (still supported): { series: {customItems, removedIds}, ... }
-                 */
                 async loadSectionConfig() {
                     try {
                         const doc = await db.collection('config').doc('homeSections').get();
@@ -1386,12 +1423,6 @@
                     };
                 },
 
-                /**
-                 * Builds the final, ordered list of sections to render.
-                 * - trending & picked => ALWAYS automated (source pool + smart year filter)
-                 * - everything else    => manual only (admin `items` array)
-                 * - during OTT filtering only automated sections are shown
-                 */
                 get renderedSections() {
                     const isAll = this.activeOtt === 'all';
                     const pools = this.poolMap;
@@ -1405,7 +1436,6 @@
 
                         const isAuto = raw.auto === true || AUTO_SECTION_IDS.includes(id);
 
-                        /* Manual sections are hidden while filtering a network */
                         if (!isAll && !isAuto) continue;
                         if (!isAll && id === 'picked') continue;
 
@@ -1426,7 +1456,6 @@
                                 .filter(i => i && (i.id !== null && i.id !== undefined && i.id !== ''));
                         }
 
-                        /* de-dupe inside a section */
                         const seen = new Set();
                         items = items.filter(i => {
                             const k = `${i.media_type || 'movie'}:${i.id}`;
@@ -1923,7 +1952,7 @@
                     this.currentSeasonEpisodesCount = 1;
                     this.detailLoading = true;
                     this.detailModalOpen = true;
-                    this.modalAlert.show = false; // Reset alert when opening new details
+                    this.modalAlert.show = false;
 
                     document.body.style.overflow = 'hidden';
 
@@ -1961,7 +1990,7 @@
 
                 closeDetailModal() {
                     this.detailModalOpen = false;
-                    this.modalAlert.show = false; // Clear alert when closing modal
+                    this.modalAlert.show = false;
                     document.body.style.overflow = '';
                     setTimeout(() => {
                         if (!this.detailModalOpen) {
@@ -2059,7 +2088,9 @@
                         'auth/email-already-in-use': 'This email is already registered. Please login instead.',
                         'auth/weak-password': 'Password must be at least 6 characters.',
                         'auth/too-many-requests': 'Too many attempts. Please try again later.',
-                        'auth/network-request-failed': 'Network error. Check your connection.'
+                        'auth/network-request-failed': 'Network error. Check your connection.',
+                        'auth/popup-closed-by-user': 'Google login popup was closed. Please try again.',
+                        'auth/account-exists-with-different-credential': 'An account already exists with the same email but a different sign-in method. Please login with your original method.'
                     };
                     return map[code] || (e && e.message) || 'Something went wrong. Please try again.';
                 },
@@ -2099,10 +2130,41 @@
                     }
                 },
 
+                async loginWithGoogle() {
+                    if (this.authLoading) return;
+                    this.authLoading = true;
+                    try {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        const result = await auth.signInWithPopup(provider);
+                        this.authModalOpen = false;
+                        this.showToast('Logged in with Google successfully!', 'success');
+                        await this.loadWatchlist();
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async sendPasswordReset() {
+                    if (!this.forgotEmail) return;
+                    this.authLoading = true;
+                    try {
+                        await auth.sendPasswordResetEmail(this.forgotEmail);
+                        this.showToast('Password reset email sent! Check your inbox.', 'success');
+                        this.authView = 'login';
+                        this.forgotEmail = '';
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
                 async afterAuthSuccess(msg) {
                     this.authModalOpen = false;
                     
-                    // Use the new modal alert if the details modal is open
                     if (this.detailModalOpen) {
                         this.showModalAlert(msg, 'success');
                     } else {
@@ -2111,7 +2173,6 @@
 
                     await this.loadWatchlist();
 
-                    /* If the user clicked Watch Later while logged out, complete it now */
                     if (this.pendingWatchlist) {
                         const p = this.pendingWatchlist;
                         this.pendingWatchlist = null;
@@ -2227,7 +2288,6 @@
                     const entry = this._buildWatchlistEntry();
                     if (!entry) return;
 
-                    /* ---- Login required ---- */
                     if (!this.currentUser) {
                         this.pendingWatchlist = entry;
                         this.authModalOpen = true;
