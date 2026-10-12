@@ -707,6 +707,33 @@
             .detail-actions { width: 100%; flex-direction: column; }
             .detail-watch-btn, .detail-watchlist-btn { width: 100%; justify-content: center; }
         }
+
+        /* ===================== IN-MODAL ALERT BOX ===================== */
+        .modal-alert-wrapper {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2147483002; width: 100%; max-width: 420px;
+            pointer-events: none; display: flex; justify-content: center;
+        }
+        .modal-alert-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm); padding: 14px 22px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            display: flex; align-items: center; gap: 14px;
+            pointer-events: auto; width: 100%;
+            animation: alertIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid var(--primary-red);
+        }
+        .modal-alert-box.success { border-left-color: var(--primary-green); }
+        .modal-alert-box.info { border-left-color: var(--api-blue); }
+        .modal-alert-box.error { border-left-color: var(--primary-red); }
+        .modal-alert-box i { font-size: 20px; color: var(--primary-red); }
+        .modal-alert-box.success i { color: var(--primary-green); }
+        .modal-alert-box.info i { color: var(--api-blue); }
+        .modal-alert-box span { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
+        @keyframes alertIn {
+            from { opacity: 0; transform: translateY(-24px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
     </style>
 </head>
 <body x-data="rxPlayerApp()" x-init="init()">
@@ -930,6 +957,16 @@
          @click.self="closeDetailModal()"
          @keydown.escape.window="closeDetailModal()"
          x-cloak>
+         
+        <!-- ===== IN-MODAL ALERT BOX (Appears inside the movie details modal) ===== -->
+        <div class="modal-alert-wrapper" x-show="modalAlert.show" x-cloak>
+            <div class="modal-alert-box" :class="modalAlert.type">
+                <i class="fas" :class="modalAlert.type === 'success' ? 'fa-check-circle' : (modalAlert.type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')"></i>
+                <span x-text="modalAlert.message"></span>
+            </div>
+        </div>
+        <!-- ===================================================================== -->
+
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()" aria-label="Close">
                 <i class="fas fa-times"></i>
@@ -1142,6 +1179,9 @@
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
 
+                /* ---------- In-Modal Alert State (NEW) ---------- */
+                modalAlert: { show: false, message: '', type: 'info', timer: null },
+
                 /* ---------- Home sections (admin controlled) ---------- */
                 sectionsConfig: [],
 
@@ -1155,7 +1195,7 @@
                     { name: 'Zee5',       logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',        type: 'ott' },
                     { name: 'JioCinema',  logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',          query: 'Viacom18',    type: 'ott' },
                     { name: 'SonyLIV',    logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                        query: 'Sony',        type: 'ott' },
-                    { name: 'Crunchyroll',logo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crunchyroll_2024.svg',                query: 'Crunchyroll', type: 'ott' }
+                    { name: 'Crunchyroll',logo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crunchyroll_2024.svg/500px-Crunchyroll_2024.svg.png',                    query: 'Crunchyroll', type: 'ott' }
                 ],
 
                 ottPools: {
@@ -1197,6 +1237,19 @@
 
                     await this.loadHomeData();
                     this.computePersonalizedRecommendations();
+                },
+
+                /* =========================================================
+                   IN-MODAL ALERT SYSTEM (NEW)
+                   ========================================================= */
+                showModalAlert(message, type = 'info', duration = 3000) {
+                    if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
+                    this.modalAlert.message = message;
+                    this.modalAlert.type = type;
+                    this.modalAlert.show = true;
+                    this.modalAlert.timer = setTimeout(() => {
+                        this.modalAlert.show = false;
+                    }, duration);
                 },
 
                 /* =========================================================
@@ -1870,6 +1923,7 @@
                     this.currentSeasonEpisodesCount = 1;
                     this.detailLoading = true;
                     this.detailModalOpen = true;
+                    this.modalAlert.show = false; // Reset alert when opening new details
 
                     document.body.style.overflow = 'hidden';
 
@@ -1907,6 +1961,7 @@
 
                 closeDetailModal() {
                     this.detailModalOpen = false;
+                    this.modalAlert.show = false; // Clear alert when closing modal
                     document.body.style.overflow = '';
                     setTimeout(() => {
                         if (!this.detailModalOpen) {
@@ -2046,7 +2101,14 @@
 
                 async afterAuthSuccess(msg) {
                     this.authModalOpen = false;
-                    this.showToast(msg, 'success');
+                    
+                    // Use the new modal alert if the details modal is open
+                    if (this.detailModalOpen) {
+                        this.showModalAlert(msg, 'success');
+                    } else {
+                        this.showToast(msg, 'success');
+                    }
+
                     await this.loadWatchlist();
 
                     /* If the user clicked Watch Later while logged out, complete it now */
@@ -2054,7 +2116,13 @@
                         const p = this.pendingWatchlist;
                         this.pendingWatchlist = null;
                         const ok = await this.addToWatchlist(p);
-                        if (ok) this.showToast('Added to Watch Later', 'success');
+                        if (ok) {
+                            if (this.detailModalOpen) {
+                                this.showModalAlert('Added to Watch Later', 'success');
+                            } else {
+                                this.showToast('Added to Watch Later', 'success');
+                            }
+                        }
                     }
                 },
 
@@ -2164,16 +2232,16 @@
                         this.pendingWatchlist = entry;
                         this.authModalOpen = true;
                         this.authView = 'login';
-                        this.showToast('Please login or create an account to use Watch Later', 'info', 4000);
+                        this.showModalAlert('Please login or create an account to use Watch Later', 'info', 4000);
                         return;
                     }
 
                     if (this.isInWatchlist) {
                         const ok = await this.removeFromWatchlist(entry);
-                        if (ok) this.showToast('Removed from Watch Later', 'info');
+                        if (ok) this.showModalAlert('Removed from Watch Later', 'info');
                     } else {
                         const ok = await this.addToWatchlist(entry);
-                        if (ok) this.showToast('Added to Watch Later', 'success');
+                        if (ok) this.showModalAlert('Added to Watch Later', 'success');
                     }
                 }
             };
