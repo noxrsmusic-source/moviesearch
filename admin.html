@@ -662,7 +662,7 @@
     { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle',         locked: true,  order: 1,  badge: 'RESUME', explorePage: '' },
     { id: 'newreleases',      title: 'New Releases',      icon: 'fas fa-star',                locked: true,  order: 2,  badge: 'NEW',    explorePage: 'newreleases.html' },
     { id: 'trending',         title: 'Trending Now',      icon: 'fas fa-fire',                locked: true,  order: 3,  badge: 'HOT',    explorePage: 'trending.html' },
-    { id: 'picked',           title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', locked: true,  order: 4,  badge: 'SMART',  explorePage: 'picks.html' },
+    { id: 'picked',           title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', locked: true,  order: 4,  badge: 'SMART',  explorePage: 'explore.html' },
     { id: 'series',           title: 'Web Series',        icon: 'fas fa-tv',                  locked: false, order: 5,  badge: '',       explorePage: 'webseries.html' },
     { id: 'kdrama',           title: 'K-Drama Series',    icon: 'fas fa-heart',               locked: false, order: 6,  badge: '',       explorePage: 'kdrama.html' },
     { id: 'anime',            title: 'Anime Series',      icon: 'fas fa-dragon',              locked: false, order: 7,  badge: '',       explorePage: 'anime.html' },
@@ -1048,7 +1048,7 @@ LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
             id: lid, title: meta.title, icon: meta.icon,
             locked: true, order: i + 1,
             badge: lid === 'continuewatching' ? 'RESUME' : (lid === 'newreleases' ? 'NEW' : (lid === 'trending' ? 'HOT' : 'SMART')),
-            explorePage: lid === 'continuewatching' ? '' : (lid === 'newreleases' ? 'newreleases.html' : (lid === 'trending' ? 'trending.html' : 'picks.html')),
+            explorePage: lid === 'continuewatching' ? '' : (lid === 'picked' ? '' : (lid === 'newreleases' ? 'newreleases.html' : 'trending.html')),
             enabled: true, customItems: [], removedIds: []
         });
     } else {
