@@ -115,7 +115,7 @@
 
         .section-card-item { background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; }
         .section-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-wrap: wrap; gap: 10px; }
-        .section-card-header h4 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .section-card-header h4 { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .section-movies-flex { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; min-height: 60px; }
         .mini-movie-card { flex: 0 0 110px; background: var(--bg-card); border-radius: 6px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.04); }
         .mini-movie-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
@@ -145,7 +145,7 @@
         .admin-modal-close { font-size: 18px; color: var(--text-muted); }
 
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%; }
-        .toast { padding: 12px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border-left: 4px solid var(--primary-red); box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
+        .toast { padding: 12px 18px; border-radius: var(--radius-sm); background: var(--bg-card); border-left: 4px solid var(--primary-red); box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 13.5px; animation: slideUp 0.3s ease; }
         .toast.success { border-left-color: var(--primary-green); }
         .toast.error { border-left-color: var(--primary-red); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -157,7 +157,7 @@
         .login-overlay .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
         .login-overlay .login-box input { width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: 2px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: var(--text-white); font-size: 15px; outline: none; margin-bottom: 12px; }
         .login-overlay .login-box input:focus { border-color: var(--primary-red); }
-        .login-overlay .login-box .btn-login { width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--primary-red); font-weight: 700; font-size: 16px; }
+        .login-overlay .login-box .btn-login { width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--primary-red); font-weight: 700; font-size: 16px; color: #fff; }
         .login-overlay .login-box .login-error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
 
         .download-stat-banner { background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(20,20,30,0.8) 100%); border: 1px solid rgba(34,197,94,0.3); border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
@@ -230,6 +230,9 @@
             margin-left: 8px;
         }
         .locked-badge i { font-size: 9px; }
+        .locked-badge.new-release {
+            background: rgba(245,158,11,0.18); color: #f59e0b;
+        }
 
         /* Add Section Form */
         .add-section-form {
@@ -389,12 +392,12 @@
                     </div>
                 </div>
 
-                <!-- HOME SECTIONS (FULLY MANUAL NOW) -->
+                <!-- HOME SECTIONS -->
                 <div class="tab-content" id="tabContentSections">
                     <h1 class="page-title"><i class="fas fa-layer-group" style="color:var(--primary-red);"></i> Home Sections Manager</h1>
                     <p class="page-subtitle">
-                        <strong style="color:#38bdf8;">🔒 Locked Auto:</strong> Trending Now & Picked For You (automatic, latest 2024-2026) •
-                        <strong style="color:var(--primary-red);">✏️ Fully Manual:</strong> All other sections — admin creates & controls every item.
+                        <strong style="color:#38bdf8;">🔒 Locked Auto:</strong> Trending Now, Picked For You &amp; New Releases (automatic, latest 2024-2026) •
+                        <strong style="color:var(--primary-red);">✏️ Fully Manual:</strong> All other sections — admin creates &amp; controls every item.
                     </p>
 
                     <div class="ott-context-bar" id="sectionContextBar">
@@ -564,7 +567,7 @@
 
                 <!-- VERSION -->
                 <div class="tab-content" id="tabContentVersion">
-                    <h1 class="page-title"><i class="fas fa-mobile-alt" style="color:var(--primary-gold);"></i> App Version & Forced Update</h1>
+                    <h1 class="page-title"><i class="fas fa-mobile-alt" style="color:var(--primary-gold);"></i> App Version &amp; Forced Update</h1>
                     <p class="page-subtitle">Control the minimum required version and monitor APK downloads.</p>
                     <div class="download-stat-banner">
                         <div class="download-stat-info"><h3 id="panelTotalDownloads">0</h3><p>Total APK Downloads recorded from website</p></div>
@@ -598,7 +601,7 @@
     <div class="admin-modal" id="movieSearchModal">
         <div class="admin-modal-box">
             <div class="admin-modal-header">
-                <h3><i class="fas fa-film" style="color:var(--primary-red);"></i> <span id="modalTitle">Search TMDB & Add to Section</span></h3>
+                <h3><i class="fas fa-film" style="color:var(--primary-red);"></i> <span id="modalTitle">Search TMDB &amp; Add to Section</span></h3>
                 <button class="admin-modal-close" onclick="closeMovieModal()"><i class="fas fa-times"></i></button>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -646,23 +649,25 @@
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
         // 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
-        const LOCKED_AUTO_SECTIONS = ['trending', 'picked'];
+        const LOCKED_AUTO_SECTIONS = ['trending', 'picked', 'newreleases'];
         const LOCKED_AUTO_META = {
-            trending: { title: 'Trending Now', icon: 'fas fa-fire', endpoint: '/trending/all/week?language=en-US' },
-            picked:   { title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' }
+            trending:    { title: 'Trending Now',   icon: 'fas fa-fire',                  endpoint: '/trending/all/week?language=en-US' },
+            picked:      { title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles',   endpoint: '/movie/popular?language=en-US&page=1' },
+            newreleases: { title: 'New Releases',   icon: 'fas fa-star',                  endpoint: '/movie/now_playing?language=en-US&page=1' }
         };
 
         // Default sections — admin can add/remove any except LOCKED ones
         const DEFAULT_SECTIONS = [
-            { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 1, badge: 'HOT', explorePage: 'trending.html' },
-            { id: 'picked',   title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html' },
-            { id: 'series',   title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 3, badge: '', explorePage: 'webseries.html' },
-            { id: 'kdrama',   title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 4, badge: '', explorePage: 'kdrama.html' },
-            { id: 'anime',    title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 5, badge: '', explorePage: 'anime.html' },
-            { id: 'movies',   title: 'Popular Movies', icon: 'fas fa-film', locked: false, order: 6, badge: '', explorePage: 'movies.html' },
-            { id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om', locked: false, order: 7, badge: '', explorePage: 'indianseries.html' },
-            { id: 'cdrama',   title: 'C-Drama Series', icon: 'fas fa-yin-yang', locked: false, order: 8, badge: '', explorePage: 'cdrama.html' },
-            { id: 'pdrama',   title: 'P-Drama Series', icon: 'fas fa-sun', locked: false, order: 9, badge: '', explorePage: 'pdrama.html' }
+            { id: 'trending',     title: 'Trending Now',    icon: 'fas fa-fire',              locked: true,  order: 1,  badge: 'HOT',   explorePage: 'trending.html' },
+            { id: 'picked',       title: 'Picked For You',  icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html' },
+            { id: 'newreleases',  title: 'New Releases',    icon: 'fas fa-star',              locked: true,  order: 3,  badge: 'NEW',   explorePage: 'newreleases.html' },
+            { id: 'series',       title: 'Web Series',      icon: 'fas fa-tv',                locked: false, order: 4,  badge: '',      explorePage: 'webseries.html' },
+            { id: 'kdrama',       title: 'K-Drama Series',  icon: 'fas fa-heart',             locked: false, order: 5,  badge: '',      explorePage: 'kdrama.html' },
+            { id: 'anime',        title: 'Anime Series',    icon: 'fas fa-dragon',            locked: false, order: 6,  badge: '',      explorePage: 'anime.html' },
+            { id: 'movies',       title: 'Popular Movies',  icon: 'fas fa-film',              locked: false, order: 7,  badge: '',      explorePage: 'movies.html' },
+            { id: 'indianseries', title: 'Indian Series',   icon: 'fas fa-om',                locked: false, order: 8,  badge: '',      explorePage: 'indianseries.html' },
+            { id: 'cdrama',       title: 'C-Drama Series',  icon: 'fas fa-yin-yang',          locked: false, order: 9,  badge: '',      explorePage: 'cdrama.html' },
+            { id: 'pdrama',       title: 'P-Drama Series',  icon: 'fas fa-sun',               locked: false, order: 10, badge: '',      explorePage: 'pdrama.html' }
         ];
 
         const DEFAULT_OTTS = [
@@ -687,14 +692,8 @@
 
         // sectionsConfig NEW SHAPE:
         // {
-        //   sections: [
-        //     { id, title, icon, locked, order, badge, explorePage, customItems, removedIds, enabled },
-        //     ...
-        //   ],
-        //   perOtt: {
-        //     "Netflix": { sections: [ ... same shape ... ] },
-        //     ...
-        //   }
+        //   sections: [ { id, title, icon, locked, order, badge, explorePage, customItems, removedIds, enabled }, ... ],
+        //   perOtt: { "Netflix": { sections: [...] }, ... }
         // }
         let sectionsConfig = { sections: [], perOtt: {} };
         let homeSectionData = {};       // live TMDB items for currently previewed OTT
@@ -710,14 +709,12 @@
         function smartLatestFilter(items, minCount = 6) {
             if (!items || !items.length) return [];
             const currentYear = new Date().getFullYear();
-            // Keep only current year & previous year (e.g., 2026, 2025)
             let filtered = items.filter(item => {
                 const dateStr = item.release_date || item.first_air_date || '';
                 if (!dateStr) return false;
                 const year = parseInt(dateStr.substring(0, 4), 10);
                 return year >= (currentYear - 1);
             });
-            // Fallback: if too few, extend to 3 years back
             if (filtered.length < minCount) {
                 const additional = items.filter(item => {
                     if (filtered.includes(item)) return false;
@@ -1047,8 +1044,9 @@
                         const meta = LOCKED_AUTO_META[lid];
                         sections.unshift({
                             id: lid, title: meta.title, icon: meta.icon,
-                            locked: true, order: i + 1, badge: lid === 'trending' ? 'HOT' : 'SMART',
-                            explorePage: lid === 'trending' ? 'trending.html' : 'picks.html',
+                            locked: true, order: i + 1,
+                            badge: lid === 'trending' ? 'HOT' : (lid === 'picked' ? 'SMART' : 'NEW'),
+                            explorePage: lid === 'trending' ? 'trending.html' : (lid === 'picked' ? 'picks.html' : 'newreleases.html'),
                             enabled: true, customItems: [], removedIds: []
                         });
                     } else {
@@ -1058,6 +1056,9 @@
                         if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
                     }
                 });
+
+                // Re-sort after adding locked ones
+                sections.sort((a, b) => (a.order || 99) - (b.order || 99));
 
                 const perOtt = {};
                 if (raw.perOtt && typeof raw.perOtt === 'object') {
@@ -1139,6 +1140,31 @@
                         else if (sec.id === 'indianseries') endpoint = '/discover/tv?language=en-US&with_original_language=hi&sort_by=popularity.desc&page=1';
                         else if (sec.id === 'cdrama') endpoint = '/discover/tv?language=en-US&with_original_language=zh&sort_by=popularity.desc&page=1';
                         else if (sec.id === 'pdrama') endpoint = '/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1';
+
+                        // 🆕 NEW RELEASES — Movies + Web Series + Anime (latest launched)
+                        else if (sec.id === 'newreleases') {
+                            const today = new Date().toISOString().split('T')[0];
+                            const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                            return Promise.all([
+                                tmdbFetch(`/movie/now_playing?language=en-US&page=1`).catch(() => ({ results: [] })),
+                                tmdbFetch(`/discover/tv?language=en-US&sort_by=first_air_date.desc&first_air_date.lte=${today}&first_air_date.gte=${sixMonthsAgo}&vote_count.gte=5&page=1`).catch(() => ({ results: [] })),
+                                tmdbFetch(`/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=first_air_date.desc&first_air_date.lte=${today}&first_air_date.gte=${sixMonthsAgo}&vote_count.gte=3&page=1`).catch(() => ({ results: [] }))
+                            ]).then(([m, t, a]) => {
+                                const movies = (m.results || []).map(x => ({ ...x, media_type: 'movie' }));
+                                const tvs    = (t.results || []).map(x => ({ ...x, media_type: 'tv' }));
+                                const anime  = (a.results || []).map(x => ({ ...x, media_type: 'tv' }));
+                                // Round-robin interleave: movie → tv → anime
+                                const out = [];
+                                const maxLen = Math.max(movies.length, tvs.length, anime.length);
+                                for (let i = 0; i < maxLen; i++) {
+                                    if (movies[i]) out.push(movies[i]);
+                                    if (tvs[i])    out.push(tvs[i]);
+                                    if (anime[i])  out.push(anime[i]);
+                                }
+                                return { results: out };
+                            });
+                        }
+
                         else return Promise.resolve({ results: [] });
                         return tmdbFetch(endpoint).catch(() => ({ results: [] }));
                     });
@@ -1147,7 +1173,7 @@
 
                     currentSections.forEach((sec, i) => {
                         let items = (results[i].results || []).filter(r => r.poster_path);
-                        // Apply smart year filter for trending NOW and picked
+                        // Apply smart year filter for trending & picked only (newreleases is already fresh & date-filtered)
                         if (sec.id === 'trending' || sec.id === 'picked') {
                             items = smartLatestFilter(items, 8);
                         }
@@ -1170,15 +1196,16 @@
 
                     // Distribute smart items across sections
                     const pools = {
-                        trending: smartItems.slice(0, 12),
-                        movies:   smartItems.slice(2, 14).reverse(),
-                        picked:   smartItems.slice(4, 16),
-                        series:   smartItems.filter(i => i.media_type === 'tv').slice(0, 10),
-                        kdrama:   smartItems.filter(i => i.original_language === 'ko').slice(0, 10),
-                        anime:    smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10),
+                        trending:    smartItems.slice(0, 12),
+                        movies:      smartItems.slice(2, 14).reverse(),
+                        picked:      smartItems.slice(4, 16),
+                        newreleases: smartItems.slice(6, 18),   // 🆕
+                        series:      smartItems.filter(i => i.media_type === 'tv').slice(0, 10),
+                        kdrama:      smartItems.filter(i => i.original_language === 'ko').slice(0, 10),
+                        anime:       smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10),
                         indianseries: smartItems.filter(i => i.original_language === 'hi').slice(0, 10),
-                        cdrama:   smartItems.filter(i => i.original_language === 'zh').slice(0, 10),
-                        pdrama:   smartItems.filter(i => i.original_language === 'tl').slice(0, 10)
+                        cdrama:      smartItems.filter(i => i.original_language === 'zh').slice(0, 10),
+                        pdrama:      smartItems.filter(i => i.original_language === 'tl').slice(0, 10)
                     };
 
                     currentSections.forEach(sec => {
@@ -1265,8 +1292,9 @@
                 const liveItems = (homeSectionData[sec.id] || []).filter(item => !removedIds.includes(String(item.id)));
                 totalCustom += customItems.length;
 
+                const lockBadgeClass = sec.id === 'newreleases' ? 'locked-badge new-release' : 'locked-badge';
                 const lockBadge = sec.locked
-                    ? `<span class="locked-badge"><i class="fas fa-lock"></i> AUTO · Can't delete</span>`
+                    ? `<span class="${lockBadgeClass}"><i class="fas fa-lock"></i> AUTO · Can't delete</span>`
                     : '';
 
                 return `
