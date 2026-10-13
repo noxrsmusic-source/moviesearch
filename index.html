@@ -1391,19 +1391,24 @@
                                 }))
                                 .sort((a, b) => a.order - b.order);
 
-                            // Ensure locked sections are always present
-                            LOCKED_AUTO_SECTIONS.forEach((lid) => {
-                                if (!mapped.find(x => x.id === lid)) {
-                                    const def = this.defaultSections().find(x => x.id === lid);
-                                    if (def) mapped.push({ ...def });
-                                } else {
-                                    const s = mapped.find(x => x.id === lid);
-                                    s.locked = true;
-                                }
-                            });
+                            // Ensure all locked sections are present
+LOCKED_AUTO_SECTIONS.forEach((lid) => {
+    if (!mapped.find(x => x.id === lid)) {
+        const def = this.defaultSections().find(x => x.id === lid);
+        if (def) mapped.push({ ...def });
+    } else {
+        const s = mapped.find(x => x.id === lid);
+        s.locked = true;
+    }
+});
 
-                            this.sectionsConfig = mapped.sort((a, b) => a.order - b.order);
-                            return;
+// 🔥 FORCE-FIX ORDER for locked sections — newreleases=1, continuewatching=2, trending=3, picked=4
+LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+    const s = mapped.find(x => x.id === lid);
+    if (s) s.order = i + 1;
+});
+
+this.sectionsConfig = mapped.sort((a, b) => a.order - b.order);
                         }
 
                         this.sectionsConfig = this.defaultSections();
