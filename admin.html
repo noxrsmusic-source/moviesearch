@@ -648,27 +648,29 @@
         const TMDB_PROXY = API_BASE + '/api/tmdb-proxy?endpoint=';
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
-        // 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
-        const LOCKED_AUTO_SECTIONS = ['trending', 'picked', 'newreleases'];
+// 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
+        const LOCKED_AUTO_SECTIONS = ['continuewatching', 'newreleases', 'trending', 'picked'];
         const LOCKED_AUTO_META = {
-            trending:    { title: 'Trending Now',   icon: 'fas fa-fire',                  endpoint: '/trending/all/week?language=en-US' },
-            picked:      { title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles',   endpoint: '/movie/popular?language=en-US&page=1' },
-            newreleases: { title: 'New Releases',   icon: 'fas fa-star',                  endpoint: '/movie/now_playing?language=en-US&page=1' }
-        };
+            continuewatching: { title: 'Continue Watching', icon: 'fas fa-play-circle',         endpoint: '' },
+            newreleases:      { title: 'New Releases',      icon: 'fas fa-star',                endpoint: '/movie/now_playing?language=en-US&page=1' },
+            trending:         { title: 'Trending Now',      icon: 'fas fa-fire',                endpoint: '/trending/all/week?language=en-US' },
+            picked:           { title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' }
+            };
 
         // Default sections — admin can add/remove any except LOCKED ones
-        const DEFAULT_SECTIONS = [
-            { id: 'trending',     title: 'Trending Now',    icon: 'fas fa-fire',              locked: true,  order: 1,  badge: 'HOT',   explorePage: 'trending.html' },
-            { id: 'picked',       title: 'Picked For You',  icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html' },
-            { id: 'newreleases',  title: 'New Releases',    icon: 'fas fa-star',              locked: true,  order: 3,  badge: 'NEW',   explorePage: 'newreleases.html' },
-            { id: 'series',       title: 'Web Series',      icon: 'fas fa-tv',                locked: false, order: 4,  badge: '',      explorePage: 'webseries.html' },
-            { id: 'kdrama',       title: 'K-Drama Series',  icon: 'fas fa-heart',             locked: false, order: 5,  badge: '',      explorePage: 'kdrama.html' },
-            { id: 'anime',        title: 'Anime Series',    icon: 'fas fa-dragon',            locked: false, order: 6,  badge: '',      explorePage: 'anime.html' },
-            { id: 'movies',       title: 'Popular Movies',  icon: 'fas fa-film',              locked: false, order: 7,  badge: '',      explorePage: 'movies.html' },
-            { id: 'indianseries', title: 'Indian Series',   icon: 'fas fa-om',                locked: false, order: 8,  badge: '',      explorePage: 'indianseries.html' },
-            { id: 'cdrama',       title: 'C-Drama Series',  icon: 'fas fa-yin-yang',          locked: false, order: 9,  badge: '',      explorePage: 'cdrama.html' },
-            { id: 'pdrama',       title: 'P-Drama Series',  icon: 'fas fa-sun',               locked: false, order: 10, badge: '',      explorePage: 'pdrama.html' }
-        ];
+       const DEFAULT_SECTIONS = [
+    { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle',         locked: true,  order: 1,  badge: 'RESUME', explorePage: '' },
+    { id: 'newreleases',      title: 'New Releases',      icon: 'fas fa-star',                locked: true,  order: 2,  badge: 'NEW',    explorePage: 'newreleases.html' },
+    { id: 'trending',         title: 'Trending Now',      icon: 'fas fa-fire',                locked: true,  order: 3,  badge: 'HOT',    explorePage: 'trending.html' },
+    { id: 'picked',           title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', locked: true,  order: 4,  badge: 'SMART',  explorePage: 'picks.html' },
+    { id: 'series',           title: 'Web Series',        icon: 'fas fa-tv',                  locked: false, order: 5,  badge: '',       explorePage: 'webseries.html' },
+    { id: 'kdrama',           title: 'K-Drama Series',    icon: 'fas fa-heart',               locked: false, order: 6,  badge: '',       explorePage: 'kdrama.html' },
+    { id: 'anime',            title: 'Anime Series',      icon: 'fas fa-dragon',              locked: false, order: 7,  badge: '',       explorePage: 'anime.html' },
+    { id: 'movies',           title: 'Popular Movies',    icon: 'fas fa-film',                locked: false, order: 8,  badge: '',       explorePage: 'movies.html' },
+    { id: 'indianseries',     title: 'Indian Series',     icon: 'fas fa-om',                  locked: false, order: 9,  badge: '',       explorePage: 'indianseries.html' },
+    { id: 'cdrama',           title: 'C-Drama Series',    icon: 'fas fa-yin-yang',            locked: false, order: 10, badge: '',       explorePage: 'cdrama.html' },
+    { id: 'pdrama',           title: 'P-Drama Series',    icon: 'fas fa-sun',                 locked: false, order: 11, badge: '',       explorePage: 'pdrama.html' }
+];
 
         const DEFAULT_OTTS = [
             { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
@@ -1038,24 +1040,24 @@
                     removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
                 })).sort((a, b) => a.order - b.order);
 
-                // Ensure locked sections exist
-                LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
-                    if (!sections.find(x => x.id === lid)) {
-                        const meta = LOCKED_AUTO_META[lid];
-                        sections.unshift({
-                            id: lid, title: meta.title, icon: meta.icon,
-                            locked: true, order: i + 1,
-                            badge: lid === 'trending' ? 'HOT' : (lid === 'picked' ? 'SMART' : 'NEW'),
-                            explorePage: lid === 'trending' ? 'trending.html' : (lid === 'picked' ? 'picks.html' : 'newreleases.html'),
-                            enabled: true, customItems: [], removedIds: []
-                        });
-                    } else {
-                        const s = sections.find(x => x.id === lid);
-                        s.locked = true;
-                        if (!s.title) s.title = LOCKED_AUTO_META[lid].title;
-                        if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
-                    }
-                });
+              // Ensure locked sections exist
+LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+    if (!sections.find(x => x.id === lid)) {
+        const meta = LOCKED_AUTO_META[lid];
+        sections.unshift({
+            id: lid, title: meta.title, icon: meta.icon,
+            locked: true, order: i + 1,
+            badge: lid === 'continuewatching' ? 'RESUME' : (lid === 'newreleases' ? 'NEW' : (lid === 'trending' ? 'HOT' : 'SMART')),
+            explorePage: lid === 'continuewatching' ? '' : (lid === 'newreleases' ? 'newreleases.html' : (lid === 'trending' ? 'trending.html' : 'picks.html')),
+            enabled: true, customItems: [], removedIds: []
+        });
+    } else {
+        const s = sections.find(x => x.id === lid);
+        s.locked = true;
+        if (!s.title) s.title = LOCKED_AUTO_META[lid].title;
+        if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
+    }
+});
 
                 // Re-sort after adding locked ones
                 sections.sort((a, b) => (a.order || 99) - (b.order || 99));
