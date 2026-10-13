@@ -1182,7 +1182,7 @@
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
         /* 🔒 Sections that are ALWAYS automated — admin cannot delete, only hide/add items */
-        const LOCKED_AUTO_SECTIONS = ['continuewatching', 'newreleases', 'trending', 'picked'];
+        const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
@@ -1339,16 +1339,16 @@
                 /* =========================================================
                    DEFAULT SECTIONS
                    Order:
-                     1. Continue Watching
-                     2. New Releases
+                     1. New Releases  ⭐ (top)
+                     2. Continue Watching
                      3. Trending Now
                      4. Picked For You
                      5.. rest
                    ========================================================= */
                 defaultSections() {
                     return [
-                        { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle', locked: true, order: 1, badge: 'RESUME', explorePage: '', exploreLabel: '', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'newreleases', title: 'New Releases', icon: 'fas fa-star', locked: true, order: 2, badge: 'NEW', explorePage: 'newreleases.html', exploreLabel: 'All new releases', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'newreleases', title: 'New Releases', icon: 'fas fa-star', locked: true, order: 1, badge: 'NEW', explorePage: 'newreleases.html', exploreLabel: 'All new releases', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle', locked: true, order: 2, badge: 'RESUME', explorePage: '', exploreLabel: '', enabled: true, customItems: [], removedIds: [] },
                         { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 3, badge: 'HOT', explorePage: 'trending.html', exploreLabel: "See what's hot", enabled: true, customItems: [], removedIds: [] },
                         { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 4, badge: 'SMART', explorePage: 'picks.html', exploreLabel: 'See all picks', enabled: true, customItems: [], removedIds: [] },
                         { id: 'series', title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 5, badge: '', explorePage: 'webseries.html', exploreLabel: 'All web series', enabled: true, customItems: [], removedIds: [] },
@@ -1362,7 +1362,7 @@
                 },
 
                 /* =========================================================
-                   LOAD SECTION CONFIG (NEW SHAPE)
+                   LOAD SECTION CONFIG
                    ========================================================= */
                 async loadSectionConfig() {
                     try {
@@ -1373,7 +1373,6 @@
                         }
                         const data = doc.data() || {};
 
-                        // NEW SHAPE: { sections: [...], perOtt: {...} }
                         if (Array.isArray(data.sections)) {
                             const mapped = data.sections
                                 .filter(s => s && s.id)
@@ -1392,7 +1391,7 @@
                                 }))
                                 .sort((a, b) => a.order - b.order);
 
-                            // Ensure all locked sections are present
+                            // Ensure locked sections are always present
                             LOCKED_AUTO_SECTIONS.forEach((lid) => {
                                 if (!mapped.find(x => x.id === lid)) {
                                     const def = this.defaultSections().find(x => x.id === lid);
@@ -1407,7 +1406,6 @@
                             return;
                         }
 
-                        // Legacy fallback
                         this.sectionsConfig = this.defaultSections();
                     } catch (e) {
                         console.warn('Could not load home sections config:', e.message);
@@ -1417,7 +1415,8 @@
 
                 /* =========================================================
                    CONTINUE WATCHING ITEMS
-                   Built directly from guestProfile.watchHistory (localStorage)
+                   Only shows items user has actually opened (recorded in history)
+                   Carries _adminCustomPoster for correct poster rendering
                    ========================================================= */
                 get continueWatchingItems() {
                     const history = this.guestProfile.watchHistory || [];
@@ -1428,6 +1427,7 @@
                             title: h.title || 'Untitled',
                             name: h.title || 'Untitled',
                             poster_path: h.poster_path || '',
+                            _adminCustomPoster: h._adminCustomPoster || '',
                             media_type: h.type || h.media_type || 'movie',
                             vote_average: h.vote_average || 0,
                             release_date: h.release_date || '',
@@ -1444,8 +1444,8 @@
                 get poolMap() {
                     const ottActive = this.activeOtt !== 'all';
                     return {
-                        continuewatching: this.continueWatchingItems,
                         newreleases: (ottActive && this.ottPools.newreleases && this.ottPools.newreleases.length) ? this.ottPools.newreleases : this.newReleases,
+                        continuewatching: this.continueWatchingItems,
                         trending: (ottActive && this.ottPools.trending.length) ? this.ottPools.trending : this.trending,
                         picked: this.recommendedPickedForYou,
                         movies: (ottActive && this.ottPools.popular.length) ? this.ottPools.popular : this.popularMovies,
@@ -1498,11 +1498,13 @@
                             }
                             items = pool.filter(i => i && !removed.includes(String(i.id)));
 
-                            // Prepend admin custom items
-                            const customs = (raw.customItems || [])
-                                .map(c => this.normalizeAdminItem(c))
-                                .filter(Boolean);
-                            if (customs.length) items = [...customs, ...items];
+                            // Prepend admin custom items (skip for continuewatching — that's device-local)
+                            if (id !== 'continuewatching') {
+                                const customs = (raw.customItems || [])
+                                    .map(c => this.normalizeAdminItem(c))
+                                    .filter(Boolean);
+                                if (customs.length) items = [...customs, ...items];
+                            }
                         } else {
                             items = (raw.customItems || [])
                                 .map(c => this.normalizeAdminItem(c))
@@ -1590,13 +1592,26 @@
                     const prevProgress = existing && typeof existing.progress === 'number' ? existing.progress : 0;
                     const newProgress = Math.min(0.95, prevProgress > 0 ? prevProgress + 0.15 : 0.15);
 
+                    // Normalize poster for storage
+                    let posterPath = '';
+                    let adminPoster = '';
+                    if (item._adminCustomPoster) {
+                        adminPoster = item._adminCustomPoster;
+                    } else if (item.poster_path) {
+                        if (String(item.poster_path).startsWith('http')) {
+                            adminPoster = item.poster_path;
+                        } else {
+                            posterPath = item.poster_path;
+                        }
+                    }
+
                     const entry = {
                         id: item.id,
                         type: t,
                         media_type: t,
                         title: item.title || item.name || '',
-                        poster_path: item.poster_path || (item._adminCustomPoster ? '' : ''),
-                        _adminCustomPoster: item._adminCustomPoster || '',
+                        poster_path: posterPath,
+                        _adminCustomPoster: adminPoster,
                         release_date: item.release_date || item.first_air_date || '',
                         first_air_date: item.first_air_date || item.release_date || '',
                         genres: item.genre_ids || (item.genres || []).map(g => g.id) || [],
@@ -2071,6 +2086,9 @@
                         const c = (sec.customItems || []).find(x => String(x.id) === String(id));
                         if (c) return this.normalizeAdminItem(c);
                     }
+                    // Fallback: search continue watching items (they carry full poster info)
+                    const cw = this.continueWatchingItems.find(x => String(x.id) === String(id));
+                    if (cw) return cw;
                     return { id, media_type: type };
                 },
 
@@ -2185,10 +2203,20 @@
                     return (this.detailData.credits.cast || []).slice(0, 12);
                 },
 
+                /* =========================================================
+                   POSTER — robust resolver (handles TMDB path, admin full URL, missing)
+                   ========================================================= */
                 poster(item) {
                     if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    // 1. Admin custom poster (full URL)
                     if (item._adminCustomPoster) return item._adminCustomPoster;
-                    return item.poster_path ? "https://image.tmdb.org/t/p/w500" + item.poster_path : 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    // 2. No poster available
+                    if (!item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    // 3. poster_path is already a full URL
+                    const p = String(item.poster_path);
+                    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+                    // 4. TMDB relative path (starts with /)
+                    return 'https://image.tmdb.org/t/p/w500' + (p.startsWith('/') ? p : '/' + p);
                 },
                 title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
                 year(item) {
