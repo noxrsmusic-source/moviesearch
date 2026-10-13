@@ -649,10 +649,10 @@
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
 // 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
-        const LOCKED_AUTO_SECTIONS = ['continuewatching', 'newreleases', 'trending', 'picked'];
+        const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
         const LOCKED_AUTO_META = {
-            continuewatching: { title: 'Continue Watching', icon: 'fas fa-play-circle',         endpoint: '' },
             newreleases:      { title: 'New Releases',      icon: 'fas fa-star',                endpoint: '/movie/now_playing?language=en-US&page=1' },
+            continuewatching: { title: 'Continue Watching', icon: 'fas fa-play-circle',         endpoint: '' },
             trending:         { title: 'Trending Now',      icon: 'fas fa-fire',                endpoint: '/trending/all/week?language=en-US' },
             picked:           { title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' }
             };
@@ -1040,11 +1040,11 @@
                     removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
                 })).sort((a, b) => a.order - b.order);
 
-              // Ensure locked sections exist
+             // Ensure locked sections exist AND force correct order (newreleases always first)
 LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
     if (!sections.find(x => x.id === lid)) {
         const meta = LOCKED_AUTO_META[lid];
-        sections.unshift({
+        sections.push({
             id: lid, title: meta.title, icon: meta.icon,
             locked: true, order: i + 1,
             badge: lid === 'continuewatching' ? 'RESUME' : (lid === 'newreleases' ? 'NEW' : (lid === 'trending' ? 'HOT' : 'SMART')),
@@ -1059,8 +1059,14 @@ LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
     }
 });
 
-                // Re-sort after adding locked ones
-                sections.sort((a, b) => (a.order || 99) - (b.order || 99));
+// 🔥 FORCE-FIX ORDER for locked sections — newreleases=1, continuewatching=2, trending=3, picked=4
+LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+    const s = sections.find(x => x.id === lid);
+    if (s) s.order = i + 1;
+});
+
+// Re-sort after adding + force-ordering locked ones
+sections.sort((a, b) => (a.order || 99) - (b.order || 99));
 
                 const perOtt = {};
                 if (raw.perOtt && typeof raw.perOtt === 'object') {
