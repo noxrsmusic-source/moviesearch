@@ -257,6 +257,9 @@
             padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px;
             text-transform: uppercase;
         }
+        .section-heading-wrap .new-badge.continue {
+            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
+        }
 
         .horizontal-cards-row {
             display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;
@@ -371,6 +374,28 @@
         @media (min-width: 768px) { .movie-card .card-info h4 { font-size: 14px; } }
         .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
         @media (min-width: 768px) { .movie-card .card-meta { font-size: 11.5px; margin-top: 6px; } }
+
+        /* ---------- Continue Watching progress bar ---------- */
+        .movie-card .watch-progress-bar {
+            position: absolute; left: 0; right: 0; bottom: 0;
+            height: 4px; background: rgba(0, 0, 0, 0.55);
+            z-index: 3;
+        }
+        .movie-card .watch-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-red) 0%, #ff3b3b 100%);
+            border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 6px rgba(229, 9, 20, 0.6);
+            transition: width 0.3s ease;
+        }
+        .movie-card .continue-badge {
+            position: absolute; top: 8px; left: 8px;
+            background: rgba(34, 197, 94, 0.95);
+            color: #fff; font-size: 9px; font-weight: 800;
+            padding: 2px 7px; border-radius: 4px;
+            letter-spacing: 0.5px; z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
 
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 70px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
@@ -852,12 +877,22 @@
                                 <i :class="sec.icon || 'fas fa-film'"></i>
                                 <span x-text="sec.displayTitle"></span>
                             </h3>
-                            <span class="new-badge" x-show="sec.badge" x-text="sec.badge"></span>
+                            <span class="new-badge" :class="{ 'continue': sec.id === 'continuewatching' }" x-show="sec.badge" x-text="sec.badge"></span>
                         </div>
                         <div class="horizontal-cards-row">
                             <template x-for="item in sec.items" :key="sec.id + '-' + item.id + '-' + (item.media_type || '')">
                                 <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
-                                    <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                                    <div class="poster-wrap">
+                                        <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                        <template x-if="sec.id === 'continuewatching'">
+                                            <span class="continue-badge">CONTINUE</span>
+                                        </template>
+                                        <template x-if="sec.id === 'continuewatching' && item._watchProgress > 0">
+                                            <div class="watch-progress-bar">
+                                                <div class="watch-progress-fill" :style="'width: ' + Math.min(100, Math.round(item._watchProgress * 100)) + '%'"></div>
+                                            </div>
+                                        </template>
+                                    </div>
                                     <div class="card-info">
                                         <h4 x-text="title(item)"></h4>
                                         <div class="card-meta">
@@ -1147,7 +1182,7 @@
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
         /* 🔒 Sections that are ALWAYS automated — admin cannot delete, only hide/add items */
-        const LOCKED_AUTO_SECTIONS = ['trending', 'picked', 'newreleases'];
+        const LOCKED_AUTO_SECTIONS = ['continuewatching', 'newreleases', 'trending', 'picked'];
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
@@ -1302,20 +1337,27 @@
                 },
 
                 /* =========================================================
-                   DEFAULT SECTIONS (must match new admin shape)
+                   DEFAULT SECTIONS
+                   Order:
+                     1. Continue Watching
+                     2. New Releases
+                     3. Trending Now
+                     4. Picked For You
+                     5.. rest
                    ========================================================= */
                 defaultSections() {
                     return [
-                        { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 1, badge: 'HOT', explorePage: 'trending.html', exploreLabel: "See what's hot", enabled: true, customItems: [], removedIds: [] },
-                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 2, badge: 'SMART', explorePage: 'picks.html', exploreLabel: 'See all picks', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'newreleases', title: 'New Releases', icon: 'fas fa-star', locked: true, order: 3, badge: 'NEW', explorePage: 'newreleases.html', exploreLabel: 'All new releases', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'series', title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 4, badge: '', explorePage: 'webseries.html', exploreLabel: 'All web series', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 5, badge: '', explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 6, badge: '', explorePage: 'anime.html', exploreLabel: 'All anime', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'movies', title: 'Popular Movies', icon: 'fas fa-film', locked: false, order: 7, badge: '', explorePage: 'movies.html', exploreLabel: 'All movies', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om', locked: false, order: 8, badge: '', explorePage: 'indianseries.html', exploreLabel: 'All Indian series', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'cdrama', title: 'C-Drama Series', icon: 'fas fa-yin-yang', locked: false, order: 9, badge: '', explorePage: 'cdrama.html', exploreLabel: 'All C-Dramas', enabled: true, customItems: [], removedIds: [] },
-                        { id: 'pdrama', title: 'P-Drama Series', icon: 'fas fa-sun', locked: false, order: 10, badge: '', explorePage: 'pdrama.html', exploreLabel: 'All P-Dramas', enabled: true, customItems: [], removedIds: [] }
+                        { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle', locked: true, order: 1, badge: 'RESUME', explorePage: '', exploreLabel: '', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'newreleases', title: 'New Releases', icon: 'fas fa-star', locked: true, order: 2, badge: 'NEW', explorePage: 'newreleases.html', exploreLabel: 'All new releases', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 3, badge: 'HOT', explorePage: 'trending.html', exploreLabel: "See what's hot", enabled: true, customItems: [], removedIds: [] },
+                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 4, badge: 'SMART', explorePage: 'picks.html', exploreLabel: 'See all picks', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'series', title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 5, badge: '', explorePage: 'webseries.html', exploreLabel: 'All web series', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 6, badge: '', explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 7, badge: '', explorePage: 'anime.html', exploreLabel: 'All anime', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'movies', title: 'Popular Movies', icon: 'fas fa-film', locked: false, order: 8, badge: '', explorePage: 'movies.html', exploreLabel: 'All movies', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'indianseries', title: 'Indian Series', icon: 'fas fa-om', locked: false, order: 9, badge: '', explorePage: 'indianseries.html', exploreLabel: 'All Indian series', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'cdrama', title: 'C-Drama Series', icon: 'fas fa-yin-yang', locked: false, order: 10, badge: '', explorePage: 'cdrama.html', exploreLabel: 'All C-Dramas', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'pdrama', title: 'P-Drama Series', icon: 'fas fa-sun', locked: false, order: 11, badge: '', explorePage: 'pdrama.html', exploreLabel: 'All P-Dramas', enabled: true, customItems: [], removedIds: [] }
                     ];
                 },
 
@@ -1350,11 +1392,11 @@
                                 }))
                                 .sort((a, b) => a.order - b.order);
 
-                            // Ensure locked sections are present
-                            LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+                            // Ensure all locked sections are present
+                            LOCKED_AUTO_SECTIONS.forEach((lid) => {
                                 if (!mapped.find(x => x.id === lid)) {
                                     const def = this.defaultSections().find(x => x.id === lid);
-                                    if (def) mapped.unshift({ ...def });
+                                    if (def) mapped.push({ ...def });
                                 } else {
                                     const s = mapped.find(x => x.id === lid);
                                     s.locked = true;
@@ -1374,14 +1416,38 @@
                 },
 
                 /* =========================================================
+                   CONTINUE WATCHING ITEMS
+                   Built directly from guestProfile.watchHistory (localStorage)
+                   ========================================================= */
+                get continueWatchingItems() {
+                    const history = this.guestProfile.watchHistory || [];
+                    return history
+                        .filter(h => h && h.id)
+                        .map(h => ({
+                            id: h.id,
+                            title: h.title || 'Untitled',
+                            name: h.title || 'Untitled',
+                            poster_path: h.poster_path || '',
+                            media_type: h.type || h.media_type || 'movie',
+                            vote_average: h.vote_average || 0,
+                            release_date: h.release_date || '',
+                            first_air_date: h.first_air_date || '',
+                            genre_ids: h.genres || h.genre_ids || [],
+                            _watchProgress: typeof h.progress === 'number' ? h.progress : 0.3,
+                            _watchedAt: h.timestamp
+                        }));
+                },
+
+                /* =========================================================
                    POOLS
                    ========================================================= */
                 get poolMap() {
                     const ottActive = this.activeOtt !== 'all';
                     return {
+                        continuewatching: this.continueWatchingItems,
+                        newreleases: (ottActive && this.ottPools.newreleases && this.ottPools.newreleases.length) ? this.ottPools.newreleases : this.newReleases,
                         trending: (ottActive && this.ottPools.trending.length) ? this.ottPools.trending : this.trending,
                         picked: this.recommendedPickedForYou,
-                        newreleases: (ottActive && this.ottPools.newreleases && this.ottPools.newreleases.length) ? this.ottPools.newreleases : this.newReleases,
                         movies: (ottActive && this.ottPools.popular.length) ? this.ottPools.popular : this.popularMovies,
                         series: (ottActive && this.ottPools.series.length) ? this.ottPools.series : this.tvShows,
                         anime: (ottActive && this.ottPools.anime.length) ? this.ottPools.anime : this.animeList,
@@ -1395,14 +1461,13 @@
                 },
 
                 /* =========================================================
-                   RENDERED SECTIONS — NEW LOGIC
+                   RENDERED SECTIONS
                    ========================================================= */
                 get renderedSections() {
                     const isAll = this.activeOtt === 'all';
                     const pools = this.poolMap;
                     const out = [];
 
-                    // Use admin-managed sections if present, else defaults
                     const configList = (this.sectionsConfig && this.sectionsConfig.length)
                         ? this.sectionsConfig
                         : this.defaultSections();
@@ -1415,6 +1480,9 @@
 
                         const isAuto = raw.locked === true || LOCKED_AUTO_SECTIONS.includes(id);
 
+                        // Continue Watching: only on "All Platforms" view, uses local device history
+                        if (!isAll && id === 'continuewatching') continue;
+
                         // When filtered by OTT, only locked auto sections show
                         if (!isAll && !isAuto) continue;
                         if (!isAll && id === 'picked') continue;
@@ -1423,10 +1491,9 @@
                         const removed = (raw.removedIds || []).map(String);
 
                         if (isAuto) {
-                            // 🔒 AUTO — smart latest year filter (2024-2026)
                             let pool = pools[id] || [];
-                            // newreleases already filtered by date — skip smart filter
-                            if (id !== 'newreleases') {
+                            // skip smart-latest filter for continuewatching & newreleases (already curated)
+                            if (id !== 'newreleases' && id !== 'continuewatching') {
                                 pool = this.filterBySmartLatest(pool, 6);
                             }
                             items = pool.filter(i => i && !removed.includes(String(i.id)));
@@ -1437,12 +1504,10 @@
                                 .filter(Boolean);
                             if (customs.length) items = [...customs, ...items];
                         } else {
-                            // ✏️ MANUAL — ONLY show admin-curated items
                             items = (raw.customItems || [])
                                 .map(c => this.normalizeAdminItem(c))
                                 .filter(i => i && i.id !== null && i.id !== undefined && i.id !== '');
 
-                            // Nice UX fallback: if admin left it empty, show pool items
                             if (!items.length && pools[id]) {
                                 items = this.filterBySmartLatest(pools[id], 6).slice(0, 20);
                             }
@@ -1517,19 +1582,33 @@
 
                 recordWatchHistory(item, type) {
                     if (!item || !item.id) return;
+                    const t = type || 'movie';
+
+                    // Look up existing entry to preserve/increment progress
+                    const existing = (this.guestProfile.watchHistory || [])
+                        .find(x => String(x.id) === String(item.id) && (x.type || 'movie') === t);
+                    const prevProgress = existing && typeof existing.progress === 'number' ? existing.progress : 0;
+                    const newProgress = Math.min(0.95, prevProgress > 0 ? prevProgress + 0.15 : 0.15);
+
                     const entry = {
                         id: item.id,
-                        type: type || 'movie',
+                        type: t,
+                        media_type: t,
                         title: item.title || item.name || '',
+                        poster_path: item.poster_path || (item._adminCustomPoster ? '' : ''),
+                        _adminCustomPoster: item._adminCustomPoster || '',
+                        release_date: item.release_date || item.first_air_date || '',
+                        first_air_date: item.first_air_date || item.release_date || '',
                         genres: item.genre_ids || (item.genres || []).map(g => g.id) || [],
                         original_language: item.original_language || '',
                         vote_average: item.vote_average || 0,
                         timestamp: Date.now(),
-                        progress: 0.8
+                        progress: newProgress
                     };
+
                     this.guestProfile.watchHistory = [
                         entry,
-                        ...this.guestProfile.watchHistory.filter(x => !(x.id === item.id && x.type === entry.type))
+                        ...this.guestProfile.watchHistory.filter(x => !(String(x.id) === String(item.id) && (x.type || 'movie') === t))
                     ].slice(0, 30);
 
                     if (item.genre_ids) {
@@ -1562,7 +1641,7 @@
                 },
 
                 /* =========================================================
-                   🆕 SMART LATEST FILTER — 2024/2025/2026 only
+                   SMART LATEST FILTER
                    ========================================================= */
                 filterBySmartLatest(items, minCount = 6) {
                     if (!items || !Array.isArray(items) || !items.length) return [];
@@ -1593,7 +1672,6 @@
                     return this.filterBySmartLatest(items, minCount);
                 },
 
-                /* Helper: interleave multiple arrays round-robin */
                 _interleaveArrays(arrays) {
                     const out = [];
                     const maxLen = Math.max(0, ...arrays.map(a => a.length));
@@ -1606,8 +1684,7 @@
                 },
 
                 /* =========================================================
-                   🆕 NEW RELEASES FETCHER
-                   Movies (now playing) + TV (latest first_air_date) + Anime (latest)
+                   NEW RELEASES FETCHER
                    ========================================================= */
                 async fetchNewReleases() {
                     const today = new Date().toISOString().split('T')[0];
@@ -1629,10 +1706,8 @@
                     const tvShows = (newTvRes.results || []).filter(r => r.poster_path).map(i => ({ ...i, media_type: 'tv' }));
                     const anime = (newAnimeRes.results || []).filter(r => r.poster_path).map(i => ({ ...i, media_type: 'tv' }));
 
-                    // Round-robin interleave: movie → tv → anime → movie → tv → anime …
                     const merged = this._interleaveArrays([movies, tvShows, anime]);
 
-                    // Dedupe by type:id
                     const seen = new Set();
                     const deduped = merged.filter(i => {
                         const k = `${i.media_type}:${i.id}`;
@@ -1729,7 +1804,7 @@
                         const pdramaRes = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent("/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1"));
                         this.pdramaList = (pdramaRes.results || []).map(i => ({ ...i, media_type: 'tv' }));
 
-                        // 🆕 New Releases — Movies + Web Series + Anime (latest launched)
+                        // New Releases
                         await this.fetchNewReleases();
                     } catch (e) {
                         console.warn('loadHomeData error:', e);
@@ -1975,6 +2050,7 @@
                         window.location.href = `${this._platformSlug(this.activeOtt)}.html`;
                         return;
                     }
+                    if (!sectionPage) return;
                     window.location.href = sectionPage;
                 },
 
