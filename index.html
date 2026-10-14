@@ -201,7 +201,7 @@
 
         .ott-loading-indicator {
             display: flex; justify-content: center; align-items: center;
-            padding: 20px 0; gap: 10px;
+            padding: 30px 0; gap: 10px;
             color: var(--text-muted); font-size: 13px; font-weight: 600;
         }
         .ott-loading-indicator i {
@@ -1186,6 +1186,22 @@
         /* 🔒 Locked auto sections — admin can't delete, only hide/add items */
         const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
 
+        /* 🎬 TMDB Genre map — OTT filter me genre-wise sections banane ke liye */
+        const OTT_GENRE_MAP = {
+            28:    { name: 'Action',      icon: 'fas fa-fire' },
+            12:    { name: 'Adventure',   icon: 'fas fa-compass' },
+            16:    { name: 'Animation',   icon: 'fas fa-dragon' },
+            35:    { name: 'Comedy',      icon: 'fas fa-face-laugh-squint' },
+            80:    { name: 'Crime',       icon: 'fas fa-user-secret' },
+            18:    { name: 'Drama',       icon: 'fas fa-masks-theater' },
+            14:    { name: 'Fantasy',     icon: 'fas fa-wand-sparkles' },
+            27:    { name: 'Horror',      icon: 'fas fa-ghost' },
+            9648:  { name: 'Mystery',     icon: 'fas fa-magnifying-glass' },
+            10749: { name: 'Romance',     icon: 'fas fa-heart' },
+            878:   { name: 'Sci-Fi',      icon: 'fas fa-rocket' },
+            53:    { name: 'Thriller',    icon: 'fas fa-bolt' }
+        };
+
         const firebaseConfig = {
             apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
             authDomain: "rxplayer-a2582.firebaseapp.com",
@@ -1262,6 +1278,9 @@
 
                 modalAlert: { show: false, message: '', type: 'info', timer: null },
 
+                /* ✅ Genre-based sections for OTT filter */
+                ottGenreSections: [],
+
                 /* ✅ NEW SHAPE — mirrors admin's saveSectionsConfig() shape */
                 sectionsConfig: { sections: [], perOtt: {} },
                 ottPlatforms: [
@@ -1331,8 +1350,6 @@
 
                 /* =========================================================
                    DEFAULT SECTIONS
-                   Order: New Releases (1) → Continue Watching (2) → Trending (3) → Picked (4)
-                   NOTE: picked has NO explorePage (Explore More removed)
                    ========================================================= */
                 defaultSections() {
                     return [
@@ -1352,8 +1369,6 @@
 
                 /* =========================================================
                    LOAD SECTION CONFIG FROM FIRESTORE
-                   ✅ BUG FIXED: config no longer overwritten by defaults
-                   ✅ Loads both `sections` (global) AND `perOtt` (per-OTT)
                    ========================================================= */
                 async loadSectionConfig() {
                     try {
@@ -1384,7 +1399,6 @@
                                 .sort((a, b) => a.order - b.order);
                         }
 
-                        // Ensure all locked sections present
                         LOCKED_AUTO_SECTIONS.forEach((lid) => {
                             if (!sections.find(x => x.id === lid)) {
                                 const def = this.defaultSections().find(x => x.id === lid);
@@ -1397,7 +1411,6 @@
                             }
                         });
 
-                        // Force order for locked sections
                         LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
                             const s = sections.find(x => x.id === lid);
                             if (s) s.order = i + 1;
@@ -1405,7 +1418,6 @@
 
                         sections.sort((a, b) => (a.order || 99) - (b.order || 99));
 
-                        // Parse perOtt
                         const perOtt = {};
                         if (data.perOtt && typeof data.perOtt === 'object') {
                             Object.keys(data.perOtt).forEach(ottName => {
@@ -1487,33 +1499,27 @@
 
                 /* =========================================================
                    RENDERED SECTIONS
-                   ✅ Uses perOtt config when activeOtt !== 'all'
-                   ✅ Falls back to global config (only auto sections) if no per-OTT config
+                   ✅ When OTT active: use genre-based sections (no "HBO X" titles)
+                   ✅ When "all": use admin/config sections (as before)
                    ========================================================= */
                 get renderedSections() {
                     const isAll = this.activeOtt === 'all';
                     const pools = this.poolMap;
                     const out = [];
 
-                    let configList;
-                    let usingPerOtt = false;
-
-                    if (isAll) {
-                        configList = (this.sectionsConfig.sections && this.sectionsConfig.sections.length)
-                            ? this.sectionsConfig.sections
-                            : this.defaultSections();
-                    } else {
-                        const perOttEntry = this.sectionsConfig.perOtt && this.sectionsConfig.perOtt[this.activeOtt];
-                        if (perOttEntry && perOttEntry.sections && perOttEntry.sections.length) {
-                            configList = perOttEntry.sections;
-                            usingPerOtt = true;
-                        } else {
-                            // No per-OTT config: fall back to global but show only auto sections
-                            configList = (this.sectionsConfig.sections && this.sectionsConfig.sections.length)
-                                ? this.sectionsConfig.sections
-                                : this.defaultSections();
+                    // ⚡ OTT active → genre-wise sections
+                    if (!isAll) {
+                        if (this.ottGenreSections && this.ottGenreSections.length) {
+                            return this.ottGenreSections;
                         }
+                        // Fallback: agar koi genre section nahi bana, khali return
+                        return [];
                     }
+
+                    // ---------- "ALL" view — original logic ----------
+                    const configList = (this.sectionsConfig.sections && this.sectionsConfig.sections.length)
+                        ? this.sectionsConfig.sections
+                        : this.defaultSections();
 
                     for (const raw of configList) {
                         if (!raw) continue;
@@ -1523,26 +1529,16 @@
 
                         const isAuto = raw.locked === true || LOCKED_AUTO_SECTIONS.includes(id);
 
-                        // Continue Watching: only on "All Platforms" view (device-local history)
-                        if (!isAll && id === 'continuewatching') continue;
-
-                        // If falling back to global for an OTT with no per-OTT config:
-                        //   show only auto sections (skip manual/user sections)
-                        if (!isAll && !usingPerOtt && !isAuto) continue;
-                        if (!isAll && !usingPerOtt && id === 'picked') continue;
-
                         let items = [];
                         const removed = (raw.removedIds || []).map(String);
 
                         if (isAuto) {
                             let pool = pools[id] || [];
-                            // Skip smart-latest filter for curated sections
                             if (id !== 'newreleases' && id !== 'continuewatching') {
                                 pool = this.filterBySmartLatest(pool, 6);
                             }
                             items = pool.filter(i => i && !removed.includes(String(i.id)));
 
-                            // Prepend admin custom items (except continuewatching — device-local)
                             if (id !== 'continuewatching') {
                                 const customs = (raw.customItems || [])
                                     .map(c => this.normalizeAdminItem(c))
@@ -1559,7 +1555,6 @@
                             }
                         }
 
-                        // Dedupe
                         const seen = new Set();
                         items = items.filter(i => {
                             const k = `${i.media_type || 'movie'}:${i.id}`;
@@ -1570,18 +1565,7 @@
 
                         if (!items.length) continue;
 
-                        let displayTitle = raw.title || id;
-                        if (!isAll) {
-                            if (id === 'trending') displayTitle = this.activeOtt + ' Trending';
-                            if (id === 'movies') displayTitle = this.activeOtt + ' Movies';
-                            if (id === 'newreleases') displayTitle = this.activeOtt + ' New Releases';
-                            if (id === 'series') displayTitle = this.activeOtt + ' Series';
-                            if (id === 'anime') displayTitle = this.activeOtt + ' Anime';
-                            if (id === 'kdrama') displayTitle = this.activeOtt + ' K-Dramas';
-                            if (id === 'indianseries') displayTitle = this.activeOtt + ' Indian Series';
-                            if (id === 'cdrama') displayTitle = this.activeOtt + ' C-Dramas';
-                            if (id === 'pdrama') displayTitle = this.activeOtt + ' P-Dramas';
-                        }
+                        const displayTitle = raw.title || id;
 
                         out.push({ ...raw, id, isAuto, items, displayTitle });
                     }
@@ -1785,7 +1769,11 @@
                 },
 
                 /* =========================================================
-                   OTT FILTER (Provider + Network based — accurate content)
+                   OTT FILTER — Genre-wise sections, newest first, no limits
+                   ✅ No "HBO X" / "Netflix Y" titles
+                   ✅ Content sorted by release date (newest first)
+                   ✅ Multiple pages fetched (5 movies + 5 TV = ~200 items)
+                   ✅ Genre-wise sections (Action, Comedy, Drama, etc.)
                    ========================================================= */
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
@@ -1796,21 +1784,27 @@
                             kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
                             searchRec: [], historyRec: [], newreleases: []
                         };
+                        this.ottGenreSections = [];
                         return;
                     }
 
                     const ott = (this.ottPlatforms || []).find(o => o.name === ottName);
                     if (!ott) return;
 
-                    // ⚡ Provider ID missing → warn
                     if (!ott.providerId && !ott.networkId) {
                         this.showToast(`${ottName} ka provider ID set nahi hai`, 'error');
                         return;
                     }
 
                     this.loading = true;
+                    this.ottGenreSections = [];
+                    this.ottPools = {
+                        trending: [], popular: [], picked: [], series: [],
+                        kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
+                        searchRec: [], historyRec: [], newreleases: []
+                    };
 
-                    // Region override per platform (HBO/Disney+ globally US me best kaam karte hain)
+                    // Region override per platform
                     const regionOverrides = {
                         'HBO':     { region: 'US', provider: 1899 },
                         'Disney+': { region: 'US', provider: 337  }
@@ -1822,26 +1816,28 @@
                     const providerId = override?.provider || ott.providerId;
 
                     try {
-                        // --- Query builder ---
-                        const buildQuery = (type) => {
+                        const buildQuery = (type, page = 1) => {
                             const params = new URLSearchParams({
                                 language: 'en-US',
-                                sort_by: 'popularity.desc',
-                                page: '1'
+                                page: String(page)
                             });
 
-                            // Provider filter (streaming availability)
+                            // Newest first — release date descending
+                            if (type === 'movie') {
+                                params.set('sort_by', 'primary_release_date.desc');
+                            } else {
+                                params.set('sort_by', 'first_air_date.desc');
+                            }
+
                             if (providerId) {
                                 params.set('watch_region', REGION);
                                 params.set('with_watch_providers', String(providerId));
                             }
 
-                            // Network filter (production house) — TV only
                             if (ott.networkId && type === 'tv') {
                                 params.set('with_networks', String(ott.networkId));
                             }
 
-                            // Indian platforms → Hindi language filter
                             if (INDIA_PLATFORMS.includes(ott.name)) {
                                 params.set('with_original_language', 'hi');
                             }
@@ -1849,54 +1845,117 @@
                             return `/discover/${type}?${params.toString()}`;
                         };
 
-                        // --- Parallel fetch: movies + tv ---
-                        const [movieRes, tvRes] = await Promise.all([
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('movie')))
-                                .catch(() => ({ results: [] })),
-                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('tv')))
-                                .catch(() => ({ results: [] }))
-                        ]);
+                        // Fetch 5 pages each for movies + TV (in parallel)
+                        const PAGES = 5;
+                        const requests = [];
+                        for (let p = 1; p <= PAGES; p++) {
+                            requests.push(
+                                this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('movie', p)))
+                                    .catch(() => ({ results: [] }))
+                            );
+                            requests.push(
+                                this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('tv', p)))
+                                    .catch(() => ({ results: [] }))
+                            );
+                        }
 
-                        const movies = (movieRes.results || [])
-                            .filter(r => r.poster_path)
-                            .map(i => ({ ...i, media_type: 'movie' }));
+                        const results = await Promise.all(requests);
 
-                        const tvShows = (tvRes.results || [])
-                            .filter(r => r.poster_path)
-                            .map(i => ({ ...i, media_type: 'tv' }));
+                        const movies = [];
+                        const tvShows = [];
+                        for (let i = 0; i < results.length; i++) {
+                            const items = (results[i].results || []).filter(r => r.poster_path);
+                            if (i % 2 === 0) {
+                                movies.push(...items.map(x => ({ ...x, media_type: 'movie' })));
+                            } else {
+                                tvShows.push(...items.map(x => ({ ...x, media_type: 'tv' })));
+                            }
+                        }
 
-                        // --- Interleave: movie, tv, movie, tv... ---
+                        // Combine + dedupe
                         const combined = this._interleaveArrays([movies, tvShows]);
+                        const seen = new Set();
+                        const allContent = combined.filter(i => {
+                            const k = `${i.media_type}:${i.id}`;
+                            if (seen.has(k)) return false;
+                            seen.add(k);
+                            return true;
+                        });
 
-                        if (!combined.length) {
+                        if (!allContent.length) {
                             this.showToast(`${ottName} ke liye koi content nahi mila`, 'info');
-                            this.ottPools = {
-                                trending: [], popular: [], picked: [], series: [],
-                                kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
-                                searchRec: [], historyRec: [], newreleases: []
-                            };
                             return;
                         }
 
-                        // --- Distribute to pools ---
-                        const shuffled = [...combined].sort(() => Math.random() - 0.5);
+                        // ⚡ Sort by release date — newest first
+                        allContent.sort((a, b) => {
+                            const dA = new Date(a.release_date || a.first_air_date || '1900-01-01').getTime();
+                            const dB = new Date(b.release_date || b.first_air_date || '1900-01-01').getTime();
+                            return dB - dA;
+                        });
 
-                        this.ottPools.trending      = shuffled.slice(0, 12);
-                        this.ottPools.popular       = shuffled.slice(12, 24);
-                        this.ottPools.picked        = shuffled.slice(24, 36);
-                        this.ottPools.newreleases   = combined.slice(0, 20); // popularity order
+                        // ⚡ Build genre-wise sections
+                        const sections = [];
+                        const usedIds = new Set();
+
+                        // Iterate over genre map — each genre becomes a section
+                        Object.entries(OTT_GENRE_MAP).forEach(([gidStr, meta]) => {
+                            const gid = parseInt(gidStr, 10);
+                            const genreItems = allContent
+                                .filter(item => (item.genre_ids || []).includes(gid))
+                                .slice(0, 60); // cap for perf
+
+                            if (genreItems.length >= 5) {
+                                // Small random suffix for React key uniqueness
+                                sections.push({
+                                    id: `ott-genre-${gid}`,
+                                    title: meta.name,
+                                    displayTitle: meta.name,
+                                    icon: meta.icon,
+                                    badge: '',
+                                    items: genreItems,
+                                    isGenreSection: true,
+                                    explorePage: '' // no "explore more" for genre
+                                });
+                                genreItems.forEach(it => usedIds.add(`${it.media_type}:${it.id}`));
+                            }
+                        });
+
+                        // If some items didn't fit any genre → add "More" section
+                        const remaining = allContent.filter(i => !usedIds.has(`${i.media_type}:${i.id}`));
+                        if (remaining.length >= 5) {
+                            sections.push({
+                                id: 'ott-genre-more',
+                                title: 'More',
+                                displayTitle: 'More',
+                                icon: 'fas fa-th-large',
+                                badge: '',
+                                items: remaining.slice(0, 40),
+                                isGenreSection: true,
+                                explorePage: ''
+                            });
+                        }
+
+                        this.ottGenreSections = sections;
+
+                        // Also populate ottPools for backward compatibility
+                        this.ottPools.trending      = allContent.slice(0, 12);
+                        this.ottPools.popular       = allContent.slice(12, 24);
+                        this.ottPools.picked        = allContent.slice(24, 36);
+                        this.ottPools.newreleases   = allContent.slice(0, 20);
                         this.ottPools.series        = tvShows.slice(0, 12);
-                        this.ottPools.anime         = tvShows.filter(i => i.genre_ids?.includes(16)).slice(0, 10);
+                        this.ottPools.anime         = tvShows.filter(i => (i.genre_ids || []).includes(16)).slice(0, 10);
                         this.ottPools.kdrama        = tvShows.filter(i => i.original_language === 'ko').slice(0, 12);
                         this.ottPools.indianseries  = tvShows.filter(i => i.original_language === 'hi').slice(0, 12);
                         this.ottPools.cdrama        = tvShows.filter(i => i.original_language === 'zh').slice(0, 12);
                         this.ottPools.pdrama        = tvShows.filter(i => i.original_language === 'tl').slice(0, 12);
-                        this.ottPools.searchRec     = shuffled.slice(0, 10);
-                        this.ottPools.historyRec    = shuffled.slice(5, 15);
+                        this.ottPools.searchRec     = allContent.slice(0, 10);
+                        this.ottPools.historyRec    = allContent.slice(5, 15);
 
                     } catch (e) {
                         console.warn('filterByOtt failed:', e);
                         this.showToast('Content load nahi ho paya', 'error');
+                        this.ottGenreSections = [];
                     } finally {
                         this.loading = false;
                     }
@@ -1914,22 +1973,19 @@
 
                 /* =========================================================
                    LOAD OTT PLATFORMS
-                   ✅ MERGE with defaults — Firestore config se providerId/networkId wipe nahi honge
+                   ✅ MERGE with defaults
                    ========================================================= */
                 async loadOttPlatforms() {
                     try {
                         const doc = await db.collection('config').doc('ottFilters').get();
                         if (doc.exists && Array.isArray(doc.data().platforms) && doc.data().platforms.length) {
                             const firestorePlatforms = doc.data().platforms;
-
-                            // 🔑 Merge: Firestore ka logo/name use karo, but default se providerId/networkId bharo
                             this.ottPlatforms = firestorePlatforms.map(fp => {
                                 const fallback = this.ottPlatforms.find(d =>
                                     String(d.name).toLowerCase() === String(fp.name).toLowerCase()
                                 );
                                 return {
                                     ...fp,
-                                    // Firestore me agar diya hai to wahi use karo, warna default se lo
                                     providerId: fp.providerId ?? fallback?.providerId,
                                     networkId:  fp.networkId  ?? fallback?.networkId,
                                     query:      fp.query      ?? fallback?.query,
@@ -2160,7 +2216,6 @@
                    SEARCH
                    ========================================================= */
                 onSearchInput(val) {
-                    // ⚡ Debounced — spammy recent searches nahi honge
                     if (this._searchDebounce) clearTimeout(this._searchDebounce);
                     this._searchDebounce = setTimeout(() => {
                         if (val && val.trim().length >= 2) this.recordSearchIntent(val.trim());
@@ -2233,6 +2288,11 @@
                     ];
                     for (const p of pools) {
                         const f = (p || []).find(x => String(x.id) === String(id));
+                        if (f) return f;
+                    }
+                    // Also check genre sections
+                    for (const sec of (this.ottGenreSections || [])) {
+                        const f = (sec.items || []).find(x => String(x.id) === String(id));
                         if (f) return f;
                     }
                     const allSecs = [
