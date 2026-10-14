@@ -199,6 +199,16 @@
         }
         .ott-card-logo:hover img, .ott-card-logo.active img { filter: grayscale(0%); }
 
+        .ott-loading-indicator {
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px 0; gap: 10px;
+            color: var(--text-muted); font-size: 13px; font-weight: 600;
+        }
+        .ott-loading-indicator i {
+            color: var(--primary-red); font-size: 22px;
+            animation: spin 0.8s linear infinite;
+        }
+
         @media (min-width: 1024px) {
             .ott-card-logo, .ott-card-all { flex: 0 0 160px; height: 100px; padding: 16px; border-radius: var(--radius); }
             .ott-card-all i { font-size: 26px; }
@@ -859,6 +869,10 @@
                         </div>
                     </template>
                 </div>
+                <div class="ott-loading-indicator" x-show="loading && activeOtt !== 'all'" x-cloak>
+                    <i class="fas fa-circle-notch"></i>
+                    <span>Loading <span x-text="activeOtt"></span> content…</span>
+                </div>
             </div>
 
             <div class="container" style="display: flex; flex-direction: column; gap: 32px; margin-top: 24px; margin-bottom: 40px;">
@@ -1213,6 +1227,7 @@
                 searchResults: [],
                 lastSearchQuery: '',
                 searchLiveLoading: false,
+                _searchDebounce: null,
 
                 trending: [],
                 popularMovies: [],
@@ -1249,24 +1264,23 @@
 
                 /* ✅ NEW SHAPE — mirrors admin's saveSectionsConfig() shape */
                 sectionsConfig: { sections: [], perOtt: {} },
-
                 ottPlatforms: [
-                    { name: 'HBO',        logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                            query: 'HBO',         type: 'ott' },
-                    { name: 'Spotify',    logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg',                   query: 'Spotify',     type: 'music' },
-                    { name: 'Netflix',    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',                   query: 'Netflix',     type: 'ott' },
-                    { name: 'Prime Video',logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg',               query: 'Amazon',      type: 'ott' },
-                    { name: 'Disney+',    logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',                         query: 'Disney',      type: 'ott' },
-                    { name: 'Apple TV+',  logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg',                  query: 'Apple',       type: 'ott' },
-                    { name: 'Zee5',       logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg',                             query: 'Zee5',        type: 'ott' },
-                    { name: 'JioCinema',  logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg',          query: 'Viacom18',    type: 'ott' },
-                    { name: 'SonyLIV',    logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png',                        query: 'Sony',        type: 'ott' },
-                    { name: 'Crunchyroll',logo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crunchyroll_2024.svg/500px-Crunchyroll_2024.svg.png',                    query: 'Crunchyroll', type: 'ott' }
-                ],
+                    { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg', providerId: 1899, networkId: 49,   type: 'ott' },
+                    { name: 'Spotify',     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/bd/2024_Spotify_Logo.svg', type: 'music' },
+                    { name: 'Netflix',     logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg', providerId: 8,    networkId: 213,  type: 'ott' },
+                    { name: 'Prime Video', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg', providerId: 9,    networkId: 1024, type: 'ott' },
+                    { name: 'Disney+',     logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg', providerId: 337,  networkId: 2739, type: 'ott' },
+                    { name: 'Apple TV+',   logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg', providerId: 350,  networkId: 2552, type: 'ott' },
+                    { name: 'Zee5',        logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/ZEE5_2025.svg', providerId: 232,  type: 'ott' },
+                    { name: 'JioCinema',   logo: 'https://upload.wikimedia.org/wikipedia/en/a/a4/JioCinema_Horizontal_%282024%29.svg', providerId: 220,  type: 'ott' },
+                    { name: 'SonyLIV',     logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/SonyLIV_2020.png', providerId: 237,  type: 'ott' },
+                    { name: 'Crunchyroll', logo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Crunchyroll_2024.svg/500px-Crunchyroll_2024.svg.png', providerId: 283,  networkId: 1714, type: 'ott' }
+                   ],
 
                 ottPools: {
                     trending: [], popular: [], picked: [], series: [],
-                    kdrama: [], anime: [], searchRec: [], historyRec: [],
-                    newreleases: []
+                    kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
+                    searchRec: [], historyRec: [], newreleases: []
                 },
 
                 guestProfile: {
@@ -1453,18 +1467,19 @@
                    ========================================================= */
                 get poolMap() {
                     const ottActive = this.activeOtt !== 'all';
+                    const hasOtt = (arr) => ottActive && Array.isArray(arr) && arr.length > 0;
                     return {
-                        newreleases: (ottActive && this.ottPools.newreleases && this.ottPools.newreleases.length) ? this.ottPools.newreleases : this.newReleases,
+                        newreleases: hasOtt(this.ottPools.newreleases) ? this.ottPools.newreleases : this.newReleases,
                         continuewatching: this.continueWatchingItems,
-                        trending: (ottActive && this.ottPools.trending.length) ? this.ottPools.trending : this.trending,
+                        trending: hasOtt(this.ottPools.trending) ? this.ottPools.trending : this.trending,
                         picked: this.recommendedPickedForYou,
-                        movies: (ottActive && this.ottPools.popular.length) ? this.ottPools.popular : this.popularMovies,
-                        series: (ottActive && this.ottPools.series.length) ? this.ottPools.series : this.tvShows,
-                        anime: (ottActive && this.ottPools.anime.length) ? this.ottPools.anime : this.animeList,
-                        kdrama: this.kdramaList,
-                        indianseries: this.indianSeriesList,
-                        cdrama: this.cdramaList,
-                        pdrama: this.pdramaList,
+                        movies: hasOtt(this.ottPools.popular) ? this.ottPools.popular : this.popularMovies,
+                        series: hasOtt(this.ottPools.series) ? this.ottPools.series : this.tvShows,
+                        anime: hasOtt(this.ottPools.anime) ? this.ottPools.anime : this.animeList,
+                        kdrama: hasOtt(this.ottPools.kdrama) ? this.ottPools.kdrama : this.kdramaList,
+                        indianseries: hasOtt(this.ottPools.indianseries) ? this.ottPools.indianseries : this.indianSeriesList,
+                        cdrama: hasOtt(this.ottPools.cdrama) ? this.ottPools.cdrama : this.cdramaList,
+                        pdrama: hasOtt(this.ottPools.pdrama) ? this.ottPools.pdrama : this.pdramaList,
                         searchRec: this.ottPools.searchRec,
                         historyRec: this.ottPools.historyRec
                     };
@@ -1556,9 +1571,17 @@
                         if (!items.length) continue;
 
                         let displayTitle = raw.title || id;
-                        if (id === 'trending' && !isAll) displayTitle = this.activeOtt + ' Trending';
-                        if (id === 'movies' && !isAll) displayTitle = this.activeOtt + ' Movies';
-                        if (id === 'newreleases' && !isAll) displayTitle = this.activeOtt + ' New Releases';
+                        if (!isAll) {
+                            if (id === 'trending') displayTitle = this.activeOtt + ' Trending';
+                            if (id === 'movies') displayTitle = this.activeOtt + ' Movies';
+                            if (id === 'newreleases') displayTitle = this.activeOtt + ' New Releases';
+                            if (id === 'series') displayTitle = this.activeOtt + ' Series';
+                            if (id === 'anime') displayTitle = this.activeOtt + ' Anime';
+                            if (id === 'kdrama') displayTitle = this.activeOtt + ' K-Dramas';
+                            if (id === 'indianseries') displayTitle = this.activeOtt + ' Indian Series';
+                            if (id === 'cdrama') displayTitle = this.activeOtt + ' C-Dramas';
+                            if (id === 'pdrama') displayTitle = this.activeOtt + ' P-Dramas';
+                        }
 
                         out.push({ ...raw, id, isAuto, items, displayTitle });
                     }
@@ -1761,40 +1784,121 @@
                     this.newReleases = deduped.slice(0, 24);
                 },
 
+                /* =========================================================
+                   OTT FILTER (Provider + Network based — accurate content)
+                   ========================================================= */
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
-                    this.showToast(`Filtering by ${ottName === 'all' ? 'All Platforms' : ottName}`, 'info', 2000);
+
                     if (ottName === 'all') {
-                        this.ottPools = { trending: [], popular: [], picked: [], series: [], kdrama: [], anime: [], searchRec: [], historyRec: [], newreleases: [] };
+                        this.ottPools = {
+                            trending: [], popular: [], picked: [], series: [],
+                            kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
+                            searchRec: [], historyRec: [], newreleases: []
+                        };
                         return;
                     }
 
                     const ott = (this.ottPlatforms || []).find(o => o.name === ottName);
-                    const keyword = ott ? (ott.query || ott.name) : ottName;
+                    if (!ott) return;
+
+                    // ⚡ Provider ID missing → warn
+                    if (!ott.providerId && !ott.networkId) {
+                        this.showToast(`${ottName} ka provider ID set nahi hai`, 'error');
+                        return;
+                    }
+
+                    this.loading = true;
+
+                    // Region override per platform (HBO/Disney+ globally US me best kaam karte hain)
+                    const regionOverrides = {
+                        'HBO':     { region: 'US', provider: 1899 },
+                        'Disney+': { region: 'US', provider: 337  }
+                    };
+                    const INDIA_PLATFORMS = ['Zee5', 'SonyLIV', 'JioCinema'];
+                    const override = regionOverrides[ott.name];
+                    const REGION = override?.region
+                        || (INDIA_PLATFORMS.includes(ott.name) ? 'IN' : 'US');
+                    const providerId = override?.provider || ott.providerId;
 
                     try {
-                        const res = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`));
-                        const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
-                        const smartItems = this.filterBySmartLatest(items, 6);
-                        if (smartItems.length > 0) {
-                            this.ottPools.trending = smartItems.slice(0, 12);
-                            this.ottPools.popular = smartItems.slice(2, 14).reverse();
-                            this.ottPools.picked = smartItems.slice(4, 16);
-                            this.ottPools.newreleases = smartItems.slice(6, 22);
-                            this.ottPools.series = smartItems.filter(i => i.media_type === 'tv').slice(0, 10);
-                            this.ottPools.anime = smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10);
-                            this.ottPools.searchRec = smartItems.slice(1, 11);
-                            this.ottPools.historyRec = smartItems.slice(3, 13);
-                        } else {
-                            this.ottPools.trending = this.filterBySmartLatest(this.trending, 6);
-                            this.ottPools.popular = this.filterBySmartLatest(this.popularMovies, 6);
-                            this.ottPools.series = this.filterBySmartLatest(this.tvShows, 6);
-                            this.ottPools.newreleases = this.newReleases;
+                        // --- Query builder ---
+                        const buildQuery = (type) => {
+                            const params = new URLSearchParams({
+                                language: 'en-US',
+                                sort_by: 'popularity.desc',
+                                page: '1'
+                            });
+
+                            // Provider filter (streaming availability)
+                            if (providerId) {
+                                params.set('watch_region', REGION);
+                                params.set('with_watch_providers', String(providerId));
+                            }
+
+                            // Network filter (production house) — TV only
+                            if (ott.networkId && type === 'tv') {
+                                params.set('with_networks', String(ott.networkId));
+                            }
+
+                            // Indian platforms → Hindi language filter
+                            if (INDIA_PLATFORMS.includes(ott.name)) {
+                                params.set('with_original_language', 'hi');
+                            }
+
+                            return `/discover/${type}?${params.toString()}`;
+                        };
+
+                        // --- Parallel fetch: movies + tv ---
+                        const [movieRes, tvRes] = await Promise.all([
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('movie')))
+                                .catch(() => ({ results: [] })),
+                            this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(buildQuery('tv')))
+                                .catch(() => ({ results: [] }))
+                        ]);
+
+                        const movies = (movieRes.results || [])
+                            .filter(r => r.poster_path)
+                            .map(i => ({ ...i, media_type: 'movie' }));
+
+                        const tvShows = (tvRes.results || [])
+                            .filter(r => r.poster_path)
+                            .map(i => ({ ...i, media_type: 'tv' }));
+
+                        // --- Interleave: movie, tv, movie, tv... ---
+                        const combined = this._interleaveArrays([movies, tvShows]);
+
+                        if (!combined.length) {
+                            this.showToast(`${ottName} ke liye koi content nahi mila`, 'info');
+                            this.ottPools = {
+                                trending: [], popular: [], picked: [], series: [],
+                                kdrama: [], anime: [], indianseries: [], cdrama: [], pdrama: [],
+                                searchRec: [], historyRec: [], newreleases: []
+                            };
+                            return;
                         }
+
+                        // --- Distribute to pools ---
+                        const shuffled = [...combined].sort(() => Math.random() - 0.5);
+
+                        this.ottPools.trending      = shuffled.slice(0, 12);
+                        this.ottPools.popular       = shuffled.slice(12, 24);
+                        this.ottPools.picked        = shuffled.slice(24, 36);
+                        this.ottPools.newreleases   = combined.slice(0, 20); // popularity order
+                        this.ottPools.series        = tvShows.slice(0, 12);
+                        this.ottPools.anime         = tvShows.filter(i => i.genre_ids?.includes(16)).slice(0, 10);
+                        this.ottPools.kdrama        = tvShows.filter(i => i.original_language === 'ko').slice(0, 12);
+                        this.ottPools.indianseries  = tvShows.filter(i => i.original_language === 'hi').slice(0, 12);
+                        this.ottPools.cdrama        = tvShows.filter(i => i.original_language === 'zh').slice(0, 12);
+                        this.ottPools.pdrama        = tvShows.filter(i => i.original_language === 'tl').slice(0, 12);
+                        this.ottPools.searchRec     = shuffled.slice(0, 10);
+                        this.ottPools.historyRec    = shuffled.slice(5, 15);
+
                     } catch (e) {
-                        this.ottPools.trending = this.filterBySmartLatest(this.trending, 6);
-                        this.ottPools.popular = this.filterBySmartLatest(this.popularMovies, 6);
-                        this.ottPools.newreleases = this.newReleases;
+                        console.warn('filterByOtt failed:', e);
+                        this.showToast('Content load nahi ho paya', 'error');
+                    } finally {
+                        this.loading = false;
                     }
                 },
 
@@ -1808,11 +1912,30 @@
                     return data;
                 },
 
+                /* =========================================================
+                   LOAD OTT PLATFORMS
+                   ✅ MERGE with defaults — Firestore config se providerId/networkId wipe nahi honge
+                   ========================================================= */
                 async loadOttPlatforms() {
                     try {
                         const doc = await db.collection('config').doc('ottFilters').get();
                         if (doc.exists && Array.isArray(doc.data().platforms) && doc.data().platforms.length) {
-                            this.ottPlatforms = doc.data().platforms;
+                            const firestorePlatforms = doc.data().platforms;
+
+                            // 🔑 Merge: Firestore ka logo/name use karo, but default se providerId/networkId bharo
+                            this.ottPlatforms = firestorePlatforms.map(fp => {
+                                const fallback = this.ottPlatforms.find(d =>
+                                    String(d.name).toLowerCase() === String(fp.name).toLowerCase()
+                                );
+                                return {
+                                    ...fp,
+                                    // Firestore me agar diya hai to wahi use karo, warna default se lo
+                                    providerId: fp.providerId ?? fallback?.providerId,
+                                    networkId:  fp.networkId  ?? fallback?.networkId,
+                                    query:      fp.query      ?? fallback?.query,
+                                    type:       fp.type       ?? fallback?.type ?? 'ott'
+                                };
+                            });
                         }
                     } catch (e) {
                         console.warn('OTT load failed, using defaults:', e.message);
@@ -2036,8 +2159,12 @@
                 /* =========================================================
                    SEARCH
                    ========================================================= */
-                async onSearchInput(val) {
-                    if (val && val.trim().length >= 2) this.recordSearchIntent(val.trim());
+                onSearchInput(val) {
+                    // ⚡ Debounced — spammy recent searches nahi honge
+                    if (this._searchDebounce) clearTimeout(this._searchDebounce);
+                    this._searchDebounce = setTimeout(() => {
+                        if (val && val.trim().length >= 2) this.recordSearchIntent(val.trim());
+                    }, 800);
                 },
 
                 async searchNow() {
