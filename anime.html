@@ -1,1 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="monetag" content="4d863382031c5dad57a420bb6a4a884b">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Anime - RX Player</title>
+    <meta name="description" content="Watch & Explore Anime Series, Genre-wise, Year-wise on RX Player">
+    <meta name="robots" content="index, follow">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --primary-red: #E50914;
+            --primary-green: #22C55E;
+            --telegram-blue: #0088cc;
+            --earn-gold: #F59E0B;
+            --api-blue: #38bdf8;
+            --bug-red: #ef4444;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #0F0F17;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-offset: 165px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font) !important;
+            background: var(--bg-primary) !important;
+            color: var(--text-white) !important;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-offset);
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+
+        #preloader {
+            position: fixed; inset: 0; background: var(--bg-primary); z-index: 999999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #preloader.fade-out { opacity: 0; visibility: hidden; }
+        .preloader-logo {
+            font-size: 32px; font-weight: 900; letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 8px;
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        .preloader-logo span { color: var(--primary-red); }
+        .preloader-logo i { color: var(--primary-red); }
+        .spinner {
+            width: 42px; height: 42px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary-red);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulseGlow { from { opacity: 0.7; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        .header-wrapper {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .header-top { padding: 12px 0; }
+        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .header-left-cluster { display: flex; align-items: center; gap: 16px; }
+
+        .back-btn {
+            font-size: 16px; color: var(--text-white);
+            background: rgba(255, 255, 255, 0.06);
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.12); transform: translateX(-2px); }
+
+        .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; letter-spacing: -0.5px; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 20px; }
+
+        .user-status {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 5px 12px 5px 6px; border-radius: 30px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer; transition: var(--transition);
+        }
+        .user-status:hover { background: rgba(255, 255, 255, 0.08); }
+        .user-status .avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            font-size: 13px; font-weight: 700;
+        }
+        .user-status .username {
+            font-size: 13px; font-weight: 600; color: var(--text-white);
+            max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .user-status .logout-btn {
+            font-size: 11px; color: var(--text-muted);
+            padding: 3px 8px; border-radius: 12px;
+            background: rgba(255,255,255,0.06); transition: var(--transition);
+        }
+        .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.16); }
+
+        .search-bar-row { padding: 4px 0 12px; }
+        .header-search { width: 100%; position: relative; display: flex; align-items: center; }
+        .header-search input {
+            width: 100%; height: 44px; padding: 0 44px 0 48px;
+            border-radius: 50px;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-white); font-size: 14.5px; outline: none;
+            transition: var(--transition);
+        }
+        .header-search input:focus {
+            border-color: var(--primary-red);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+        }
+        .header-search .search-submit-btn {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 15px;
+        }
+        .header-search .clear-btn {
+            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 15px; display: none;
+        }
+        .header-search .clear-btn.visible { display: block; }
+
+        /* ============ HERO ============ */
+        .hero { position: relative; padding: 24px 0 8px; text-align: center; }
+        .hero h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 900; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .hero h1 span { color: var(--primary-red); }
+        .hero .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
+
+        /* ============ FILTERS ============ */
+        .filters-wrapper {
+            background: linear-gradient(180deg, rgba(20,20,31,0.6) 0%, rgba(20,20,31,0.3) 100%);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 24px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+
+        .filter-row {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+
+        .filter-row-label {
+            font-size: 11px; font-weight: 800; letter-spacing: 0.8px;
+            text-transform: uppercase; color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px;
+            min-width: 70px;
+        }
+        .filter-row-label i { color: var(--primary-red); font-size: 12px; }
+
+        /* Genre chips row */
+        .genre-chips-scroll {
+            display: flex; gap: 8px; overflow-x: auto;
+            padding-bottom: 6px; flex: 1;
+            scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+        }
+        .genre-chips-scroll::-webkit-scrollbar { height: 5px; }
+        .genre-chips-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        .genre-chip {
+            flex-shrink: 0;
+            padding: 7px 14px; border-radius: 30px;
+            font-size: 12.5px; font-weight: 700;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+            white-space: nowrap;
+        }
+        .genre-chip i { font-size: 11px; }
+        .genre-chip:hover {
+            background: rgba(229,9,20,0.12);
+            border-color: rgba(229,9,20,0.5);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .genre-chip.active {
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff;
+            border-color: var(--primary-red);
+            box-shadow: 0 4px 14px rgba(229,9,20,0.4);
+        }
+
+        /* Dropdown selects */
+        .filter-select {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            padding: 8px 32px 8px 14px;
+            border-radius: 30px;
+            font-size: 12.5px; font-weight: 600;
+            font-family: var(--font);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: var(--transition);
+            min-width: 130px;
+        }
+        .filter-select:hover { border-color: rgba(229,9,20,0.5); background-color: rgba(255,255,255,0.08); }
+        .filter-select:focus { border-color: var(--primary-red); box-shadow: 0 0 0 3px rgba(229,9,20,0.15); }
+        .filter-select option { background: var(--bg-card); color: #fff; padding: 8px; }
+
+        .filter-actions {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .results-count {
+            font-size: 13px; color: var(--text-muted); font-weight: 600;
+            display: flex; align-items: center; gap: 6px; margin-left: auto;
+        }
+        .results-count strong { color: var(--primary-red); font-weight: 800; }
+
+        .clear-filters-btn {
+            padding: 7px 14px; border-radius: 30px;
+            font-size: 12px; font-weight: 700;
+            background: rgba(239,68,68,0.12);
+            color: #f87171;
+            border: 1.5px solid rgba(239,68,68,0.3);
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: var(--transition);
+        }
+        .clear-filters-btn:hover { background: rgba(239,68,68,0.2); transform: translateY(-1px); }
+
+        /* ============ GRID ============ */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+        }
+        @media (min-width: 768px) {
+            .results-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+        }
+
+        .movie-card {
+            border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
+            display: flex; flex-direction: column; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all var(--transition);
+        }
+        @media (min-width: 768px) { .movie-card { border-radius: var(--radius); } }
+        .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
+        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster { transform: scale(1.05); }
+        .movie-card .card-info { padding: 8px 10px; }
+        @media (min-width: 768px) { .movie-card .card-info { padding: 12px 14px; } }
+        .movie-card .card-info h4 { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (min-width: 768px) { .movie-card .card-info h4 { font-size: 14px; } }
+        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
+        @media (min-width: 768px) { .movie-card .card-meta { font-size: 11.5px; margin-top: 6px; } }
+
+        .movie-card .rating-badge {
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            color: #F5C518; font-size: 10.5px; font-weight: 800;
+            padding: 3px 7px; border-radius: 5px;
+            display: flex; align-items: center; gap: 3px;
+            z-index: 2;
+        }
+        .movie-card .rating-badge i { font-size: 9px; }
+
+        /* ============ LOADING / EMPTY ============ */
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+        }
+        @media (min-width: 768px) {
+            .skeleton-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+        }
+        .skeleton-card {
+            border-radius: var(--radius-sm); overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .skeleton-poster {
+            width: 100%; aspect-ratio: 2/3;
+            background: linear-gradient(90deg, #14141f 0%, #1c1c28 50%, #14141f 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-info { padding: 10px; }
+        .skeleton-line {
+            height: 12px; border-radius: 4px;
+            background: linear-gradient(90deg, #14141f 0%, #1c1c28 50%, #14141f 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin-bottom: 8px;
+        }
+        .skeleton-line.short { width: 60%; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .empty-state {
+            grid-column: 1 / -1; text-align: center;
+            padding: 70px 16px; color: var(--text-muted);
+        }
+        .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
+        .empty-state h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+
+        /* ============ LOAD MORE ============ */
+        .load-more-wrap {
+            display: flex; justify-content: center; align-items: center;
+            padding: 32px 0 20px; flex-direction: column; gap: 12px;
+        }
+        .load-more-btn {
+            padding: 14px 36px; border-radius: 30px;
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; font-weight: 800; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 6px 22px rgba(229,9,20,0.4);
+            transition: var(--transition);
+        }
+        .load-more-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(229,9,20,0.6);
+        }
+        .load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .load-more-btn i { font-size: 14px; }
+
+        .end-message {
+            font-size: 13px; color: var(--text-muted); font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .end-message i { color: var(--primary-green); }
+
+        /* ============ DETAIL MODAL (same as main) ============ */
+        .detail-modal-overlay {
+            position: fixed; inset: 0; z-index: 2147483000;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center;
+            padding: 16px; overflow-y: auto;
+        }
+        .detail-modal-overlay.open { display: flex; }
+
+        .detail-modal-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            max-width: 880px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+            animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+
+        .detail-modal-close {
+            position: absolute; top: 14px; right: 14px; z-index: 20;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(0,0,0,0.75); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(8px);
+        }
+        .detail-modal-close:hover { background: var(--primary-red); transform: rotate(90deg); }
+
+        .detail-modal-loading {
+            padding: 100px 20px; text-align: center;
+            font-size: 32px; color: var(--primary-red);
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .detail-modal-loading span { font-size: 14px; color: var(--text-muted); }
+
+        .detail-backdrop {
+            position: relative; width: 100%;
+            aspect-ratio: 16 / 9; min-height: 220px;
+            background-size: cover; background-position: center top;
+            background-color: #0a0a0f;
+        }
+        .detail-backdrop-gradient {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(20,20,31,0.20) 0%, rgba(20,20,31,0.70) 60%, var(--bg-card) 100%);
+        }
+        .detail-header-content {
+            position: relative; padding: 24px 24px 16px;
+            margin-top: -60px; z-index: 2;
+        }
+        @media (min-width: 768px) {
+            .detail-header-content { margin-top: -80px; padding: 28px 28px 20px; }
+        }
+        .detail-header-content h2 {
+            font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px;
+            letter-spacing: -0.5px; line-height: 1.15;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.85);
+        }
+        .detail-meta {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            font-size: 13px; color: #e5e5e5; margin-bottom: 10px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+        }
+        .detail-badge {
+            font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+            padding: 3px 10px; border-radius: 4px;
+            background: rgba(229,9,20,0.9); color: #fff;
+            text-transform: uppercase;
+        }
+        .detail-rating {
+            color: #F5C518; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .detail-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .detail-genre-chip {
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e5e5e5; backdrop-filter: blur(6px);
+        }
+        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .detail-watch-btn, .detail-watchlist-btn {
+            padding: 10px 24px; border-radius: 30px;
+            font-weight: 800; font-size: 13.5px;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: var(--transition); border: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .detail-watch-btn { background: #fff; color: #000; }
+        .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
+        .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
+        .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
+
+        .detail-selector-row {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .detail-selector-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+        .detail-selector-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .detail-selector-group select {
+            background: var(--bg-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; font-family: var(--font);
+        }
+        .detail-selector-group select:focus { border-color: var(--primary-red); }
+
+        .detail-body { padding: 0 24px 28px; }
+        @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
+
+        .detail-info-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 20px;
+        }
+        @media (max-width: 640px) { .detail-info-grid { grid-template-columns: 1fr; gap: 16px; } }
+
+        .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
+
+        .detail-facts { display: flex; flex-direction: column; gap: 10px; }
+        .detail-fact { font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
+        .detail-fact .fact-label {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;
+            color: var(--text-muted); text-transform: uppercase;
+        }
+        .detail-fact .fact-value { color: #fff; font-weight: 600; }
+
+        .detail-cast h4 {
+            font-size: 13px; font-weight: 800; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            color: var(--text-muted);
+        }
+        .detail-cast-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px;
+        }
+        .detail-cast-item {
+            background: var(--bg-secondary); border-radius: 8px; padding: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.04);
+            transition: var(--transition);
+        }
+        .detail-cast-item:hover { border-color: rgba(229,9,20,0.4); transform: translateY(-2px); }
+        .detail-cast-avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            margin: 0 auto 8px; background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: var(--text-muted); font-size: 18px;
+            border: 2px solid rgba(255,255,255,0.08);
+        }
+        .detail-cast-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .detail-cast-item span {
+            display: block; font-size: 11px; font-weight: 600;
+            line-height: 1.3; color: #fff;
+            overflow: hidden; text-overflow: ellipsis;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .detail-cast-item small {
+            display: block; font-size: 9.5px; color: var(--text-muted);
+            margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+            .detail-modal-overlay { padding: 10px; align-items: center; }
+            .detail-modal-box { border-radius: var(--radius); max-height: 92vh; }
+            .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; }
+            .detail-actions { width: 100%; flex-direction: column; }
+            .detail-watch-btn, .detail-watchlist-btn { width: 100%; justify-content: center; }
+        }
+
+        /* ============ AUTH MODAL ============ */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px); z-index: 99999;
+            display: none; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius); max-width: 420px; width: 100%;
+            padding: 24px; box-shadow: var(--shadow);
+            max-height: 92vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .modal-header h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .modal-header h3 i { color: var(--primary-red); }
+        .modal-close { font-size: 18px; color: var(--text-muted); padding: 4px; }
+
+        .auth-form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label {
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .form-group input {
+            height: 46px; padding: 0 14px; border-radius: 10px;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: #fff; font-size: 14px; outline: none;
+            font-family: var(--font); transition: var(--transition);
+        }
+        .form-group input:focus {
+            border-color: var(--primary-red);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 4px rgba(229,9,20,0.15);
+        }
+        .btn-primary {
+            height: 48px; border-radius: 30px; margin-top: 4px;
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; font-weight: 800; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 6px 20px rgba(229,9,20,0.35);
+            transition: var(--transition);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(229,9,20,0.5); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .auth-switch { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .auth-switch button { color: var(--primary-red); font-weight: 700; }
+        .auth-hint { font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.5; margin-top: 2px; }
+        .auth-hint i { color: var(--primary-red); }
+        .auth-divider {
+            display: flex; align-items: center; text-align: center;
+            color: var(--text-muted); font-size: 12px; margin: 4px 0;
+        }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .auth-divider:not(:empty)::before { margin-right: .5em; }
+        .auth-divider:not(:empty)::after { margin-left: .5em; }
+
+        .btn-google {
+            height: 46px; border-radius: 30px; background: #fff; color: #000;
+            font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+        .btn-google:hover { background: #f1f1f1; transform: translateY(-2px); }
+        .btn-google i { color: #DB4437; font-size: 16px; }
+
+        /* ============ TOAST ============ */
+        .toast-container {
+            position: fixed; bottom: 130px; right: 24px; z-index: 999999;
+            display: flex; flex-direction: column; gap: 10px;
+            max-width: 380px; width: 100%; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: var(--radius-sm);
+            background: var(--bg-card); border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+            pointer-events: auto; color: #fff;
+        }
+        .toast.success { border-left-color: var(--primary-green); }
+        .toast.error { border-left-color: var(--primary-red); }
+        .toast.info { border-left-color: var(--api-blue); }
+
+        /* ============ FOOTER ============ */
+        .seo-footer {
+            background: var(--bg-secondary); border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 35px 0 25px; margin-top: 40px; font-size: 13px; color: var(--text-muted);
+        }
+        .seo-footer .copyright { text-align: center; padding-top: 16px; font-size: 12px; }
+
+        .modal-alert-wrapper {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2147483002; width: 100%; max-width: 420px;
+            pointer-events: none; display: flex; justify-content: center;
+        }
+        .modal-alert-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm); padding: 14px 22px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            display: flex; align-items: center; gap: 14px;
+            pointer-events: auto; width: 100%;
+            animation: alertIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid var(--primary-red);
+        }
+        .modal-alert-box.success { border-left-color: var(--primary-green); }
+        .modal-alert-box.info { border-left-color: var(--api-blue); }
+        .modal-alert-box.error { border-left-color: var(--primary-red); }
+        .modal-alert-box i { font-size: 20px; color: var(--primary-red); }
+        .modal-alert-box.success i { color: var(--primary-green); }
+        .modal-alert-box.info i { color: var(--api-blue); }
+        .modal-alert-box span { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
+        @keyframes alertIn {
+            from { opacity: 0; transform: translateY(-24px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 640px) {
+            .filter-row-label { min-width: auto; width: 100%; margin-bottom: -4px; }
+            .results-count { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .filter-actions { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body x-data="animePageApp()" x-init="init()">
+
+    <div id="preloader">
+        <div class="preloader-logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ============ HEADER ============ -->
+    <div class="header-wrapper" id="mainHeader">
+        <header class="header-top">
+            <div class="container header-top-inner">
+                <div class="header-left-cluster">
+                    <a href="index.html" class="back-btn" title="Back to Home"><i class="fas fa-arrow-left"></i></a>
+                    <a class="logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
+                </div>
+                <div class="user-status" @click="openAuthModal()" title="Account">
+                    <div class="avatar" x-text="currentUser && currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'U'">
+                        <i class="fas fa-user" x-show="!currentUser"></i>
+                    </div>
+                    <span class="username" x-text="currentUser ? (currentUser.displayName || currentUser.email) : 'Guest'">Guest</span>
+                    <button class="logout-btn" x-show="currentUser" @click.stop="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-bar-row">
+            <div class="container">
+                <form class="header-search" @submit.prevent="searchAnime()">
+                    <button aria-label="Submit Search" class="search-submit-btn" type="submit"><i class="fas fa-search"></i></button>
+                    <input x-model="searchQuery" placeholder="Search anime..." type="text" autocomplete="off">
+                    <button aria-label="Clear" class="clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="searchQuery = ''; applyFilters()" type="button"><i class="fas fa-times"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MAIN ============ -->
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Explore <span>Anime</span> Collection</h1>
+                <p class="subtitle">Discover trending anime by genre, year and popularity</p>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- ============ FILTERS ============ -->
+            <div class="filters-wrapper">
+                <!-- Genre chips -->
+                <div class="filter-row">
+                    <div class="filter-row-label"><i class="fas fa-tags"></i> Genre</div>
+                    <div class="genre-chips-scroll">
+                        <template x-for="g in genres" :key="g.id">
+                            <button class="genre-chip"
+                                    :class="{ 'active': selectedGenre === g.id }"
+                                    @click="selectGenre(g.id)"
+                                    type="button">
+                                <i :class="g.icon"></i>
+                                <span x-text="g.name"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Year + Sort + Type -->
+                <div class="filter-row">
+                    <div class="filter-row-label"><i class="fas fa-sliders-h"></i> Filters</div>
+
+                    <select class="filter-select" x-model.number="selectedYear" @change="applyFilters()">
+                        <option :value="0">All Years</option>
+                        <template x-for="y in years" :key="'y-' + y">
+                            <option :value="y" x-text="y"></option>
+                        </template>
+                    </select>
+
+                    <select class="filter-select" x-model="sortBy" @change="applyFilters()">
+                        <option value="popularity.desc">Most Popular</option>
+                        <option value="vote_average.desc">Top Rated</option>
+                        <option value="first_air_date.desc">Newest First</option>
+                        <option value="first_air_date.asc">Oldest First</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="filter-actions">
+                    <button class="clear-filters-btn" @click="clearAllFilters()" type="button">
+                        <i class="fas fa-times-circle"></i> Reset
+                    </button>
+                    <div class="results-count">
+                        <i class="fas fa-database"></i>
+                        <span x-text="totalResults ? totalResults.toLocaleString() + ' anime found' : 'Loading…'"></span>
+                        <span x-show="loading" style="color: var(--primary-red);">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ GRID ============ -->
+            <template x-if="loading && results.length === 0">
+                <div class="skeleton-grid">
+                    <template x-for="i in 12" :key="'skel-' + i">
+                        <div class="skeleton-card">
+                            <div class="skeleton-poster"></div>
+                            <div class="skeleton-info">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <div class="results-grid" x-show="results.length > 0" x-cloak>
+                <template x-for="item in results" :key="'anime-' + item.id">
+                    <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                        <div class="poster-wrap">
+                            <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                            <span class="rating-badge" x-show="item.vote_average > 0">
+                                <i class="fas fa-star"></i>
+                                <span x-text="item.vote_average.toFixed(1)"></span>
+                            </span>
+                        </div>
+                        <div class="card-info">
+                            <h4 x-text="title(item)"></h4>
+                            <div class="card-meta">
+                                <span x-text="year(item)"></span>
+                                <span x-text="item.media_type === 'tv' ? 'Anime' : 'Movie'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- ============ EMPTY ============ -->
+            <div class="empty-state" x-show="!loading && results.length === 0" x-cloak>
+                <i class="fas fa-dragon"></i>
+                <h3>No anime found</h3>
+                <p>Try changing genre or year filter</p>
+            </div>
+
+            <!-- ============ LOAD MORE ============ -->
+            <div class="load-more-wrap" x-show="results.length > 0">
+                <template x-if="currentPage < totalPages">
+                    <button class="load-more-btn" @click="loadMore()" :disabled="loadingMore" type="button">
+                        <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
+                        <span x-text="loadingMore ? 'Loading…' : 'Load More'"></span>
+                    </button>
+                </template>
+                <template x-if="currentPage >= totalPages && results.length > 0">
+                    <div class="end-message">
+                        <i class="fas fa-check-circle"></i>
+                        <span>You've reached the end</span>
+                    </div>
+                </template>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============ DETAIL MODAL ============ -->
+    <div class="detail-modal-overlay"
+         :class="{ 'open': detailModalOpen }"
+         @click.self="closeDetailModal()"
+         @keydown.escape.window="closeDetailModal()"
+         x-cloak>
+
+        <div class="modal-alert-wrapper" x-show="modalAlert.show" x-cloak>
+            <div class="modal-alert-box" :class="modalAlert.type">
+                <i class="fas" :class="modalAlert.type === 'success' ? 'fa-check-circle' : (modalAlert.type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')"></i>
+                <span x-text="modalAlert.message"></span>
+                <a x-show="modalAlert.type === 'success'" href="watchlater.html" style="margin-left: auto; font-size: 12px; font-weight: 800; color: var(--primary-red); text-decoration: underline; white-space: nowrap;">View List</a>
+            </div>
+        </div>
+
+        <div class="detail-modal-box">
+            <button class="detail-modal-close" @click="closeDetailModal()" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div x-show="detailLoading" class="detail-modal-loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Loading details…</span>
+            </div>
+
+            <template x-if="!detailLoading && detailData">
+                <div>
+                    <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
+                        <div class="detail-backdrop-gradient"></div>
+                    </div>
+
+                    <div class="detail-header-content">
+                        <h2 x-text="detailTitle(detailData)"></h2>
+                        <div class="detail-meta">
+                            <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
+                            <span x-text="detailYear(detailData)"></span>
+                            <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
+                            <span x-text="detailRuntimeVal(detailData)"></span>
+                        </div>
+                        <div class="detail-genres" x-show="detailData.genres && detailData.genres.length">
+                            <template x-for="g in detailData.genres" :key="'g-' + g.id">
+                                <span class="detail-genre-chip" x-text="g.name"></span>
+                            </template>
+                        </div>
+
+                        <div class="detail-selector-row" x-show="detailItem.type === 'tv'">
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-layer-group"></i> Select Season</label>
+                                <select x-model="selectedSeason" @change="onSeasonChange()">
+                                    <template x-for="s in detailSeasonsList" :key="s.season_number">
+                                        <option :value="s.season_number" x-text="s.name + ' (' + s.episode_count + ' Eps)'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-list-ol"></i> Select Episode</label>
+                                <select x-model="selectedEpisode">
+                                    <template x-for="epNum in currentSeasonEpisodesCount" :key="epNum">
+                                        <option :value="epNum" x-text="'Episode ' + epNum"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="detail-actions">
+                            <button class="detail-watch-btn" @click="goToPlayer()">
+                                <i class="fas fa-play"></i>
+                                <span>Watch Now</span>
+                            </button>
+                            <button class="detail-watchlist-btn"
+                                    :class="{ 'active': isInWatchlist }"
+                                    @click="toggleWatchlist()">
+                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i>
+                                <span x-text="isInWatchlist ? 'In Watch Later' : 'Watch Later'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="detail-body">
+                        <div class="detail-info-grid">
+                            <div>
+                                <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                            </div>
+                            <div class="detail-facts">
+                                <div class="detail-fact" x-show="detailOriginalLanguage(detailData)">
+                                    <span class="fact-label">Language</span>
+                                    <span class="fact-value" x-text="detailOriginalLanguage(detailData)"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_episodes">
+                                    <span class="fact-label">Total Episodes</span>
+                                    <span class="fact-value" x-text="detailData.number_of_episodes"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_seasons">
+                                    <span class="fact-label">Seasons</span>
+                                    <span class="fact-value" x-text="detailData.number_of_seasons"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailStatus(detailData)">
+                                    <span class="fact-label">Status</span>
+                                    <span class="fact-value" x-text="detailStatus(detailData)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-cast" x-show="detailCastList.length">
+                            <h4><i class="fas fa-users" style="color: var(--primary-red); margin-right: 6px;"></i> Top Cast</h4>
+                            <div class="detail-cast-grid">
+                                <template x-for="c in detailCastList" :key="'cast-' + c.id">
+                                    <div class="detail-cast-item">
+                                        <div class="detail-cast-avatar">
+                                            <template x-if="c.profile_path">
+                                                <img :src="'https://image.tmdb.org/t/p/w185' + c.profile_path" :alt="c.name" loading="lazy" />
+                                            </template>
+                                            <template x-if="!c.profile_path">
+                                                <i class="fas fa-user"></i>
+                                            </template>
+                                        </div>
+                                        <span x-text="c.name"></span>
+                                        <small x-text="c.character || ''"></small>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- ============ AUTH MODAL ============ -->
+    <div class="modal-overlay" :class="{ 'open': authModalOpen }" @click="authModalOpen = false">
+        <div class="modal-box" @click.stop="">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas" :class="authView === 'login' ? 'fa-sign-in-alt' : (authView === 'register' ? 'fa-user-plus' : 'fa-key')"></i>
+                    <span x-text="authView === 'login' ? 'Login to RX Player' : (authView === 'register' ? 'Create your account' : 'Reset Password')"></span>
+                </h3>
+                <button class="modal-close" @click="authModalOpen = false" type="button"><i class="fas fa-times"></i></button>
+            </div>
+
+            <form @submit.prevent="login()" class="auth-form" x-show="authView === 'login'" x-cloak>
+                <div class="form-group"><label>Email</label><input type="email" x-model="loginEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <div class="form-group"><label>Password</label><input type="password" x-model="loginPassword" placeholder="••••••••" required autocomplete="current-password" /></div>
+                <div class="auth-switch" style="margin-top: -6px; text-align: right;">
+                    <button type="button" @click="authView = 'forgot'" style="font-size: 11px;">Forgot Password?</button>
+                </div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-sign-in-alt'"></i>
+                    <span x-text="authLoading ? 'Please wait…' : 'Login'"></span>
+                </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+                <div class="auth-switch">
+                    Don't have an account?
+                    <button type="button" @click="authView = 'register'">Create one</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-lock"></i> Login required to use Watch Later.</div>
+            </form>
+
+            <form @submit.prevent="register()" class="auth-form" x-show="authView === 'register'" x-cloak>
+                <div class="form-group"><label>Name</label><input type="text" x-model="registerName" placeholder="Your name" autocomplete="name" /></div>
+                <div class="form-group"><label>Email</label><input type="email" x-model="registerEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <div class="form-group"><label>Password</label><input type="password" x-model="registerPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-user-plus'"></i>
+                    <span x-text="authLoading ? 'Creating account…' : 'Create Account'"></span>
+                </button>
+                <div class="auth-divider">or</div>
+                <button type="button" class="btn-google" @click="loginWithGoogle()" :disabled="authLoading">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </button>
+                <div class="auth-switch">
+                    Already have an account?
+                    <button type="button" @click="authView = 'login'">Login</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-bookmark"></i> Your Watch Later list is saved to your account.</div>
+            </form>
+
+            <form @submit.prevent="sendPasswordReset()" class="auth-form" x-show="authView === 'forgot'" x-cloak>
+                <div class="form-group"><label>Email</label><input type="email" x-model="forgotEmail" placeholder="your@email.com" required autocomplete="email" /></div>
+                <button type="submit" class="btn-primary" :disabled="authLoading">
+                    <i class="fas" :class="authLoading ? 'fa-circle-notch fa-spin' : 'fa-paper-plane'"></i>
+                    <span x-text="authLoading ? 'Sending…' : 'Reset Password'"></span>
+                </button>
+                <div class="auth-switch">
+                    Remember your password?
+                    <button type="button" @click="authView = 'login'">Login</button>
+                </div>
+                <div class="auth-hint"><i class="fas fa-info-circle"></i> We'll send a reset link to your email.</div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <footer class="seo-footer">
+        <div class="container">
+            <p>Explore thousands of anime — filter by genre, year, and ratings on RX Player.</p>
+            <div class="copyright">© 2026 RX Player. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- ============ FIREBASE + CRYPTO ============ -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        const WATCH_PAGE_URL = 'player.html';
+        const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            databaseURL: "https://rxplayer-a2582-default-rtdb.firebaseio.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc",
+            measurementId: "G-28GFZHBB6P"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function animePageApp() {
+            return {
+                API: "/api",
+
+                // Search
+                searchQuery: '',
+
+                // Filters
+                genres: [
+                    { id: 0,     name: 'All',              icon: 'fas fa-globe' },
+                    { id: 10759, name: 'Action & Adv.',    icon: 'fas fa-fire' },
+                    { id: 35,    name: 'Comedy',           icon: 'fas fa-face-laugh-squint' },
+                    { id: 18,    name: 'Drama',            icon: 'fas fa-masks-theater' },
+                    { id: 10765, name: 'Sci-Fi & Fantasy', icon: 'fas fa-rocket' },
+                    { id: 9648,  name: 'Mystery',          icon: 'fas fa-magnifying-glass' },
+                    { id: 80,    name: 'Crime',            icon: 'fas fa-user-secret' },
+                    { id: 10762, name: 'Kids',             icon: 'fas fa-child' },
+                    { id: 10751, name: 'Family',           icon: 'fas fa-people-roof' },
+                    { id: 10768, name: 'War & Politics',   icon: 'fas fa-shield-halved' },
+                    { id: 37,    name: 'Western',          icon: 'fas fa-hat-cowboy' },
+                    { id: 99,    name: 'Documentary',      icon: 'fas fa-book' }
+                ],
+                years: [],
+                selectedGenre: 0,
+                selectedYear: 0,
+                sortBy: 'popularity.desc',
+
+                // Results
+                results: [],
+                loading: false,
+                loadingMore: false,
+                currentPage: 1,
+                totalPages: 1,
+                totalResults: 0,
+
+                // Detail modal
+                detailModalOpen: false,
+                detailLoading: false,
+                detailData: null,
+                detailItem: { id: null, type: 'tv' },
+                selectedSeason: 1,
+                selectedEpisode: 1,
+                currentSeasonEpisodesCount: 1,
+                modalAlert: { show: false, message: '', type: 'info', timer: null },
+
+                // Auth
+                authModalOpen: false,
+                authView: 'login',
+                authLoading: false,
+                currentUser: null,
+                loginEmail: '', loginPassword: '',
+                registerName: '', registerEmail: '', registerPassword: '',
+                forgotEmail: '',
+                pendingWatchlist: null,
+                watchlist: [],
+
+                /* =========================================================
+                   INIT
+                   ========================================================= */
+                async init() {
+                    setTimeout(() => {
+                        const p = document.getElementById('preloader');
+                        if (p) p.classList.add('fade-out');
+                    }, 400);
+
+                    // Build year list (current year back to 1970)
+                    const currentYear = new Date().getFullYear();
+                    const arr = [];
+                    for (let y = currentYear + 1; y >= 1970; y--) arr.push(y);
+                    this.years = arr;
+
+                    auth.onAuthStateChanged(async (user) => {
+                        this.currentUser = user;
+                        await this.loadWatchlist();
+                    });
+
+                    await this.applyFilters();
+                },
+
+                /* =========================================================
+                   FILTERS
+                   ========================================================= */
+                selectGenre(id) {
+                    this.selectedGenre = id;
+                    this.applyFilters();
+                },
+
+                clearAllFilters() {
+                    this.selectedGenre = 0;
+                    this.selectedYear = 0;
+                    this.sortBy = 'popularity.desc';
+                    this.searchQuery = '';
+                    this.applyFilters();
+                    this.showToast('Filters reset', 'info');
+                },
+
+                _buildQuery(page = 1) {
+                    const params = new URLSearchParams({
+                        language: 'en-US',
+                        page: String(page),
+                        sort_by: this.sortBy
+                    });
+
+                    // Base: always Animation (16) + Japanese
+                    let genreIds = '16';
+                    if (this.selectedGenre && this.selectedGenre !== 0) {
+                        genreIds = `16,${this.selectedGenre}`;
+                    }
+                    params.set('with_genres', genreIds);
+                    params.set('with_original_language', 'ja');
+
+                    // Year filter
+                    if (this.selectedYear && this.selectedYear > 0) {
+                        params.set('first_air_date_year', String(this.selectedYear));
+                    }
+
+                    // Rating sort ke liye vote_count minimum
+                    if (this.sortBy === 'vote_average.desc') {
+                        params.set('vote_count.gte', '100');
+                    }
+
+                    // Minimum vote count for stable results
+                    if (this.sortBy !== 'vote_average.desc') {
+                        params.set('vote_count.gte', '10');
+                    }
+
+                    return `/discover/tv?${params.toString()}`;
+                },
+
+                async applyFilters() {
+                    this.loading = true;
+                    this.currentPage = 1;
+                    this.results = [];
+                    this.totalPages = 1;
+
+                    try {
+                        const endpoint = this._buildQuery(1);
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+
+                        this.results = (data.results || []).filter(r => r.poster_path).map(r => ({ ...r, media_type: 'tv' }));
+                        this.totalPages = Math.min(data.total_pages || 1, 500); // TMDB max 500
+                        this.totalResults = data.total_results || this.results.length;
+                    } catch (e) {
+                        console.warn('Anime fetch failed:', e);
+                        this.showToast('Failed to load anime. Please try again.', 'error');
+                        this.results = [];
+                        this.totalResults = 0;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadMore() {
+                    if (this.loadingMore || this.currentPage >= this.totalPages) return;
+                    this.loadingMore = true;
+
+                    try {
+                        const nextPage = this.currentPage + 1;
+                        const endpoint = this._buildQuery(nextPage);
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+
+                        const newItems = (data.results || []).filter(r => r.poster_path).map(r => ({ ...r, media_type: 'tv' }));
+
+                        // Dedupe against existing
+                        const existingIds = new Set(this.results.map(r => r.id));
+                        const freshItems = newItems.filter(r => !existingIds.has(r.id));
+
+                        this.results = [...this.results, ...freshItems];
+                        this.currentPage = nextPage;
+                    } catch (e) {
+                        console.warn('Load more failed:', e);
+                        this.showToast('Failed to load more. Please try again.', 'error');
+                    } finally {
+                        this.loadingMore = false;
+                    }
+                },
+
+                async searchAnime() {
+                    const q = this.searchQuery.trim();
+                    if (!q) {
+                        this.applyFilters();
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.results = [];
+                    this.currentPage = 1;
+                    this.totalPages = 1;
+
+                    try {
+                        const endpoint = `/search/tv?query=${encodeURIComponent(q)}&language=en-US&page=1`;
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+
+                        // Filter: only Animation + Japanese origin (best-effort)
+                        const items = (data.results || [])
+                            .filter(r => r.poster_path)
+                            .map(r => ({ ...r, media_type: 'tv' }));
+
+                        this.results = items;
+                        this.totalPages = data.total_pages || 1;
+                        this.totalResults = data.total_results || items.length;
+                    } catch (e) {
+                        console.warn('Search failed:', e);
+                        this.showToast('Search failed. Please try again.', 'error');
+                        this.results = [];
+                        this.totalResults = 0;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                /* =========================================================
+                   API
+                   ========================================================= */
+                async request(url, options = {}) {
+                    const res = await fetch(this.API + url, options);
+                    const data = await res.json();
+                    if (!res.ok || data.success === false) throw new Error(data.error || "Request failed");
+                    return data;
+                },
+
+                /* =========================================================
+                   HELPERS
+                   ========================================================= */
+                poster(item) {
+                    if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    if (item._adminCustomPoster) return item._adminCustomPoster;
+                    if (!item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    const p = String(item.poster_path);
+                    if (p.startsWith('http://') || p.startsWith('https://')) return p;
+                    return 'https://image.tmdb.org/t/p/w500' + (p.startsWith('/') ? p : '/' + p);
+                },
+                title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
+                year(item) {
+                    if (!item) return 'N/A';
+                    const date = item.release_date || item.first_air_date;
+                    return date ? date.substring(0, 4) : 'N/A';
+                },
+
+                showToast(message, type = 'info', duration = 3500) {
+                    const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+                    const container = document.getElementById('toastContainer');
+                    if (!container) return;
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
+                    container.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, duration);
+                },
+
+                showModalAlert(message, type = 'info', duration = 3000) {
+                    if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
+                    this.modalAlert.message = message;
+                    this.modalAlert.type = type;
+                    this.modalAlert.show = true;
+                    this.modalAlert.timer = setTimeout(() => {
+                        this.modalAlert.show = false;
+                    }, duration);
+                },
+
+                /* =========================================================
+                   DETAIL MODAL
+                   ========================================================= */
+                async openDetails(id, type = 'tv') {
+                    if (!id) return;
+                    const normType = (['tv', 'series', 'anime', 'show'].includes(type)) ? 'tv' : 'movie';
+                    this.detailItem = { id, type: normType };
+                    this.detailData = null;
+                    this.selectedSeason = 1;
+                    this.selectedEpisode = 1;
+                    this.currentSeasonEpisodesCount = 1;
+                    this.detailLoading = true;
+                    this.detailModalOpen = true;
+                    this.modalAlert.show = false;
+                    document.body.style.overflow = 'hidden';
+
+                    try {
+                        const endpoint = normType === 'tv'
+                            ? `/tv/${id}?language=en-US&append_to_response=credits`
+                            : `/movie/${id}?language=en-US&append_to_response=credits`;
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+                        this.detailData = data;
+
+                        if (normType === 'tv' && data.seasons && data.seasons.length > 0) {
+                            const validSeasons = data.seasons.filter(s => s.season_number > 0);
+                            this.selectedSeason = validSeasons.length > 0 ? validSeasons[0].season_number : 1;
+                            this.onSeasonChange();
+                        }
+                    } catch (e) {
+                        this.showToast('Failed to load details.', 'error');
+                        this.closeDetailModal();
+                    } finally {
+                        this.detailLoading = false;
+                    }
+                },
+
+                get detailSeasonsList() {
+                    if (!this.detailData || !this.detailData.seasons) return [];
+                    return this.detailData.seasons.filter(s => s.season_number > 0);
+                },
+
+                onSeasonChange() {
+                    if (!this.detailData || !this.detailData.seasons) return;
+                    const seasonObj = this.detailData.seasons.find(s => s.season_number == this.selectedSeason);
+                    this.currentSeasonEpisodesCount = seasonObj ? (seasonObj.episode_count || 1) : 1;
+                    this.selectedEpisode = 1;
+                },
+
+                closeDetailModal() {
+                    this.detailModalOpen = false;
+                    this.modalAlert.show = false;
+                    document.body.style.overflow = '';
+                    setTimeout(() => {
+                        if (!this.detailModalOpen) {
+                            this.detailData = null;
+                            this.detailItem = { id: null, type: 'tv' };
+                        }
+                    }, 300);
+                },
+
+                goToPlayer() {
+                    if (!this.detailItem || !this.detailItem.id) return;
+                    const { id, type } = this.detailItem;
+                    let url = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    if (type === 'tv') {
+                        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    } else {
+                        url += `&season=1&episode=1`;
+                    }
+                    window.location.href = url;
+                },
+
+                detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
+                detailYear(d) {
+                    if (!d) return '—';
+                    const dt = d.release_date || d.first_air_date || '';
+                    return dt ? dt.substring(0, 4) : '—';
+                },
+                detailRatingVal(d) {
+                    if (!d || d.vote_average == null) return '—';
+                    return Number(d.vote_average).toFixed(1);
+                },
+                detailRuntimeVal(d) {
+                    if (!d) return '—';
+                    if (this.detailItem.type === 'tv') {
+                        const n = d.number_of_seasons || (Array.isArray(d.seasons) ? d.seasons.length : 0);
+                        return n ? `${n} Season${n > 1 ? 's' : ''}` : '—';
+                    }
+                    return d.runtime ? `${d.runtime} min` : '—';
+                },
+                detailBackdrop(d) {
+                    if (!d) return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
+                    if (d.backdrop_path) return `https://image.tmdb.org/t/p/original${d.backdrop_path}`;
+                    if (d.poster_path) return `https://image.tmdb.org/t/p/w780${d.poster_path}`;
+                    return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
+                },
+                detailOriginalLanguage(d) {
+                    if (!d || !d.original_language) return '';
+                    return String(d.original_language).toUpperCase();
+                },
+                detailStatus(d) {
+                    if (!d || !d.status) return '';
+                    return d.status;
+                },
+                get detailCastList() {
+                    if (!this.detailData || !this.detailData.credits) return [];
+                    return (this.detailData.credits.cast || []).slice(0, 12);
+                },
+
+                /* =========================================================
+                   AUTH + WATCHLIST
+                   ========================================================= */
+                openAuthModal() {
+                    if (this.currentUser) {
+                        window.location.href = 'watchlater.html';
+                        return;
+                    }
+                    this.authModalOpen = true;
+                },
+
+                friendlyAuthError(e) {
+                    const code = (e && e.code) || '';
+                    const map = {
+                        'auth/invalid-email': 'Please enter a valid email address.',
+                        'auth/user-not-found': 'No account found with this email.',
+                        'auth/wrong-password': 'Incorrect password. Please try again.',
+                        'auth/invalid-credential': 'Invalid email or password.',
+                        'auth/invalid-login-credentials': 'Invalid email or password.',
+                        'auth/email-already-in-use': 'This email is already registered.',
+                        'auth/weak-password': 'Password must be at least 6 characters.',
+                        'auth/too-many-requests': 'Too many attempts. Please try again later.',
+                        'auth/network-request-failed': 'Network error. Check your connection.',
+                        'auth/popup-closed-by-user': 'Google login popup was closed.'
+                    };
+                    return map[code] || (e && e.message) || 'Something went wrong.';
+                },
+
+                async login() {
+                    if (!this.loginEmail || !this.loginPassword) return;
+                    this.authLoading = true;
+                    try {
+                        await auth.signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
+                        this.loginEmail = '';
+                        this.loginPassword = '';
+                        await this.afterAuthSuccess('Logged in successfully!');
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async register() {
+                    if (!this.registerEmail || !this.registerPassword) return;
+                    this.authLoading = true;
+                    try {
+                        const cred = await auth.createUserWithEmailAndPassword(this.registerEmail, this.registerPassword);
+                        if (this.registerName && cred && cred.user) {
+                            await cred.user.updateProfile({ displayName: this.registerName });
+                            this.currentUser = auth.currentUser;
+                        }
+                        this.registerName = '';
+                        this.registerEmail = '';
+                        this.registerPassword = '';
+                        await this.afterAuthSuccess('Account created successfully!');
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async loginWithGoogle() {
+                    if (this.authLoading) return;
+                    this.authLoading = true;
+                    try {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        await auth.signInWithPopup(provider);
+                        this.authModalOpen = false;
+                        this.showToast('Logged in with Google!', 'success');
+                        await this.loadWatchlist();
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async sendPasswordReset() {
+                    if (!this.forgotEmail) return;
+                    this.authLoading = true;
+                    try {
+                        await auth.sendPasswordResetEmail(this.forgotEmail);
+                        this.showToast('Password reset email sent!', 'success');
+                        this.authView = 'login';
+                        this.forgotEmail = '';
+                    } catch (e) {
+                        this.showToast(this.friendlyAuthError(e), 'error');
+                    } finally {
+                        this.authLoading = false;
+                    }
+                },
+
+                async afterAuthSuccess(msg) {
+                    this.authModalOpen = false;
+                    if (this.detailModalOpen) {
+                        this.showModalAlert(msg, 'success');
+                    } else {
+                        this.showToast(msg, 'success');
+                    }
+                    await this.loadWatchlist();
+
+                    if (this.pendingWatchlist) {
+                        const p = this.pendingWatchlist;
+                        this.pendingWatchlist = null;
+                        const ok = await this.addToWatchlist(p);
+                        if (ok) {
+                            if (this.detailModalOpen) {
+                                this.showModalAlert('Added to Watch Later', 'success');
+                            } else {
+                                this.showToast('Added to Watch Later', 'success');
+                            }
+                        }
+                    }
+                },
+
+                logout() {
+                    auth.signOut();
+                    this.watchlist = [];
+                    this.showToast('Logged out.', 'info');
+                },
+
+                async loadWatchlist() {
+                    if (!this.currentUser) {
+                        this.watchlist = [];
+                        return;
+                    }
+                    try {
+                        const snap = await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .get();
+                        this.watchlist = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                    } catch (e) {
+                        console.warn('watchlist load failed:', e.message);
+                        this.watchlist = [];
+                    }
+                },
+
+                _watchlistKey(item) {
+                    return `${item.type || 'movie'}_${item.id}`;
+                },
+
+                get isInWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id) return false;
+                    return (this.watchlist || []).some(
+                        w => String(w.id) === String(this.detailItem.id) && (w.type || 'movie') === this.detailItem.type
+                    );
+                },
+
+                _buildWatchlistEntry() {
+                    const d = this.detailData;
+                    if (!d || !this.detailItem || !this.detailItem.id) return null;
+                    const posterPath = d.poster_path || '';
+                    return {
+                        id: this.detailItem.id,
+                        type: this.detailItem.type,
+                        media_type: this.detailItem.type,
+                        title: this.detailTitle(d),
+                        poster_path: posterPath,
+                        poster_url: posterPath ? ('https://image.tmdb.org/t/p/w500' + posterPath) : '',
+                        vote_average: d.vote_average || 0,
+                        release_date: d.release_date || d.first_air_date || '',
+                        genres: (d.genres || []).map(g => g.id),
+                        original_language: d.original_language || '',
+                        overview: d.overview || ''
+                    };
+                },
+
+                async addToWatchlist(entry) {
+                    if (!this.currentUser || !entry) return false;
+                    const docId = this._watchlistKey(entry);
+                    try {
+                        await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .doc(docId)
+                            .set({ ...entry, docId, addedAt: Date.now() }, { merge: true });
+
+                        if (!this.watchlist.some(w => w.docId === docId)) {
+                            this.watchlist = [{ ...entry, docId, addedAt: Date.now() }, ...this.watchlist];
+                        }
+                        return true;
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Could not save to Watch Later.', 'error');
+                        return false;
+                    }
+                },
+
+                async removeFromWatchlist(entry) {
+                    if (!this.currentUser || !entry) return false;
+                    const docId = this._watchlistKey(entry);
+                    try {
+                        await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .doc(docId)
+                            .delete();
+                        this.watchlist = this.watchlist.filter(w => w.docId !== docId);
+                        return true;
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Could not remove from Watch Later.', 'error');
+                        return false;
+                    }
+                },
+
+                async toggleWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id || !this.detailData) return;
+                    const entry = this._buildWatchlistEntry();
+                    if (!entry) return;
+
+                    if (!this.currentUser) {
+                        this.pendingWatchlist = entry;
+                        this.authModalOpen = true;
+                        this.authView = 'login';
+                        this.showModalAlert('Please login to use Watch Later', 'info', 4000);
+                        return;
+                    }
+
+                    if (this.isInWatchlist) {
+                        const ok = await this.removeFromWatchlist(entry);
+                        if (ok) this.showModalAlert('Removed from Watch Later', 'info');
+                    } else {
+                        const ok = await this.addToWatchlist(entry);
+                        if (ok) this.showModalAlert('Added to Watch Later', 'success');
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>
