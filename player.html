@@ -595,7 +595,7 @@
         function buildPlayerUrl() {
             if (!currentTmdbId) return null;
             if (currentType === 'movie') {
-                return `${STREAM_BASE}/movie/${currentTmdbId}?color=netflix`;
+                return `${STREAM_BASE}/movie/${currentTmdbId}?color=netflix&disable_dl_button=true&disable_app_ad=true`;
             }
             const s = currentSeason || 1;
             const e = currentEpisode || 1;
