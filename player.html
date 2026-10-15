@@ -595,12 +595,12 @@
         function buildPlayerUrl() {
             if (!currentTmdbId) return null;
             if (currentType === 'movie') {
-                return `${STREAM_BASE}/movie/${currentTmdbId}?branding=RX+Player&server=centaurus&loading=1&back=false`;
+                return `${STREAM_BASE}/movie/${currentTmdbId}?color=netflix`;
             }
             const s = currentSeason || 1;
             const e = currentEpisode || 1;
             // Path-based season/episode (vidstuck embed URL pattern)
-            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?branding=RX+Player&server=centaurus&loading=1&back=false`;
+            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}??color=netflix`;
         }
 
         // Force a fresh iframe load — cancels any pending navigation and uses cache-buster
