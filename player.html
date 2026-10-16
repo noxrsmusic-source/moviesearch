@@ -290,6 +290,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* =========================================================
+           🖥️ MOBILE RESPONSIVE STYLES (FIXED LAYOUT)
+           ========================================================= */
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
             .header { padding: 6px 0; }
@@ -297,23 +300,35 @@
             .logo i { font-size: 15px; }
             .header-actions .back-btn { font-size: 12px; padding: 4px 12px; }
             .header-actions .profile-btn { width: 30px; height: 30px; font-size: 12px; }
+            
             .player-row { flex-direction: column; align-items: stretch; gap: 16px; }
             .player-wrapper { max-height: 55vh; border-radius: var(--radius-sm); }
             .ad-desktop { display: none; }
             .ad-mobile-stack { display: flex; }
             .player-branding { top: 8px; right: 8px; padding: 4px 10px; font-size: 10px; min-width: 90px; }
             .custom-fs-btn { bottom: 10px; right: 8px; width: 40px; height: 40px; font-size: 14px; }
-            .player-info { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
-            .player-info .title-section h1 { font-size: 18px; }
+            
+            /* Player Info Mobile Fix */
+            .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 14px; }
+            .player-info .title-section h1 { font-size: 20px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
-            .episode-controls { padding: 12px 14px; flex-direction: column; align-items: stretch; gap: 10px; }
-            .episode-controls .control-group { width: 100%; justify-content: space-between; }
-            .episode-controls select { width: 100%; max-width: none; }
+            .share-actions-wrap { width: 100%; flex-direction: column; gap: 10px; }
+            .share-btn { width: 100%; justify-content: center; padding: 12px 16px; font-size: 13px; }
+            .stream-status-badge { width: 100%; justify-content: center; margin-top: 4px; }
+            
+            /* Episode Controls Mobile Fix */
+            .episode-controls { padding: 14px; flex-direction: column; align-items: stretch; gap: 12px; }
+            .episode-controls .control-group { width: 100%; flex-direction: column; align-items: flex-start; gap: 6px; }
+            .episode-controls label { width: 100%; }
+            .episode-controls select { width: 100%; max-width: none; padding: 10px; }
+            .episode-controls .apply-btn { width: 100%; padding: 12px; }
+            
+            /* Plot Mobile Fix */
+            .plot-section { padding: 16px; margin-top: 12px; }
             .plot-section p { font-size: 13px; }
+            
             .container { padding: 0 12px; }
             .toast-container { right: 12px; bottom: 74px; }
-            .share-actions-wrap { width: 100%; flex-direction: column; }
-            .share-btn { width: 100%; justify-content: center; }
         }
         @media (min-width: 769px) {
             .ad-desktop { display: flex; }
@@ -694,15 +709,15 @@
             else { showPauseAds(); }
         }
 
-        // 🆕 Share Button Logic
+        // 🆕 Share Button Logic (Native Share + Fallback)
         function initShareButtons() {
             const earnBtn = document.getElementById('shareEarnBtn');
             const directBtn = document.getElementById('shareDirectBtn');
 
             if (earnBtn) {
                 earnBtn.addEventListener('click', () => {
-                    // Jab user click karega toh "Coming Soon" ka message show hoga
-                    showToast('🚀 RX URL Shortener is Coming Soon! Stay Tuned.', 'info', 4000);
+                    // Jab user click karega toh soon.html par redirect hoga
+                    window.location.href = 'soon.html';
                 });
             }
 
@@ -726,25 +741,53 @@
 
                     const shareText = `🎬 ${title} (${year})\n⭐ Rating: ${rating}\n\n📝 ${overview}\n\n📺 Watch or Download here:\n${landingUrl}`;
 
-                    try {
-                        await navigator.clipboard.writeText(shareText);
-                        showToast('✅ Link copied! You can now share it anywhere.', 'success', 5000);
-                    } catch (err) {
-                        // Fallback for older browsers
-                        const textArea = document.createElement("textarea");
-                        textArea.value = shareText;
-                        document.body.appendChild(textArea);
-                        textArea.select();
+                    // Check if Native Share is supported (Mobile)
+                    if (navigator.share) {
                         try {
-                            document.execCommand('copy');
-                            showToast('✅ Link copied!', 'success', 5000);
-                        } catch (err2) {
-                            showToast('❌ Failed to copy link.', 'error');
+                            await navigator.share({
+                                title: title,
+                                text: shareText,
+                                url: landingUrl
+                            });
+                            showToast('✅ Shared successfully!', 'success', 3000);
+                        } catch (err) {
+                            // If user cancels the share dialog, do nothing or show info
+                            if (err.name !== 'AbortError') {
+                                showToast('❌ Sharing failed. Copying instead...', 'error');
+                                // Fallback to copy if error (excluding user cancel)
+                                copyToClipboard(shareText);
+                            }
                         }
-                        document.body.removeChild(textArea);
+                    } else {
+                        // Fallback for Desktop
+                        copyToClipboard(shareText);
                     }
                 });
             }
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ Link copied! You can now paste it anywhere.', 'success', 5000);
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ Link copied!', 'success', 5000);
+            } catch (err) {
+                showToast('❌ Failed to copy link.', 'error');
+            }
+            document.body.removeChild(textArea);
         }
 
         async function init() {
