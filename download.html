@@ -419,16 +419,8 @@
                 // Trailer
                 renderTrailer(data.videos);
 
-                // Continue bar setup
-                const downloadUrl = buildDownloadUrl();
-                const label = isTV ? `S${season} · E${episode}` : "Movie";
-
-                $("dlContinueTitle").textContent = isTV
-                    ? `${title} — ${label}`
-                    : title;
-                $("dlContinueSub").textContent = isTV
-                    ? `Season ${season}, Episode ${episode}`
-                    : "Ready to download in HD";
+                // 🛑 FIX: Removed the lines that were trying to update dlContinueTitle and dlContinueSub 
+                // because those elements no longer exist in the new layout.
 
                 // Show main content, hide loading
                 $("dlLoading").style.display = "none";
