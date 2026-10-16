@@ -33,7 +33,7 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            padding-bottom: 130px;
+            padding-bottom: 40px; /* Fixed bar hatne ke baad padding kam kar di */
         }
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
@@ -182,17 +182,14 @@
         }
         .dl-note i { color: #38bdf8; margin-top: 2px; }
 
-        /* Continue bar */
+        /* Continue bar - NO LONGER FIXED */
         .dl-continue-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-            background: rgba(20, 20, 31, 0.98);
-            backdrop-filter: blur(14px);
-            border-top: 1px solid rgba(255,255,255,0.08);
-            padding: 14px 20px;
-            box-shadow: 0 -10px 34px rgba(0,0,0,0.7);
-        }
-        .dl-continue-inner {
-            max-width: 1100px; margin: 0 auto;
+            margin-top: 30px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
             display: flex; align-items: center; justify-content: space-between; gap: 16px;
             flex-wrap: wrap;
         }
@@ -217,6 +214,22 @@
         }
         .dl-continue-btn i { font-size: 16px; }
 
+        /* Show Instructions Button */
+        .show-instructions-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; max-width: 400px; margin: 30px auto 10px;
+            padding: 15px 30px; border-radius: 40px;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: #fff; font-size: 15px; font-weight: 800;
+            box-shadow: 0 8px 26px rgba(56,189,248,0.45);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .show-instructions-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 14px 34px rgba(56,189,248,0.6);
+        }
+
         /* Error state */
         .dl-error {
             text-align: center; padding: 100px 20px;
@@ -234,7 +247,7 @@
     <header class="dl-header">
         <div class="container dl-header-inner">
             <a class="dl-logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
-            <a class="back-btn" href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
+            <a class="back-btn" href="index.html"><i class="fas fa-arrow-left"></i> Back</a>
         </div>
     </header>
 
@@ -277,69 +290,79 @@
                 </div>
             </section>
 
-            <!-- Trailer -->
-            <section class="dl-section">
-                <h2 class="dl-section-title"><i class="fas fa-circle-play"></i> Watch Preview</h2>
-                <div id="dlVideoHolder"></div>
-            </section>
+            <!-- 🆕 "How to Download" Button (Initial View) -->
+            <div style="text-align: center;">
+                <button id="showInstructionsBtn" class="show-instructions-btn">
+                    <i class="fas fa-info-circle"></i> How to Download
+                </button>
+            </div>
 
-            <!-- Instructions -->
-            <section class="dl-section">
-                <h2 class="dl-section-title"><i class="fas fa-list-check"></i> How to Download</h2>
-                <div class="dl-instructions">
-                    <div class="dl-steps">
-                        <div class="dl-step">
-                            <div class="dl-step-num">1</div>
-                            <div class="dl-step-text">
-                                Click the <strong>Continue to Download</strong> button at the bottom of this page.
+            <!-- 🆕 Hidden Container: Instructions, Video & Final Download Button -->
+            <div id="dlInstructionsContainer" style="display: none;">
+
+                <!-- Trailer / Instruction Video -->
+                <section class="dl-section">
+                    <h2 class="dl-section-title"><i class="fas fa-circle-play"></i> Watch Preview</h2>
+                    <div id="dlVideoHolder"></div>
+                </section>
+
+                <!-- Instructions -->
+                <section class="dl-section">
+                    <h2 class="dl-section-title"><i class="fas fa-list-check"></i> How to Download</h2>
+                    <div class="dl-instructions">
+                        <div class="dl-steps">
+                            <div class="dl-step">
+                                <div class="dl-step-num">1</div>
+                                <div class="dl-step-text">
+                                    Click the <strong>Continue to Download</strong> button at the bottom of this page.
+                                </div>
+                            </div>
+                            <div class="dl-step">
+                                <div class="dl-step-num">2</div>
+                                <div class="dl-step-text">
+                                    You'll be redirected to our secure download partner page.
+                                </div>
+                            </div>
+                            <div class="dl-step">
+                                <div class="dl-step-num">3</div>
+                                <div class="dl-step-text">
+                                    Choose your preferred quality <code>480p</code> <code>720p</code> <code>1080p</code> and click download.
+                                </div>
+                            </div>
+                            <div class="dl-step">
+                                <div class="dl-step-num">4</div>
+                                <div class="dl-step-text">
+                                    Complete a quick verification if prompted, then your file will start downloading.
+                                </div>
                             </div>
                         </div>
-                        <div class="dl-step">
-                            <div class="dl-step-num">2</div>
-                            <div class="dl-step-text">
-                                You'll be redirected to our secure download partner page.
-                            </div>
-                        </div>
-                        <div class="dl-step">
-                            <div class="dl-step-num">3</div>
-                            <div class="dl-step-text">
-                                Choose your preferred quality <code>480p</code> <code>720p</code> <code>1080p</code> and click download.
-                            </div>
-                        </div>
-                        <div class="dl-step">
-                            <div class="dl-step-num">4</div>
-                            <div class="dl-step-text">
-                                Complete a quick verification if prompted, then your file will start downloading.
-                            </div>
+                        <div class="dl-note">
+                            <i class="fas fa-shield-halved"></i>
+                            <span>
+                                <strong>Tip:</strong> For the fastest speeds and zero ads, we recommend using a modern browser like Chrome, Edge, or Firefox. Disable any ad-blocker if the download page doesn't load properly.
+                            </span>
                         </div>
                     </div>
-                    <div class="dl-note">
-                        <i class="fas fa-shield-halved"></i>
-                        <span>
-                            <strong>Tip:</strong> For the fastest speeds and zero ads, we recommend using a modern browser like Chrome, Edge, or Firefox. Disable any ad-blocker if the download page doesn't load properly.
-                        </span>
+                </section>
+
+                <!-- Final Continue bar (No longer fixed) -->
+                <div class="dl-continue-bar" id="dlContinueBar">
+                    <div class="dl-continue-info">
+                        <i class="fas fa-cloud-arrow-down"></i>
+                        <div class="dl-continue-text">
+                            <strong id="dlContinueTitle">Ready to download</strong>
+                            <span id="dlContinueSub">Click the button to continue</span>
+                        </div>
                     </div>
+                    <button class="dl-continue-btn" id="dlContinueBtn">
+                        <i class="fas fa-download"></i> Continue to Download
+                    </button>
                 </div>
-            </section>
+
+            </div>
 
         </div>
     </main>
-
-    <!-- Continue bar -->
-    <div class="dl-continue-bar" id="dlContinueBar" style="display:none;">
-        <div class="dl-continue-inner">
-            <div class="dl-continue-info">
-                <i class="fas fa-cloud-arrow-down"></i>
-                <div class="dl-continue-text">
-                    <strong id="dlContinueTitle">Ready to download</strong>
-                    <span id="dlContinueSub">Click the button to continue</span>
-                </div>
-            </div>
-            <button class="dl-continue-btn" id="dlContinueBtn">
-                <i class="fas fa-download"></i> Continue to Download
-            </button>
-        </div>
-    </div>
 
     <script>
         const API = "/api";
@@ -448,10 +471,9 @@
                     window.open(downloadUrl, "_blank", "noopener,noreferrer");
                 });
 
-                // Show
+                // Show main content, hide loading
                 $("dlLoading").style.display = "none";
                 $("dlContent").style.display = "block";
-                $("dlContinueBar").style.display = "block";
 
             } catch (e) {
                 console.error(e);
@@ -494,6 +516,22 @@
             $("dlContent").style.display = "none";
             $("dlError").style.display = "flex";
         }
+
+        // 🆕 Show Instructions Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const showBtn = $("showInstructionsBtn");
+            const instructionsContainer = $("dlInstructionsContainer");
+
+            if (showBtn && instructionsContainer) {
+                showBtn.addEventListener("click", () => {
+                    showBtn.style.display = "none"; // Hide the "How to Download" button
+                    instructionsContainer.style.display = "block"; // Show instructions & final download button
+                    
+                    // Smooth scroll to instructions
+                    instructionsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+        });
 
         loadDetails();
     </script>
