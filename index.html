@@ -959,7 +959,7 @@
                     </div>
                 </template>
             </div>
-            <div x-show="!searchResults.length && !loading && lastSearchQuery" class="empty-state">
+            <div x-show="!searchResults.length && !searchLiveLoading && lastSearchQuery" class="empty-state">
                 <i class="fas fa-search-minus"></i>
                 <h3>No results found for "<span x-text="lastSearchQuery"></span>"</h3>
             </div>
@@ -1203,9 +1203,6 @@
         const CURRENT_APP_VERSION = "1.0.0";
         const WATCH_PAGE_URL = 'player.html';
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
-
-        /* 🆕 Download base URL */
-        const DOWNLOAD_BASE_URL = 'https://nxsha.space/dl';
 
         /* 🔒 Locked auto sections — admin can't delete, only hide/add items */
         const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
@@ -1794,10 +1791,6 @@
 
                 /* =========================================================
                    OTT FILTER — Genre-wise sections, newest first, no limits
-                   ✅ No "HBO X" / "Netflix Y" titles
-                   ✅ Content sorted by release date (newest first)
-                   ✅ Multiple pages fetched (5 movies + 5 TV = ~200 items)
-                   ✅ Genre-wise sections (Action, Comedy, Drama, etc.)
                    ========================================================= */
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
@@ -1828,7 +1821,6 @@
                         searchRec: [], historyRec: [], newreleases: []
                     };
 
-                    // Region override per platform
                     const regionOverrides = {
                         'HBO':     { region: 'US', provider: 1899 },
                         'Disney+': { region: 'US', provider: 337  }
@@ -1846,7 +1838,6 @@
                                 page: String(page)
                             });
 
-                            // Newest first — release date descending
                             if (type === 'movie') {
                                 params.set('sort_by', 'primary_release_date.desc');
                             } else {
@@ -1869,7 +1860,6 @@
                             return `/discover/${type}?${params.toString()}`;
                         };
 
-                        // Fetch 5 pages each for movies + TV (in parallel)
                         const PAGES = 5;
                         const requests = [];
                         for (let p = 1; p <= PAGES; p++) {
@@ -1896,7 +1886,6 @@
                             }
                         }
 
-                        // Combine + dedupe
                         const combined = this._interleaveArrays([movies, tvShows]);
                         const seen = new Set();
                         const allContent = combined.filter(i => {
@@ -1911,26 +1900,22 @@
                             return;
                         }
 
-                        // ⚡ Sort by release date — newest first
                         allContent.sort((a, b) => {
                             const dA = new Date(a.release_date || a.first_air_date || '1900-01-01').getTime();
                             const dB = new Date(b.release_date || b.first_air_date || '1900-01-01').getTime();
                             return dB - dA;
                         });
 
-                        // ⚡ Build genre-wise sections
                         const sections = [];
                         const usedIds = new Set();
 
-                        // Iterate over genre map — each genre becomes a section
                         Object.entries(OTT_GENRE_MAP).forEach(([gidStr, meta]) => {
                             const gid = parseInt(gidStr, 10);
                             const genreItems = allContent
                                 .filter(item => (item.genre_ids || []).includes(gid))
-                                .slice(0, 60); // cap for perf
+                                .slice(0, 60);
 
                             if (genreItems.length >= 5) {
-                                // Small random suffix for React key uniqueness
                                 sections.push({
                                     id: `ott-genre-${gid}`,
                                     title: meta.name,
@@ -1939,13 +1924,12 @@
                                     badge: '',
                                     items: genreItems,
                                     isGenreSection: true,
-                                    explorePage: '' // no "explore more" for genre
+                                    explorePage: ''
                                 });
                                 genreItems.forEach(it => usedIds.add(`${it.media_type}:${it.id}`));
                             }
                         });
 
-                        // If some items didn't fit any genre → add "More" section
                         const remaining = allContent.filter(i => !usedIds.has(`${i.media_type}:${i.id}`));
                         if (remaining.length >= 5) {
                             sections.push({
@@ -1962,7 +1946,6 @@
 
                         this.ottGenreSections = sections;
 
-                        // Also populate ottPools for backward compatibility
                         this.ottPools.trending      = allContent.slice(0, 12);
                         this.ottPools.popular       = allContent.slice(12, 24);
                         this.ottPools.picked        = allContent.slice(24, 36);
@@ -1997,7 +1980,6 @@
 
                 /* =========================================================
                    LOAD OTT PLATFORMS
-                   ✅ MERGE with defaults
                    ========================================================= */
                 async loadOttPlatforms() {
                     try {
@@ -2314,7 +2296,6 @@
                         const f = (p || []).find(x => String(x.id) === String(id));
                         if (f) return f;
                     }
-                    // Also check genre sections
                     for (const sec of (this.ottGenreSections || [])) {
                         const f = (sec.items || []).find(x => String(x.id) === String(id));
                         if (f) return f;
@@ -2406,36 +2387,33 @@
                     window.location.href = url;
                 },
 
-/* =========================================================
-   🆕 DOWNLOAD CONTENT
-   • Opens download.html which shows:
-     - Movie details
-     - Trailer video
-     - Download instructions
-     - Continue to Download → nxsha.space
-   ========================================================= */
-downloadContent() {
-    if (!this.detailItem || !this.detailItem.id) {
-        this.showToast('Download link available nahi hai.', 'error');
-        return;
-    }
+                /* =========================================================
+                   🆕 DOWNLOAD CONTENT
+                   • Redirects to download.html (details + trailer + instructions)
+                   • download.html has "Continue to Download" → nxsha.space
+                   ========================================================= */
+                downloadContent() {
+                    if (!this.detailItem || !this.detailItem.id) {
+                        this.showToast('Download link available nahi hai.', 'error');
+                        return;
+                    }
 
-    const { id, type } = this.detailItem;
-    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    const { id, type } = this.detailItem;
+                    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
 
-    if (type === 'tv') {
-        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
-    } else {
-        url += `&season=1&episode=1`;
-    }
+                    if (type === 'tv') {
+                        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
+                    } else {
+                        url += `&season=1&episode=1`;
+                    }
 
-    const label = type === 'tv'
-        ? `S${this.selectedSeason} E${this.selectedEpisode}`
-        : (this.detailTitle(this.detailData) || 'Movie');
+                    const label = type === 'tv'
+                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
+                        : (this.detailTitle(this.detailData) || 'Movie');
 
-    this.showToast(`Opening download page for ${label}…`, 'success');
-    window.location.href = url;
-},
+                    this.showToast(`Opening download page for ${label}…`, 'success');
+                    window.location.href = url;
+                },
 
                 detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
                 detailYear(d) {
