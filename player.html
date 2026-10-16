@@ -167,6 +167,7 @@
             background: var(--bg-card); padding: 20px 24px; border-radius: var(--radius);
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
+        .player-info .title-section { flex: 1; min-width: 250px; }
         .player-info .title-section h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
         .player-info .title-section .meta {
             display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px;
@@ -178,13 +179,17 @@
         }
         .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
-        /* 🆕 Share Icon Button */
-        .share-icon-wrap { margin-top: 16px; }
+        /* 🆕 Share Icon Button (New Placement) */
+        .share-icon-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
         .share-icon-btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 13px; font-weight: 700;
-            transition: var(--transition); cursor: pointer;
+            color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: 700;
+            transition: var(--transition); cursor: pointer; white-space: nowrap;
         }
         .share-icon-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
 
@@ -236,21 +241,6 @@
             box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
         }
         .share-direct:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(56, 189, 248, 0.5); }
-
-        .stream-status-badge {
-            display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 14px; border-radius: 30px;
-            font-size: 12px; font-weight: 600; color: var(--server-green);
-        }
-        .stream-status-badge .live-dot {
-            width: 8px; height: 8px; background: var(--server-green); border-radius: 50%;
-            box-shadow: 0 0 8px var(--server-green); animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
 
         .episode-controls {
             display: none; flex-wrap: wrap; gap: 12px; align-items: center;
@@ -348,24 +338,20 @@
             
             /* Player Info Mobile Fix */
             .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
+            .player-info .title-section { width: 100%; min-width: auto; }
             .player-info .title-section h1 { font-size: 20px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
             
-            /* Share Icon Mobile */
+            /* Share Icon Mobile Fix (Full width, proper padding) */
+            .share-icon-wrap { 
+                width: 100%; 
+                margin-top: 4px;
+            }
             .share-icon-btn { 
                 width: 100%; 
                 justify-content: center; 
-                padding: 12px 16px; 
-                font-size: 13px; 
-            }
-            
-            /* Status Badge Mobile */
-            .stream-status-badge { 
-                width: auto; 
-                display: inline-flex; 
-                margin: 2px auto 0 auto; 
-                padding: 5px 12px;
-                font-size: 11px;
+                padding: 12px 20px; 
+                font-size: 14px; 
             }
             
             /* Episode Controls Mobile Fix */
@@ -433,6 +419,7 @@
             </div>
         </div>
 
+        <!-- 🆕 Player Info (Share button moved outside title section) -->
         <div class="player-info" id="playerInfo">
             <div class="title-section">
                 <h1 id="movieTitle">Loading…</h1>
@@ -443,16 +430,13 @@
                     <span id="movieRuntime">—</span>
                     <span id="movieGenre">—</span>
                 </div>
-                
-                <!-- 🆕 Share Icon Button (Replaced the two big buttons) -->
-                <div class="share-icon-wrap">
-                    <button class="share-icon-btn" id="openShareModalBtn">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                </div>
             </div>
-            <div class="stream-status-badge">
-                <span class="live-dot"></span> HD Stream Active
+            
+            <!-- Share Icon Button (Now sits on the right side on PC, full width on mobile) -->
+            <div class="share-icon-wrap">
+                <button class="share-icon-btn" id="openShareModalBtn">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
             </div>
         </div>
 
