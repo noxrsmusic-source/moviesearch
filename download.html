@@ -33,7 +33,7 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            padding-bottom: 40px; /* Fixed bar hatne ke baad padding kam kar di */
+            padding-bottom: 60px;
         }
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
@@ -117,6 +117,28 @@
         }
         .dl-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 16px; }
 
+        /* Action Buttons */
+        .action-buttons-wrap {
+            display: flex; flex-direction: column; gap: 12px;
+            max-width: 420px; margin: 30px auto; width: 100%;
+        }
+        .btn-action {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 15px 30px; border-radius: 40px;
+            font-size: 15px; font-weight: 800; color: #fff;
+            transition: var(--transition); cursor: pointer; border: none;
+        }
+        .btn-action-blue {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            box-shadow: 0 8px 26px rgba(56,189,248,0.45);
+        }
+        .btn-action-blue:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(56,189,248,0.6); }
+        .btn-action-green {
+            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
+            box-shadow: 0 8px 26px rgba(34,197,94,0.45);
+        }
+        .btn-action-green:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
+
         /* Section heading */
         .dl-section { margin: 32px 0; }
         .dl-section-title {
@@ -182,54 +204,6 @@
         }
         .dl-note i { color: #38bdf8; margin-top: 2px; }
 
-        /* Continue bar - NO LONGER FIXED */
-        .dl-continue-bar {
-            margin-top: 30px;
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            box-shadow: var(--shadow);
-            display: flex; align-items: center; justify-content: space-between; gap: 16px;
-            flex-wrap: wrap;
-        }
-        .dl-continue-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .dl-continue-info i { font-size: 22px; color: var(--primary-green); }
-        .dl-continue-text { font-size: 13px; line-height: 1.35; }
-        .dl-continue-text strong { display: block; font-size: 14px; color: #fff; }
-        .dl-continue-text span { color: var(--text-muted); font-size: 12px; }
-
-        .dl-continue-btn {
-            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
-            color: #fff; padding: 13px 30px; border-radius: 40px;
-            font-size: 14.5px; font-weight: 800;
-            display: inline-flex; align-items: center; gap: 10px;
-            transition: var(--transition);
-            box-shadow: 0 8px 26px rgba(34,197,94,0.45);
-            white-space: nowrap;
-        }
-        .dl-continue-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 14px 34px rgba(34,197,94,0.6);
-        }
-        .dl-continue-btn i { font-size: 16px; }
-
-        /* Show Instructions Button */
-        .show-instructions-btn {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; max-width: 400px; margin: 30px auto 10px;
-            padding: 15px 30px; border-radius: 40px;
-            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-            color: #fff; font-size: 15px; font-weight: 800;
-            box-shadow: 0 8px 26px rgba(56,189,248,0.45);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .show-instructions-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 14px 34px rgba(56,189,248,0.6);
-        }
-
         /* Error state */
         .dl-error {
             text-align: center; padding: 100px 20px;
@@ -247,7 +221,7 @@
     <header class="dl-header">
         <div class="container dl-header-inner">
             <a class="dl-logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
-            <a class="back-btn" href="index.html"><i class="fas fa-arrow-left"></i> Back</a>
+            <a class="back-btn" href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
         </div>
     </header>
 
@@ -290,17 +264,20 @@
                 </div>
             </section>
 
-            <!-- 🆕 "How to Download" Button (Initial View) -->
-            <div style="text-align: center;">
-                <button id="showInstructionsBtn" class="show-instructions-btn">
+            <!-- 🆕 Action Buttons (How to Download + Continue to Download) -->
+            <div class="action-buttons-wrap">
+                <button id="showInstructionsBtn" class="btn-action btn-action-blue">
                     <i class="fas fa-info-circle"></i> How to Download
+                </button>
+                <button class="btn-action btn-action-green" id="dlContinueBtn">
+                    <i class="fas fa-download"></i> Continue to Download
                 </button>
             </div>
 
-            <!-- 🆕 Hidden Container: Instructions, Video & Final Download Button -->
+            <!-- 🆕 Hidden Container: Instructions & Trailer -->
             <div id="dlInstructionsContainer" style="display: none;">
 
-                <!-- Trailer / Instruction Video -->
+                <!-- Trailer -->
                 <section class="dl-section">
                     <h2 class="dl-section-title"><i class="fas fa-circle-play"></i> Watch Preview</h2>
                     <div id="dlVideoHolder"></div>
@@ -314,7 +291,7 @@
                             <div class="dl-step">
                                 <div class="dl-step-num">1</div>
                                 <div class="dl-step-text">
-                                    Click the <strong>Continue to Download</strong> button at the bottom of this page.
+                                    Click the <strong>Continue to Download</strong> button above.
                                 </div>
                             </div>
                             <div class="dl-step">
@@ -344,20 +321,6 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- Final Continue bar (No longer fixed) -->
-                <div class="dl-continue-bar" id="dlContinueBar">
-                    <div class="dl-continue-info">
-                        <i class="fas fa-cloud-arrow-down"></i>
-                        <div class="dl-continue-text">
-                            <strong id="dlContinueTitle">Ready to download</strong>
-                            <span id="dlContinueSub">Click the button to continue</span>
-                        </div>
-                    </div>
-                    <button class="dl-continue-btn" id="dlContinueBtn">
-                        <i class="fas fa-download"></i> Continue to Download
-                    </button>
-                </div>
 
             </div>
 
@@ -456,7 +419,7 @@
                 // Trailer
                 renderTrailer(data.videos);
 
-                // Continue bar
+                // Continue bar setup
                 const downloadUrl = buildDownloadUrl();
                 const label = isTV ? `S${season} · E${episode}` : "Movie";
 
@@ -466,10 +429,6 @@
                 $("dlContinueSub").textContent = isTV
                     ? `Season ${season}, Episode ${episode}`
                     : "Ready to download in HD";
-
-                $("dlContinueBtn").addEventListener("click", () => {
-                    window.open(downloadUrl, "_blank", "noopener,noreferrer");
-                });
 
                 // Show main content, hide loading
                 $("dlLoading").style.display = "none";
@@ -517,18 +476,32 @@
             $("dlError").style.display = "flex";
         }
 
-        // 🆕 Show Instructions Logic
+        // 🆕 Button Logic (Toggle Instructions & Handle Download)
         document.addEventListener("DOMContentLoaded", () => {
             const showBtn = $("showInstructionsBtn");
             const instructionsContainer = $("dlInstructionsContainer");
+            const continueBtn = $("dlContinueBtn");
 
+            // Toggle Instructions visibility
             if (showBtn && instructionsContainer) {
                 showBtn.addEventListener("click", () => {
-                    showBtn.style.display = "none"; // Hide the "How to Download" button
-                    instructionsContainer.style.display = "block"; // Show instructions & final download button
-                    
-                    // Smooth scroll to instructions
-                    instructionsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const isHidden = instructionsContainer.style.display === "none";
+                    if (isHidden) {
+                        instructionsContainer.style.display = "block";
+                        showBtn.innerHTML = `<i class="fas fa-times-circle"></i> Hide Instructions`;
+                        instructionsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        instructionsContainer.style.display = "none";
+                        showBtn.innerHTML = `<i class="fas fa-info-circle"></i> How to Download`;
+                    }
+                });
+            }
+
+            // Handle Download Click
+            if (continueBtn) {
+                continueBtn.addEventListener("click", () => {
+                    const downloadUrl = buildDownloadUrl();
+                    window.open(downloadUrl, "_blank", "noopener,noreferrer");
                 });
             }
         });
