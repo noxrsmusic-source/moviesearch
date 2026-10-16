@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Download - RX Player</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary-red: #E50914;
+            --primary-green: #22C55E;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #0F0F17;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-white);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-bottom: 130px;
+        }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        .dl-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(8, 8, 12, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 0;
+        }
+        .dl-header-inner {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .dl-logo { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 6px; letter-spacing: -0.5px; }
+        .dl-logo span { color: var(--primary-red); }
+        .dl-logo i { color: var(--primary-red); font-size: 18px; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 30px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px; font-weight: 600;
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.12); }
+
+        /* Loading */
+        .loading-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; padding: 120px 20px;
+        }
+        .loading-screen i { font-size: 40px; color: var(--primary-red); animation: spin 0.8s linear infinite; }
+        .loading-screen span { font-size: 14px; color: var(--text-muted); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Hero */
+        .dl-hero {
+            position: relative;
+            padding: 40px 0 20px;
+        }
+        .dl-backdrop {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            opacity: 0.18;
+            filter: blur(2px);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 90%);
+        }
+        .dl-hero-inner {
+            position: relative; z-index: 2;
+            display: grid; grid-template-columns: 180px 1fr; gap: 28px;
+            align-items: start;
+        }
+        @media (max-width: 640px) {
+            .dl-hero-inner { grid-template-columns: 1fr; gap: 20px; }
+            .dl-poster-wrap { max-width: 200px; }
+        }
+        .dl-poster-wrap {
+            border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #12121c;
+            aspect-ratio: 2/3;
+        }
+        .dl-poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .dl-title { font-size: clamp(22px, 4vw, 34px); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin-bottom: 8px; }
+        .dl-meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 13px; color: #ddd; margin-bottom: 12px; }
+        .dl-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 4px; background: rgba(229,9,20,0.9); color: #fff; text-transform: uppercase; }
+        .dl-rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .dl-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .dl-genre-chip {
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #e5e5e5;
+        }
+        .dl-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 16px; }
+
+        /* Section heading */
+        .dl-section { margin: 32px 0; }
+        .dl-section-title {
+            font-size: 20px; font-weight: 800; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+            letter-spacing: -0.3px;
+        }
+        .dl-section-title i { color: var(--primary-red); }
+
+        /* Video */
+        .dl-video-wrap {
+            position: relative; width: 100%; aspect-ratio: 16/9;
+            border-radius: var(--radius); overflow: hidden;
+            background: #000;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .dl-video-wrap iframe {
+            position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+        }
+        .no-trailer {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            height: 220px; border-radius: var(--radius);
+            background: var(--bg-card); color: var(--text-muted);
+            border: 1px dashed rgba(255,255,255,0.1);
+            font-size: 14px;
+        }
+        .no-trailer i { font-size: 32px; opacity: 0.5; }
+
+        /* Instructions */
+        .dl-instructions {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+        .dl-steps { display: flex; flex-direction: column; gap: 16px; }
+        .dl-step { display: flex; gap: 14px; align-items: flex-start; }
+        .dl-step-num {
+            flex-shrink: 0;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: #fff;
+            box-shadow: 0 4px 14px rgba(229,9,20,0.4);
+        }
+        .dl-step-text { font-size: 14px; line-height: 1.55; padding-top: 6px; color: rgba(255,255,255,0.9); }
+        .dl-step-text strong { color: #fff; }
+        .dl-step-text code {
+            background: rgba(255,255,255,0.08);
+            padding: 2px 7px; border-radius: 4px;
+            font-size: 12.5px; color: #4ade80;
+        }
+
+        .dl-note {
+            display: flex; gap: 10px; align-items: flex-start;
+            margin-top: 18px; padding: 14px 16px;
+            background: rgba(56, 189, 248, 0.08);
+            border-left: 3px solid #38bdf8;
+            border-radius: var(--radius-sm);
+            font-size: 13px; color: #cbd5e1;
+            line-height: 1.5;
+        }
+        .dl-note i { color: #38bdf8; margin-top: 2px; }
+
+        /* Continue bar */
+        .dl-continue-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+            background: rgba(20, 20, 31, 0.98);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 20px;
+            box-shadow: 0 -10px 34px rgba(0,0,0,0.7);
+        }
+        .dl-continue-inner {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            flex-wrap: wrap;
+        }
+        .dl-continue-info { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .dl-continue-info i { font-size: 22px; color: var(--primary-green); }
+        .dl-continue-text { font-size: 13px; line-height: 1.35; }
+        .dl-continue-text strong { display: block; font-size: 14px; color: #fff; }
+        .dl-continue-text span { color: var(--text-muted); font-size: 12px; }
+
+        .dl-continue-btn {
+            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
+            color: #fff; padding: 13px 30px; border-radius: 40px;
+            font-size: 14.5px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 10px;
+            transition: var(--transition);
+            box-shadow: 0 8px 26px rgba(34,197,94,0.45);
+            white-space: nowrap;
+        }
+        .dl-continue-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 14px 34px rgba(34,197,94,0.6);
+        }
+        .dl-continue-btn i { font-size: 16px; }
+
+        /* Error state */
+        .dl-error {
+            text-align: center; padding: 100px 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+        }
+        .dl-error i { font-size: 56px; color: var(--primary-red); opacity: 0.6; }
+        .dl-error h2 { font-size: 22px; font-weight: 800; }
+        .dl-error p { color: var(--text-muted); font-size: 14px; max-width: 400px; }
+        .dl-error .back-btn { margin-top: 10px; background: var(--primary-red); border-color: transparent; }
+        .dl-error .back-btn:hover { background: #b20710; }
+    </style>
+</head>
+<body>
+
+    <header class="dl-header">
+        <div class="container dl-header-inner">
+            <a class="dl-logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
+            <a class="back-btn" href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+    </header>
+
+    <main id="dlMain" class="container">
+        <!-- Loading -->
+        <div class="loading-screen" id="dlLoading">
+            <i class="fas fa-circle-notch"></i>
+            <span>Loading download page…</span>
+        </div>
+
+        <!-- Error -->
+        <div class="dl-error" id="dlError" style="display:none;">
+            <i class="fas fa-triangle-exclamation"></i>
+            <h2>Content Not Found</h2>
+            <p>We couldn't load the details for this content. Please go back and try again.</p>
+            <a class="back-btn" href="index.html"><i class="fas fa-home"></i> Go Home</a>
+        </div>
+
+        <!-- Content -->
+        <div id="dlContent" style="display:none;">
+
+            <!-- Hero -->
+            <section class="dl-hero">
+                <div class="dl-backdrop" id="dlBackdrop"></div>
+                <div class="dl-hero-inner">
+                    <div class="dl-poster-wrap">
+                        <img id="dlPoster" src="" alt="poster">
+                    </div>
+                    <div>
+                        <h1 class="dl-title" id="dlTitle">—</h1>
+                        <div class="dl-meta">
+                            <span class="dl-badge" id="dlTypeBadge">MOVIE</span>
+                            <span id="dlYear">—</span>
+                            <span class="dl-rating"><i class="fas fa-star"></i> <span id="dlRating">—</span></span>
+                            <span id="dlRuntime">—</span>
+                        </div>
+                        <div class="dl-genres" id="dlGenres"></div>
+                        <p class="dl-overview" id="dlOverview"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trailer -->
+            <section class="dl-section">
+                <h2 class="dl-section-title"><i class="fas fa-circle-play"></i> Watch Preview</h2>
+                <div id="dlVideoHolder"></div>
+            </section>
+
+            <!-- Instructions -->
+            <section class="dl-section">
+                <h2 class="dl-section-title"><i class="fas fa-list-check"></i> How to Download</h2>
+                <div class="dl-instructions">
+                    <div class="dl-steps">
+                        <div class="dl-step">
+                            <div class="dl-step-num">1</div>
+                            <div class="dl-step-text">
+                                Click the <strong>Continue to Download</strong> button at the bottom of this page.
+                            </div>
+                        </div>
+                        <div class="dl-step">
+                            <div class="dl-step-num">2</div>
+                            <div class="dl-step-text">
+                                You'll be redirected to our secure download partner page.
+                            </div>
+                        </div>
+                        <div class="dl-step">
+                            <div class="dl-step-num">3</div>
+                            <div class="dl-step-text">
+                                Choose your preferred quality <code>480p</code> <code>720p</code> <code>1080p</code> and click download.
+                            </div>
+                        </div>
+                        <div class="dl-step">
+                            <div class="dl-step-num">4</div>
+                            <div class="dl-step-text">
+                                Complete a quick verification if prompted, then your file will start downloading.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dl-note">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>
+                            <strong>Tip:</strong> For the fastest speeds and zero ads, we recommend using a modern browser like Chrome, Edge, or Firefox. Disable any ad-blocker if the download page doesn't load properly.
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Continue bar -->
+    <div class="dl-continue-bar" id="dlContinueBar" style="display:none;">
+        <div class="dl-continue-inner">
+            <div class="dl-continue-info">
+                <i class="fas fa-cloud-arrow-down"></i>
+                <div class="dl-continue-text">
+                    <strong id="dlContinueTitle">Ready to download</strong>
+                    <span id="dlContinueSub">Click the button to continue</span>
+                </div>
+            </div>
+            <button class="dl-continue-btn" id="dlContinueBtn">
+                <i class="fas fa-download"></i> Continue to Download
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API = "/api";
+        const DOWNLOAD_BASE_URL = "https://nxsha.space/dl";
+        const IMG_BASE = "https://image.tmdb.org/t/p";
+
+        const params = new URLSearchParams(window.location.search);
+        const mediaId = params.get("id");
+        const mediaType = (params.get("type") || "movie").toLowerCase();
+        const season = parseInt(params.get("season") || "1", 10);
+        const episode = parseInt(params.get("episode") || "1", 10);
+        const isTV = mediaType === "tv";
+
+        const $ = (id) => document.getElementById(id);
+
+        function escapeHtml(s) {
+            if (!s) return "";
+            return String(s).replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            }[c]));
+        }
+
+        async function tmdb(path) {
+            const res = await fetch(API + "/tmdb-proxy?endpoint=" + encodeURIComponent(path));
+            const data = await res.json();
+            if (data.success === false) throw new Error(data.error || "TMDB request failed");
+            return data;
+        }
+
+        function buildDownloadUrl() {
+            if (isTV) {
+                return `${DOWNLOAD_BASE_URL}/tv/${encodeURIComponent(mediaId)}/${season}/${episode}`;
+            }
+            return `${DOWNLOAD_BASE_URL}/movie/${encodeURIComponent(mediaId)}`;
+        }
+
+        async function loadDetails() {
+            if (!mediaId) {
+                showError();
+                return;
+            }
+
+            try {
+                const endpoint = isTV
+                    ? `/tv/${mediaId}?language=en-US&append_to_response=videos`
+                    : `/movie/${mediaId}?language=en-US&append_to_response=videos`;
+
+                const data = await tmdb(endpoint);
+
+                // ---------- Fill basic info ----------
+                const title = data.title || data.name || "Untitled";
+                const year = (data.release_date || data.first_air_date || "").substring(0, 4) || "—";
+                const rating = data.vote_average ? Number(data.vote_average).toFixed(1) : "—";
+                const runtime = isTV
+                    ? (data.number_of_seasons ? `${data.number_of_seasons} Season${data.number_of_seasons > 1 ? "s" : ""}` : "—")
+                    : (data.runtime ? `${data.runtime} min` : "—");
+
+                document.title = `Download ${title} - RX Player`;
+                $("dlTitle").textContent = title;
+                $("dlYear").textContent = year;
+                $("dlRating").textContent = rating;
+                $("dlRuntime").textContent = runtime;
+                $("dlTypeBadge").textContent = isTV ? "SERIES" : "MOVIE";
+                $("dlOverview").textContent = data.overview || "No description available.";
+
+                // Poster
+                const posterEl = $("dlPoster");
+                if (data.poster_path) {
+                    posterEl.src = `${IMG_BASE}/w500${data.poster_path}`;
+                } else {
+                    posterEl.src = "https://placehold.co/300x450/14141F/666?text=No+Image";
+                }
+
+                // Backdrop
+                if (data.backdrop_path) {
+                    $("dlBackdrop").style.backgroundImage = `url(${IMG_BASE}/original${data.backdrop_path})`;
+                } else if (data.poster_path) {
+                    $("dlBackdrop").style.backgroundImage = `url(${IMG_BASE}/w780${data.poster_path})`;
+                }
+
+                // Genres
+                const genresEl = $("dlGenres");
+                genresEl.innerHTML = "";
+                (data.genres || []).forEach(g => {
+                    const chip = document.createElement("span");
+                    chip.className = "dl-genre-chip";
+                    chip.textContent = g.name;
+                    genresEl.appendChild(chip);
+                });
+
+                // Trailer
+                renderTrailer(data.videos);
+
+                // Continue bar
+                const downloadUrl = buildDownloadUrl();
+                const label = isTV ? `S${season} · E${episode}` : "Movie";
+
+                $("dlContinueTitle").textContent = isTV
+                    ? `${title} — ${label}`
+                    : title;
+                $("dlContinueSub").textContent = isTV
+                    ? `Season ${season}, Episode ${episode}`
+                    : "Ready to download in HD";
+
+                $("dlContinueBtn").addEventListener("click", () => {
+                    window.open(downloadUrl, "_blank", "noopener,noreferrer");
+                });
+
+                // Show
+                $("dlLoading").style.display = "none";
+                $("dlContent").style.display = "block";
+                $("dlContinueBar").style.display = "block";
+
+            } catch (e) {
+                console.error(e);
+                showError();
+            }
+        }
+
+        function renderTrailer(videos) {
+            const holder = $("dlVideoHolder");
+            holder.innerHTML = "";
+
+            const results = (videos && videos.results) || [];
+            // Prefer official trailer, then teaser, then any YouTube video
+            const pick =
+                results.find(v => v.site === "YouTube" && v.type === "Trailer" && v.official) ||
+                results.find(v => v.site === "YouTube" && v.type === "Trailer") ||
+                results.find(v => v.site === "YouTube" && v.type === "Teaser") ||
+                results.find(v => v.site === "YouTube");
+
+            if (pick && pick.key) {
+                const wrap = document.createElement("div");
+                wrap.className = "dl-video-wrap";
+                const iframe = document.createElement("iframe");
+                iframe.src = `https://www.youtube.com/embed/${pick.key}?rel=0&modestbranding=1`;
+                iframe.title = "Trailer";
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+                wrap.appendChild(iframe);
+                holder.appendChild(wrap);
+            } else {
+                const empty = document.createElement("div");
+                empty.className = "no-trailer";
+                empty.innerHTML = `<i class="fas fa-film"></i><span>No trailer available for this title</span>`;
+                holder.appendChild(empty);
+            }
+        }
+
+        function showError() {
+            $("dlLoading").style.display = "none";
+            $("dlContent").style.display = "none";
+            $("dlError").style.display = "flex";
+        }
+
+        loadDetails();
+    </script>
+</body>
+</html>
