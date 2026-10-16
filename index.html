@@ -664,7 +664,7 @@
             backdrop-filter: blur(6px);
         }
         .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .detail-watch-btn, .detail-watchlist-btn {
+        .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn {
             padding: 10px 24px; border-radius: 30px;
             font-weight: 800; font-size: 13.5px;
             display: inline-flex; align-items: center; gap: 8px;
@@ -676,6 +676,20 @@
         .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
         .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
         .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
+
+        /* 🆕 DOWNLOAD BUTTON */
+        .detail-download-btn {
+            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
+            color: #fff;
+            border: 1px solid rgba(34,197,94,0.4);
+            box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+        }
+        .detail-download-btn:hover {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 26px rgba(34,197,94,0.5);
+        }
+        .detail-download-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .detail-selector-row {
             display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
@@ -758,7 +772,7 @@
             .detail-modal-box { border-radius: var(--radius); max-height: 92vh; }
             .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; }
             .detail-actions { width: 100%; flex-direction: column; }
-            .detail-watch-btn, .detail-watchlist-btn { width: 100%; justify-content: center; }
+            .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn { width: 100%; justify-content: center; }
         }
 
         .modal-alert-wrapper {
@@ -1105,6 +1119,13 @@
                                 <i class="fas fa-play"></i>
                                 <span>Watch Now</span>
                             </button>
+
+                            <!-- 🆕 DOWNLOAD BUTTON -->
+                            <button class="detail-download-btn" @click="downloadContent()">
+                                <i class="fas fa-download"></i>
+                                <span x-text="detailItem.type === 'tv' ? ('Download S' + selectedSeason + ' E' + selectedEpisode) : 'Download'"></span>
+                            </button>
+
                             <button class="detail-watchlist-btn"
                                     :class="{ 'active': isInWatchlist }"
                                     @click="toggleWatchlist()">
@@ -1182,6 +1203,9 @@
         const CURRENT_APP_VERSION = "1.0.0";
         const WATCH_PAGE_URL = 'player.html';
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
+
+        /* 🆕 Download base URL */
+        const DOWNLOAD_BASE_URL = 'https://nxsha.space/dl';
 
         /* 🔒 Locked auto sections — admin can't delete, only hide/add items */
         const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
@@ -2380,6 +2404,44 @@
                         url += `&season=1&episode=1`;
                     }
                     window.location.href = url;
+                },
+
+                /* =========================================================
+                   🆕 DOWNLOAD CONTENT
+                   • Movie  → https://nxsha.space/dl/movie/{tmdbId}
+                   • TV     → https://nxsha.space/dl/tv/{tmdbId}/{season}/{episode}
+                   ========================================================= */
+                get downloadUrl() {
+                    if (!this.detailItem || !this.detailItem.id) return '';
+                    const { id, type } = this.detailItem;
+
+                    if (type === 'tv') {
+                        const season = this.selectedSeason || 1;
+                        const episode = this.selectedEpisode || 1;
+                        return `${DOWNLOAD_BASE_URL}/tv/${encodeURIComponent(id)}/${season}/${episode}`;
+                    }
+                    return `${DOWNLOAD_BASE_URL}/movie/${encodeURIComponent(id)}`;
+                },
+
+                downloadContent() {
+                    const url = this.downloadUrl;
+                    if (!url) {
+                        this.showToast('Download link available nahi hai.', 'error');
+                        return;
+                    }
+
+                    const label = this.detailItem.type === 'tv'
+                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
+                        : (this.detailTitle(this.detailData) || 'Movie');
+
+                    // Open in new tab
+                    const win = window.open(url, '_blank', 'noopener,noreferrer');
+                    if (!win) {
+                        // Popup blocked → fallback
+                        window.location.href = url;
+                    }
+
+                    this.showToast(`Opening download page for ${label}…`, 'success');
                 },
 
                 detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
