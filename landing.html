@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Watch & Download - RX Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #08080C; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        
+        .content-box { background: #14141F; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 30px 24px; max-width: 480px; width: 100%; box-shadow: 0 16px 40px rgba(0,0,0,0.8); position: relative; }
+        
+        .official-badge { display: inline-block; background: rgba(34, 197, 94, 0.15); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .poster-wrap { width: 130px; height: 195px; margin: 0 auto 16px; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.6); background: #0a0a0f; }
+        .poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        
+        h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; color: #fff; line-height: 1.3; }
+        p.subtitle { font-size: 13px; color: #9CA3AF; margin-bottom: 16px; }
+        .rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; margin-bottom: 20px; }
+        
+        .overview-box { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: left; margin-bottom: 24px; font-size: 13px; color: #D1D5DB; line-height: 1.5; max-height: 120px; overflow-y: auto; }
+        
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; }
+        .btn-action { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 30px; border-radius: 40px; font-size: 15px; font-weight: 800; color: #fff; transition: 0.3s; cursor: pointer; border: none; text-decoration: none; }
+        
+        .btn-watch { background: linear-gradient(135deg, #E50914 0%, #b20710 100%); box-shadow: 0 8px 26px rgba(229,9,20,0.45); }
+        .btn-watch:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(229,9,20,0.6); }
+        
+        .btn-download { background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%); box-shadow: 0 8px 26px rgba(34,197,94,0.45); }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
+
+        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 80px 20px; }
+        .loading-screen i { font-size: 40px; color: #E50914; animation: spin 0.8s linear infinite; }
+        .loading-screen span { font-size: 14px; color: #9CA3AF; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .error-screen { display: none; flex-direction: column; align-items: center; gap: 14px; padding: 60px 20px; }
+        .error-screen i { font-size: 50px; color: #E50914; opacity: 0.6; }
+        .error-screen h2 { font-size: 20px; font-weight: 800; }
+        .error-screen p { color: #9CA3AF; font-size: 13px; }
+
+        @media (min-width: 768px) {
+            .content-box { max-width: 600px; padding: 40px; display: flex; gap: 30px; text-align: left; align-items: flex-start; }
+            .poster-wrap { width: 180px; height: 270px; margin: 0; flex-shrink: 0; }
+            .details-wrap { flex: 1; display: flex; flex-direction: column; }
+            .overview-box { max-height: 180px; }
+            .action-buttons { flex-direction: row; }
+            .btn-action { padding: 14px 20px; font-size: 14px; }
+            .official-badge { position: absolute; top: 15px; right: 20px; margin-bottom: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content-box">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-screen">
+            <i class="fas fa-circle-notch"></i>
+            <span>Loading content details...</span>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-screen">
+            <i class="fas fa-triangle-exclamation"></i>
+            <h2>Content Not Found</h2>
+            <p>We couldn't load the details for this content.</p>
+            <a href="index.html" class="btn-action btn-watch" style="margin-top: 10px;"><i class="fas fa-home"></i> Go Home</a>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none; width: 100%;">
+            <div class="official-badge">Official Share Link</div>
+            <div class="poster-wrap">
+                <img id="landingPoster" src="https://placehold.co/300x450/14141F/666?text=Loading" alt="Poster">
+            </div>
+            <div class="details-wrap">
+                <h1 id="landingTitle">Loading Title...</h1>
+                <p class="subtitle" id="landingSubtitle">Movie</p>
+                <div class="rating"><i class="fas fa-star"></i> <span id="landingRating">—</span></div>
+                <div class="overview-box" id="landingOverview">Loading description...</div>
+                
+                <div class="action-buttons">
+                    <button id="landingWatchBtn" class="btn-action btn-watch">
+                        <i class="fas fa-play"></i> Watch Now
+                    </button>
+                    <button id="landingDownloadBtn" class="btn-action btn-download">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = "/api";
+        const IMG_BASE = "https://image.tmdb.org/t/p";
+
+        const params = new URLSearchParams(window.location.search);
+        const mediaId = params.get("id");
+        const mediaType = (params.get("type") || "movie").toLowerCase();
+        const season = params.get("season") || "1";
+        const episode = params.get("episode") || "1";
+        const isTV = mediaType === "tv";
+
+        const $ = (id) => document.getElementById(id);
+
+        async function tmdb(path) {
+            const res = await fetch(API + "/tmdb-proxy?endpoint=" + encodeURIComponent(path));
+            const data = await res.json();
+            if (data.success === false) throw new Error(data.error || "TMDB request failed");
+            return data;
+        }
+
+        async function loadDetails() {
+            if (!mediaId) {
+                showError();
+                return;
+            }
+
+            try {
+                const endpoint = isTV
+                    ? `/tv/${mediaId}?language=en-US`
+                    : `/movie/${mediaId}?language=en-US`;
+
+                const data = await tmdb(endpoint);
+
+                const title = data.title || data.name || "Untitled";
+                const year = (data.release_date || data.first_air_date || "").substring(0, 4) || "—";
+                const rating = data.vote_average ? Number(data.vote_average).toFixed(1) : "—";
+
+                document.title = `Watch ${title} - RX Player`;
+                $("landingTitle").textContent = title;
+                $("landingSubtitle").textContent = isTV ? `Season ${season}, Episode ${episode}` : "Movie • " + year;
+                $("landingRating").textContent = rating;
+                $("landingOverview").textContent = data.overview || "No description available.";
+
+                // Poster
+                const posterEl = $("landingPoster");
+                if (data.poster_path) {
+                    posterEl.src = `${IMG_BASE}/w500${data.poster_path}`;
+                } else {
+                    posterEl.src = "https://placehold.co/300x450/14141F/666?text=No+Image";
+                }
+
+                // Buttons Redirect Logic
+                const encodedTitle = encodeURIComponent(title);
+                const encodedPoster = encodeURIComponent(posterEl.src);
+
+                $("landingWatchBtn").addEventListener("click", () => {
+                    let url = `ads.html?id=${mediaId}&type=${mediaType}&action=watch&title=${encodedTitle}&poster=${encodedPoster}`;
+                    if (isTV) url += `&season=${season}&episode=${episode}`;
+                    else url += `&season=1&episode=1`;
+                    window.location.href = url;
+                });
+
+                $("landingDownloadBtn").addEventListener("click", () => {
+                    let url = `ads.html?id=${mediaId}&type=${mediaType}&action=download&title=${encodedTitle}&poster=${encodedPoster}`;
+                    if (isTV) url += `&season=${season}&episode=${episode}`;
+                    else url += `&season=1&episode=1`;
+                    window.location.href = url;
+                });
+
+                // Show Content
+                $("loadingState").style.display = "none";
+                $("mainContent").style.display = "block";
+
+            } catch (e) {
+                console.error(e);
+                showError();
+            }
+        }
+
+        function showError() {
+            $("loadingState").style.display = "none";
+            $("mainContent").style.display = "none";
+            $("errorState").style.display = "flex";
+        }
+
+        document.addEventListener("DOMContentLoaded", loadDetails);
+    </script>
+</body>
+</html>
