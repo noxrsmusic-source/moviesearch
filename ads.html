@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loading your content...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 🛑 MONETAG / ADS SCRIPT HERE 🛑 -->
+    <!-- Put your Monetag meta tag or script here if required -->
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #08080C; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        
+        .content-box { background: #14141F; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; box-shadow: 0 16px 40px rgba(0,0,0,0.8); position: relative; }
+        
+        /* Translate Button */
+        .lang-toggle { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .lang-toggle:hover { background: #E50914; border-color: #E50914; }
+
+        /* Official Badge */
+        .official-badge { display: inline-block; background: rgba(34, 197, 94, 0.15); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .poster-wrap { width: 100px; height: 150px; margin: 0 auto 14px; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.6); background: #0a0a0f; }
+        .poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        
+        h1 { font-size: 18px; font-weight: 800; margin-bottom: 6px; color: #fff; line-height: 1.3; }
+        p.subtitle { font-size: 12px; color: #9CA3AF; margin-bottom: 16px; }
+        
+        /* Instructions Box */
+        .instructions-box { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: left; margin-bottom: 20px; }
+        .instructions-box h4 { font-size: 12px; color: #F59E0B; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .instructions-box ul { list-style: none; padding-left: 0; }
+        .instructions-box li { font-size: 12px; color: #D1D5DB; margin-bottom: 6px; line-height: 1.4; display: flex; gap: 8px; }
+        .instructions-box li i { color: #E50914; margin-top: 2px; font-size: 10px; }
+
+        /* Banner Ad Placeholder */
+        .banner-ad-space { width: 100%; height: 60px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 11px; color: #9CA3AF; }
+        /* Replace the above div with your actual Banner Ad code */
+
+        .btn-primary { width: 100%; height: 50px; border-radius: 30px; background: linear-gradient(135deg, #E50914 0%, #b20710 100%); color: #fff; font-weight: 800; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(229,9,20,0.35); transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(229,9,20,0.5); }
+        
+        .timer-text { font-size: 15px; font-weight: 700; color: #F59E0B; display: none; padding: 10px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-top: 15px;}
+        
+        /* Ad Iframe Modal */
+        #ad-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 999999; display: none; flex-direction: column; }
+        #ad-modal.open { display: flex; }
+        .ad-modal-header { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: #14141F; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .ad-modal-header span { font-size: 14px; font-weight: 600; color: #9CA3AF; }
+        .close-ad-btn { background: #E50914; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+        .close-ad-btn:hover { background: #b20710; }
+        .ad-iframe-container { flex: 1; width: 100%; height: 100%; position: relative; background: #fff; }
+        .ad-iframe-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+
+    <div class="content-box">
+        <!-- Translate Button -->
+        <button id="lang-toggle" class="lang-toggle">हिंदी</button>
+
+        <!-- Official Badge -->
+        <div class="official-badge" data-i18n="official_page">Official Ads Page</div>
+
+        <div class="poster-wrap">
+            <img id="poster-img" src="https://placehold.co/300x450/14141F/666?text=Loading" alt="Poster">
+        </div>
+        <h1 id="media-title">Loading Title...</h1>
+        <p class="subtitle" id="media-subtitle">Preparing your content...</p>
+
+        <!-- Instructions Box -->
+        <div class="instructions-box">
+            <h4 data-i18n="instructions_title">How to proceed:</h4>
+            <ul>
+                <li><i class="fas fa-circle"></i> <span data-i18n="step1">1. Click the button below to load the ad.</span></li>
+                <li><i class="fas fa-circle"></i> <span data-i18n="step2">2. Close the ad after it loads.</span></li>
+                <li><i class="fas fa-circle"></i> <span data-i18n="step3">3. Wait for the 20-second timer.</span></li>
+                <li><i class="fas fa-circle"></i> <span data-i18n="step4">4. You will be redirected automatically.</span></li>
+            </ul>
+        </div>
+
+        <!-- Banner Ad Space -->
+        <div class="banner-ad-space">
+            <!-- 🛑 REPLACE THIS WITH YOUR BANNER AD CODE 🛑 -->
+            <span>Banner Ad Space</span>
+        </div>
+
+        <!-- Step 1: User must click this button to trigger the ad -->
+        <button id="ad-trigger-btn" class="btn-primary">
+            <i class="fas fa-hand-pointer"></i> <span data-i18n="trigger_btn">Click Here to Continue</span>
+        </button>
+
+        <!-- Timer Text (shows after ad is closed) -->
+        <div id="timer-text" class="timer-text">
+            <i class="fas fa-clock"></i> <span id="timer-message">Please wait 20 seconds...</span>
+        </div>
+    </div>
+
+    <!-- Ad Modal with Iframe -->
+    <div id="ad-modal">
+        <div class="ad-modal-header">
+            <span><i class="fas fa-external-link-alt"></i> <span data-i18n="ad_header">Advertisement</span></span>
+            <button class="close-ad-btn" id="close-ad-btn">
+                <i class="fas fa-times"></i> <span data-i18n="close_ad">Close Ad</span>
+            </button>
+        </div>
+        <div class="ad-iframe-container">
+            <!-- 🛑 DIRECT LINK / POPUNDER URL GOES HERE IN THE SRC 🛑 -->
+            <iframe id="ad-iframe" src="about:blank" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 1. Parse URL Parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        const type = urlParams.get('type');
+        const action = urlParams.get('action'); // 'watch' or 'download'
+        const title = urlParams.get('title') || 'Untitled';
+        const poster = urlParams.get('poster') || 'https://placehold.co/300x450/14141F/666?text=No+Image';
+        const season = urlParams.get('season') || '1';
+        const episode = urlParams.get('episode') || '1';
+
+        // 2. Translation Data
+        let currentLang = 'en';
+        const translations = {
+            en: {
+                official_page: "Official Ads Page",
+                instructions_title: "How to proceed:",
+                step1: "1. Click the button below to load the ad.",
+                step2: "2. Close the ad after it loads.",
+                step3: "3. Wait for the 20-second timer.",
+                step4: "4. You will be redirected automatically.",
+                trigger_btn: "Click Here to Continue",
+                timer_msg: "Please wait {time} seconds...",
+                ad_header: "Advertisement",
+                close_ad: "Close Ad"
+            },
+            hi: {
+                official_page: "आधिकारिक विज्ञापन पृष्ठ",
+                instructions_title: "आगे बढ़ने के लिए निर्देश:",
+                step1: "1. विज्ञापन लोड करने के लिए नीचे दिए गए बटन पर क्लिक करें।",
+                step2: "2. विज्ञापन लोड होने के बाद उसे बंद करें।",
+                step3: "3. 20 सेकंड के टाइमर का इंतजार करें।",
+                step4: "4. आप स्वतः रीडायरेक्ट हो जाएंगे।",
+                timer_msg: "कृपया {time} सेकंड प्रतीक्षा करें...",
+                ad_header: "विज्ञापन",
+                close_ad: "विज्ञापन बंद करें"
+            }
+        };
+
+        // 3. Set UI Language Function
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            // Update toggle button text
+            const toggleBtn = document.getElementById('lang-toggle');
+            toggleBtn.textContent = lang === 'en' ? 'हिंदी' : 'English';
+
+            // Update timer text if it's currently visible
+            const timerMsg = document.getElementById('timer-message');
+            if (timerMsg.textContent.includes('wait') || timerMsg.textContent.includes('प्रतीक्षा')) {
+                const timeMatch = timerMsg.textContent.match(/\d+/);
+                const time = timeMatch ? timeMatch[0] : '20';
+                timerMsg.textContent = translations[lang].timer_msg.replace('{time}', time);
+            }
+        }
+
+        // 4. UI Setup
+        document.getElementById('poster-img').src = poster;
+        document.getElementById('media-title').textContent = title;
+        
+        if (type === 'tv') {
+            document.getElementById('media-subtitle').textContent = `Season ${season}, Episode ${episode}`;
+        } else {
+            document.getElementById('media-subtitle').textContent = 'Movie';
+        }
+
+        // Set initial language
+        setLanguage('en');
+
+        // Translate Toggle Button Logic
+        document.getElementById('lang-toggle').addEventListener('click', () => {
+            setLanguage(currentLang === 'en' ? 'hi' : 'en');
+        });
+
+        // 5. Ad Logic & Timer
+        const adTriggerBtn = document.getElementById('ad-trigger-btn');
+        const adModal = document.getElementById('ad-modal');
+        const closeAdBtn = document.getElementById('close-ad-btn');
+        const adIframe = document.getElementById('ad-iframe');
+        const timerText = document.getElementById('timer-text');
+        const timerMessage = document.getElementById('timer-message');
+
+        let countdownInterval;
+        let timeLeft = 20;
+
+        // 🛑 PUT YOUR DIRECT LINK AD URL HERE 🛑
+        const AD_URL = "https://www.example.com"; // Replace with your Monetag Direct Link
+
+        // Step 1: User clicks "Click Here to Continue" (Manual trigger, no auto-open)
+        adTriggerBtn.addEventListener('click', () => {
+            adTriggerBtn.style.display = 'none'; // Hide the button
+            adModal.classList.add('open');       // Open the ad modal
+            adIframe.src = AD_URL;               // Load the ad URL in iframe
+        });
+
+        // Step 2: User clicks "Close Ad"
+        closeAdBtn.addEventListener('click', () => {
+            adModal.classList.remove('open');
+            adIframe.src = 'about:blank'; // Stop the ad
+            
+            timerText.style.display = 'block'; // Show timer box
+            startTimer();
+        });
+
+        // Step 3: 20 Second Timer Logic
+        function startTimer() {
+            timeLeft = 20;
+            updateTimerText();
+            
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerText();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    timerText.style.display = 'none';
+                    redirectUser(); // Auto-redirect when timer hits 0
+                }
+            }, 1000);
+        }
+
+        function updateTimerText() {
+            const template = translations[currentLang].timer_msg;
+            timerMessage.textContent = template.replace('{time}', timeLeft);
+        }
+
+        // Step 4: Auto-Redirect Logic (No button click needed)
+        function redirectUser() {
+            let targetUrl = '';
+            
+            if (action === 'download') {
+                targetUrl = `download.html?id=${id}&type=${type}&season=${season}&episode=${episode}`;
+            } else {
+                targetUrl = `player.html?id=${id}&type=${type}&season=${season}&episode=${episode}`;
+            }
+            
+            window.location.href = targetUrl;
+        }
+    </script>
+</body>
+</html>
