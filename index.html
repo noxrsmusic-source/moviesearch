@@ -2445,7 +2445,10 @@
                 goToPlayer() {
                     if (!this.detailItem || !this.detailItem.id) return;
                     const { id, type } = this.detailItem;
-                    let url = `${WATCH_PAGE_URL}?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
+                    const poster = encodeURIComponent(this.poster(this.detailData));
+                    
+                    let url = `ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=watch&title=${title}&poster=${poster}`;
                     if (type === 'tv') {
                         url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
                     } else {
@@ -2456,7 +2459,7 @@
 
                 /* =========================================================
                    🆕 DOWNLOAD CONTENT
-                   • Redirects to download.html (details + trailer + instructions)
+                   • Redirects to ads.html first
                    ========================================================= */
                 downloadContent() {
                     if (!this.detailItem || !this.detailItem.id) {
@@ -2465,7 +2468,10 @@
                     }
 
                     const { id, type } = this.detailItem;
-                    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
+                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
+                    const poster = encodeURIComponent(this.poster(this.detailData));
+                    
+                    let url = `ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=download&title=${title}&poster=${poster}`;
 
                     if (type === 'tv') {
                         url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
