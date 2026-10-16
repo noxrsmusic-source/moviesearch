@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - RX Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #0A0A0F; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        
+        .soon-box { 
+            background: #14141F; border: 1px solid rgba(255,255,255,0.08); 
+            border-radius: 20px; padding: 40px 30px; max-width: 440px; width: 100%; 
+            box-shadow: 0 16px 40px rgba(0,0,0,0.8); 
+        }
+        
+        .badge {
+            display: inline-block; background: rgba(34, 197, 94, 0.15); color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.3); padding: 4px 12px; border-radius: 20px;
+            font-size: 11px; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .icon-wrap {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; border: 2px solid rgba(245, 158, 11, 0.3);
+        }
+        .icon-wrap i { font-size: 36px; color: #F59E0B; }
+        
+        h1 { font-size: 26px; font-weight: 900; margin-bottom: 10px; color: #fff; letter-spacing: -0.5px; }
+        p { font-size: 14px; color: #9CA3AF; line-height: 1.6; margin-bottom: 24px; }
+
+        /* 🆕 Earning Highlight Card */
+        .earning-highlight {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 0 0 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-align: left;
+        }
+        .earning-icon {
+            width: 54px; height: 54px; border-radius: 50%;
+            background: rgba(34, 197, 94, 0.15);
+            display: flex; align-items: center; justify-content: center;
+            color: #22C55E; font-size: 24px;
+            flex-shrink: 0;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .earning-text span {
+            font-size: 11px; color: #9CA3AF; display: block;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+        }
+        .earning-text strong {
+            font-size: 26px; font-weight: 900; color: #22C55E; display: block; line-height: 1.1;
+        }
+        .earning-text strong small {
+            font-size: 12px; color: #9CA3AF; font-weight: 600;
+        }
+
+        .back-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px 20px; border-radius: 40px;
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; font-size: 15px; font-weight: 800; text-decoration: none;
+            box-shadow: 0 8px 26px rgba(229,9,20,0.45); transition: 0.3s;
+        }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(229,9,20,0.6); }
+
+        @media (max-width: 480px) {
+            .soon-box { padding: 30px 20px; }
+            h1 { font-size: 22px; }
+            .earning-highlight { padding: 14px; gap: 12px; }
+            .earning-icon { width: 46px; height: 46px; font-size: 20px; }
+            .earning-text strong { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="soon-box">
+        <div class="badge">RX Player Feature</div>
+        
+        <div class="icon-wrap">
+            <i class="fas fa-rocket"></i>
+        </div>
+        
+        <h1>Coming Soon!</h1>
+        
+        <!-- 🆕 Earning Report Card -->
+        <div class="earning-highlight">
+            <div class="earning-icon">
+                <i class="fas fa-hand-holding-dollar"></i>
+            </div>
+            <div class="earning-text">
+                <span>Earn Up To</span>
+                <strong>$5 <small>/ 1000 views</small></strong>
+            </div>
+        </div>
+
+        <p>Our exclusive <strong>RX URL Shortener & Earn</strong> feature is currently under development. Get ready to monetize your links and earn real money per view. Stay tuned!</p>
+        
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Go Back
+        </a>
+    </div>
+
+</body>
+</html>
