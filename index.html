@@ -2406,96 +2406,36 @@
                     window.location.href = url;
                 },
 
-                /* =========================================================
-                   🆕 DOWNLOAD CONTENT
-                   • Movie  → https://nxsha.space/dl/movie/{tmdbId}
-                   • TV     → https://nxsha.space/dl/tv/{tmdbId}/{season}/{episode}
-                   ========================================================= */
-                get downloadUrl() {
-                    if (!this.detailItem || !this.detailItem.id) return '';
-                    const { id, type } = this.detailItem;
+/* =========================================================
+   🆕 DOWNLOAD CONTENT
+   • Opens download.html which shows:
+     - Movie details
+     - Trailer video
+     - Download instructions
+     - Continue to Download → nxsha.space
+   ========================================================= */
+downloadContent() {
+    if (!this.detailItem || !this.detailItem.id) {
+        this.showToast('Download link available nahi hai.', 'error');
+        return;
+    }
 
-                    if (type === 'tv') {
-                        const season = this.selectedSeason || 1;
-                        const episode = this.selectedEpisode || 1;
-                        return `${DOWNLOAD_BASE_URL}/tv/${encodeURIComponent(id)}/${season}/${episode}`;
-                    }
-                    return `${DOWNLOAD_BASE_URL}/movie/${encodeURIComponent(id)}`;
-                },
+    const { id, type } = this.detailItem;
+    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`;
 
-                downloadContent() {
-                    const url = this.downloadUrl;
-                    if (!url) {
-                        this.showToast('Download link available nahi hai.', 'error');
-                        return;
-                    }
+    if (type === 'tv') {
+        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
+    } else {
+        url += `&season=1&episode=1`;
+    }
 
-                    const label = this.detailItem.type === 'tv'
-                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
-                        : (this.detailTitle(this.detailData) || 'Movie');
+    const label = type === 'tv'
+        ? `S${this.selectedSeason} E${this.selectedEpisode}`
+        : (this.detailTitle(this.detailData) || 'Movie');
 
-                    // Open in new tab
-                    const win = window.open(url, '_blank', 'noopener,noreferrer');
-                    if (!win) {
-                        // Popup blocked → fallback
-                        window.location.href = url;
-                    }
-
-                    this.showToast(`Opening download page for ${label}…`, 'success');
-                },
-
-                detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
-                detailYear(d) {
-                    if (!d) return '—';
-                    const dt = d.release_date || d.first_air_date || '';
-                    return dt ? dt.substring(0, 4) : '—';
-                },
-                detailRatingVal(d) {
-                    if (!d || d.vote_average == null) return '—';
-                    return Number(d.vote_average).toFixed(1);
-                },
-                detailRuntimeVal(d) {
-                    if (!d) return '—';
-                    if (this.detailItem.type === 'tv') {
-                        const n = d.number_of_seasons || (Array.isArray(d.seasons) ? d.seasons.length : 0);
-                        return n ? `${n} Season${n > 1 ? 's' : ''}` : '—';
-                    }
-                    return d.runtime ? `${d.runtime} min` : '—';
-                },
-                detailBackdrop(d) {
-                    if (!d) return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
-                    if (d.backdrop_path) return `https://image.tmdb.org/t/p/original${d.backdrop_path}`;
-                    if (d.poster_path) return `https://image.tmdb.org/t/p/w780${d.poster_path}`;
-                    return 'https://placehold.co/1280x720/14141F/666?text=RX+Player';
-                },
-                detailOriginalLanguage(d) {
-                    if (!d || !d.original_language) return '';
-                    return String(d.original_language).toUpperCase();
-                },
-                detailStatus(d) {
-                    if (!d || !d.status) return '';
-                    return d.status;
-                },
-                get detailCastList() {
-                    if (!this.detailData || !this.detailData.credits) return [];
-                    return (this.detailData.credits.cast || []).slice(0, 12);
-                },
-
-                poster(item) {
-                    if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
-                    if (item._adminCustomPoster) return item._adminCustomPoster;
-                    if (!item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
-                    const p = String(item.poster_path);
-                    if (p.startsWith('http://') || p.startsWith('https://')) return p;
-                    return 'https://image.tmdb.org/t/p/w500' + (p.startsWith('/') ? p : '/' + p);
-                },
-                title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
-                year(item) {
-                    if (!item) return 'N/A';
-                    const date = item.release_date || item.first_air_date;
-                    return date ? date.substring(0, 4) : 'N/A';
-                },
-                rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
+    this.showToast(`Opening download page for ${label}…`, 'success');
+    window.location.href = url;
+},
 
                 /* =========================================================
                    AUTHENTICATION
