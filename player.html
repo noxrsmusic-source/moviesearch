@@ -178,14 +178,52 @@
         }
         .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
-        /* 🆕 Share Buttons CSS */
-        .share-actions-wrap {
-            display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+        /* 🆕 Share Icon Button */
+        .share-icon-wrap { margin-top: 16px; }
+        .share-icon-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 13px; font-weight: 700;
+            transition: var(--transition); cursor: pointer;
         }
+        .share-icon-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
+
+        /* 🆕 Share Modal Popup */
+        .share-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: var(--transition); padding: 20px;
+        }
+        .share-modal-overlay.open { opacity: 1; visibility: visible; }
+        
+        .share-modal-box {
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius); width: 100%; max-width: 400px; padding: 24px;
+            box-shadow: var(--shadow); transform: translateY(20px) scale(0.98); transition: var(--transition);
+            position: relative;
+        }
+        .share-modal-overlay.open .share-modal-box { transform: translateY(0) scale(1); }
+        
+        .share-modal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .share-modal-header h3 { font-size: 16px; font-weight: 800; display: flex; gap: 8px; align-items: center; }
+        .share-modal-header h3 i { color: var(--primary-red); }
+        .share-modal-close {
+            background: rgba(255,255,255,0.06); border: none; color: var(--text-muted);
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer; transition: var(--transition);
+        }
+        .share-modal-close:hover { background: var(--primary-red); color: #fff; transform: rotate(90deg); }
+        
+        .share-modal-body { display: flex; flex-direction: column; gap: 12px; }
+        
+        /* Share Buttons inside Modal */
         .share-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 20px; border-radius: 30px;
-            font-size: 13px; font-weight: 700; color: #fff;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 14px 20px; border-radius: 30px; width: 100%;
+            font-size: 13.5px; font-weight: 700; color: #fff;
             transition: var(--transition); cursor: pointer; border: none;
         }
         .share-earn {
@@ -291,7 +329,7 @@
         }
 
         /* =========================================================
-           🖥️ MOBILE RESPONSIVE STYLES (FIXED LAYOUT)
+           🖥️ MOBILE RESPONSIVE STYLES
            ========================================================= */
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
@@ -309,12 +347,26 @@
             .custom-fs-btn { bottom: 10px; right: 8px; width: 40px; height: 40px; font-size: 14px; }
             
             /* Player Info Mobile Fix */
-            .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 14px; }
+            .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
             .player-info .title-section h1 { font-size: 20px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
-            .share-actions-wrap { width: 100%; flex-direction: column; gap: 10px; }
-            .share-btn { width: 100%; justify-content: center; padding: 12px 16px; font-size: 13px; }
-            .stream-status-badge { width: 100%; justify-content: center; margin-top: 4px; }
+            
+            /* Share Icon Mobile */
+            .share-icon-btn { 
+                width: 100%; 
+                justify-content: center; 
+                padding: 12px 16px; 
+                font-size: 13px; 
+            }
+            
+            /* Status Badge Mobile */
+            .stream-status-badge { 
+                width: auto; 
+                display: inline-flex; 
+                margin: 2px auto 0 auto; 
+                padding: 5px 12px;
+                font-size: 11px;
+            }
             
             /* Episode Controls Mobile Fix */
             .episode-controls { padding: 14px; flex-direction: column; align-items: stretch; gap: 12px; }
@@ -329,6 +381,11 @@
             
             .container { padding: 0 12px; }
             .toast-container { right: 12px; bottom: 74px; }
+            
+            /* Share Modal Mobile */
+            .share-modal-box { padding: 20px; }
+            .share-modal-header h3 { font-size: 15px; }
+            .share-btn { padding: 12px 16px; font-size: 13px; }
         }
         @media (min-width: 769px) {
             .ad-desktop { display: flex; }
@@ -387,13 +444,10 @@
                     <span id="movieGenre">—</span>
                 </div>
                 
-                <!-- 🆕 Share Buttons Wrapper -->
-                <div class="share-actions-wrap">
-                    <button class="share-btn share-earn" id="shareEarnBtn">
-                        <i class="fas fa-link"></i> Share via RX Shortener & Earn
-                    </button>
-                    <button class="share-btn share-direct" id="shareDirectBtn">
-                        <i class="fas fa-share-alt"></i> Direct Share (Copy)
+                <!-- 🆕 Share Icon Button (Replaced the two big buttons) -->
+                <div class="share-icon-wrap">
+                    <button class="share-icon-btn" id="openShareModalBtn">
+                        <i class="fas fa-share-alt"></i> Share
                     </button>
                 </div>
             </div>
@@ -440,6 +494,24 @@
                 };
             </script>
             <script src="https://www.highrevenueformat.com/4a5f21676e17448c3ce7697746d1287c/invoke.js"></script>
+        </div>
+    </div>
+
+    <!-- 🆕 Share Modal Popup -->
+    <div class="share-modal-overlay" id="shareModalOverlay">
+        <div class="share-modal-box">
+            <div class="share-modal-header">
+                <h3><i class="fas fa-share-alt"></i> Share Options</h3>
+                <button class="share-modal-close" id="closeShareModalBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="share-modal-body">
+                <button class="share-btn share-earn" id="shareEarnBtn">
+                    <i class="fas fa-link"></i> Share via RX Shortener & Earn
+                </button>
+                <button class="share-btn share-direct" id="shareDirectBtn">
+                    <i class="fas fa-share-alt"></i> Direct Share (Copy)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -709,6 +781,33 @@
             else { showPauseAds(); }
         }
 
+        // 🆕 Share Modal Logic
+        function initShareModal() {
+            const openBtn = document.getElementById('openShareModalBtn');
+            const closeBtn = document.getElementById('closeShareModalBtn');
+            const overlay = document.getElementById('shareModalOverlay');
+
+            if (openBtn && overlay) {
+                openBtn.addEventListener('click', () => {
+                    overlay.classList.add('open');
+                });
+            }
+
+            if (closeBtn && overlay) {
+                closeBtn.addEventListener('click', () => {
+                    overlay.classList.remove('open');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('open');
+                    }
+                });
+            }
+        }
+
         // 🆕 Share Button Logic (Native Share + Fallback)
         function initShareButtons() {
             const earnBtn = document.getElementById('shareEarnBtn');
@@ -762,6 +861,10 @@
                         // Fallback for Desktop
                         copyToClipboard(shareText);
                     }
+                    
+                    // Close modal after sharing action
+                    const overlay = document.getElementById('shareModalOverlay');
+                    if (overlay) overlay.classList.remove('open');
                 });
             }
         }
@@ -849,7 +952,8 @@
             // Load the initial player
             loadPlayer();
 
-            // Init Share Buttons
+            // Init Share Modal and Share Buttons
+            initShareModal();
             initShareButtons();
 
             const fsBtn = document.getElementById('customFsBtn');
