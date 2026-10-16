@@ -664,7 +664,7 @@
             backdrop-filter: blur(6px);
         }
         .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn {
+        .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn, .detail-trailer-btn {
             padding: 10px 24px; border-radius: 30px;
             font-weight: 800; font-size: 13.5px;
             display: inline-flex; align-items: center; gap: 8px;
@@ -690,6 +690,55 @@
             box-shadow: 0 10px 26px rgba(34,197,94,0.5);
         }
         .detail-download-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* 🆕 WATCH TRAILER BUTTON */
+        .detail-trailer-btn {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: #fff;
+            border: 1px solid rgba(56,189,248,0.4);
+            box-shadow: 0 6px 20px rgba(56,189,248,0.35);
+        }
+        .detail-trailer-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 26px rgba(56,189,248,0.5);
+        }
+        .detail-trailer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 🆕 TRAILER PLAYER OVERLAY */
+        .detail-trailer-wrap {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 5;
+        }
+        .detail-trailer-wrap iframe {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            border: 0;
+        }
+        .detail-trailer-close {
+            position: absolute; top: 12px; right: 12px;
+            z-index: 10;
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            border-radius: 30px;
+            font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .detail-trailer-close:hover {
+            background: var(--primary-red);
+            border-color: var(--primary-red);
+        }
 
         .detail-selector-row {
             display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
@@ -772,7 +821,7 @@
             .detail-modal-box { border-radius: var(--radius); max-height: 92vh; }
             .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; }
             .detail-actions { width: 100%; flex-direction: column; }
-            .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn { width: 100%; justify-content: center; }
+            .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn, .detail-trailer-btn { width: 100%; justify-content: center; }
         }
 
         .modal-alert-wrapper {
@@ -1077,8 +1126,21 @@
 
             <template x-if="!detailLoading && detailData">
                 <div>
-                    <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
-                        <div class="detail-backdrop-gradient"></div>
+                    <div class="detail-backdrop" :style="trailerActive ? '' : 'background-image: url(' + detailBackdrop(detailData) + ')'">
+                        <template x-if="!trailerActive">
+                            <div class="detail-backdrop-gradient"></div>
+                        </template>
+                        <template x-if="trailerActive && detailTrailerKey">
+                            <div class="detail-trailer-wrap">
+                                <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=1&rel=0&modestbranding=1'"
+                                        title="Trailer"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen></iframe>
+                                <button type="button" class="detail-trailer-close" @click="closeTrailer()">
+                                    <i class="fas fa-times"></i> Close Trailer
+                                </button>
+                            </div>
+                        </template>
                     </div>
 
                     <div class="detail-header-content">
@@ -1118,6 +1180,12 @@
                             <button class="detail-watch-btn" @click="goToPlayer()">
                                 <i class="fas fa-play"></i>
                                 <span>Watch Now</span>
+                            </button>
+
+                            <!-- 🆕 WATCH TRAILER BUTTON -->
+                            <button class="detail-trailer-btn" @click="watchTrailer()" :disabled="!detailTrailerKey">
+                                <i class="fas fa-film"></i>
+                                <span>Watch Trailer</span>
                             </button>
 
                             <!-- 🆕 DOWNLOAD BUTTON -->
@@ -1296,6 +1364,7 @@
                 selectedSeason: 1,
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
+                trailerActive: false,
 
                 modalAlert: { show: false, message: '', type: 'info', timer: null },
 
@@ -1520,24 +1589,19 @@
 
                 /* =========================================================
                    RENDERED SECTIONS
-                   ✅ When OTT active: use genre-based sections (no "HBO X" titles)
-                   ✅ When "all": use admin/config sections (as before)
                    ========================================================= */
                 get renderedSections() {
                     const isAll = this.activeOtt === 'all';
                     const pools = this.poolMap;
                     const out = [];
 
-                    // ⚡ OTT active → genre-wise sections
                     if (!isAll) {
                         if (this.ottGenreSections && this.ottGenreSections.length) {
                             return this.ottGenreSections;
                         }
-                        // Fallback: agar koi genre section nahi bana, khali return
                         return [];
                     }
 
-                    // ---------- "ALL" view — original logic ----------
                     const configList = (this.sectionsConfig.sections && this.sectionsConfig.sections.length)
                         ? this.sectionsConfig.sections
                         : this.defaultSections();
@@ -1790,7 +1854,7 @@
                 },
 
                 /* =========================================================
-                   OTT FILTER — Genre-wise sections, newest first, no limits
+                   OTT FILTER
                    ========================================================= */
                 async filterByOtt(ottName) {
                     this.activeOtt = ottName;
@@ -2325,6 +2389,7 @@
                     this.selectedSeason = 1;
                     this.selectedEpisode = 1;
                     this.currentSeasonEpisodesCount = 1;
+                    this.trailerActive = false;
                     this.detailLoading = true;
                     this.detailModalOpen = true;
                     this.modalAlert.show = false;
@@ -2333,8 +2398,8 @@
 
                     try {
                         const endpoint = normType === 'tv'
-                            ? `/tv/${id}?language=en-US&append_to_response=credits`
-                            : `/movie/${id}?language=en-US&append_to_response=credits`;
+                            ? `/tv/${id}?language=en-US&append_to_response=credits,videos`
+                            : `/movie/${id}?language=en-US&append_to_response=credits,videos`;
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                         this.detailData = data;
 
@@ -2366,11 +2431,13 @@
                 closeDetailModal() {
                     this.detailModalOpen = false;
                     this.modalAlert.show = false;
+                    this.trailerActive = false;
                     document.body.style.overflow = '';
                     setTimeout(() => {
                         if (!this.detailModalOpen) {
                             this.detailData = null;
                             this.detailItem = { id: null, type: 'movie' };
+                            this.trailerActive = false;
                         }
                     }, 300);
                 },
@@ -2390,7 +2457,6 @@
                 /* =========================================================
                    🆕 DOWNLOAD CONTENT
                    • Redirects to download.html (details + trailer + instructions)
-                   • download.html has "Continue to Download" → nxsha.space
                    ========================================================= */
                 downloadContent() {
                     if (!this.detailItem || !this.detailItem.id) {
@@ -2413,6 +2479,31 @@
 
                     this.showToast(`Opening download page for ${label}…`, 'success');
                     window.location.href = url;
+                },
+
+                /* =========================================================
+                   🆕 TRAILER
+                   ========================================================= */
+                get detailTrailerKey() {
+                    if (!this.detailData || !this.detailData.videos || !this.detailData.videos.results) return null;
+                    const vids = this.detailData.videos.results;
+                    const pick = vids.find(v => v.site === 'YouTube' && v.type === 'Trailer' && v.official)
+                              || vids.find(v => v.site === 'YouTube' && v.type === 'Trailer')
+                              || vids.find(v => v.site === 'YouTube' && v.type === 'Teaser')
+                              || vids.find(v => v.site === 'YouTube');
+                    return pick ? pick.key : null;
+                },
+
+                watchTrailer() {
+                    if (!this.detailTrailerKey) {
+                        this.showToast('No trailer available for this title.', 'info');
+                        return;
+                    }
+                    this.trailerActive = true;
+                },
+
+                closeTrailer() {
+                    this.trailerActive = false;
                 },
 
                 detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
