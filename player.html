@@ -1,187 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Watch & Download - RX Player</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RX PLAYER — Watch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #08080C; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        
-        .content-box { background: #14141F; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 30px 24px; max-width: 480px; width: 100%; box-shadow: 0 16px 40px rgba(0,0,0,0.8); position: relative; }
-        
-        .official-badge { display: inline-block; background: rgba(34, 197, 94, 0.15); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .poster-wrap { width: 130px; height: 195px; margin: 0 auto 16px; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.6); background: #0a0a0f; }
-        .poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        
-        h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; color: #fff; line-height: 1.3; }
-        p.subtitle { font-size: 13px; color: #9CA3AF; margin-bottom: 16px; }
-        .rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; margin-bottom: 20px; }
-        
-        .overview-box { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: left; margin-bottom: 24px; font-size: 13px; color: #D1D5DB; line-height: 1.5; max-height: 120px; overflow-y: auto; }
-        
-        .action-buttons { display: flex; flex-direction: column; gap: 12px; }
-        .btn-action { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 30px; border-radius: 40px; font-size: 15px; font-weight: 800; color: #fff; transition: 0.3s; cursor: pointer; border: none; text-decoration: none; }
-        
-        .btn-watch { background: linear-gradient(135deg, #E50914 0%, #b20710 100%); box-shadow: 0 8px 26px rgba(229,9,20,0.45); }
-        .btn-watch:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(229,9,20,0.6); }
-        
-        .btn-download { background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%); box-shadow: 0 8px 26px rgba(34,197,94,0.45); }
-        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(34,197,94,0.6); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-red: #E50914;
+            --bg-primary: #0A0A0F;
+            --bg-card: #1A1A24;
+            --bg-secondary: #14141C;
+            --text-white: #FFFFFF;
+            --text-muted: #A0A0AA;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-height: 62px;
+            --sticky-banner-height: 70px;
+            --server-green: #22C55E;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-white);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+            padding-bottom: var(--sticky-banner-height);
+        }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-red); }
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
 
-        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 80px 20px; }
-        .loading-screen i { font-size: 40px; color: #E50914; animation: spin 0.8s linear infinite; }
-        .loading-screen span { font-size: 14px; color: #9CA3AF; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .error-screen { display: none; flex-direction: column; align-items: center; gap: 14px; padding: 60px 20px; }
-        .error-screen i { font-size: 50px; color: #E50914; opacity: 0.6; }
-        .error-screen h2 { font-size: 20px; font-weight: 800; }
-        .error-screen p { color: #9CA3AF; font-size: 13px; }
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: var(--bg-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 10px 0; height: var(--header-height);
+            display: flex; align-items: center; transition: var(--transition);
+        }
+        .header.scrolled { background: var(--bg-primary); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6); }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+        .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 18px; }
+        .header-actions { display: flex; align-items: center; gap: 14px; }
+        .header-actions .back-btn {
+            padding: 6px 16px; border-radius: 30px; background: rgba(255, 255, 255, 0.06);
+            font-size: 13px; font-weight: 600; transition: var(--transition);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .header-actions .back-btn:hover { background: rgba(255, 255, 255, 0.12); }
+        .header-actions .profile-btn {
+            width: 34px; height: 34px; border-radius: 50%; background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+            transition: var(--transition); border: 2px solid transparent;
+        }
+        .header-actions .profile-btn:hover { border-color: var(--primary-red); }
 
-        @media (min-width: 768px) {
-            .content-box { max-width: 600px; padding: 40px; display: flex; gap: 30px; text-align: left; align-items: flex-start; }
-            .poster-wrap { width: 180px; height: 270px; margin: 0; flex-shrink: 0; }
-            .details-wrap { flex: 1; display: flex; flex-direction: column; }
-            .overview-box { max-height: 180px; }
-            .action-buttons { flex-direction: row; }
-            .btn-action { padding: 14px 20px; font-size: 14px; }
-            .official-badge { position: absolute; top: 15px; right: 20px; margin-bottom: 0; }
+        .player-row { display: flex; gap: 20px; align-items: flex-start; }
+        .player-wrapper {
+            flex: 1; background: #000; border-radius: var(--radius); overflow: hidden;
+            position: relative; aspect-ratio: 16 / 9; width: 100%; max-height: 75vh;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .player-wrapper:fullscreen, .player-wrapper:-webkit-full-screen {
+            max-height: 100vh; width: 100vw; border-radius: 0; border: none; aspect-ratio: auto;
+        }
+        .player-wrapper iframe { width: 100%; height: 100%; border: none; display: block; position: relative; z-index: 1; }
+
+        .pause-ad-overlay {
+            position: absolute; left: 0; right: 0; z-index: 10; display: none;
+            align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px); padding: 8px 12px; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .pause-ad-overlay.visible { display: flex; pointer-events: auto; }
+        .pause-ad-overlay.top { top: 0; min-height: 100px; border-bottom: 2px solid rgba(229, 9, 20, 0.3); }
+        .pause-ad-overlay.bottom { bottom: 0; min-height: 100px; border-top: 2px solid rgba(229, 9, 20, 0.3); }
+        .pause-ad-overlay .ad-inner {
+            width: 100%; max-width: 728px; margin: 0 auto; display: flex;
+            align-items: center; justify-content: center; min-height: 90px;
+        }
+        .pause-ad-overlay .ad-inner iframe { max-width: 100%; border: none; border-radius: 4px; }
+        .pause-ad-overlay .ad-label {
+            position: absolute; top: 2px; right: 8px; font-size: 9px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.5); padding: 2px 8px; border-radius: 10px; pointer-events: none;
+        }
+        .pause-ad-overlay .ad-label i { margin-right: 4px; font-size: 8px; }
+
+        .pause-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9;
+            display: none; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); border-radius: 50%;
+            width: 72px; height: 72px; border: 2px solid rgba(255, 255, 255, 0.15);
+            pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .pause-badge.visible { display: flex; }
+        .pause-badge i { font-size: 32px; color: #fff; opacity: 0.8; }
+
+        .player-branding {
+            position: absolute; top: 14px; right: 14px; z-index: 2147483647;
+            display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: rgba(10, 10, 15, 0.88); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px;
+            font-size: 12px; font-weight: 800; letter-spacing: 0.5px; color: #fff;
+            pointer-events: none; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            user-select: none; min-width: 110px; justify-content: center;
+            opacity: 1 !important; visibility: visible !important;
+        }
+        .player-branding i { color: var(--primary-red); margin-right: 4px; }
+        .player-branding span { color: var(--primary-red); }
+
+        .custom-fs-btn {
+            position: absolute; bottom: 20px; right: 12px; z-index: 2147483647;
+            background: #0B0B12; border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px; width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            color: #ffffff; font-size: 16px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.9);
+            opacity: 1 !important; visibility: visible !important; pointer-events: auto !important;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .custom-fs-btn:hover { background: var(--primary-red); border-color: var(--primary-red); transform: scale(1.05); }
+
+        .ad-banner-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius); padding: 12px 10px; width: 100%;
+        }
+        .ad-banner-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: left;
+        }
+        .ad-iframe-frame {
+            width: 100%; height: 250px; border: none; border-radius: var(--radius-sm);
+            background: transparent; display: block;
+        }
+        .ad-desktop { flex: 0 0 340px; max-width: 340px; }
+
+        .ad-mobile-stack {
+            display: none; flex-direction: column; align-items: center; gap: 8px;
+            margin-top: 20px; width: 100%; max-width: 100%; padding: 10px;
+            background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+        }
+        .ad-mobile-stack .ad-iframe-frame { height: 140px; }
+
+        .player-info {
+            margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px 24px;
+            align-items: center; justify-content: space-between;
+            background: var(--bg-card); padding: 20px 24px; border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .player-info .title-section h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+        .player-info .title-section .meta {
+            display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px;
+            color: var(--text-muted); margin-top: 6px; align-items: center;
+        }
+        .player-info .title-section .meta .type-badge {
+            text-transform: uppercase; padding: 2px 10px; border-radius: 6px;
+            background: rgba(229, 9, 20, 0.15); color: var(--primary-red); font-size: 11px; font-weight: 700;
+        }
+        .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+
+        /* 🆕 Share Buttons CSS */
+        .share-actions-wrap {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;
+        }
+        .share-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: 30px;
+            font-size: 13px; font-weight: 700; color: #fff;
+            transition: var(--transition); cursor: pointer; border: none;
+        }
+        .share-earn {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+        .share-earn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(245, 158, 11, 0.5); }
+        .share-direct {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
+        }
+        .share-direct:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(56, 189, 248, 0.5); }
+
+        .stream-status-badge {
+            display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2); padding: 6px 14px; border-radius: 30px;
+            font-size: 12px; font-weight: 600; color: var(--server-green);
+        }
+        .stream-status-badge .live-dot {
+            width: 8px; height: 8px; background: var(--server-green); border-radius: 50%;
+            box-shadow: 0 0 8px var(--server-green); animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .episode-controls {
+            display: none; flex-wrap: wrap; gap: 12px; align-items: center;
+            margin-top: 14px; padding: 14px 18px; background: var(--bg-card);
+            border-radius: var(--radius); border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .episode-controls.visible { display: flex; }
+        .episode-controls .control-group { display: flex; align-items: center; gap: 8px; }
+        .episode-controls label {
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .episode-controls select {
+            padding: 8px 14px; border-radius: 30px; background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-white);
+            font-size: 13px; font-weight: 500; outline: none; cursor: pointer;
+            font-family: var(--font); min-width: 110px;
+        }
+        .episode-controls select:focus { border-color: var(--primary-red); }
+        .episode-controls select option { background: var(--bg-secondary); color: var(--text-white); }
+        .episode-controls .apply-btn {
+            padding: 8px 22px; border-radius: 30px; background: var(--primary-red);
+            color: #fff; font-size: 13px; font-weight: 700; transition: var(--transition);
+        }
+        .episode-controls .apply-btn:hover { background: #b20710; transform: scale(1.02); }
+
+        .plot-section {
+            margin-top: 14px; padding: 16px 20px; background: var(--bg-card);
+            border-radius: var(--radius); border-left: 3px solid var(--primary-red);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .plot-section p { font-size: 14px; color: rgba(255, 255, 255, 0.75); line-height: 1.7; }
+        .plot-section .plot-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .sticky-bottom-banner {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 6px 12px 8px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7); transition: var(--transition);
+        }
+        .sticky-banner-header {
+            width: 100%; max-width: 320px; display: flex;
+            justify-content: center; align-items: center; margin-bottom: 2px;
+        }
+        .sticky-banner-label {
+            font-size: 9px; text-transform: uppercase;
+            letter-spacing: 0.6px; color: var(--text-muted);
+        }
+        .sticky-banner-content {
+            width: 320px; height: 50px; max-width: 100%;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+
+        .toast-container {
+            position: fixed; bottom: 80px; right: 24px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%;
+        }
+        .toast {
+            padding: 14px 20px; border-radius: var(--radius-sm); background: var(--bg-card);
+            border-left: 4px solid var(--primary-red); box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 12px;
+            animation: slideUp 0.3s ease; font-size: 14px;
+        }
+        .toast.success { border-left-color: #22C55E; }
+        .toast.error { border-left-color: var(--primary-red); }
+        .toast .toast-icon { font-size: 20px; flex-shrink: 0; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            :root { --header-height: 56px; }
+            .header { padding: 6px 0; }
+            .logo { font-size: 18px; }
+            .logo i { font-size: 15px; }
+            .header-actions .back-btn { font-size: 12px; padding: 4px 12px; }
+            .header-actions .profile-btn { width: 30px; height: 30px; font-size: 12px; }
+            .player-row { flex-direction: column; align-items: stretch; gap: 16px; }
+            .player-wrapper { max-height: 55vh; border-radius: var(--radius-sm); }
+            .ad-desktop { display: none; }
+            .ad-mobile-stack { display: flex; }
+            .player-branding { top: 8px; right: 8px; padding: 4px 10px; font-size: 10px; min-width: 90px; }
+            .custom-fs-btn { bottom: 10px; right: 8px; width: 40px; height: 40px; font-size: 14px; }
+            .player-info { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
+            .player-info .title-section h1 { font-size: 18px; }
+            .player-info .title-section .meta { font-size: 12px; gap: 8px; }
+            .episode-controls { padding: 12px 14px; flex-direction: column; align-items: stretch; gap: 10px; }
+            .episode-controls .control-group { width: 100%; justify-content: space-between; }
+            .episode-controls select { width: 100%; max-width: none; }
+            .plot-section p { font-size: 13px; }
+            .container { padding: 0 12px; }
+            .toast-container { right: 12px; bottom: 74px; }
+            .share-actions-wrap { width: 100%; flex-direction: column; }
+            .share-btn { width: 100%; justify-content: center; }
+        }
+        @media (min-width: 769px) {
+            .ad-desktop { display: flex; }
+            .ad-mobile-stack { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="content-box">
-        <!-- Loading State -->
-        <div id="loadingState" class="loading-screen">
-            <i class="fas fa-circle-notch"></i>
-            <span>Loading content details...</span>
-        </div>
-
-        <!-- Error State -->
-        <div id="errorState" class="error-screen">
-            <i class="fas fa-triangle-exclamation"></i>
-            <h2>Content Not Found</h2>
-            <p>We couldn't load the details for this content.</p>
-            <a href="index.html" class="btn-action btn-watch" style="margin-top: 10px;"><i class="fas fa-home"></i> Go Home</a>
-        </div>
-
-        <!-- Main Content -->
-        <div id="mainContent" style="display: none; width: 100%;">
-            <div class="official-badge">Official Share Link</div>
-            <div class="poster-wrap">
-                <img id="landingPoster" src="https://placehold.co/300x450/14141F/666?text=Loading" alt="Poster">
+    <header class="header" id="mainHeader">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+            </a>
+            <div class="header-actions">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+                <button class="profile-btn" id="profileBtn"><i class="fas fa-user"></i></button>
             </div>
-            <div class="details-wrap">
-                <h1 id="landingTitle">Loading Title...</h1>
-                <p class="subtitle" id="landingSubtitle">Movie</p>
-                <div class="rating"><i class="fas fa-star"></i> <span id="landingRating">—</span></div>
-                <div class="overview-box" id="landingOverview">Loading description...</div>
+        </div>
+    </header>
+
+    <section class="player-section container">
+        <div class="player-row">
+            <div class="player-wrapper" id="playerWrapper">
+
+                <iframe id="playerIframe" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
+
+                <div class="pause-ad-overlay top" id="pauseAdTop">
+                    <span class="ad-label"><i class="fas fa-pause"></i> Paused</span>
+                    <div class="ad-inner" id="pauseAdTopInner"></div>
+                </div>
+                <div class="pause-ad-overlay bottom" id="pauseAdBottom">
+                    <span class="ad-label"><i class="fas fa-pause"></i> Paused</span>
+                    <div class="ad-inner" id="pauseAdBottomInner"></div>
+                </div>
+
+                <div class="pause-badge" id="pauseBadge">
+                    <i class="fas fa-pause-circle"></i>
+                </div>
+            </div>
+
+            <div class="ad-banner-container ad-desktop">
+                <div class="ad-banner-label"><i class="fas fa-ad"></i> Sponsored</div>
+                <iframe class="ad-iframe-frame" src="ad.html" scrolling="no" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <div class="player-info" id="playerInfo">
+            <div class="title-section">
+                <h1 id="movieTitle">Loading…</h1>
+                <div class="meta" id="movieMeta">
+                    <span class="type-badge" id="movieType">movie</span>
+                    <span class="year" id="movieYear">—</span>
+                    <span class="rating" id="movieRating"><i class="fas fa-star"></i> —</span>
+                    <span id="movieRuntime">—</span>
+                    <span id="movieGenre">—</span>
+                </div>
                 
-                <div class="action-buttons">
-                    <button id="landingWatchBtn" class="btn-action btn-watch">
-                        <i class="fas fa-play"></i> Watch Now
+                <!-- 🆕 Share Buttons Wrapper -->
+                <div class="share-actions-wrap">
+                    <button class="share-btn share-earn" id="shareEarnBtn">
+                        <i class="fas fa-link"></i> Share via RX Shortener & Earn
                     </button>
-                    <button id="landingDownloadBtn" class="btn-action btn-download">
-                        <i class="fas fa-download"></i> Download
+                    <button class="share-btn share-direct" id="shareDirectBtn">
+                        <i class="fas fa-share-alt"></i> Direct Share (Copy)
                     </button>
                 </div>
             </div>
+            <div class="stream-status-badge">
+                <span class="live-dot"></span> HD Stream Active
+            </div>
+        </div>
+
+        <div class="episode-controls" id="episodeControls">
+            <div class="control-group">
+                <label><i class="fas fa-layer-group"></i> Season</label>
+                <select id="seasonSelect"></select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-list"></i> Episode</label>
+                <select id="episodeSelect"></select>
+            </div>
+            <button class="apply-btn" id="applyEpBtn"><i class="fas fa-check"></i> Play Episode</button>
+        </div>
+
+        <div class="plot-section" id="plotSection">
+            <div class="plot-label"><i class="fas fa-align-left"></i> Synopsis</div>
+            <p id="moviePlot">Loading description…</p>
+        </div>
+
+        <div class="ad-mobile-stack" id="mobileAdStack">
+            <div class="ad-banner-label"><i class="fas fa-ad"></i> Sponsored</div>
+            <iframe class="ad-iframe-frame" src="ad.html" scrolling="no" loading="lazy"></iframe>
+        </div>
+    </section>
+
+    <div class="sticky-bottom-banner" id="stickyBottomBanner">
+        <div class="sticky-banner-header">
+            <span class="sticky-banner-label">Sponsored</span>
+        </div>
+        <div class="sticky-banner-content" id="stickyAdContent">
+            <script>
+                atOptions = {
+                    'key': '4a5f21676e17448c3ce7697746d1287c',
+                    'format': 'iframe',
+                    'height': 50,
+                    'width': 320,
+                    'params': {}
+                };
+            </script>
+            <script src="https://www.highrevenueformat.com/4a5f21676e17448c3ce7697746d1287c/invoke.js"></script>
         </div>
     </div>
 
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
         const API = "/api";
-        const IMG_BASE = "https://image.tmdb.org/t/p";
+        const STREAM_BASE = "https://nxsha.space/embed";
 
-        const params = new URLSearchParams(window.location.search);
-        const mediaId = params.get("id");
-        const mediaType = (params.get("type") || "movie").toLowerCase();
-        const season = params.get("season") || "1";
-        const episode = params.get("episode") || "1";
-        const isTV = mediaType === "tv";
+        let currentTmdbId = null;
+        let currentType = 'movie';
+        let currentSeason = 1;
+        let currentEpisode = 1;
+        let totalSeasons = 1;
+        let seasonList = [];
+        let episodeList = [];
+        let tmdbMetadata = null;
+        let isPaused = false;
+        let iframeReloadTimer = null;
 
-        const $ = (id) => document.getElementById(id);
+        function isTvType(t) {
+            if (!t) return false;
+            t = String(t).toLowerCase();
+            return t === 'tv' || t === 'series' || t === 'anime' || t === 'show';
+        }
+        function isSeries() { return currentType === 'tv'; }
 
-        async function tmdb(path) {
-            const res = await fetch(API + "/tmdb-proxy?endpoint=" + encodeURIComponent(path));
-            const data = await res.json();
-            if (data.success === false) throw new Error(data.error || "TMDB request failed");
-            return data;
+        function toggleContainerFullscreen() {
+            const playerWrapper = document.getElementById('playerWrapper');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (playerWrapper.requestFullscreen) playerWrapper.requestFullscreen();
+                else if (playerWrapper.webkitRequestFullscreen) playerWrapper.webkitRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
         }
 
-        async function loadDetails() {
-            if (!mediaId) {
-                showError();
+        function updateFsButtonState() {
+            const fsIcon = document.getElementById('fsIcon');
+            if (!fsIcon) return;
+            const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            fsIcon.className = isFs ? 'fas fa-compress' : 'fas fa-expand';
+        }
+        document.addEventListener('fullscreenchange', updateFsButtonState);
+        document.addEventListener('webkitfullscreenchange', updateFsButtonState);
+
+        function showToast(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        async function apiRequest(url) {
+            try {
+                const res = await fetch(API + url);
+                const data = await res.json();
+                if (!res.ok || data.success === false) {
+                    throw new Error(data.error || "Request failed");
+                }
+                return data;
+            } catch (e) {
+                console.warn('API error:', url, e.message);
+                return null;
+            }
+        }
+
+        async function tmdbProxy(endpoint) {
+            return await apiRequest(`/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
+        }
+
+        async function fetchDetailsFromApi(id, type) {
+            const data = await apiRequest(`/details?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}`);
+            if (data && data.details) return data.details;
+            return null;
+        }
+
+        async function fetchSeasonEpisodes(tmdbId, seasonNumber) {
+            const data = await tmdbProxy(`/tv/${tmdbId}/season/${seasonNumber}`);
+            if (data && Array.isArray(data.episodes)) {
+                return data.episodes.map(ep => ({
+                    episode_number: ep.episode_number,
+                    name: ep.name || ''
+                }));
+            }
+            return null;
+        }
+
+        function displayTmdbMetadata(d, type) {
+            if (!d) return;
+            const isTv = type === 'tv';
+
+            document.getElementById('movieTitle').textContent = d.title || d.name || 'Untitled';
+            document.getElementById('movieType').textContent = isTv ? 'series' : 'movie';
+
+            const dateStr = d.release_date || d.first_air_date || '';
+            document.getElementById('movieYear').textContent = dateStr ? dateStr.slice(0, 4) : '—';
+
+            document.getElementById('movieRating').innerHTML =
+                `<i class="fas fa-star"></i> ${d.vote_average ? Number(d.vote_average).toFixed(1) : '—'}`;
+
+            let runtime = '—';
+            if (isTv) {
+                const epRun = Array.isArray(d.episode_run_time) && d.episode_run_time.length ? d.episode_run_time[0] : null;
+                if (epRun) runtime = `${epRun} min/ep`;
+                else if (d.number_of_episodes) runtime = `${d.number_of_episodes} eps`;
+            } else {
+                runtime = d.runtime ? `${d.runtime} min` : '—';
+            }
+            document.getElementById('movieRuntime').textContent = runtime;
+
+            let genreText = '—';
+            if (Array.isArray(d.genres)) {
+                genreText = d.genres.map(g => g.name || g).join(', ');
+            }
+            document.getElementById('movieGenre').textContent = genreText || '—';
+            document.getElementById('moviePlot').textContent = d.overview || 'No description available.';
+        }
+
+        function populateSeasonDropdown() {
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '';
+            let list = seasonList.slice();
+            if (!list.length) {
+                const count = totalSeasons > 0 ? totalSeasons : 1;
+                for (let i = 1; i <= count; i++) {
+                    list.push({ season_number: i, name: `Season ${i}`, episode_count: 0 });
+                }
+            }
+            list.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.season_number;
+                opt.textContent = s.name || `Season ${s.season_number}`;
+                select.appendChild(opt);
+            });
+        }
+
+        async function loadEpisodes(seasonNumber) {
+            const select = document.getElementById('episodeSelect');
+            select.innerHTML = '<option value="">Loading…</option>';
+            select.disabled = true;
+
+            let eps = null;
+            if (currentTmdbId) {
+                eps = await fetchSeasonEpisodes(currentTmdbId, seasonNumber);
+            }
+            if (!eps || !eps.length) {
+                const seasonMeta = seasonList.find(s => s.season_number === seasonNumber);
+                const count = seasonMeta && seasonMeta.episode_count ? seasonMeta.episode_count : 1;
+                eps = [];
+                for (let i = 1; i <= count; i++) eps.push({ episode_number: i, name: '' });
+            }
+
+            episodeList = eps;
+            select.disabled = false;
+            select.innerHTML = '';
+
+            eps.forEach(ep => {
+                const opt = document.createElement('option');
+                opt.value = ep.episode_number;
+                let name = ep.name || '';
+                if (name.length > 40) name = name.slice(0, 37) + '…';
+                opt.textContent = name ? `Ep ${ep.episode_number} — ${name}` : `Episode ${ep.episode_number}`;
+                select.appendChild(opt);
+            });
+
+            select.value = currentEpisode;
+            return episodeList;
+        }
+
+        function updateUrl() {
+            const params = new URLSearchParams(window.location.search);
+            if (currentTmdbId) params.set('id', currentTmdbId);
+            params.set('type', isSeries() ? 'tv' : 'movie');
+            if (isSeries()) {
+                params.set('season', currentSeason);
+                params.set('episode', currentEpisode);
+            } else {
+                params.delete('season');
+                params.delete('episode');
+            }
+            try {
+                window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+            } catch (e) {}
+        }
+
+        function buildPlayerUrl() {
+            if (!currentTmdbId) return null;
+            if (currentType === 'movie') {
+                return `${STREAM_BASE}/movie/${currentTmdbId}?color=netflix&disable_dl_button=true&disable_app_ad=true`;
+            }
+            const s = currentSeason || 1;
+            const e = currentEpisode || 1;
+            return `${STREAM_BASE}/tv/${currentTmdbId}/${s}/${e}?color=netflix&disable_dl_button=true&disable_app_ad=true`;
+        }
+
+        function loadPlayer() {
+            const iframe = document.getElementById('playerIframe');
+            hidePauseAds();
+
+            if (!currentTmdbId) {
+                showToast('No content ID provided.', 'error');
                 return;
             }
 
-            try {
-                const endpoint = isTV
-                    ? `/tv/${mediaId}?language=en-US`
-                    : `/movie/${mediaId}?language=en-US`;
+            const url = buildPlayerUrl();
+            if (!url) {
+                showToast('Failed to build player URL.', 'error');
+                return;
+            }
 
-                const data = await tmdb(endpoint);
+            if (iframeReloadTimer) {
+                clearTimeout(iframeReloadTimer);
+                iframeReloadTimer = null;
+            }
 
-                const title = data.title || data.name || "Untitled";
-                const year = (data.release_date || data.first_air_date || "").substring(0, 4) || "—";
-                const rating = data.vote_average ? Number(data.vote_average).toFixed(1) : "—";
+            try { iframe.src = 'about:blank'; } catch (e) {}
 
-                document.title = `Watch ${title} - RX Player`;
-                $("landingTitle").textContent = title;
-                $("landingSubtitle").textContent = isTV ? `Season ${season}, Episode ${episode}` : "Movie • " + year;
-                $("landingRating").textContent = rating;
-                $("landingOverview").textContent = data.overview || "No description available.";
+            const cb = (url.includes('?') ? '&' : '?') + '_rxr=' + Date.now();
+            const finalUrl = url + cb;
 
-                // Poster
-                const posterEl = $("landingPoster");
-                if (data.poster_path) {
-                    posterEl.src = `${IMG_BASE}/w500${data.poster_path}`;
-                } else {
-                    posterEl.src = "https://placehold.co/300x450/14141F/666?text=No+Image";
-                }
+            iframeReloadTimer = setTimeout(() => {
+                iframe.style.display = 'block';
+                iframe.src = finalUrl;
+                iframeReloadTimer = null;
+            }, 40);
 
-                // Buttons Redirect Logic
-                const encodedTitle = encodeURIComponent(title);
-                const encodedPoster = encodeURIComponent(posterEl.src);
+            updateUrl();
+            document.getElementById('episodeControls').classList.toggle('visible', isSeries());
+        }
 
-                $("landingWatchBtn").addEventListener("click", () => {
-                    let url = `ads.html?id=${mediaId}&type=${mediaType}&action=watch&title=${encodedTitle}&poster=${encodedPoster}`;
-                    if (isTV) url += `&season=${season}&episode=${episode}`;
-                    else url += `&season=1&episode=1`;
-                    window.location.href = url;
+        function loadPauseAdScript() {
+            const adCode = `
+                <script>
+                    atOptions = { 'key' : 'c858000fd6435f9dbc23628e60fdc3cb', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+                <\/script>
+                <script src="https://www.highrevenueformat.com/c858000fd6435f9dbc23628e60fdc3cb/invoke.js"><\/script>
+            `;
+            document.getElementById('pauseAdTopInner').innerHTML = adCode;
+            document.getElementById('pauseAdBottomInner').innerHTML = adCode;
+        }
+        function showPauseAds() {
+            document.getElementById('pauseAdTop').classList.add('visible');
+            document.getElementById('pauseAdBottom').classList.add('visible');
+            document.getElementById('pauseBadge').classList.add('visible');
+            isPaused = true;
+        }
+        function hidePauseAds() {
+            document.getElementById('pauseAdTop').classList.remove('visible');
+            document.getElementById('pauseAdBottom').classList.remove('visible');
+            document.getElementById('pauseBadge').classList.remove('visible');
+            isPaused = false;
+        }
+        function togglePauseAds() {
+            if (isPaused) { hidePauseAds(); }
+            else { showPauseAds(); }
+        }
+
+        // 🆕 Share Button Logic
+        function initShareButtons() {
+            const earnBtn = document.getElementById('shareEarnBtn');
+            const directBtn = document.getElementById('shareDirectBtn');
+
+            if (earnBtn) {
+                earnBtn.addEventListener('click', () => {
+                    // Jab user click karega toh "Coming Soon" ka message show hoga
+                    showToast('🚀 RX URL Shortener is Coming Soon! Stay Tuned.', 'info', 4000);
                 });
+            }
 
-                $("landingDownloadBtn").addEventListener("click", () => {
-                    let url = `ads.html?id=${mediaId}&type=${mediaType}&action=download&title=${encodedTitle}&poster=${encodedPoster}`;
-                    if (isTV) url += `&season=${season}&episode=${episode}`;
-                    else url += `&season=1&episode=1`;
-                    window.location.href = url;
+            if (directBtn) {
+                directBtn.addEventListener('click', async () => {
+                    const title = document.getElementById('movieTitle').textContent;
+                    const year = document.getElementById('movieYear').textContent;
+                    const rating = document.getElementById('movieRating').textContent.replace('⭐', '').trim();
+                    const overview = document.getElementById('moviePlot').textContent;
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const id = urlParams.get('id');
+                    const type = urlParams.get('type');
+                    const season = urlParams.get('season') || '';
+                    const episode = urlParams.get('episode') || '';
+
+                    // Landing page URL building
+                    let landingUrl = `${window.location.origin}/landing.html?id=${id}&type=${type}`;
+                    if (season) landingUrl += `&season=${season}`;
+                    if (episode) landingUrl += `&episode=${episode}`;
+
+                    const shareText = `🎬 ${title} (${year})\n⭐ Rating: ${rating}\n\n📝 ${overview}\n\n📺 Watch or Download here:\n${landingUrl}`;
+
+                    try {
+                        await navigator.clipboard.writeText(shareText);
+                        showToast('✅ Link copied! You can now share it anywhere.', 'success', 5000);
+                    } catch (err) {
+                        // Fallback for older browsers
+                        const textArea = document.createElement("textarea");
+                        textArea.value = shareText;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            showToast('✅ Link copied!', 'success', 5000);
+                        } catch (err2) {
+                            showToast('❌ Failed to copy link.', 'error');
+                        }
+                        document.body.removeChild(textArea);
+                    }
                 });
-
-                // Show Content
-                $("loadingState").style.display = "none";
-                $("mainContent").style.display = "block";
-
-            } catch (e) {
-                console.error(e);
-                showError();
             }
         }
 
-        function showError() {
-            $("loadingState").style.display = "none";
-            $("mainContent").style.display = "none";
-            $("errorState").style.display = "flex";
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const rawId = params.get('id');
+            const typeParam = (params.get('type') || 'movie').toLowerCase();
+
+            loadPauseAdScript();
+
+            if (!rawId) {
+                document.getElementById('movieTitle').textContent = 'No content specified';
+                document.getElementById('moviePlot').textContent = 'Please provide a valid ID in the URL.';
+                showToast('Missing content ID.', 'error', 4000);
+                return;
+            }
+
+            currentType = isTvType(typeParam) ? 'tv' : 'movie';
+            currentTmdbId = rawId;
+
+            let details = await fetchDetailsFromApi(currentTmdbId, currentType);
+            if (!details || (!details.title && !details.name)) {
+                const other = currentType === 'tv' ? 'movie' : 'tv';
+                const alt = await fetchDetailsFromApi(currentTmdbId, other);
+                if (alt && (alt.title || alt.name)) {
+                    details = alt;
+                    currentType = other;
+                }
+            }
+
+            if (details) {
+                tmdbMetadata = details;
+                displayTmdbMetadata(details, currentType);
+                if (isTvType(currentType)) {
+                    seasonList = (details.seasons || [])
+                        .filter(s => s.season_number >= 1)
+                        .map(s => ({
+                            season_number: s.season_number,
+                            name: s.name || `Season ${s.season_number}`,
+                            episode_count: s.episode_count || 0
+                        }));
+                    totalSeasons = seasonList.length || details.number_of_seasons || 1;
+                }
+            }
+
+            const seasonSelect = document.getElementById('seasonSelect');
+            const episodeSelect = document.getElementById('episodeSelect');
+
+            if (isSeries()) {
+                populateSeasonDropdown();
+                const seasonParam = parseInt(params.get('season'), 10);
+                currentSeason = !isNaN(seasonParam) ? seasonParam : (parseInt(seasonSelect.value, 10) || 1);
+                seasonSelect.value = currentSeason;
+
+                currentEpisode = parseInt(params.get('episode'), 10) || 1;
+                await loadEpisodes(currentSeason);
+                episodeSelect.value = currentEpisode;
+            }
+
+            // Load the initial player
+            loadPlayer();
+
+            // Init Share Buttons
+            initShareButtons();
+
+            const fsBtn = document.getElementById('customFsBtn');
+            if (fsBtn) {
+                fsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleContainerFullscreen();
+                });
+            }
+
+            seasonSelect.addEventListener('change', async () => {
+                const newSeason = parseInt(seasonSelect.value, 10) || 1;
+                currentSeason = newSeason;
+                currentEpisode = 1;
+                await loadEpisodes(currentSeason);
+                episodeSelect.value = currentEpisode;
+                loadPlayer();
+                showToast(`📺 Season ${currentSeason} loaded`, 'info', 2000);
+            });
+
+            episodeSelect.addEventListener('change', () => {});
+
+            document.getElementById('applyEpBtn').addEventListener('click', () => {
+                currentSeason = parseInt(seasonSelect.value, 10) || 1;
+                currentEpisode = parseInt(episodeSelect.value, 10) || 1;
+                loadPlayer();
+                showToast(`▶️ Playing S${currentSeason} E${currentEpisode}`, 'success', 2000);
+            });
+
+            window.addEventListener('scroll', () => {
+                document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 10);
+            });
+
+            document.getElementById('profileBtn').addEventListener('click', () => {
+                showToast('👤 Profile Active', 'info', 3000);
+            });
+
+            const playerWrapper = document.getElementById('playerWrapper');
+            playerWrapper.addEventListener('click', function(e) {
+                const target = e.target;
+                if (target === this || target.closest('.pause-ad-overlay') || target.closest('.pause-badge')) {
+                    togglePauseAds();
+                }
+            });
         }
 
-        document.addEventListener("DOMContentLoaded", loadDetails);
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
