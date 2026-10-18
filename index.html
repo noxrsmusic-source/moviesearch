@@ -2448,7 +2448,7 @@
                     const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
                     const poster = encodeURIComponent(this.poster(this.detailData));
                     
-                    let url = `ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=watch&title=${title}&poster=${poster}`;
+                    let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=watch&title=${title}&poster=${poster}`;
                     if (type === 'tv') {
                         url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
                     } else {
@@ -2471,7 +2471,7 @@
                     const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
                     const poster = encodeURIComponent(this.poster(this.detailData));
                     
-                    let url = `ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=download&title=${title}&poster=${poster}`;
+                    let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=download&title=${title}&poster=${poster}`;
 
                     if (type === 'tv') {
                         url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
