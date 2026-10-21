@@ -2,164 +2,306 @@
 (function () {
   'use strict';
 
-  const TIMING_THRESHOLD_MS = 5; // Brave Shields: <5ms = blocked
-  const OVERLAY_ID = 'adblock-overlay';
+  /* ============================================================
+     CONFIG
+  ============================================================ */
+  const OVERLAY_ID = 'adblock-overlay-host';
+  const TIMING_THRESHOLD_MS = 5;   // Brave Shields: <5ms = blocked
+  const RE_ADD_INTERVAL = 300;     // agar overlay hataya jaaye
+  const CHECK_TIMEOUT = 2500;
 
-  // ---------- 1. Brave browser detect karo (multiple signals) ----------
+  let overlayHost = null;
+  let observer = null;
+  let reAddInterval = null;
+  let detectionRunning = false;
+
+  /* ============================================================
+     BRAVE BROWSER DETECTION
+  ============================================================ */
   async function isBraveBrowser() {
-    // Signal A: navigator.brave.isBrave() (agar available ho)
-    if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
-      try {
+    try {
+      if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
         if (await navigator.brave.isBrave()) return true;
-      } catch (e) { /* ignore */ }
-    }
-    // Signal B: User-Agent Client Hints
-    if (navigator.userAgentData?.brands) {
-      return navigator.userAgentData.brands.some(b => b.brand === 'Brave');
-    }
+      }
+    } catch (e) { /* ignore */ }
+
+    try {
+      if (navigator.userAgentData && navigator.userAgentData.brands) {
+        return navigator.userAgentData.brands.some(
+          (b) => b.brand === 'Brave'
+        );
+      }
+    } catch (e) { /* ignore */ }
+
     return false;
   }
 
-  // ---------- 2. Timing check: Brave Shields ka core signal ----------
-  async function checkBraveShieldsByTiming() {
+  /* ============================================================
+     TIMING-BASED SHIELDS CHECK (Brave Shields core signal)
+  ============================================================ */
+  function checkShieldsByTiming() {
     const testDomains = [
       'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
       'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/123456789/',
       'https://tpc.googlesyndication.com/simgad/123456789'
     ];
 
-    let blockedCount = 0;
-    const results = [];
+    return new Promise((resolve) => {
+      let blockedCount = 0;
+      let completed = 0;
+      let resolved = false;
 
-    for (const domain of testDomains) {
-      try {
+      const finish = () => {
+        if (resolved) return;
+        resolved = true;
+        const shieldsUp = blockedCount >= Math.ceil(testDomains.length / 2);
+        resolve(shieldsUp);
+      };
+
+      const timer = setTimeout(finish, CHECK_TIMEOUT);
+
+      testDomains.forEach((domain) => {
         const start = performance.now();
-        await fetch(`${domain}?t=${Date.now()}`, {
-          method: 'GET', // HEAD ke bajaye GET zyada reliable ho sakta hai
+        fetch(domain + '?t=' + Date.now(), {
+          method: 'GET',
           mode: 'no-cors',
-          cache: 'no-store'
-        });
-        const elapsed = performance.now() - start;
-
-        const blocked = elapsed < TIMING_THRESHOLD_MS;
-        if (blocked) blockedCount++;
-
-        results.push({ domain, elapsed, blocked });
-      } catch (err) {
-        // Request fail => blocked (DNS, network, ya Shields)
-        blockedCount++;
-        results.push({ domain, error: true, blocked: true });
-      }
-    }
-
-    // Majority blocked => Shields up
-    const shieldsUp = blockedCount >= Math.ceil(testDomains.length / 2);
-    return { shieldsUp, blockedCount, total: testDomains.length, results };
+          cache: 'no-store',
+          credentials: 'omit'
+        })
+          .then(() => {
+            const elapsed = performance.now() - start;
+            if (elapsed < TIMING_THRESHOLD_MS) blockedCount++;
+          })
+          .catch(() => {
+            blockedCount++;
+          })
+          .finally(() => {
+            completed++;
+            if (completed === testDomains.length) {
+              clearTimeout(timer);
+              finish();
+            }
+          });
+      });
+    });
   }
 
-  // ---------- 3. Bait element check (extension-based blockers) ----------
+  /* ============================================================
+     DOM BAIT CHECK (extension blockers)
+  ============================================================ */
   function checkDomBait() {
     const bait = document.createElement('div');
     bait.className = 'adsbox ad-banner ad-unit';
+    bait.setAttribute('aria-hidden', 'true');
     bait.style.cssText =
       'position:absolute!important;left:-10000px!important;' +
-      'top:-10000px!important;width:10px!important;height:10px!important;';
+      'top:-10000px!important;width:10px!important;' +
+      'height:10px!important;pointer-events:none!important;';
     document.body.appendChild(bait);
 
+    const style = getComputedStyle(bait);
     const blocked =
       bait.offsetWidth === 0 ||
       bait.offsetHeight === 0 ||
-      getComputedStyle(bait).display === 'none' ||
-      getComputedStyle(bait).visibility === 'hidden';
+      style.display === 'none' ||
+      style.visibility === 'hidden' ||
+      style.opacity === '0';
 
     bait.remove();
     return blocked;
   }
 
-  // ---------- 4. Main detection ----------
+  /* ============================================================
+     MAIN DETECTION
+  ============================================================ */
   async function detectAdBlock() {
     const brave = await isBraveBrowser();
 
-    // Brave ke liye timing check sabse important hai
     if (brave) {
-      const timingResult = await checkBraveShieldsByTiming();
-      if (timingResult.shieldsUp) {
-        return { blocked: true, reason: 'Brave Shields active (timing)' };
+      const shieldsUp = await checkShieldsByTiming();
+      if (shieldsUp) {
+        return { blocked: true, reason: 'Brave Shields active' };
       }
-      // Agar timing se confirm nahi hua, toh DOM bait bhi check kar lo
       if (checkDomBait()) {
         return { blocked: true, reason: 'Brave DOM blocking' };
       }
       return { blocked: false };
     }
 
-    // Non-Brave browsers: DOM bait + timing (optional)
-    if (checkDomBait()) {
+    // Non-Brave: bait + timing (but require bait OR strong timing)
+    const baitBlocked = checkDomBait();
+    if (baitBlocked) {
       return { blocked: true, reason: 'DOM ad-blocker' };
     }
 
-    // Timing check sirf tab jab Brave na ho (false positive se bachne ke liye)
+    const shieldsUp = await checkShieldsByTiming();
+    if (shieldsUp) {
+      return { blocked: true, reason: 'Network-level blocking' };
+    }
+
     return { blocked: false };
   }
 
-  // ---------- 5. Overlay dikhao ----------
-  function showWarning() {
-    if (document.getElementById(OVERLAY_ID)) return;
+  /* ============================================================
+     OVERLAY (Shadow DOM, persistent)
+  ============================================================ */
+  function createOverlayHost() {
+    const host = document.createElement('div');
+    host.id = OVERLAY_ID;
+    host.style.cssText =
+      'position:fixed!important;inset:0!important;' +
+      'z-index:2147483647!important;pointer-events:auto!important;' +
+      'margin:0!important;padding:0!important;border:0!important;' +
+      'display:block!important;visibility:visible!important;' +
+      'opacity:1!important;transform:none!important;';
 
-    const overlay = document.createElement('div');
-    overlay.id = OVERLAY_ID;
-    overlay.innerHTML = `
-      <div style="position:fixed;inset:0;z-index:2147483647;
-        background:#080808;color:#fff;display:grid;place-items:center;
-        padding:24px;font-family:Arial,sans-serif;text-align:center;">
-        <div style="max-width:460px">
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = `
+      <style>
+        :host { all: initial; }
+        .wrap {
+          position: fixed;
+          inset: 0;
+          background: #080808;
+          color: #ffffff;
+          display: grid;
+          place-items: center;
+          padding: 24px;
+          font-family: Arial, sans-serif;
+          text-align: center;
+          z-index: 2147483647;
+        }
+        .box { max-width: 460px; }
+        h2 { margin: 0 0 16px; font-size: 22px; }
+        p { margin: 0 0 14px; line-height: 1.5; font-size: 15px; }
+        button {
+          background: #e50914;
+          color: #ffffff;
+          border: 0;
+          border-radius: 8px;
+          padding: 12px 22px;
+          cursor: pointer;
+          font-size: 16px;
+          margin-top: 8px;
+        }
+        button:disabled { opacity: 0.6; cursor: wait; }
+        .hint {
+          color: #aaaaaa;
+          font-size: 13px;
+          margin-top: 18px;
+          line-height: 1.5;
+        }
+      </style>
+      <div class="wrap">
+        <div class="box">
           <h2>Ad Blocker / Brave Shields Detected</h2>
           <p>
-            Is website ko ads se support milta hai. Kripya apna ad blocker
-            band karein ya Brave Shields ko is site ke liye lower karein,
-            phir dobara try karein.
+            Is website ko ads se support milta hai.
+            Kripya apna ad blocker band karein ya Brave Shields
+            ko is site ke liye lower karein, phir dobara try karein.
           </p>
-          <button id="adblock-retry"
-            style="background:#e50914;color:#fff;border:0;border-radius:8px;
-            padding:12px 22px;cursor:pointer;font-size:16px;margin-top:12px;">
-            Maine Band Kar Diya – Dobara Check Karein
-          </button>
-          <p style="color:#aaa;font-size:13px;margin-top:16px;">
-            Brave user hain? Address bar mein lion icon par click karke
-            "Shields Down" karein. DNS blocker use kar rahe hain? Is domain
-            ko whitelist karein.
+          <button id="adblock-retry">Maine Band Kar Diya – Dobara Check Karein</button>
+          <p class="hint">
+            Brave user hain? Address bar mein lion icon par click
+            karke <strong>Shields Down</strong> karein.<br>
+            DNS blocker use kar rahe hain? Is domain ko whitelist karein.
           </p>
         </div>
       </div>
     `;
-    document.body.appendChild(overlay);
-
-    document.getElementById('adblock-retry').addEventListener('click', async () => {
-      const btn = document.getElementById('adblock-retry');
-      btn.disabled = true;
-      btn.textContent = 'Checking...';
-
-      const result = await detectAdBlock();
-
-      if (result.blocked) {
-        btn.disabled = false;
-        btn.textContent = 'Maine Band Kar Diya – Dobara Check Karein';
-      } else {
-        overlay.remove();
-      }
-    });
+    return host;
   }
 
-  // ---------- 6. Run ----------
-  async function run() {
+  function attachOverlayPersistence() {
+    // 1) MutationObserver: agar koi overlay hata de, turant wapas lagao
+    observer = new MutationObserver(() => {
+      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
+        try {
+          document.documentElement.appendChild(overlayHost);
+        } catch (e) { /* ignore */ }
+      }
+    });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    // 2) Interval fallback
+    reAddInterval = setInterval(() => {
+      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
+        try {
+          document.documentElement.appendChild(overlayHost);
+        } catch (e) { /* ignore */ }
+      }
+    }, RE_ADD_INTERVAL);
+  }
+
+  function destroyOverlay() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+    if (reAddInterval) {
+      clearInterval(reAddInterval);
+      reAddInterval = null;
+    }
+    if (overlayHost && overlayHost.parentNode) {
+      overlayHost.parentNode.removeChild(overlayHost);
+    }
+    overlayHost = null;
+  }
+
+  function showWarning() {
+    if (overlayHost) return; // already shown
+
+    overlayHost = createOverlayHost();
+    document.documentElement.appendChild(overlayHost);
+    attachOverlayPersistence();
+
+    // Button handler (shadow root ke andar)
+    const retryBtn = overlayHost.shadowRoot.getElementById('adblock-retry');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', async () => {
+        retryBtn.disabled = true;
+        retryBtn.textContent = 'Checking...';
+
+        const result = await detectAdBlock();
+
+        if (result.blocked) {
+          retryBtn.disabled = false;
+          retryBtn.textContent =
+            'Maine Band Kar Diya – Dobara Check Karein';
+        } else {
+          destroyOverlay();
+        }
+      });
+    }
+  }
+
+  /* ============================================================
+     RUN
+  ============================================================ */
+  async function runCheck() {
+    if (detectionRunning) return;
     if (!document.body) return;
-    const result = await detectAdBlock();
-    if (result.blocked) showWarning();
+
+    detectionRunning = true;
+    try {
+      const result = await detectAdBlock();
+      if (result.blocked) {
+        showWarning();
+      }
+    } catch (e) {
+      // Silent fail — site block na kare
+      console.warn('[AdBlockDetect] error', e);
+    } finally {
+      detectionRunning = false;
+    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', run, { once: true });
+    document.addEventListener('DOMContentLoaded', runCheck, { once: true });
   } else {
-    run();
+    runCheck();
   }
 })();
