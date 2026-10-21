@@ -180,7 +180,7 @@
       
       <!-- Background Music (Replace src with your own MP3 if needed) -->
       <audio id="bg-music" loop>
-        <source src="/bgm/bgm.mp3" type="audio/mpeg">
+        <source src="https://res.cloudinary.com/du9nysbwl/video/upload/v1792581281/Silent_Partner_-_Space_Walk_Youtube_Premiere_Countdown_download_60_fps_jphhye.mp3" type="audio/mpeg">
       </audio>
 
       <div class="wrap">
