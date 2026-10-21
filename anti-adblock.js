@@ -8,8 +8,13 @@
   let reAddInterval = null;
   let detectionRunning = false;
 
+  // Aapki site ke posters
+  const posters1 = ['https://m.media-amazon.com/images/M/MV5BMTk2ZmFhYjctYWZiYy00N2IxLWEzMWItZGRiMDY4ZDQwZWFlXkEyXkFqcGc@._V1_QL75_UY281_CR11,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_QL75_UY281_CR12,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BOWNjYWM3NWItOGE0ZS00MWRjLThiZWEtYjc4ZmNmMmU5ZTVmXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg'];
+  const posters2 = ['https://m.media-amazon.com/images/M/MV5BMjEzMDAxOTUyMV5BMl5BanBnXkFtZTgwNzAxMzYzOTE@._V1_QL75_UX190_CR0,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BMGUzOWE4NDItNzAxYy00M2VkLWFiNDEtNjczZTQ2Nzg5YmVhXkEyXkFqcGc@._V1_QL75_UY281_CR18,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BYmEzYTQ2OTEtMGM4MS00MWE1LWI3MGYtMTIyN2IwYzlkYmI0XkEyXkFqcGc@._V1_QL75_UY281_CR18,0,190,281_.jpg'];
+  const posters3 = ['https://m.media-amazon.com/images/M/MV5BMWU1OGEwNmQtNGM3MS00YTYyLThmYmMtN2FjYzQzNzNmNTE0XkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BZTNjOWI0ZTAtOGY1OS00ZGU0LWEyOWYtMjhkYjdlYmVjMDk2XkEyXkFqcGc@._V1_QL75_UY281_CR1,0,190,281_.jpg'];
+
   /* ============================================================
-     TRANSLATIONS (English default, Hindi optional)
+     TRANSLATIONS
   ============================================================ */
   const translations = {
     en: {
@@ -102,7 +107,7 @@
   }
 
   /* ============================================================
-     2. OVERLAY UI (With Animation & Forced Music)
+     2. OVERLAY UI (With Poster Background & Forced Music)
   ============================================================ */
   function createOverlayHost() {
     const host = document.createElement('div');
@@ -115,27 +120,54 @@
       <style>
         :host { all: initial; }
         
-        @keyframes gradientBG {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        /* Background Scroll Animation */
+        @keyframes scrollUp {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(calc(-50% - 6px)); }
         }
         
         .wrap { 
-          position: fixed; inset: 0; 
-          background: linear-gradient(-45deg, #0f0f11, #1a0b2e, #0f0f11, #2a081c, #0f0f11);
-          background-size: 400% 400%;
-          animation: gradientBG 15s ease infinite;
-          color: #fff; 
+          position: fixed; inset: 0; background: #050505;
           display: flex; align-items: center; justify-content: center; 
           padding: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
-          text-align: center; z-index: 2147483647; 
+          text-align: center; z-index: 2147483647; overflow: hidden;
         }
         
+        /* Poster Background Layer */
+        .overlay-bg-wrapper {
+          position: absolute; inset: 0; display: flex; justify-content: center; gap: 12px;
+          opacity: 0.65; z-index: 1; pointer-events: none; overflow: hidden;
+        }
+        
+        .scroll-column { 
+          display: flex; flex-direction: column; gap: 12px; 
+          width: 30%; /* Mobile: 3 columns */
+          will-change: transform; 
+        }
+        
+        @media (min-width: 768px) { .scroll-column { width: 18%; } }
+
+        .scroll-column-up-fast { animation: scrollUp 45s linear infinite; }
+        .scroll-column-up-slow { animation: scrollUp 60s linear infinite; }
+        .scroll-column-up-medium { animation: scrollUp 50s linear infinite; }
+
+        .poster-card {
+          border-radius: 12px; overflow: hidden; aspect-ratio: 2 / 3;
+          background: #1c1c1e; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); flex-shrink: 0;
+        }
+        .poster-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Dark Gradient so text is readable */
+        .overlay-gradient {
+          position: absolute; inset: 0;
+          background: linear-gradient(180deg, rgba(15, 15, 15, 0.6) 0%, rgba(15, 15, 15, 0.9) 45%, #0f0f0f 100%);
+          z-index: 2; pointer-events: none;
+        }
+
+        /* The Main Dialog Box */
         .box { 
-          position: relative; max-width: 480px; background: rgba(28, 28, 31, 0.85); 
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          position: relative; z-index: 10; max-width: 480px; background: rgba(28, 28, 31, 0.85); 
+          backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
           padding: 40px 30px; border-radius: 16px; 
           box-shadow: 0 15px 35px rgba(0,0,0,0.6);
           border: 1px solid rgba(255,255,255,0.1);
@@ -155,7 +187,7 @@
         
         .top-controls {
           position: absolute; top: 12px; left: 16px; right: 16px;
-          display: flex; justify-content: flex-end; align-items: center; /* Only lang button on right */
+          display: flex; justify-content: flex-end; align-items: center;
         }
         
         .ctrl-btn {
@@ -169,12 +201,16 @@
         .hint b { color: #aaa; }
       </style>
       
-      <!-- Background Music -->
       <audio id="bg-music" loop>
         <source src="https://res.cloudinary.com/du9nysbwl/video/upload/v1792581281/Silent_Partner_-_Space_Walk_Youtube_Premiere_Countdown_download_60_fps_jphhye.mp3" type="audio/mpeg">
       </audio>
 
       <div class="wrap">
+        <!-- Dynamic Poster Background -->
+        <div class="overlay-bg-wrapper" id="overlay-bg-wrapper"></div>
+        <div class="overlay-gradient"></div>
+
+        <!-- Dialog Box -->
         <div class="box">
           <div class="top-controls">
             <button class="ctrl-btn" id="lang-toggle">${translations[currentLang].toggleLabel}</button>
@@ -201,6 +237,31 @@
     overlayHost = createOverlayHost();
     document.documentElement.appendChild(overlayHost);
 
+    const shadowRoot = overlayHost.shadowRoot;
+    const bgWrapper = shadowRoot.getElementById('overlay-bg-wrapper');
+
+    /* --- Populate Background Posters --- */
+    function createPosterHTML(url) { 
+      return `<div class="poster-card"><img src="${url}" alt="Poster"></div>`; 
+    }
+    function buildColumn(arr) { 
+      let html = ''; 
+      for(let i=0; i<5; i++) { arr.forEach(url => html += createPosterHTML(url)); } 
+      return html; 
+    }
+
+    if(bgWrapper) {
+      for(let i=0; i<6; i++) {
+        const col = document.createElement('div');
+        const speeds = ['fast', 'slow', 'medium'];
+        const arrays = [posters1, posters2, posters3];
+        col.className = `scroll-column scroll-column-up-${speeds[i % 3]}`;
+        col.innerHTML = buildColumn(arrays[i % 3]);
+        bgWrapper.appendChild(col);
+      }
+    }
+
+    /* --- Overlay Persistence --- */
     observer = new MutationObserver(() => {
       if (!document.getElementById(OVERLAY_ID) && overlayHost) {
         document.documentElement.appendChild(overlayHost);
@@ -214,7 +275,7 @@
       }
     }, 300);
 
-    const shadowRoot = overlayHost.shadowRoot;
+    /* --- Elements --- */
     const retryBtn = shadowRoot.getElementById('adblock-retry');
     const langToggleBtn = shadowRoot.getElementById('lang-toggle');
     const titleEl = shadowRoot.getElementById('ad-title');
@@ -222,8 +283,8 @@
     const hintEl = shadowRoot.getElementById('ad-hint');
     const bgMusic = shadowRoot.getElementById('bg-music');
 
-    /* --- Background Music Logic (Forced ON, No Toggle) --- */
-    bgMusic.volume = 0.3; // Volume set karein
+    /* --- Music Logic (Forced ON, No Toggle) --- */
+    bgMusic.volume = 0.3;
 
     // 1. Try to play immediately
     bgMusic.play().catch(() => {
@@ -234,19 +295,17 @@
         if (bgMusic.paused) {
           bgMusic.play().catch(e => console.log("Play failed:", e));
         }
-        // Ek baar play hone ke baad event listener hata dein
         overlayHost.removeEventListener('click', playMusicOnInteraction);
         document.removeEventListener('click', playMusicOnInteraction);
         document.removeEventListener('touchstart', playMusicOnInteraction);
       };
 
-      // Overlay ya poore document par click/touch track karein
       overlayHost.addEventListener('click', playMusicOnInteraction);
       document.addEventListener('click', playMusicOnInteraction);
       document.addEventListener('touchstart', playMusicOnInteraction);
     });
 
-    /* --- Language Toggle Logic --- */
+    /* --- Language Toggle --- */
     langToggleBtn.addEventListener('click', () => {
       currentLang = currentLang === 'en' ? 'hi' : 'en';
       localStorage.setItem('adblock_lang', currentLang);
@@ -261,7 +320,7 @@
       }
     });
 
-    /* --- Retry Button Logic --- */
+    /* --- Retry Button --- */
     retryBtn.addEventListener('click', async () => {
       retryBtn.disabled = true;
       retryBtn.textContent = translations[currentLang].btnWait;
@@ -272,7 +331,6 @@
           retryBtn.disabled = false;
           retryBtn.textContent = translations[currentLang].btnStillBlocked;
         } else {
-          // Blocker off ho gaya, sab clean karo
           observer.disconnect();
           clearInterval(reAddInterval);
           bgMusic.pause(); 
