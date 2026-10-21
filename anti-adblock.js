@@ -2,305 +2,187 @@
 (function () {
   'use strict';
 
-  /* ============================================================
-     CONFIG
-  ============================================================ */
   const OVERLAY_ID = 'adblock-overlay-host';
-  const TIMING_THRESHOLD_MS = 5;   // Brave Shields: <5ms = blocked
-  const RE_ADD_INTERVAL = 300;     // agar overlay hataya jaaye
-  const CHECK_TIMEOUT = 2500;
-
+  const CHECK_TIMEOUT = 2000; 
   let overlayHost = null;
   let observer = null;
   let reAddInterval = null;
   let detectionRunning = false;
 
   /* ============================================================
-     BRAVE BROWSER DETECTION
+     1. BRAVE & ADBLOCK DETECTION (ULTRA ROBUST)
   ============================================================ */
   async function isBraveBrowser() {
     try {
       if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
         if (await navigator.brave.isBrave()) return true;
       }
-    } catch (e) { /* ignore */ }
-
+    } catch (e) {}
     try {
       if (navigator.userAgentData && navigator.userAgentData.brands) {
-        return navigator.userAgentData.brands.some(
-          (b) => b.brand === 'Brave'
-        );
+        return navigator.userAgentData.brands.some(b => b.brand === 'Brave');
       }
-    } catch (e) { /* ignore */ }
-
+    } catch (e) {}
     return false;
   }
 
-  /* ============================================================
-     TIMING-BASED SHIELDS CHECK (Brave Shields core signal)
-  ============================================================ */
-  function checkShieldsByTiming() {
-    const testDomains = [
-      'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
-      'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/123456789/',
-      'https://tpc.googlesyndication.com/simgad/123456789'
-    ];
-
+  // Robust Network Check (Script + Image tag approach)
+  function checkNetworkBlocks() {
     return new Promise((resolve) => {
-      let blockedCount = 0;
+      let blockedSignals = 0;
       let completed = 0;
-      let resolved = false;
+      const totalTests = 2;
 
       const finish = () => {
-        if (resolved) return;
-        resolved = true;
-        const shieldsUp = blockedCount >= Math.ceil(testDomains.length / 2);
-        resolve(shieldsUp);
+        completed++;
+        if (completed >= totalTests) {
+          resolve(blockedSignals > 0); // Agar 1 bhi block hua toh true
+        }
       };
 
-      const timer = setTimeout(finish, CHECK_TIMEOUT);
+      // Test 1: Script Tag Injection (Google Ads)
+      const script = document.createElement('script');
+      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?cb=' + Math.random();
+      script.async = true;
+      script.onload = () => finish(); // Loaded = Not blocked
+      script.onerror = () => { blockedSignals++; finish(); }; // Error = Blocked
+      document.head.appendChild(script);
+      setTimeout(() => { script.remove(); }, CHECK_TIMEOUT);
 
-      testDomains.forEach((domain) => {
-        const start = performance.now();
-        fetch(domain + '?t=' + Date.now(), {
-          method: 'GET',
-          mode: 'no-cors',
-          cache: 'no-store',
-          credentials: 'omit'
-        })
-          .then(() => {
-            const elapsed = performance.now() - start;
-            if (elapsed < TIMING_THRESHOLD_MS) blockedCount++;
-          })
-          .catch(() => {
-            blockedCount++;
-          })
-          .finally(() => {
-            completed++;
-            if (completed === testDomains.length) {
-              clearTimeout(timer);
-              finish();
-            }
-          });
-      });
+      // Test 2: Image Pixel Injection (DoubleClick)
+      const img = new Image();
+      img.src = 'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/123456789/?cb=' + Math.random();
+      img.onload = () => finish();
+      img.onerror = () => { blockedSignals++; finish(); };
+      
+      // Timeout fallback
+      setTimeout(() => { if (completed < totalTests) { blockedSignals++; resolve(true); } }, CHECK_TIMEOUT);
     });
   }
 
-  /* ============================================================
-     DOM BAIT CHECK (extension blockers)
-  ============================================================ */
+  // DOM Bait Check (Extension blockers)
   function checkDomBait() {
     const bait = document.createElement('div');
     bait.className = 'adsbox ad-banner ad-unit';
-    bait.setAttribute('aria-hidden', 'true');
-    bait.style.cssText =
-      'position:absolute!important;left:-10000px!important;' +
-      'top:-10000px!important;width:10px!important;' +
-      'height:10px!important;pointer-events:none!important;';
+    bait.style.cssText = 'position:absolute!important;left:-10000px!important;top:-10000px!important;width:10px!important;height:10px!important;';
     document.body.appendChild(bait);
-
-    const style = getComputedStyle(bait);
-    const blocked =
-      bait.offsetWidth === 0 ||
-      bait.offsetHeight === 0 ||
-      style.display === 'none' ||
-      style.visibility === 'hidden' ||
-      style.opacity === '0';
-
+    const blocked = bait.offsetWidth === 0 || bait.offsetHeight === 0 || getComputedStyle(bait).display === 'none';
     bait.remove();
     return blocked;
   }
 
-  /* ============================================================
-     MAIN DETECTION
-  ============================================================ */
   async function detectAdBlock() {
     const brave = await isBraveBrowser();
+    const networkBlocked = await checkNetworkBlocks();
+    const domBlocked = checkDomBait();
 
-    if (brave) {
-      const shieldsUp = await checkShieldsByTiming();
-      if (shieldsUp) {
-        return { blocked: true, reason: 'Brave Shields active' };
-      }
-      if (checkDomBait()) {
-        return { blocked: true, reason: 'Brave DOM blocking' };
-      }
-      return { blocked: false };
-    }
-
-    // Non-Brave: bait + timing (but require bait OR strong timing)
-    const baitBlocked = checkDomBait();
-    if (baitBlocked) {
-      return { blocked: true, reason: 'DOM ad-blocker' };
-    }
-
-    const shieldsUp = await checkShieldsByTiming();
-    if (shieldsUp) {
-      return { blocked: true, reason: 'Network-level blocking' };
-    }
+    // Agar Brave hai aur Network block hai, toh pakka Shields ON hai
+    if (brave && networkBlocked) return { blocked: true, reason: 'Brave Shields' };
+    
+    // Agar koi bhi adblocker hai
+    if (domBlocked || networkBlocked) return { blocked: true, reason: 'AdBlocker' };
 
     return { blocked: false };
   }
 
   /* ============================================================
-     OVERLAY (Shadow DOM, persistent)
+     2. SHADOW DOM OVERLAY (Jo kabhi gayab nahi hoga)
   ============================================================ */
   function createOverlayHost() {
     const host = document.createElement('div');
     host.id = OVERLAY_ID;
-    host.style.cssText =
-      'position:fixed!important;inset:0!important;' +
-      'z-index:2147483647!important;pointer-events:auto!important;' +
-      'margin:0!important;padding:0!important;border:0!important;' +
-      'display:block!important;visibility:visible!important;' +
-      'opacity:1!important;transform:none!important;';
+    // Force inline styles taaki site CSS isko hide na kar sake
+    host.style.cssText = 'position:fixed!important;inset:0!important;z-index:2147483647!important;pointer-events:auto!important;display:block!important;visibility:visible!important;opacity:1!important;';
 
     const shadow = host.attachShadow({ mode: 'open' });
     shadow.innerHTML = `
       <style>
         :host { all: initial; }
-        .wrap {
-          position: fixed;
-          inset: 0;
-          background: #080808;
-          color: #ffffff;
-          display: grid;
-          place-items: center;
-          padding: 24px;
-          font-family: Arial, sans-serif;
-          text-align: center;
-          z-index: 2147483647;
-        }
-        .box { max-width: 460px; }
-        h2 { margin: 0 0 16px; font-size: 22px; }
-        p { margin: 0 0 14px; line-height: 1.5; font-size: 15px; }
-        button {
-          background: #e50914;
-          color: #ffffff;
-          border: 0;
-          border-radius: 8px;
-          padding: 12px 22px;
-          cursor: pointer;
-          font-size: 16px;
-          margin-top: 8px;
-        }
+        .wrap { position: fixed; inset: 0; background: #080808; color: #fff; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; text-align: center; z-index: 2147483647; }
+        .box { max-width: 480px; }
+        h2 { margin: 0 0 16px; font-size: 24px; color: #ff4d4d; }
+        p { margin: 0 0 16px; line-height: 1.6; font-size: 16px; color: #e0e0e0; }
+        button { background: #e50914; color: #fff; border: 0; border-radius: 8px; padding: 14px 24px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.2s; width: 100%; max-width: 300px; }
+        button:hover { background: #f40612; }
         button:disabled { opacity: 0.6; cursor: wait; }
-        .hint {
-          color: #aaaaaa;
-          font-size: 13px;
-          margin-top: 18px;
-          line-height: 1.5;
-        }
+        .hint { color: #888; font-size: 13px; margin-top: 20px; line-height: 1.5; }
       </style>
       <div class="wrap">
         <div class="box">
-          <h2>Ad Blocker / Brave Shields Detected</h2>
-          <p>
-            Is website ko ads se support milta hai.
-            Kripya apna ad blocker band karein ya Brave Shields
-            ko is site ke liye lower karein, phir dobara try karein.
-          </p>
-          <button id="adblock-retry">Maine Band Kar Diya – Dobara Check Karein</button>
-          <p class="hint">
-            Brave user hain? Address bar mein lion icon par click
-            karke <strong>Shields Down</strong> karein.<br>
-            DNS blocker use kar rahe hain? Is domain ko whitelist karein.
-          </p>
+          <h2>Ad Blocker Detected!</h2>
+          <p>Is website ko chalane ke liye ads zaroori hain. Kripya apna <b>Ad Blocker</b> band karein ya <b>Brave Shields</b> ko is site ke liye lower karein.</p>
+          <button id="adblock-retry">Maine Block Band Kar Diya – Check Karein</button>
+          <p class="hint">Brave User? Address bar mein <b>Lion Icon</b> par click karke "Shields Down" karein.</p>
         </div>
       </div>
     `;
     return host;
   }
 
-  function attachOverlayPersistence() {
-    // 1) MutationObserver: agar koi overlay hata de, turant wapas lagao
-    observer = new MutationObserver(() => {
-      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
-        try {
-          document.documentElement.appendChild(overlayHost);
-        } catch (e) { /* ignore */ }
-      }
-    });
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
-
-    // 2) Interval fallback
-    reAddInterval = setInterval(() => {
-      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
-        try {
-          document.documentElement.appendChild(overlayHost);
-        } catch (e) { /* ignore */ }
-      }
-    }, RE_ADD_INTERVAL);
-  }
-
-  function destroyOverlay() {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-    if (reAddInterval) {
-      clearInterval(reAddInterval);
-      reAddInterval = null;
-    }
-    if (overlayHost && overlayHost.parentNode) {
-      overlayHost.parentNode.removeChild(overlayHost);
-    }
-    overlayHost = null;
-  }
-
   function showWarning() {
-    if (overlayHost) return; // already shown
+    if (overlayHost) return; 
 
     overlayHost = createOverlayHost();
     document.documentElement.appendChild(overlayHost);
-    attachOverlayPersistence();
 
-    // Button handler (shadow root ke andar)
+    // Overlay ko forcefully zinda rakhne ke liye
+    observer = new MutationObserver(() => {
+      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
+        document.documentElement.appendChild(overlayHost);
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    reAddInterval = setInterval(() => {
+      if (!document.getElementById(OVERLAY_ID) && overlayHost) {
+        document.documentElement.appendChild(overlayHost);
+      }
+    }, 300);
+
+    // Retry Button
     const retryBtn = overlayHost.shadowRoot.getElementById('adblock-retry');
-    if (retryBtn) {
-      retryBtn.addEventListener('click', async () => {
-        retryBtn.disabled = true;
-        retryBtn.textContent = 'Checking...';
+    retryBtn.addEventListener('click', async () => {
+      retryBtn.disabled = true;
+      retryBtn.textContent = 'Checking...';
 
+      // Thoda wait karein user ko blocker off karne ka time dene ke liye
+      setTimeout(async () => {
         const result = await detectAdBlock();
-
         if (result.blocked) {
           retryBtn.disabled = false;
-          retryBtn.textContent =
-            'Maine Band Kar Diya – Dobara Check Karein';
+          retryBtn.textContent = 'Abhi bhi block hai! Check Again';
         } else {
-          destroyOverlay();
+          // Blocker off ho gaya, overlay hatao
+          observer.disconnect();
+          clearInterval(reAddInterval);
+          overlayHost.remove();
+          overlayHost = null;
         }
-      });
-    }
+      }, 800);
+    });
   }
 
   /* ============================================================
-     RUN
+     3. INITIALIZATION
   ============================================================ */
   async function runCheck() {
-    if (detectionRunning) return;
-    if (!document.body) return;
-
+    if (detectionRunning || !document.body) return;
     detectionRunning = true;
     try {
       const result = await detectAdBlock();
       if (result.blocked) {
+        console.log("Blocked detected via:", result.reason);
         showWarning();
       }
     } catch (e) {
-      // Silent fail — site block na kare
-      console.warn('[AdBlockDetect] error', e);
+      console.warn("Detection error:", e);
     } finally {
       detectionRunning = false;
     }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runCheck, { once: true });
+    document.addEventListener('DOMContentLoaded', runCheck);
   } else {
     runCheck();
   }
