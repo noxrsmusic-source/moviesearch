@@ -180,7 +180,7 @@
       
       <!-- Background Music (Replace src with your own MP3 if needed) -->
       <audio id="bg-music" loop>
-        <source src="https://github.com/noxrsmusic-source/moviesearch/blob/main/bgm/Silent%20Partner%20-%20Space%20Walk%20(Youtube%20Premiere%20Countdown)[download]%2060%20fps.mp3" type="audio/mpeg">
+        <source src="/bgm/Silent Partner - Space Walk (Youtube Premiere Countdown)[download] 60 fps.mp3" type="audio/mpeg">
       </audio>
 
       <div class="wrap">
