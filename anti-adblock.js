@@ -1,4 +1,3 @@
-
 (function () {
   'use strict';
 
@@ -21,9 +20,7 @@
       btnStillBlocked: "Still blocked! Check Again",
       hint1: "<b>Using Brave?</b> Click the Lion icon in the address bar and select \"Shields Down\".",
       hint2: "<b>Using a DNS Blocker?</b> Please whitelist our domain.",
-      toggleLabel: "हिंदी", // Shows Hindi toggle text when in English
-      musicOn: "🔊 Music ON",
-      musicOff: "🔇 Music OFF"
+      toggleLabel: "हिंदी"
     },
     hi: {
       title: "Ad Blocker Detected",
@@ -33,13 +30,10 @@
       btnStillBlocked: "Abhi bhi block hai! Check Again",
       hint1: "<b>Brave use kar rahe hain?</b> Address bar mein Lion icon par click karke \"Shields Down\" karein.",
       hint2: "<b>DNS Blocker?</b> Kripya is domain ko whitelist karein.",
-      toggleLabel: "English", // Shows English toggle text when in Hindi
-      musicOn: "🔊 Music ON",
-      musicOff: "🔇 Music OFF"
+      toggleLabel: "English"
     }
   };
 
-  // DEFAULT LANGUAGE IS NOW 'en'
   let currentLang = localStorage.getItem('adblock_lang') || 'en';
 
   /* ============================================================
@@ -108,7 +102,7 @@
   }
 
   /* ============================================================
-     2. OVERLAY UI (With Animation & Music)
+     2. OVERLAY UI (With Animation & Forced Music)
   ============================================================ */
   function createOverlayHost() {
     const host = document.createElement('div');
@@ -121,7 +115,6 @@
       <style>
         :host { all: initial; }
         
-        /* Premium Animated Background */
         @keyframes gradientBG {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -130,7 +123,6 @@
         
         .wrap { 
           position: fixed; inset: 0; 
-          /* Dark animated gradient */
           background: linear-gradient(-45deg, #0f0f11, #1a0b2e, #0f0f11, #2a081c, #0f0f11);
           background-size: 400% 400%;
           animation: gradientBG 15s ease infinite;
@@ -142,7 +134,7 @@
         
         .box { 
           position: relative; max-width: 480px; background: rgba(28, 28, 31, 0.85); 
-          backdrop-filter: blur(12px); /* Glassmorphism effect */
+          backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           padding: 40px 30px; border-radius: 16px; 
           box-shadow: 0 15px 35px rgba(0,0,0,0.6);
@@ -161,10 +153,9 @@
         button.main-btn:hover { background: #f40612; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6); }
         button.main-btn:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: none; }
         
-        /* Top Controls */
         .top-controls {
           position: absolute; top: 12px; left: 16px; right: 16px;
-          display: flex; justify-content: space-between; align-items: center;
+          display: flex; justify-content: flex-end; align-items: center; /* Only lang button on right */
         }
         
         .ctrl-btn {
@@ -178,7 +169,7 @@
         .hint b { color: #aaa; }
       </style>
       
-      <!-- Background Music (Replace src with your own MP3 if needed) -->
+      <!-- Background Music -->
       <audio id="bg-music" loop>
         <source src="https://res.cloudinary.com/du9nysbwl/video/upload/v1792581281/Silent_Partner_-_Space_Walk_Youtube_Premiere_Countdown_download_60_fps_jphhye.mp3" type="audio/mpeg">
       </audio>
@@ -186,7 +177,6 @@
       <div class="wrap">
         <div class="box">
           <div class="top-controls">
-            <button class="ctrl-btn" id="music-toggle">🔊 Music ON</button>
             <button class="ctrl-btn" id="lang-toggle">${translations[currentLang].toggleLabel}</button>
           </div>
           
@@ -227,45 +217,33 @@
     const shadowRoot = overlayHost.shadowRoot;
     const retryBtn = shadowRoot.getElementById('adblock-retry');
     const langToggleBtn = shadowRoot.getElementById('lang-toggle');
-    const musicToggleBtn = shadowRoot.getElementById('music-toggle');
     const titleEl = shadowRoot.getElementById('ad-title');
     const bodyEl = shadowRoot.getElementById('ad-body');
     const hintEl = shadowRoot.getElementById('ad-hint');
     const bgMusic = shadowRoot.getElementById('bg-music');
 
-    /* --- Background Music Logic --- */
-    bgMusic.volume = 0.2; // Volume thoda kam rakha hai
-    let isMusicPlaying = false;
+    /* --- Background Music Logic (Forced ON, No Toggle) --- */
+    bgMusic.volume = 0.3; // Volume set karein
 
-    // Try to play immediately (Browser may block)
-    bgMusic.play().then(() => {
-      isMusicPlaying = true;
-      musicToggleBtn.textContent = translations[currentLang].musicOn;
-    }).catch(() => {
-      // Autoplay blocked, wait for user's first click anywhere on overlay
-      isMusicPlaying = false;
-      musicToggleBtn.textContent = translations[currentLang].musicOff;
+    // 1. Try to play immediately
+    bgMusic.play().catch(() => {
+      // 2. Agar browser block kare, toh user ke first click par play karein
+      console.log("Autoplay blocked. Waiting for user interaction...");
       
-      overlayHost.addEventListener('click', () => {
-        if (!isMusicPlaying) {
-          bgMusic.play();
-          isMusicPlaying = true;
-          musicToggleBtn.textContent = translations[currentLang].musicOn;
+      const playMusicOnInteraction = () => {
+        if (bgMusic.paused) {
+          bgMusic.play().catch(e => console.log("Play failed:", e));
         }
-      }, { once: true });
-    });
+        // Ek baar play hone ke baad event listener hata dein
+        overlayHost.removeEventListener('click', playMusicOnInteraction);
+        document.removeEventListener('click', playMusicOnInteraction);
+        document.removeEventListener('touchstart', playMusicOnInteraction);
+      };
 
-    musicToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Parent click event ko rokne ke liye
-      if (isMusicPlaying) {
-        bgMusic.pause();
-        isMusicPlaying = false;
-        musicToggleBtn.textContent = translations[currentLang].musicOff;
-      } else {
-        bgMusic.play();
-        isMusicPlaying = true;
-        musicToggleBtn.textContent = translations[currentLang].musicOn;
-      }
+      // Overlay ya poore document par click/touch track karein
+      overlayHost.addEventListener('click', playMusicOnInteraction);
+      document.addEventListener('click', playMusicOnInteraction);
+      document.addEventListener('touchstart', playMusicOnInteraction);
     });
 
     /* --- Language Toggle Logic --- */
@@ -281,7 +259,6 @@
       if (!retryBtn.disabled) {
         retryBtn.textContent = translations[currentLang].btnCheck;
       }
-      musicToggleBtn.textContent = isMusicPlaying ? translations[currentLang].musicOn : translations[currentLang].musicOff;
     });
 
     /* --- Retry Button Logic --- */
@@ -295,9 +272,10 @@
           retryBtn.disabled = false;
           retryBtn.textContent = translations[currentLang].btnStillBlocked;
         } else {
+          // Blocker off ho gaya, sab clean karo
           observer.disconnect();
           clearInterval(reAddInterval);
-          bgMusic.pause(); // Stop music when overlay is removed
+          bgMusic.pause(); 
           overlayHost.remove();
           overlayHost = null;
         }
@@ -314,7 +292,6 @@
     try {
       const result = await detectAdBlock();
       if (result.blocked) {
-        console.log("Blocked detected via:", result.reason);
         showWarning();
       }
     } catch (e) {
