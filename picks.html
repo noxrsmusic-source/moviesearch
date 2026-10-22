@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Picked For You - RX Player</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Same CSS as trending.html */
+        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --primary-red: #E50914; --primary-green: #22C55E; --bg-primary: #08080C;
+            --bg-card: #14141F; --bg-secondary: #0F0F17; --text-white: #FFFFFF;
+            --text-muted: #9CA3AF; --shadow: 0 16px 40px rgba(0,0,0,0.8);
+            --radius: 14px; --radius-sm: 8px; --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', sans-serif; --header-offset: 130px;
+        }
+        body { font-family: var(--font) !important; background: var(--bg-primary) !important; color: var(--text-white) !important; line-height: 1.5; min-height: 100vh; padding-top: var(--header-offset); padding-bottom: 90px; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+
+        .header-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .header-top { padding: 12px 0; }
+        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 20px; }
+        .user-status { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 5px 12px 5px 6px; border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.08); cursor: pointer; }
+        .user-status .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+        .user-status .username { font-size: 13px; font-weight: 600; }
+        .search-bar-row { padding: 4px 0 12px; }
+        .header-search { width: 100%; position: relative; display: flex; align-items: center; }
+        .header-search input { width: 100%; height: 44px; padding: 0 44px 0 48px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #fff; font-size: 14.5px; outline: none; }
+        .header-search input:focus { border-color: var(--primary-red); }
+        .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .page-title-wrap { text-align: center; margin-bottom: 24px; padding-top: 10px; }
+        .page-title-wrap h1 { font-size: 28px; font-weight: 900; color: #fff; }
+        .page-title-wrap h1 i { color: var(--primary-red); margin-right: 8px; }
+        .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
+
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
+
+        .movie-card { border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition); }
+        .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
+        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; }
+        .movie-card .card-info { padding: 8px 10px; }
+        .movie-card .card-info h4 { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
+        .btn-load-more {
+            padding: 12px 30px; border-radius: 30px;
+            background: rgba(229, 9, 20, 0.1); color: var(--primary-red);
+            border: 1.5px solid var(--primary-red); font-weight: 700; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 8px; transition: var(--transition);
+        }
+        .btn-load-more:hover { background: var(--primary-red); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(229,9,20,0.4); }
+        .btn-load-more:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .detail-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; }
+        .detail-modal-overlay.open { display: flex; }
+        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; }
+        .detail-modal-loading { padding: 100px 20px; text-align: center; color: var(--primary-red); }
+        .detail-backdrop { width: 100%; aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
+        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.7) 60%, var(--bg-card) 100%); }
+        .detail-header-content { position: relative; padding: 24px; margin-top: -60px; z-index: 2; }
+        .detail-header-content h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+        .detail-meta { display: flex; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; }
+        .detail-badge { font-size: 10px; padding: 3px 10px; background: var(--primary-red); border-radius: 4px; font-weight: 800; }
+        .detail-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; gap: 8px; border: none; }
+        .detail-watch-btn { background: #fff; color: #000; }
+        .detail-download-btn { background: var(--primary-green); color: #fff; }
+        .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .detail-body { padding: 0 24px 28px; }
+        .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
+    </style>
+</head>
+<body x-data="pickedApp()" x-init="init()">
+
+    <div class="header-wrapper" x-cloak>
+        <header class="header-top">
+            <div class="container header-top-inner">
+                <div class="header-left-cluster">
+                    <a class="logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
+                </div>
+                <div class="user-status" @click="goHome()">
+                    <div class="avatar" x-text="currentUser ? currentUser.displayName.charAt(0).toUpperCase() : 'U'"></div>
+                    <span class="username" x-text="currentUser ? currentUser.displayName : 'Guest'">Guest</span>
+                </div>
+            </div>
+        </header>
+        <div class="search-bar-row">
+            <div class="container">
+                <form class="header-search" @submit.prevent="goHome()">
+                    <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
+                    <input x-model="searchQuery" placeholder="Search movies, series, anime..." type="text">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="page-title-wrap">
+            <h1><i class="fas fa-wand-magic-sparkles"></i> Picked For You</h1>
+            <p>Personalized recommendations based on your watch history</p>
+        </div>
+
+        <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>Analyzing your taste...</span>
+        </div>
+
+        <div class="results-grid" x-show="!loading">
+            <template x-for="item in visibleItems" :key="item.id + (item.media_type || '')">
+                <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
+                    <div class="poster-wrap">
+                        <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                    </div>
+                    <div class="card-info">
+                        <h4 x-text="title(item)"></h4>
+                        <div class="card-meta">
+                            <span x-text="item.media_type === 'tv' ? 'Series' : 'Movie'"></span>
+                            <span x-text="year(item)"></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <div x-show="!loading && allScored.length === 0" class="detail-modal-loading">
+            <p style="color:var(--text-muted); font-size:14px;">Watch some movies first to get personalized picks!</p>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="load-more-wrap" x-show="!loading && visibleItems.length < allScored.length">
+            <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
+                <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
+                <span x-text="loadingMore ? 'Loading...' : 'Load More'"></span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Details Modal -->
+    <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
+        <div class="detail-modal-box">
+            <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
+            <div x-show="detailLoading" class="detail-modal-loading"><i class="fas fa-circle-notch fa-spin"></i></div>
+            <template x-if="!detailLoading && detailData">
+                <div>
+                    <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
+                        <div class="detail-backdrop-gradient"></div>
+                    </div>
+                    <div class="detail-header-content">
+                        <h2 x-text="detailTitle(detailData)"></h2>
+                        <div class="detail-meta">
+                            <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
+                            <span x-text="detailYear(detailData)"></span>
+                            <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
+                        </div>
+                        <div class="detail-actions">
+                            <button class="detail-watch-btn" @click="goToPlayer()"><i class="fas fa-play"></i> Watch Now</button>
+                            <button class="detail-download-btn" @click="downloadContent()"><i class="fas fa-download"></i> Download</button>
+                            <button class="detail-watchlist-btn" :class="{ 'active': isInWatchlist }" @click="toggleWatchlist()">
+                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i> Watch Later
+                            </button>
+                        </div>
+                    </div>
+                    <div class="detail-body">
+                        <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function pickedApp() {
+            return {
+                loading: true,
+                loadingMore: false,
+                allScored: [],       // Master list of scored items
+                visibleItems: [],    // List shown on screen
+                limit: 18,           // 18 initially
+                page: 1,
+                
+                searchQuery: '',
+                currentUser: null,
+                
+                // Data Pools
+                trending: [], popularMovies: [], tvShows: [], kdramaList: [], animeList: [],
+                guestProfile: { watchHistory: [], myList: [], recentSearches: [], genreAffinity: {} },
+
+                detailModalOpen: false,
+                detailLoading: false,
+                detailData: null,
+                detailItem: { id: null, type: 'movie' },
+                watchlist: [],
+
+                async init() {
+                    auth.onAuthStateChanged(async user => {
+                        this.currentUser = user;
+                        await this.loadWatchlist();
+                    });
+                    this.loadGuestProfile();
+                    await this.generatePicks();
+                },
+
+                loadGuestProfile() {
+                    try {
+                        const saved = localStorage.getItem('rx_guest_profile_v1');
+                        if (saved) {
+                            const parsed = JSON.parse(saved);
+                            this.guestProfile = {
+                                watchHistory: parsed.watchHistory || [],
+                                myList: parsed.myList || [],
+                                recentSearches: parsed.recentSearches || [],
+                                genreAffinity: parsed.genreAffinity || {}
+                            };
+                        }
+                    } catch (e) {}
+                },
+
+                // --- ORIGINAL RECOMMENDATION LOGIC ---
+                _tsDecay(ts, halfLifeDays = 30) {
+                    if (!ts) return 0.3;
+                    const ageDays = (Date.now() - ts) / 86400000;
+                    return Math.pow(0.5, ageDays / halfLifeDays);
+                },
+                _normalizeMap(map) {
+                    const vals = Object.values(map);
+                    if (!vals.length) return {};
+                    const max = Math.max(...vals, 0);
+                    if (max <= 0) return map;
+                    const out = {};
+                    for (const [k, v] of Object.entries(map)) out[k] = v / max;
+                    return out;
+                },
+                calculateGenreAffinity() {
+                    const aff = {};
+                    (this.guestProfile.watchHistory || []).forEach(w => {
+                        const decay = this._tsDecay(w.timestamp, 30);
+                        const completion = typeof w.progress === 'number' ? Math.min(1, w.progress) : 0.75;
+                        const weight = decay * (0.5 + completion);
+                        (w.genres || []).forEach(g => { aff[g] = (aff[g] || 0) + weight; });
+                    });
+                    return this._normalizeMap(aff);
+                },
+                _calculateGenreScore(item, genreAffinity) {
+                    const genres = item.genre_ids || (item.genres || []).map(g => g.id) || [];
+                    if (!genres.length) return 0.25;
+                    let score = 0;
+                    genres.forEach(g => { score += genreAffinity[g] || 0; });
+                    return Math.min(1, (score / genres.length) * 1.35);
+                },
+                scoreRecommendation(item, ctx) {
+                    const { genreAffinity, sourceSimilarity } = ctx;
+                    const genreScore = this._calculateGenreScore(item, genreAffinity);
+                    const similarityScore = sourceSimilarity.has(`${item.media_type || 'movie'}:${item.id}`) ? 1 : 0;
+                    const popularityScore = Math.min(1, ((item.vote_average || 0) / 10) * 0.6 + ((item.popularity || 0) / 500) * 0.4);
+                    return { finalScore: genreScore * 0.4 + similarityScore * 0.4 + popularityScore * 0.2 };
+                },
+
+                async generatePicks() {
+                    try {
+                        const safeFetch = async (ep) => {
+                            const res = await fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(ep));
+                            return await res.json();
+                        };
+                        
+                        // Fetch initial pools
+                        const [trend, pop, tv, anime, kdrama] = await Promise.all([
+                            safeFetch('/trending/all/week?language=en-US&page=1'),
+                            safeFetch('/movie/popular?language=en-US&page=1'),
+                            safeFetch('/tv/popular?language=en-US&page=1'),
+                            safeFetch('/discover/tv?language=en-US&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1'),
+                            safeFetch('/discover/tv?language=en-US&with_original_language=ko&sort_by=popularity.desc&page=1')
+                        ]);
+
+                        this.trending = (trend.results || []).map(i => ({...i, media_type: i.media_type || 'movie'}));
+                        this.popularMovies = (pop.results || []).map(i => ({...i, media_type: 'movie'}));
+                        this.tvShows = (tv.results || []).map(i => ({...i, media_type: 'tv'}));
+                        this.animeList = (anime.results || []).map(i => ({...i, media_type: 'tv'}));
+                        this.kdramaList = (kdrama.results || []).map(i => ({...i, media_type: 'tv'}));
+
+                        this.calculateAndSort();
+                    } catch (e) {
+                        console.warn("Picks generation failed", e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                calculateAndSort() {
+                    const candidates = new Map();
+                    const sourceSimilarity = new Set();
+                    const addCandidate = (item) => {
+                        if (!item || !item.id) return;
+                        const type = item.media_type || 'movie';
+                        const key = `${type}:${item.id}`;
+                        if (!candidates.has(key)) candidates.set(key, { item: { ...item, media_type: type } });
+                    };
+
+                    this.trending.forEach(addCandidate);
+                    this.popularMovies.forEach(addCandidate);
+                    this.tvShows.forEach(addCandidate);
+                    this.animeList.forEach(addCandidate);
+                    this.kdramaList.forEach(addCandidate);
+
+                    const genreAffinity = this.calculateGenreAffinity();
+                    const watchedKeys = new Set();
+                    (this.guestProfile.watchHistory || []).forEach(w => watchedKeys.add(`${w.type || 'movie'}:${w.id}`));
+
+                    const filtered = Array.from(candidates.values()).filter(c => !watchedKeys.has(`${c.item.media_type}:${c.item.id}`));
+                    
+                    const scored = filtered.map(c => {
+                        const res = this.scoreRecommendation(c.item, { genreAffinity, sourceSimilarity });
+                        return { item: c.item, score: res.finalScore };
+                    });
+
+                    scored.sort((a, b) => b.score - a.score);
+                    
+                    if (this.guestProfile.watchHistory.length === 0) {
+                        // Cold start fallback
+                        this.allScored = [...this.trending.slice(0, 20), ...this.popularMovies.slice(0, 20)];
+                    } else {
+                        this.allScored = scored.map(s => s.item);
+                    }
+                    
+                    this.updateVisible();
+                },
+
+                updateVisible() {
+                    this.visibleItems = this.allScored.slice(0, this.limit);
+                },
+
+                async loadMore() {
+                    this.loadingMore = true;
+                    this.limit += 18;
+
+                    if (this.limit > this.allScored.length) {
+                        // Need to fetch more data and re-calculate
+                        this.page++;
+                        try {
+                            const safeFetch = async (ep) => {
+                                const res = await fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(ep));
+                                return await res.json();
+                            };
+                            
+                            // Fetch page N
+                            const [trend, pop, tv] = await Promise.all([
+                                safeFetch(`/trending/all/week?language=en-US&page=${this.page}`),
+                                safeFetch(`/movie/popular?language=en-US&page=${this.page}`),
+                                safeFetch(`/tv/popular?language=en-US&page=${this.page}`)
+                            ]);
+
+                            const newTrend = (trend.results || []).map(i => ({...i, media_type: i.media_type || 'movie'}));
+                            const newPop = (pop.results || []).map(i => ({...i, media_type: 'movie'}));
+                            const newTv = (tv.results || []).map(i => ({...i, media_type: 'tv'}));
+
+                            // Append and re-calculate
+                            this.trending.push(...newTrend);
+                            this.popularMovies.push(...newPop);
+                            this.tvShows.push(...newTv);
+
+                            this.calculateAndSort(); // Re-scores and re-sorts master list
+                        } catch(e) { console.warn(e); }
+                    }
+
+                    this.updateVisible();
+                    this.loadingMore = false;
+                },
+
+                goHome() { window.location.href = 'index.html'; },
+                openDetails(id, type) {
+                    this.detailItem = { id, type };
+                    this.detailLoading = true;
+                    this.detailModalOpen = true;
+                    document.body.style.overflow = 'hidden';
+                    fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(type === 'tv' ? `/tv/${id}?append_to_response=credits` : `/movie/${id}?append_to_response=credits`))
+                        .then(res => res.json())
+                        .then(data => { this.detailData = data; })
+                        .catch(() => this.closeDetailModal())
+                        .finally(() => { this.detailLoading = false; });
+                },
+                closeDetailModal() { this.detailModalOpen = false; document.body.style.overflow = ''; },
+                goToPlayer() {
+                    const { id, type } = this.detailItem;
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=watch&title=${encodeURIComponent(this.detailTitle(this.detailData))}&poster=${encodeURIComponent(this.poster(this.detailData))}`;
+                },
+                downloadContent() {
+                    const { id, type } = this.detailItem;
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=download&title=${encodeURIComponent(this.detailTitle(this.detailData))}&poster=${encodeURIComponent(this.poster(this.detailData))}`;
+                },
+                poster(item) { return item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://placehold.co/300x450/14141F/666'; },
+                title(item) { return item.title || item.name || 'Untitled'; },
+                year(item) { return (item.release_date || item.first_air_date || '').substring(0, 4) || 'N/A'; },
+                detailTitle(d) { return d.title || d.name || 'Untitled'; },
+                detailYear(d) { return (d.release_date || d.first_air_date || '').substring(0, 4) || '—'; },
+                detailRatingVal(d) { return d.vote_average ? d.vote_average.toFixed(1) : '—'; },
+                detailBackdrop(d) { return d.backdrop_path ? 'https://image.tmdb.org/t/p/original' + d.backdrop_path : 'https://placehold.co/1280x720/14141F/666'; },
+                
+                async loadWatchlist() {
+                    if (!this.currentUser) return;
+                    const snap = await db.collection('users').doc(this.currentUser.uid).collection('watchlist').get();
+                    this.watchlist = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                },
+                get isInWatchlist() { return this.watchlist.some(w => String(w.id) === String(this.detailItem.id) && w.type === this.detailItem.type); },
+                async toggleWatchlist() {
+                    if (!this.currentUser) { window.location.href = 'index.html'; return; }
+                    const docId = `${this.detailItem.type}_${this.detailItem.id}`;
+                    if (this.isInWatchlist) {
+                        await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).delete();
+                        this.watchlist = this.watchlist.filter(w => w.docId !== docId);
+                    } else {
+                        await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).set({
+                            id: this.detailItem.id, type: this.detailItem.type, title: this.detailTitle(this.detailData),
+                            poster_path: this.detailData.poster_path, vote_average: this.detailData.vote_average,
+                            release_date: this.detailData.release_date || this.detailData.first_air_date
+                        });
+                        await this.loadWatchlist();
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
