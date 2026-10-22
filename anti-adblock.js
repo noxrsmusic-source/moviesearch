@@ -8,6 +8,10 @@
   let observer = null;
   let reAddInterval = null;
   let detectionRunning = false;
+  
+  // AUDIO PRELOAD VARIABLE
+  let bgAudio = null;
+  const AUDIO_URL = 'https://res.cloudinary.com/du9nysbwl/video/upload/v1792581281/Silent_Partner_-_Space_Walk_Youtube_Premiere_Countdown_download_60_fps_jphhye.mp3';
 
   // Aapki site ke posters
   const posters1 = ['https://m.media-amazon.com/images/M/MV5BMTk2ZmFhYjctYWZiYy00N2IxLWEzMWItZGRiMDY4ZDQwZWFlXkEyXkFqcGc@._V1_QL75_UY281_CR11,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BNzdkNjAxNWMtNWY3My00NTI1LTg2YWQtOGI3MDA0NzdhMjEyXkEyXkFqcGc@._V1_QL75_UY281_CR12,0,190,281_.jpg', 'https://m.media-amazon.com/images/M/MV5BOWNjYWM3NWItOGE0ZS00MWRjLThiZWEtYjc4ZmNmMmU5ZTVmXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg'];
@@ -108,10 +112,20 @@
   }
 
   /* ============================================================
-     2. CONTINUE BUTTON UI (WITH SCROLLING POSTER BACKGROUND)
+     2. CONTINUE BUTTON UI (WITH PRELOADING)
   ============================================================ */
   function showContinueButton() {
     if (document.getElementById(CONTINUE_ID)) return;
+
+    // 🚀 AUDIO PRELOAD START 🚀
+    // User button dekhega aur click karega, tab tak audio background me load ho jayega
+    if (!bgAudio) {
+      bgAudio = new Audio(AUDIO_URL);
+      bgAudio.loop = true;
+      bgAudio.volume = 0.3;
+      bgAudio.preload = 'auto'; // Force browser to download audio
+      bgAudio.load(); 
+    }
 
     const host = document.createElement('div');
     host.id = CONTINUE_ID;
@@ -119,7 +133,6 @@
 
     const shadow = host.attachShadow({ mode: 'open' });
     
-    // HTML aur CSS for Continue Screen
     shadow.innerHTML = `
       <style>
         :host { all: initial; }
@@ -135,7 +148,6 @@
           padding: 24px; text-align: center; z-index: 10; overflow: hidden;
         }
         
-        /* Poster Background Layer */
         .overlay-bg-wrapper {
           position: absolute; inset: 0; display: flex; justify-content: center; gap: 12px;
           opacity: 0.45; z-index: 1; pointer-events: none; overflow: hidden;
@@ -154,14 +166,12 @@
         }
         .poster-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        /* Dark Gradient */
         .overlay-gradient {
           position: absolute; inset: 0;
           background: linear-gradient(180deg, rgba(15, 15, 15, 0.5) 0%, rgba(15, 15, 15, 0.9) 50%, #0f0f0f 100%);
           z-index: 2; pointer-events: none;
         }
         
-        /* Button Container */
         .btn-container {
            position: relative; z-index: 10;
            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -204,11 +214,9 @@
       </style>
       
       <div class="wrap">
-        <!-- Dynamic Poster Background -->
         <div class="overlay-bg-wrapper" id="continue-bg-wrapper"></div>
         <div class="overlay-gradient"></div>
         
-        <!-- Button -->
         <div class="btn-container">
             <button class="btn-continue" id="continue-btn">
                <span class="icon">▶</span> Continue to Player
@@ -219,7 +227,6 @@
     
     document.documentElement.appendChild(host);
     
-    // Populate Background Posters
     const bgWrapper = shadow.getElementById('continue-bg-wrapper');
     function createPosterHTML(url) { 
       return `<div class="poster-card"><img src="${url}" alt="Poster"></div>`; 
@@ -241,7 +248,6 @@
       }
     }
     
-    // Button Click Logic
     shadow.getElementById('continue-btn').addEventListener('click', () => {
         host.remove(); // Remove continue button screen
         showWarning(); // Show the actual warning + music
@@ -262,7 +268,6 @@
       <style>
         :host { all: initial; }
         
-        /* Background Scroll Animation */
         @keyframes scrollUp {
           0% { transform: translateY(0); }
           100% { transform: translateY(calc(-50% - 6px)); }
@@ -275,7 +280,6 @@
           text-align: center; z-index: 2147483647; overflow: hidden;
         }
         
-        /* Poster Background Layer */
         .overlay-bg-wrapper {
           position: absolute; inset: 0; display: flex; justify-content: center; gap: 12px;
           opacity: 0.65; z-index: 1; pointer-events: none; overflow: hidden;
@@ -283,7 +287,7 @@
         
         .scroll-column { 
           display: flex; flex-direction: column; gap: 12px; 
-          width: 30%; /* Mobile: 3 columns */
+          width: 30%;
           will-change: transform; 
         }
         
@@ -299,14 +303,12 @@
         }
         .poster-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* Dark Gradient so text is readable */
         .overlay-gradient {
           position: absolute; inset: 0;
           background: linear-gradient(180deg, rgba(15, 15, 15, 0.6) 0%, rgba(15, 15, 15, 0.9) 45%, #0f0f0f 100%);
           z-index: 2; pointer-events: none;
         }
 
-        /* The Main Dialog Box */
         .box { 
           position: relative; z-index: 10; max-width: 480px; background: rgba(28, 28, 31, 0.85); 
           backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -348,17 +350,11 @@
         .hint { color: #777; font-size: 13px; margin-top: 24px; line-height: 1.5; }
         .hint b { color: #aaa; }
       </style>
-      
-      <audio id="bg-music" loop>
-        <source src="https://res.cloudinary.com/du9nysbwl/video/upload/v1792581281/Silent_Partner_-_Space_Walk_Youtube_Premiere_Countdown_download_60_fps_jphhye.mp3" type="audio/mpeg">
-      </audio>
 
       <div class="wrap">
-        <!-- Dynamic Poster Background -->
         <div class="overlay-bg-wrapper" id="overlay-bg-wrapper"></div>
         <div class="overlay-gradient"></div>
 
-        <!-- Dialog Box -->
         <div class="box">
           <div class="top-controls">
             <button class="ctrl-btn" id="lang-toggle">${translations[currentLang].toggleLabel}</button>
@@ -388,7 +384,6 @@
     const shadowRoot = overlayHost.shadowRoot;
     const bgWrapper = shadowRoot.getElementById('overlay-bg-wrapper');
 
-    /* --- Populate Background Posters --- */
     function createPosterHTML(url) { 
       return `<div class="poster-card"><img src="${url}" alt="Poster"></div>`; 
     }
@@ -409,7 +404,6 @@
       }
     }
 
-    /* --- Overlay Persistence --- */
     observer = new MutationObserver(() => {
       if (!document.getElementById(OVERLAY_ID) && overlayHost) {
         document.documentElement.appendChild(overlayHost);
@@ -423,37 +417,28 @@
       }
     }, 300);
 
-    /* --- Elements --- */
     const retryBtn = shadowRoot.getElementById('adblock-retry');
     const langToggleBtn = shadowRoot.getElementById('lang-toggle');
     const titleEl = shadowRoot.getElementById('ad-title');
     const bodyEl = shadowRoot.getElementById('ad-body');
     const hintEl = shadowRoot.getElementById('ad-hint');
-    const bgMusic = shadowRoot.getElementById('bg-music');
 
-    /* --- Music Logic (Forced ON, No Toggle) --- */
-    bgMusic.volume = 0.3;
+    /* --- 🚀 MUSIC PLAY LOGIC (Instant Play) 🚀 --- */
+    if (bgAudio) {
+        // Audio pehle se load ho chuka hai, ab bas play karna hai
+        bgAudio.play().catch(e => {
+            console.log("Play failed (browser policy?):", e);
+            // Fallback if browser blocks it
+            const playOnInteraction = () => {
+                if (bgAudio.paused) bgAudio.play().catch(err => console.log(err));
+                overlayHost.removeEventListener('click', playOnInteraction);
+                document.removeEventListener('click', playOnInteraction);
+            };
+            overlayHost.addEventListener('click', playOnInteraction);
+            document.addEventListener('click', playOnInteraction);
+        });
+    }
 
-    // 1. Try to play immediately
-    bgMusic.play().catch(() => {
-      // 2. Agar browser block kare, toh user ke first click par play karein
-      console.log("Autoplay blocked. Waiting for user interaction...");
-      
-      const playMusicOnInteraction = () => {
-        if (bgMusic.paused) {
-          bgMusic.play().catch(e => console.log("Play failed:", e));
-        }
-        overlayHost.removeEventListener('click', playMusicOnInteraction);
-        document.removeEventListener('click', playMusicOnInteraction);
-        document.removeEventListener('touchstart', playMusicOnInteraction);
-      };
-
-      overlayHost.addEventListener('click', playMusicOnInteraction);
-      document.addEventListener('click', playMusicOnInteraction);
-      document.addEventListener('touchstart', playMusicOnInteraction);
-    });
-
-    /* --- Language Toggle --- */
     langToggleBtn.addEventListener('click', () => {
       currentLang = currentLang === 'en' ? 'hi' : 'en';
       localStorage.setItem('adblock_lang', currentLang);
@@ -468,7 +453,6 @@
       }
     });
 
-    /* --- Retry Button --- */
     retryBtn.addEventListener('click', async () => {
       retryBtn.disabled = true;
       retryBtn.textContent = translations[currentLang].btnWait;
@@ -481,7 +465,7 @@
         } else {
           observer.disconnect();
           clearInterval(reAddInterval);
-          bgMusic.pause(); 
+          if(bgAudio) bgAudio.pause(); // Pause the audio
           overlayHost.remove();
           overlayHost = null;
         }
@@ -498,7 +482,6 @@
     try {
       const result = await detectAdBlock();
       if (result.blocked) {
-        // Yahan hum direct warning nahi dikha rahe, balki Continue button dikha rahe hain
         showContinueButton(); 
       }
     } catch (e) {
