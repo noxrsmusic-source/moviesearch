@@ -91,113 +91,89 @@
         .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
 
         /* =========================================================
-           🔥 PROFESSIONAL OTT AD SECTION (Premium Featured Banner)
+           🔥 PROFESSIONAL OTT STYLE GENRE SECTIONS
            ========================================================= */
-        .ott-ad-section {
-            margin-bottom: 32px;
-            position: relative;
-            width: 100%;
-            border-radius: var(--radius);
-            overflow: hidden;
-            background: #0f0f17;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .genre-section { margin-bottom: 35px; }
+        
+        .section-heading-wrap { 
+            display: flex; align-items: center; justify-content: space-between; 
+            margin-bottom: 16px; padding: 0 4px;
         }
         
-        /* Ad Background Image (Cinematic Look) */
-        .ad-bg {
-            position: absolute; inset: 0;
-            background-image: url('https://images.unsplash.com/photo-1574375927938-d5a98e8efe85?q=80&w=1600&auto=format&fit=crop'); /* Replace with your ad image */
-            background-size: cover;
-            background-position: center 20%;
-            opacity: 0.6;
-            z-index: 1;
+        .section-heading-wrap h2 { 
+            font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
+            color: #fff; letter-spacing: -0.3px;
         }
-
-        .ad-gradient {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, #08080C 10%, rgba(8,8,12,0.7) 50%, transparent 100%);
-            z-index: 2;
+        
+        .section-heading-wrap h2 i { color: var(--primary-red); font-size: 18px; }
+        
+        .see-all-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-muted); font-size: 13px; font-weight: 700;
+            transition: var(--transition); text-transform: uppercase; letter-spacing: 0.5px;
         }
-
-        .ad-label {
-            position: absolute; top: 14px; left: 14px;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            color: #fff; font-size: 10px; font-weight: 800;
-            padding: 4px 10px; border-radius: 4px;
-            text-transform: uppercase; letter-spacing: 1px;
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: 10;
-        }
-
-        .ad-content-wrapper {
-            position: relative;
-            z-index: 3;
-            padding: 40px 24px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-end;
-            min-height: 220px;
-        }
-
-        .ad-title {
-            font-size: 22px; font-weight: 900; color: #fff;
-            margin-bottom: 8px; line-height: 1.2;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-
-        .ad-desc {
-            font-size: 13px; color: #d1d5db; font-weight: 500;
-            max-width: 500px; margin-bottom: 16px;
-            line-height: 1.5; text-shadow: 0 1px 5px rgba(0,0,0,0.8);
-        }
-
-        .ad-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #fff; color: #000; font-weight: 800; font-size: 13px;
-            padding: 10px 24px; border-radius: 30px;
-            transition: var(--transition); text-decoration: none;
-        }
-        .ad-btn:hover { transform: scale(1.05); background: var(--primary-red); color: #fff; }
-
-        @media (min-width: 768px) {
-            .ad-content-wrapper { padding: 60px 40px 30px; min-height: 280px; }
-            .ad-title { font-size: 28px; }
-            .ad-desc { font-size: 15px; }
-            .ad-btn { font-size: 14px; padding: 12px 30px; }
-        }
-        /* ========================================================= */
-
-        /* Genre Sections */
-        .genre-section { margin-bottom: 32px; }
-        .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .section-heading-wrap h3 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #fff; }
-        .section-heading-wrap h3 i { color: var(--primary-red); }
+        .see-all-btn:hover { color: var(--primary-red); transform: translateX(3px); }
+        .see-all-btn i { font-size: 11px; }
 
         .horizontal-cards-row {
-            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;
-            scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+            display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+            scroll-snap-type: x mandatory; scrollbar-width: none;
         }
-        .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
-        .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .horizontal-cards-row::-webkit-scrollbar { display: none; }
         
-        .horizontal-cards-row .movie-card { flex: 0 0 140px; scroll-snap-align: start; }
-        @media (min-width: 768px) { .horizontal-cards-row .movie-card { flex: 0 0 170px; } }
-
-        /* Movie Card */
-        .movie-card {
-            border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
-            display: flex; flex-direction: column; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition);
+        .horizontal-cards-row .movie-card { flex: 0 0 145px; scroll-snap-align: start; }
+        @media (min-width: 768px) { 
+            .horizontal-cards-row .movie-card { flex: 0 0 180px; } 
+            .horizontal-cards-row { gap: 18px; }
         }
-        .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
+
+        /* OTT Movie Card */
+        .movie-card {
+            border-radius: 10px; overflow: hidden; background: var(--bg-card);
+            display: flex; flex-direction: column; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease;
+            position: relative;
+        }
+        .movie-card:hover { 
+            transform: translateY(-5px) scale(1.02); 
+            border-color: rgba(229, 9, 20, 0.6); 
+            box-shadow: 0 12px 24px rgba(0,0,0,0.8); 
+            z-index: 10;
+        }
+        
         .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
-        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-        .movie-card:hover .poster { transform: scale(1.04); }
-        .movie-card .card-info { padding: 8px 10px; }
-        .movie-card .card-info h4 { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .movie-card:hover .poster { transform: scale(1.08); }
+
+        /* Play Icon Overlay */
+        .movie-card .play-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease; z-index: 2;
+        }
+        .movie-card:hover .play-overlay { opacity: 1; }
+        .movie-card .play-overlay i {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--primary-red); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; padding-left: 4px;
+            box-shadow: 0 4px 12px rgba(229,9,20,0.6);
+            transform: scale(0.8); transition: transform 0.3s ease;
+        }
+        .movie-card:hover .play-overlay i { transform: scale(1); }
+
+        /* Rating Badge */
+        .movie-card .rating-badge {
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+            color: #F5C518; font-size: 10px; font-weight: 800;
+            padding: 3px 7px; border-radius: 6px; z-index: 3;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .movie-card .card-info { padding: 10px 12px; position: relative; z-index: 3; background: var(--bg-card); }
+        .movie-card .card-info h4 { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;}
+        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-top: 4px; font-weight: 500;}
 
         /* Load More Button */
         .load-more-wrap { text-align: center; margin-top: 20px; margin-bottom: 20px; }
@@ -523,33 +499,9 @@
     <main class="container" style="padding-top: 20px;">
         
         <div class="page-title-wrap">
-            <h1><i class="fas fa-tv"></i> Premium Web Series</h1>
-            <p>Top picks from Netflix, Prime, Disney+, HBO & more</p>
+            <h1><i class="fas fa-tv"></i> Web Series</h1>
+            <p>Explore top web series from Netflix, Prime, Disney+ & more</p>
         </div>
-
-        <!-- ========================================== -->
-        <!-- 🔥 PROFESSIONAL OTT AD SECTION             -->
-        <!-- ========================================== -->
-        <div class="ott-ad-section">
-            <!-- Optional: Background Image -->
-            <div class="ad-bg"></div>
-            <!-- Gradient Overlay for Text Readability -->
-            <div class="ad-gradient"></div>
-            
-            <span class="ad-label">Sponsored</span>
-            
-            <div class="ad-content-wrapper">
-                <h3 class="ad-title">Upgrade Your Streaming Experience</h3>
-                <p class="ad-desc">Get ultra-fast downloads, zero lag, and exclusive 4K content. Join our premium network today and unlock the best of entertainment.</p>
-                <!-- Yahan apna Ad Link ya script daalein -->
-                <a href="https://t.me/rxplayer" target="_blank" class="ad-btn">
-                    Explore Now <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-            
-            <!-- Agar aapke paas direct image ad ya iframe ad hai, toh aap is div ko use kar sakte hain background image ke bajaye. -->
-        </div>
-        <!-- ========================================== -->
 
         <!-- Loading Skeleton for initial load -->
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
@@ -562,19 +514,26 @@
             <template x-for="section in sectionsConfig" :key="section.id">
                 <div class="genre-section" x-show="genreSections[section.name] && genreSections[section.name].length > 0">
                     <div class="section-heading-wrap">
-                        <h3><i class="fas" :class="section.icon"></i> <span x-text="section.name"></span></h3>
+                        <h2><i class="fas" :class="section.icon"></i> <span x-text="section.name"></span></h2>
+                        <a href="#" class="see-all-btn">See All <i class="fas fa-chevron-right"></i></a>
                     </div>
                     <div class="horizontal-cards-row">
                         <template x-for="item in genreSections[section.name]" :key="item.id">
                             <div class="movie-card" @click="openDetails(item.id, 'tv')">
                                 <div class="poster-wrap">
                                     <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                    <!-- OTT Play Icon Overlay -->
+                                    <div class="play-overlay">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <!-- Rating Badge -->
+                                    <div class="rating-badge" x-show="item.vote_average > 0" x-text="'⭐ ' + (item.vote_average ? item.vote_average.toFixed(1) : 'N/A')"></div>
                                 </div>
                                 <div class="card-info">
                                     <h4 x-text="title(item)"></h4>
                                     <div class="card-meta">
-                                        <span>Web Series</span>
                                         <span x-text="year(item)"></span>
+                                        <span>Series</span>
                                     </div>
                                 </div>
                             </div>
@@ -584,7 +543,7 @@
             </template>
         </div>
 
-        <!-- Load More Button -->
+        <!-- Load More Button (To add more items to current sections) -->
         <div class="load-more-wrap" x-show="!loading">
             <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
                 <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
@@ -772,15 +731,16 @@
                 
                 currentPage: 1,
                 
+                // Simple OTT style names
                 sectionsConfig: [
-                    { id: '10759', name: 'Action & Adventure', icon: 'fa-fire' },
-                    { id: '80', name: 'Crime', icon: 'fa-user-secret' },
+                    { id: '10759', name: 'Action', icon: 'fa-fire' },
                     { id: '18', name: 'Drama', icon: 'fa-masks-theater' },
-                    { id: '35', name: 'Comedy', icon: 'fa-face-laugh-squint' },
-                    { id: '9648', name: 'Mystery', icon: 'fa-magnifying-glass' },
-                    { id: '10765', name: 'Sci-Fi & Fantasy', icon: 'fa-rocket' },
                     { id: '10749', name: 'Romance', icon: 'fa-heart' },
-                    { id: '16', name: 'Animation', icon: 'fa-dragon' }
+                    { id: '35', name: 'Comedy', icon: 'fa-face-laugh-squint' },
+                    { id: '53', name: 'Thriller', icon: 'fa-bolt' },
+                    { id: '80', name: 'Crime', icon: 'fa-user-secret' },
+                    { id: '9648', name: 'Mystery', icon: 'fa-magnifying-glass' },
+                    { id: '10765', name: 'Sci-Fi & Fantasy', icon: 'fa-rocket' }
                 ],
                 
                 genreSections: {},
@@ -1051,7 +1011,7 @@
                     };
 
                     const docId = `${entry.type}_${entry.id}`;
-                    if (this.isInWatchlist) {
+                    if (this.isInWatchList) {
                         await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).delete();
                         this.watchlist = this.watchlist.filter(w => w.docId !== docId);
                         this.showModalAlert('Removed from Watch Later', 'info');
