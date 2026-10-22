@@ -677,7 +677,6 @@
         .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
         .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
 
-        /* 🆕 DOWNLOAD BUTTON */
         .detail-download-btn {
             background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
             color: #fff;
@@ -691,7 +690,6 @@
         }
         .detail-download-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        /* 🆕 WATCH TRAILER BUTTON */
         .detail-trailer-btn {
             background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
             color: #fff;
@@ -709,7 +707,6 @@
             transform: none;
         }
 
-        /* 🆕 TRAILER PLAYER OVERLAY */
         .detail-trailer-wrap {
             position: absolute; inset: 0;
             width: 100%; height: 100%;
@@ -1015,10 +1012,12 @@
         </div>
     </main>
 
+    <!-- 🚀 YAHAN CHANGE KIYA GAYA HAI 🚀 -->
     <div class="sticky-announcement-bar">
         <div class="sticky-content"><i class="fas fa-bullhorn"></i><span>Download app for ads free experience!</span></div>
-        <a class="sticky-download-btn" href="#" @click.prevent="showToast('Redirecting to secure app download...', 'success')"><i class="fas fa-download"></i> Download App</a>
+        <a class="sticky-download-btn" href="https://www.rxplayer.in/downloadlanding.html"><i class="fas fa-download"></i> Download App</a>
     </div>
+    <!-- 🚀 ==================== 🚀 -->
 
     <div class="mini-player" id="miniPlayer">
         <div class="mini-progress" id="miniProgressWrap"><div class="mini-progress-fill" id="miniProgressFill"></div></div>
@@ -1182,13 +1181,11 @@
                                 <span>Watch Now</span>
                             </button>
 
-                            <!-- 🆕 WATCH TRAILER BUTTON -->
                             <button class="detail-trailer-btn" @click="watchTrailer()" :disabled="!detailTrailerKey">
                                 <i class="fas fa-film"></i>
                                 <span>Watch Trailer</span>
                             </button>
 
-                            <!-- 🆕 DOWNLOAD BUTTON -->
                             <button class="detail-download-btn" @click="downloadContent()">
                                 <i class="fas fa-download"></i>
                                 <span x-text="detailItem.type === 'tv' ? ('Download S' + selectedSeason + ' E' + selectedEpisode) : 'Download'"></span>
@@ -2457,10 +2454,6 @@
                     window.location.href = url;
                 },
 
-                /* =========================================================
-                   🆕 DOWNLOAD CONTENT
-                   • Redirects to ads.html first
-                   ========================================================= */
                 downloadContent() {
                     if (!this.detailItem || !this.detailItem.id) {
                         this.showToast('Download link available nahi hai.', 'error');
@@ -2487,9 +2480,6 @@
                     window.location.href = url;
                 },
 
-                /* =========================================================
-                   🆕 TRAILER
-                   ========================================================= */
                 get detailTrailerKey() {
                     if (!this.detailData || !this.detailData.videos || !this.detailData.videos.results) return null;
                     const vids = this.detailData.videos.results;
