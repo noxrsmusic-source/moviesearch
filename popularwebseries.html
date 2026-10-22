@@ -27,7 +27,7 @@
             --radius-sm: 8px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', sans-serif;
-            --header-offset: 160px; 
+            --header-offset: 130px; 
         }
 
         body {
@@ -72,8 +72,8 @@
         .user-status .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
         .user-status .username { font-size: 13px; font-weight: 600; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .search-bar-row { padding: 4px 0 12px; }
-        .header-search { width: 100%; position: relative; display: flex; align-items: center; }
+        .search-bar-row { padding: 4px 0 12px; display: flex; gap: 10px; align-items: center;}
+        .header-search { width: 100%; position: relative; display: flex; align-items: center; flex: 1; }
         .header-search input {
             width: 100%; height: 44px; padding: 0 44px 0 48px;
             border-radius: 50px; border: 1.5px solid rgba(255, 255, 255, 0.12);
@@ -83,37 +83,61 @@
         .header-search input:focus { border-color: var(--primary-red); background: rgba(255, 255, 255, 0.08); }
         .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
 
-        /* Filter Wrapper */
-        .filters-wrapper {
-            position: fixed; top: 120px; left: 0; right: 0; z-index: 990;
-            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(10px);
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+        /* Filter Button */
+        .btn-open-filter {
+            display: flex; align-items: center; gap: 8px;
+            padding: 0 20px; height: 44px; border-radius: 50px;
+            background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+            color: #fff; font-weight: 600; font-size: 14px; transition: var(--transition);
+            flex-shrink: 0;
         }
-        
-        .filter-scroll {
-            display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 0 20px; margin-bottom: 8px;
-        }
-        .filter-scroll:last-child { margin-bottom: 0; }
-        .filter-scroll::-webkit-scrollbar { display: none; }
-        
-        .filter-label {
-            font-size: 11px; font-weight: 700; color: var(--text-muted); 
-            text-transform: uppercase; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 6px; display: block;
-        }
+        .btn-open-filter:hover { background: rgba(229,9,20,0.1); border-color: var(--primary-red); }
+        .filter-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-red); box-shadow: 0 0 5px var(--primary-red); }
 
-        .filter-btn {
-            padding: 6px 16px; border-radius: 20px;
-            background: rgba(255,255,255,0.05); color: var(--text-muted);
-            font-size: 13px; font-weight: 600; white-space: nowrap;
+        /* Filter Modal */
+        .filter-modal-overlay {
+            position: fixed; inset: 0; z-index: 99999;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: none; align-items: flex-end; justify-content: center; /* Bottom sheet style on mobile */
+        }
+        @media (min-width: 768px) { .filter-modal-overlay { align-items: center; } }
+        .filter-modal-overlay.open { display: flex; }
+
+        .filter-modal-box {
+            background: var(--bg-card); width: 100%; max-width: 500px;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            padding: 24px; border: 1px solid rgba(255,255,255,0.08);
+            max-height: 85vh; overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (min-width: 768px) { .filter-modal-box { border-radius: 20px; animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); } }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .filter-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .filter-modal-header h3 { font-size: 20px; font-weight: 800; color: #fff; }
+        .filter-modal-close { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; }
+
+        .filter-section { margin-bottom: 24px; }
+        .filter-section h4 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .options-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .option-btn {
+            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+            background: rgba(255,255,255,0.04); color: var(--text-muted);
             border: 1px solid rgba(255,255,255,0.08); transition: var(--transition);
         }
-        .filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .filter-btn.active { background: rgba(229, 9, 20, 0.15); color: var(--primary-red); border-color: var(--primary-red); }
+        .option-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .option-btn.active { background: rgba(229, 9, 20, 0.15); color: var(--primary-red); border-color: var(--primary-red); }
+
+        .filter-actions { display: flex; gap: 12px; margin-top: 30px; }
+        .btn-clear { flex: 1; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; font-size: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-apply { flex: 2; padding: 14px; border-radius: 12px; background: var(--primary-red); color: #fff; font-weight: 700; font-size: 15px; box-shadow: 0 4px 15px rgba(229,9,20,0.4); }
 
         /* Main Grid */
         .results-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px; margin-top: 20px;
+            gap: 12px;
         }
         @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
 
@@ -143,74 +167,32 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
-        /* ======= FIXED DETAILS MODAL ======= */
-        .detail-modal-overlay { 
-            position: fixed; inset: 0; z-index: 9999; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
-            display: none; align-items: center; justify-content: center; padding: 16px; 
-        }
+        /* DETAILS MODAL (Fixed) */
+        .detail-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; }
         .detail-modal-overlay.open { display: flex; }
-        
-        .detail-modal-box { 
-            background: var(--bg-card); border-radius: var(--radius); 
-            max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; 
-            position: relative; 
-        }
-        .detail-modal-close { 
-            position: absolute; top: 14px; right: 14px; z-index: 30; 
-            width: 38px; height: 38px; border-radius: 50%; 
-            background: rgba(0,0,0,0.75); color: #fff; display: flex; 
-            align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 30; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
         .detail-modal-close:hover { background: var(--primary-red); }
-        
         .detail-modal-loading { padding: 100px 20px; text-align: center; color: var(--primary-red); }
         
-        /* Backdrop Fix */
-        .detail-backdrop { 
-            position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; 
-            background-size: cover; background-position: center top; 
-            background-color: #0a0a0f; 
-        }
-        .detail-backdrop-gradient { 
-            position: absolute; inset: 0; 
-            background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.8) 70%, var(--bg-card) 100%); 
-        }
+        .detail-backdrop { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; background-size: cover; background-position: center top; background-color: #0a0a0f; }
+        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.8) 70%, var(--bg-card) 100%); }
         
-        /* Content Overlap Fix */
-        .detail-header-content { 
-            position: relative; padding: 20px 24px; 
-            margin-top: -60px; /* Overlap image */
-            z-index: 20; 
-        }
+        .detail-header-content { position: relative; padding: 20px 24px; margin-top: -60px; z-index: 20; }
         .detail-header-content h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .detail-meta { display: flex; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 16px; align-items: center; }
         .detail-badge { font-size: 10px; padding: 3px 10px; background: var(--primary-red); border-radius: 4px; font-weight: 800; color: #fff; }
         .detail-rating { color: #F5C518; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         
         .detail-actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { 
-            padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; 
-            display: inline-flex; gap: 8px; border: none; align-items: center; justify-content: center;
-        }
+        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; gap: 8px; border: none; align-items: center; justify-content: center; }
         .detail-watch-btn { background: #fff; color: #000; }
         .detail-download-btn { background: var(--primary-green); color: #fff; }
         .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
         .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
         
-        /* Info Section Fix */
-        .detail-body { 
-            position: relative; z-index: 20; 
-            padding: 0 24px 28px; 
-        }
-        .detail-overview { 
-            font-size: 14px; line-height: 1.6; 
-            color: #d1d5db; /* Light gray, visible */
-            background: rgba(255,255,255,0.03);
-            padding: 16px; border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+        .detail-body { position: relative; z-index: 20; padding: 0 24px 28px; }
+        .detail-overview { font-size: 14px; line-height: 1.6; color: #d1d5db; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body x-data="seriesApp()" x-init="init()">
@@ -229,35 +211,56 @@
                 </div>
             </div>
         </header>
-        <div class="search-bar-row">
-            <div class="container">
-                <form class="header-search" @submit.prevent="goHome()">
-                    <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
-                    <input x-model="searchQuery" placeholder="Search movies, series, anime..." type="text">
-                </form>
+        <div class="search-bar-row container">
+            <form class="header-search" @submit.prevent="goHome()">
+                <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
+                <input x-model="searchQuery" placeholder="Search series..." type="text">
+            </form>
+            <button class="btn-open-filter" @click="openFilterModal()">
+                <i class="fas fa-sliders-h"></i> Filters
+                <span class="filter-indicator" x-show="currentGenre !== 'all' || currentCountry !== 'all'"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div class="filter-modal-overlay" :class="{ 'open': filterModalOpen }" @click.self="filterModalOpen = false" x-cloak>
+        <div class="filter-modal-box">
+            <div class="filter-modal-header">
+                <h3>Filter Series</h3>
+                <button class="filter-modal-close" @click="filterModalOpen = false"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Country Section -->
+            <div class="filter-section">
+                <h4><i class="fas fa-globe"></i> Country</h4>
+                <div class="options-grid">
+                    <template x-for="c in countries" :key="c.id">
+                        <button class="option-btn" :class="{ 'active': tempCountry === c.id }" @click="tempCountry = c.id" x-text="c.name"></button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Genre Section -->
+            <div class="filter-section">
+                <h4><i class="fas fa-masks-theater"></i> Genre</h4>
+                <div class="options-grid">
+                    <template x-for="g in genres" :key="g.id">
+                        <button class="option-btn" :class="{ 'active': tempGenre === g.id }" @click="tempGenre = g.id" x-text="g.name"></button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="filter-actions">
+                <button class="btn-clear" @click="clearFilters()">Clear All</button>
+                <button class="btn-apply" @click="applyFilters()">Apply Filters</button>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="filters-wrapper" x-cloak>
-        <span class="filter-label">Country</span>
-        <div class="filter-scroll">
-            <template x-for="c in countries" :key="c.id">
-                <button class="filter-btn" :class="{ 'active': currentCountry === c.id }" @click="changeCountry(c.id)" x-text="c.name"></button>
-            </template>
-        </div>
-        
-        <span class="filter-label" style="margin-top: 8px;">Genre</span>
-        <div class="filter-scroll">
-            <template x-for="f in genres" :key="f.id">
-                <button class="filter-btn" :class="{ 'active': currentGenre === f.id }" @click="changeGenre(f.id)" x-text="f.name"></button>
-            </template>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <main class="container">
+    <main class="container" style="padding-top: 20px;">
         
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
@@ -294,7 +297,7 @@
         </div>
     </main>
 
-    <!-- Details Modal (FIXED) -->
+    <!-- Details Modal -->
     <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
@@ -306,12 +309,10 @@
             
             <template x-if="!detailLoading && detailData">
                 <div>
-                    <!-- Backdrop Image -->
                     <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
                         <div class="detail-backdrop-gradient"></div>
                     </div>
                     
-                    <!-- Header Info (Overlapping Image) -->
                     <div class="detail-header-content">
                         <h2 x-text="detailTitle(detailData)"></h2>
                         <div class="detail-meta">
@@ -329,7 +330,6 @@
                         </div>
                     </div>
                     
-                    <!-- Overview Box -->
                     <div class="detail-body">
                         <p class="detail-overview" x-text="detailData.overview || 'No description available for this series.'"></p>
                     </div>
@@ -367,8 +367,12 @@
                 currentPage: 1,
                 totalPages: 1,
                 
+                // Filter States
+                filterModalOpen: false,
                 currentGenre: 'all',
                 currentCountry: 'all',
+                tempGenre: 'all',   // Temporary state while in modal
+                tempCountry: 'all', // Temporary state while in modal
 
                 genres: [
                     { id: 'all', name: 'All Genres' },
@@ -417,19 +421,30 @@
                     await this.fetchSeries();
                 },
 
-                async changeGenre(genreId) {
-                    if (this.currentGenre === genreId) return;
-                    this.currentGenre = genreId;
-                    this.resetAndFetch();
+                // --- FILTER LOGIC ---
+                openFilterModal() {
+                    // Sync temp states with current states
+                    this.tempGenre = this.currentGenre;
+                    this.tempCountry = this.currentCountry;
+                    this.filterModalOpen = true;
                 },
 
-                async changeCountry(countryId) {
-                    if (this.currentCountry === countryId) return;
-                    this.currentCountry = countryId;
-                    this.resetAndFetch();
+                clearFilters() {
+                    this.tempGenre = 'all';
+                    this.tempCountry = 'all';
                 },
 
-                resetAndFetch() {
+                applyFilters() {
+                    // Check if anything actually changed
+                    if (this.currentGenre === this.tempGenre && this.currentCountry === this.tempCountry) {
+                        this.filterModalOpen = false;
+                        return;
+                    }
+                    
+                    this.currentGenre = this.tempGenre;
+                    this.currentCountry = this.tempCountry;
+                    this.filterModalOpen = false;
+                    
                     this.currentPage = 1;
                     this.series = [];
                     this.fetchSeries();
@@ -479,6 +494,7 @@
                     }
                 },
 
+                // --- DETAILS & UTILS ---
                 async openDetails(id, type) {
                     this.detailItem = { id, type };
                     this.detailLoading = true;
@@ -510,6 +526,7 @@
                 detailRatingVal(d) { return d.vote_average ? d.vote_average.toFixed(1) : '—'; },
                 detailBackdrop(d) { return d.backdrop_path ? 'https://image.tmdb.org/t/p/original' + d.backdrop_path : 'https://placehold.co/1280x720/14141F/666'; },
 
+                // --- WATCHLIST ---
                 async loadWatchlist() {
                     if (!this.currentUser) return;
                     const snap = await db.collection('users').doc(this.currentUser.uid).collection('watchlist').get();
