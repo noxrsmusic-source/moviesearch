@@ -84,63 +84,29 @@
         .header-search input:focus { border-color: var(--primary-red); background: rgba(255, 255, 255, 0.08); }
         .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
 
-        /* Filter Button */
-        .btn-open-filter {
-            display: flex; align-items: center; gap: 8px;
-            padding: 0 20px; height: 44px; border-radius: 50px;
-            background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
-            color: #fff; font-weight: 600; font-size: 14px; transition: var(--transition);
-            flex-shrink: 0;
+        /* Page Title */
+        .page-title-wrap { text-align: center; margin-bottom: 24px; padding-top: 10px; }
+        .page-title-wrap h1 { font-size: 28px; font-weight: 900; color: #fff; }
+        .page-title-wrap h1 i { color: var(--primary-red); margin-right: 8px; }
+        .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
+
+        /* Genre Sections */
+        .genre-section { margin-bottom: 32px; }
+        .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .section-heading-wrap h3 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #fff; }
+        .section-heading-wrap h3 i { color: var(--primary-red); }
+
+        .horizontal-cards-row {
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;
+            scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
         }
-        .btn-open-filter:hover { background: rgba(229,9,20,0.1); border-color: var(--primary-red); }
-        .filter-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-red); box-shadow: 0 0 5px var(--primary-red); }
+        .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
+        .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        
+        .horizontal-cards-row .movie-card { flex: 0 0 140px; scroll-snap-align: start; }
+        @media (min-width: 768px) { .horizontal-cards-row .movie-card { flex: 0 0 170px; } }
 
-        /* Filter Modal */
-        .filter-modal-overlay {
-            position: fixed; inset: 0; z-index: 99999;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-            display: none; align-items: flex-end; justify-content: center;
-        }
-        @media (min-width: 768px) { .filter-modal-overlay { align-items: center; } }
-        .filter-modal-overlay.open { display: flex; }
-
-        .filter-modal-box {
-            background: var(--bg-card); width: 100%; max-width: 500px;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-            padding: 24px; border: 1px solid rgba(255,255,255,0.08);
-            max-height: 85vh; overflow-y: auto;
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @media (min-width: 768px) { .filter-modal-box { border-radius: 20px; animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .filter-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .filter-modal-header h3 { font-size: 20px; font-weight: 800; color: #fff; }
-        .filter-modal-close { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; }
-
-        .filter-section { margin-bottom: 24px; }
-        .filter-section h4 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .options-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .option-btn {
-            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
-            background: rgba(255,255,255,0.04); color: var(--text-muted);
-            border: 1px solid rgba(255,255,255,0.08); transition: var(--transition);
-        }
-        .option-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        .option-btn.active { background: rgba(229, 9, 20, 0.15); color: var(--primary-red); border-color: var(--primary-red); }
-
-        .filter-actions { display: flex; gap: 12px; margin-top: 30px; }
-        .btn-clear { flex: 1; padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; font-size: 15px; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-apply { flex: 2; padding: 14px; border-radius: 12px; background: var(--primary-red); color: #fff; font-weight: 700; font-size: 15px; box-shadow: 0 4px 15px rgba(229,9,20,0.4); }
-
-        /* Main Grid */
-        .results-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-        }
-        @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
-
+        /* Movie Card */
         .movie-card {
             border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
             display: flex; flex-direction: column; cursor: pointer;
@@ -155,7 +121,7 @@
         .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
         /* Load More Button */
-        .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
+        .load-more-wrap { text-align: center; margin-top: 20px; margin-bottom: 20px; }
         .btn-load-more {
             padding: 12px 30px; border-radius: 30px; background: rgba(229, 9, 20, 0.1); color: var(--primary-red);
             border: 1.5px solid var(--primary-red); font-weight: 700; font-size: 14px;
@@ -167,7 +133,7 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
-        /* DETAILS MODAL */
+        /* DETAILS MODAL (From index.html) */
         .detail-modal-overlay {
             position: fixed; inset: 0; z-index: 9999;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
@@ -471,80 +437,56 @@
                 <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
                 <input x-model="searchQuery" placeholder="Search web series..." type="text">
             </form>
-            <button class="btn-open-filter" @click="openFilterModal()">
-                <i class="fas fa-sliders-h"></i> Filters
-                <span class="filter-indicator" x-show="currentGenre !== 'all' || currentCountry !== 'all'"></span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Filter Modal -->
-    <div class="filter-modal-overlay" :class="{ 'open': filterModalOpen }" @click.self="filterModalOpen = false" x-cloak>
-        <div class="filter-modal-box">
-            <div class="filter-modal-header">
-                <h3>Filter Web Series</h3>
-                <button class="filter-modal-close" @click="filterModalOpen = false"><i class="fas fa-times"></i></button>
-            </div>
-
-            <!-- Country Section -->
-            <div class="filter-section">
-                <h4><i class="fas fa-globe"></i> Country</h4>
-                <div class="options-grid">
-                    <template x-for="c in countries" :key="c.id">
-                        <button class="option-btn" :class="{ 'active': tempCountry === c.id }" @click="tempCountry = c.id" x-text="c.name"></button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Genre Section -->
-            <div class="filter-section">
-                <h4><i class="fas fa-masks-theater"></i> Genre</h4>
-                <div class="options-grid">
-                    <template x-for="g in genres" :key="g.id">
-                        <button class="option-btn" :class="{ 'active': tempGenre === g.id }" @click="tempGenre = g.id" x-text="g.name"></button>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="filter-actions">
-                <button class="btn-clear" @click="clearFilters()">Clear All</button>
-                <button class="btn-apply" @click="applyFilters()">Apply Filters</button>
-            </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <main class="container" style="padding-top: 20px;">
         
+        <div class="page-title-wrap">
+            <h1><i class="fas fa-tv"></i> Web Series</h1>
+            <p>Explore top web series from Netflix, Prime, Disney+ & more</p>
+        </div>
+
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
             <span>Loading web series...</span>
         </div>
 
-        <div class="results-grid" x-show="!loading">
-            <template x-for="item in series" :key="item.id">
-                <div class="movie-card" @click="openDetails(item.id, 'tv')">
-                    <div class="poster-wrap">
-                        <img class="poster" :src="poster(item)" loading="lazy" alt="">
+        <!-- Genre Sections Container -->
+        <div x-show="!loading">
+            <template x-for="(items, genre) in genreSections" :key="genre">
+                <div class="genre-section" x-show="items.length > 0">
+                    <div class="section-heading-wrap">
+                        <h3><i class="fas" :class="getGenreIcon(genre)"></i> <span x-text="genre"></span></h3>
                     </div>
-                    <div class="card-info">
-                        <h4 x-text="title(item)"></h4>
-                        <div class="card-meta">
-                            <span>Web Series</span>
-                            <span x-text="year(item)"></span>
-                        </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in items" :key="item.id">
+                            <div class="movie-card" @click="openDetails(item.id, 'tv')">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span>Web Series</span>
+                                        <span x-text="year(item)"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </template>
             
-            <div class="empty-state" x-show="series.length === 0 && !loading">
+            <div class="empty-state" x-show="Object.keys(genreSections).length === 0 && !loading">
                 <i class="fas fa-tv"></i>
-                <h3>No web series found for this filter.</h3>
+                <h3>No web series found.</h3>
             </div>
         </div>
 
-        <div class="load-more-wrap" x-show="!loading && series.length > 0 && currentPage < totalPages">
+        <!-- Load More Button -->
+        <div class="load-more-wrap" x-show="!loading && currentPage < totalPages">
             <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
                 <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
                 <span x-text="loadingMore ? 'Loading...' : 'Load More Series'"></span>
@@ -722,6 +664,27 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // TV Genre Map (including Romance)
+        const GENRE_MAP = {
+            10759: { name: 'Action & Adventure', icon: 'fa-fire' },
+            16:    { name: 'Animation',          icon: 'fa-dragon' },
+            35:    { name: 'Comedy',             icon: 'fa-face-laugh-squint' },
+            80:    { name: 'Crime',              icon: 'fa-user-secret' },
+            99:    { name: 'Documentary',        icon: 'fa-book' },
+            18:    { name: 'Drama',              icon: 'fa-masks-theater' },
+            10751: { name: 'Family',             icon: 'fa-people-roof' },
+            10762: { name: 'Kids',               icon: 'fa-child' },
+            9648:  { name: 'Mystery',            icon: 'fa-magnifying-glass' },
+            10763: { name: 'News',               icon: 'fa-newspaper' },
+            10764: { name: 'Reality',            icon: 'fa-tv' },
+            10765: { name: 'Sci-Fi & Fantasy',   icon: 'fa-rocket' },
+            10766: { name: 'Soap',               icon: 'fa-water' },
+            10767: { name: 'Talk',               icon: 'fa-comments' },
+            10768: { name: 'War & Politics',     icon: 'fa-gun' },
+            37:    { name: 'Western',            icon: 'fa-hat-cowboy' },
+            10749: { name: 'Romance',            icon: 'fa-heart' } // Added Romance
+        };
+
         function webseriesApp() {
             return {
                 loading: true,
@@ -729,50 +692,11 @@
                 searchQuery: '',
                 currentUser: null,
                 
-                series: [],
                 currentPage: 1,
                 totalPages: 1,
+                allFetchedIds: new Set(),
+                genreSections: {}, // Structure: { "Action": [items], "Romance": [items] }
                 
-                // Filter States
-                filterModalOpen: false,
-                currentGenre: 'all',
-                currentCountry: 'all',
-                tempGenre: 'all',
-                tempCountry: 'all',
-
-                genres: [
-                    { id: 'all', name: 'All Genres' },
-                    { id: 10759, name: 'Action & Adventure' },
-                    { id: 16, name: 'Animation' },
-                    { id: 35, name: 'Comedy' },
-                    { id: 80, name: 'Crime' },
-                    { id: 99, name: 'Documentary' },
-                    { id: 18, name: 'Drama' },
-                    { id: 10751, name: 'Family' },
-                    { id: 10762, name: 'Kids' },
-                    { id: 9648, name: 'Mystery' },
-                    { id: 10763, name: 'News' },
-                    { id: 10764, name: 'Reality' },
-                    { id: 10765, name: 'Sci-Fi & Fantasy' },
-                    { id: 10766, name: 'Soap' },
-                    { id: 10767, name: 'Talk' },
-                    { id: 10768, name: 'War & Politics' },
-                    { id: 37, name: 'Western' }
-                ],
-
-                countries: [
-                    { id: 'all', name: '🌍 All Countries' },
-                    { id: 'IN', name: '🇮🇳 India' },
-                    { id: 'US', name: '🇺🇸 USA' },
-                    { id: 'KR', name: '🇰🇷 South Korea' },
-                    { id: 'JP', name: '🇯🇵 Japan' },
-                    { id: 'GB', name: '🇬🇧 UK' },
-                    { id: 'CN', name: '🇨🇳 China' },
-                    { id: 'TR', name: '🇹🇷 Turkey' },
-                    { id: 'TH', name: '🇹🇭 Thailand' },
-                    { id: 'ES', name: '🇪🇸 Spain' }
-                ],
-
                 // Details Modal State
                 detailModalOpen: false,
                 detailLoading: false,
@@ -793,56 +717,21 @@
                     await this.fetchWebSeries();
                 },
 
-                // --- FILTER LOGIC ---
-                openFilterModal() {
-                    this.tempGenre = this.currentGenre;
-                    this.tempCountry = this.currentCountry;
-                    this.filterModalOpen = true;
-                },
-
-                clearFilters() {
-                    this.tempGenre = 'all';
-                    this.tempCountry = 'all';
-                },
-
-                applyFilters() {
-                    if (this.currentGenre === this.tempGenre && this.currentCountry === this.tempCountry) {
-                        this.filterModalOpen = false;
-                        return;
+                getGenreIcon(genreName) {
+                    for (const key in GENRE_MAP) {
+                        if (GENRE_MAP[key].name === genreName) return GENRE_MAP[key].icon;
                     }
-                    
-                    this.currentGenre = this.tempGenre;
-                    this.currentCountry = this.tempCountry;
-                    this.filterModalOpen = false;
-                    
-                    this.currentPage = 1;
-                    this.series = [];
-                    this.fetchWebSeries();
+                    return 'fa-film';
                 },
 
-                // --- FETCH WEB SERIES SPECIFIC LOGIC ---
-                // using TMDB's with_networks filter: Netflix (213), Prime Video (1024), Disney+ (2739), Apple TV+ (2552), HBO (49), Hulu (453)
+                // --- FETCH WEB SERIES & CATEGORIZE ---
                 async fetchWebSeries() {
                     this.loading = true;
                     try {
-                        let endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${this.currentPage}&with_networks=213|1024|2739|2552|49|453`;
-                        
-                        if (this.currentGenre !== 'all') {
-                            endpoint += `&with_genres=${this.currentGenre}`;
-                        }
-                        
-                        if (this.currentCountry !== 'all') {
-                            endpoint += `&with_origin_country=${this.currentCountry}`;
-                        }
-
-                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
-                        const data = await res.json();
-                        
-                        this.totalPages = data.total_pages || 1;
-                        
-                        const results = (data.results || []).filter(s => s.poster_path);
-                        this.series = [...this.series, ...results];
-
+                        // Fetch 3 pages initially for good section fill
+                        const pagesToFetch = [1, 2, 3];
+                        await this.fetchAndProcessPages(pagesToFetch);
+                        this.currentPage = 3;
                     } catch(e) {
                         console.warn("Fetch failed", e);
                     } finally {
@@ -851,11 +740,71 @@
                 },
 
                 async loadMore() {
-                    if (this.currentPage >= this.totalPages) return;
                     this.loadingMore = true;
-                    this.currentPage++;
-                    await this.fetchWebSeries();
-                    this.loadingMore = false;
+                    try {
+                        const nextPage = this.currentPage + 1;
+                        await this.fetchAndProcessPages([nextPage]);
+                        this.currentPage = nextPage;
+                    } catch(e) {
+                        console.warn("Load more failed", e);
+                    } finally {
+                        this.loadingMore = false;
+                    }
+                },
+
+                async fetchAndProcessPages(pages) {
+                    const safeFetch = async (page) => {
+                        // with_networks filters for Web Series platforms (Netflix, Prime, Disney+, Apple, HBO, Hulu)
+                        const endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${page}&with_networks=213|1024|2739|2552|49|453`;
+                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
+                        return await res.json();
+                    };
+
+                    const results = await Promise.all(pages.map(p => safeFetch(p)));
+                    
+                    let newItems = [];
+                    results.forEach(data => {
+                        if (data.total_pages) this.totalPages = data.total_pages;
+                        const filtered = (data.results || []).filter(s => s.poster_path);
+                        newItems = newItems.concat(filtered);
+                    });
+
+                    // Deduplicate
+                    newItems = newItems.filter(item => !this.allFetchedIds.has(item.id));
+                    
+                    // Add to tracking set
+                    newItems.forEach(item => this.allFetchedIds.add(item.id));
+
+                    // Categorize new items
+                    this.categorizeItems(newItems);
+                },
+
+                categorizeItems(newItems) {
+                    newItems.forEach(item => {
+                        const genres = item.genre_ids || [];
+                        genres.forEach(gid => {
+                            if (GENRE_MAP[gid]) {
+                                const genreName = GENRE_MAP[gid].name;
+                                if (!this.genreSections[genreName]) {
+                                    this.genreSections[genreName] = [];
+                                }
+                                // Check if already added (in case of multiple genre IDs mapping to same name, though rare)
+                                if (!this.genreSections[genreName].find(x => x.id === item.id)) {
+                                    this.genreSections[genreName].push(item);
+                                }
+                            }
+                        });
+                    });
+
+                    // Sort sections by number of items (descending) so biggest sections show first
+                    const sortedSections = {};
+                    Object.keys(this.genreSections)
+                        .sort((a, b) => this.genreSections[b].length - this.genreSections[a].length)
+                        .forEach(key => {
+                            sortedSections[key] = this.genreSections[key];
+                        });
+                    
+                    this.genreSections = sortedSections;
                 },
 
                 goHome() {
@@ -879,7 +828,7 @@
 
                 async openDetails(id, type = 'movie') {
                     if (!id) return;
-                    const normType = (['tv', 'series', 'anime', 'show'].includes(type)) ? 'tv' : 'movie';
+                    const normType = 'tv'; // Always tv in this page
 
                     this.detailItem = { id, type: normType };
                     this.detailData = null;
@@ -894,14 +843,12 @@
                     document.body.style.overflow = 'hidden';
 
                     try {
-                        const endpoint = normType === 'tv'
-                            ? `/tv/${id}?language=en-US&append_to_response=credits,videos`
-                            : `/movie/${id}?language=en-US&append_to_response=credits,videos`;
+                        const endpoint = `/tv/${id}?language=en-US&append_to_response=credits,videos`;
                         const res = await fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(endpoint));
                         const data = await res.json();
                         this.detailData = data;
 
-                        if (normType === 'tv' && data.seasons && data.seasons.length > 0) {
+                        if (data.seasons && data.seasons.length > 0) {
                             const validSeasons = data.seasons.filter(s => s.season_number > 0);
                             this.selectedSeason = validSeasons.length > 0 ? validSeasons[0].season_number : 1;
                             this.onSeasonChange();
@@ -947,11 +894,8 @@
                     const poster = encodeURIComponent(this.poster(this.detailData));
                     
                     let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=watch&title=${title}&poster=${poster}`;
-                    if (type === 'tv') {
-                        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
-                    } else {
-                        url += `&season=1&episode=1`;
-                    }
+                    url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    
                     window.location.href = url;
                 },
 
@@ -966,17 +910,9 @@
                     const poster = encodeURIComponent(this.poster(this.detailData));
                     
                     let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=download&title=${title}&poster=${poster}`;
+                    url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
 
-                    if (type === 'tv') {
-                        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
-                    } else {
-                        url += `&season=1&episode=1`;
-                    }
-
-                    const label = type === 'tv'
-                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
-                        : (this.detailTitle(this.detailData) || 'Movie');
-
+                    const label = `S${this.selectedSeason} E${this.selectedEpisode}`;
                     this.showModalAlert(`Opening download page for ${label}…`, 'success');
                     window.location.href = url;
                 },
@@ -1054,7 +990,6 @@
                     const date = item.release_date || item.first_air_date;
                     return date ? date.substring(0, 4) : 'N/A';
                 },
-                rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
 
                 // --- WATCHLIST ---
                 async loadWatchlist() {
