@@ -177,12 +177,10 @@
         <header class="header-top">
             <div class="container header-top-inner">
                 <div class="header-left-cluster">
-                    <a href="index.html" class="back-btn" title="Go Back"><i class="fas fa-arrow-left"></i></a>
                     <a class="logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
                 </div>
                 <div class="user-status" @click="goHome()">
-                    <div class="avatar" x-text="currentUser ? currentUser.displayName.charAt(0).toUpperCase() : 'U'"></div>
-                    <span class="username" x-text="currentUser ? currentUser.displayName : 'Guest'">Guest</span>
+                    <a href="index.html" class="back-btn" title="Go Back"><i class="fas fa-arrow-left"></i></a>
                 </div>
             </div>
         </header>
@@ -392,7 +390,7 @@
 
                 goHome() {
                     if(this.searchQuery.trim().length > 1) {
-                        window.location.href = `index.html?search=${encodeURIComponent(this.searchQuery)}`;
+                        window.location.href = `?search=${encodeURIComponent(this.searchQuery)}`;
                     } else {
                         window.location.href = 'index.html';
                     }
