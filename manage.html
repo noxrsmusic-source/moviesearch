@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Manage Content - RX Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        :root { --primary-red: #E50914; --primary-green: #22C55E; --bg-primary: #08080C; --bg-card: #14141F; --text-white: #FFFFFF; --text-muted: #9CA3AF; }
+        body { background: var(--bg-primary); color: var(--text-white); padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; max-width: 1200px; margin: 0 auto 30px; }
+        .header h2 { font-size: 24px; font-weight: 800; }
+        .back-btn { background: rgba(255,255,255,0.1); color: #fff; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; transition: 0.3s; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .search-box { max-width: 800px; margin: 0 auto 40px; display: flex; gap: 10px; background: var(--bg-card); padding: 8px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); }
+        .search-box input { flex: 1; background: transparent; border: none; color: #fff; padding: 12px 20px; font-size: 16px; outline: none; }
+        .search-box button { background: var(--primary-red); color: #fff; border: none; padding: 12px 30px; border-radius: 40px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .search-box button:hover { background: #b80710; }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .movie-card { background: var(--bg-card); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
+        .poster-wrap { aspect-ratio: 2/3; width: 100%; background: #12121c; }
+        .poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .card-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-info h4 { font-size: 14px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-info p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .btn-add { width: 100%; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; background: var(--primary-green); color: #fff; transition: 0.3s; }
+        .btn-add.added { background: rgba(255,255,255,0.1); color: var(--text-muted); pointer-events: none; }
+        .loading { text-align: center; font-size: 24px; color: var(--primary-red); padding: 50px; }
+    </style>
+</head>
+<body x-data="manageApp()" x-init="init()">
+    <div class="header">
+        <h2><i class="fas fa-user-shield" style="color: var(--primary-red);"></i> Admin Panel</h2>
+        <a href="series.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Series</a>
+    </div>
+
+    <div class="search-box">
+        <input type="text" x-model="query" @keydown.enter="search()" placeholder="Search Series on TMDB (e.g. Breaking Bad, Mirzapur)...">
+        <button @click="search()" :disabled="loading">
+            <i class="fas" :class="loading ? 'fa-circle-notch fa-spin' : 'fa-search'"></i> Search
+        </button>
+    </div>
+
+    <div x-show="loading" class="loading"><i class="fas fa-circle-notch fa-spin"></i> Searching TMDB...</div>
+
+    <div class="results-grid" x-show="!loading && results.length > 0">
+        <template x-for="item in results" :key="item.id">
+            <div class="movie-card">
+                <div class="poster-wrap">
+                    <img :src="getPoster(item.poster_path)" loading="lazy" alt="">
+                </div>
+                <div class="card-info">
+                    <div>
+                        <h4 x-text="item.name || item.title"></h4>
+                        <p x-text="(item.first_air_date || '').substring(0,4)"></p>
+                    </div>
+                    <button class="btn-add" :class="{ 'added': addedItems.includes(item.id) }" @click="addContent(item)">
+                        <i class="fas" :class="addedItems.includes(item.id) ? 'fa-check' : 'fa-plus'"></i>
+                        <span x-text="addedItems.includes(item.id) ? 'Added' : 'Add to Home'"></span>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function manageApp() {
+            return {
+                query: '', results: [], loading: false, addedItems: [],
+
+                async init() {
+                    const snap = await db.collection('custom_series').get();
+                    this.addedItems = snap.docs.map(doc => doc.data().id);
+                },
+
+                async search() {
+                    if (!this.query.trim()) return;
+                    this.loading = true;
+                    try {
+                        const endpoint = `/search/tv?query=${encodeURIComponent(this.query)}&language=en-US&page=1`;
+                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
+                        const data = await res.json();
+                        this.results = (data.results || []).filter(r => r.poster_path);
+                    } catch (e) { alert("Search failed!"); } 
+                    finally { this.loading = false; }
+                },
+
+                async addContent(item) {
+                    if (this.addedItems.includes(item.id)) return;
+                    try {
+                        const docRef = db.collection('custom_series').doc(item.id.toString());
+                        await docRef.set({
+                            id: item.id,
+                            name: item.name || item.title,
+                            title: item.title || item.name,
+                            poster_path: item.poster_path,
+                            backdrop_path: item.backdrop_path || '',
+                            first_air_date: item.first_air_date || '',
+                            vote_average: item.vote_average || 0,
+                            overview: item.overview || '',
+                            addedAt: Date.now()
+                        });
+                        this.addedItems.push(item.id);
+                    } catch (e) { alert("Error adding item."); }
+                },
+
+                getPoster(path) {
+                    return path ? 'https://image.tmdb.org/t/p/w500' + path : 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
