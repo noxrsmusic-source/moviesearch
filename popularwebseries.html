@@ -90,6 +90,85 @@
         .page-title-wrap h1 i { color: var(--primary-red); margin-right: 8px; }
         .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
 
+        /* =========================================================
+           🔥 PROFESSIONAL OTT AD SECTION (Premium Featured Banner)
+           ========================================================= */
+        .ott-ad-section {
+            margin-bottom: 32px;
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #0f0f17;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        /* Ad Background Image (Cinematic Look) */
+        .ad-bg {
+            position: absolute; inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1574375927938-d5a98e8efe85?q=80&w=1600&auto=format&fit=crop'); /* Replace with your ad image */
+            background-size: cover;
+            background-position: center 20%;
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        .ad-gradient {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, #08080C 10%, rgba(8,8,12,0.7) 50%, transparent 100%);
+            z-index: 2;
+        }
+
+        .ad-label {
+            position: absolute; top: 14px; left: 14px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            color: #fff; font-size: 10px; font-weight: 800;
+            padding: 4px 10px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
+        }
+
+        .ad-content-wrapper {
+            position: relative;
+            z-index: 3;
+            padding: 40px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-end;
+            min-height: 220px;
+        }
+
+        .ad-title {
+            font-size: 22px; font-weight: 900; color: #fff;
+            margin-bottom: 8px; line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .ad-desc {
+            font-size: 13px; color: #d1d5db; font-weight: 500;
+            max-width: 500px; margin-bottom: 16px;
+            line-height: 1.5; text-shadow: 0 1px 5px rgba(0,0,0,0.8);
+        }
+
+        .ad-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #fff; color: #000; font-weight: 800; font-size: 13px;
+            padding: 10px 24px; border-radius: 30px;
+            transition: var(--transition); text-decoration: none;
+        }
+        .ad-btn:hover { transform: scale(1.05); background: var(--primary-red); color: #fff; }
+
+        @media (min-width: 768px) {
+            .ad-content-wrapper { padding: 60px 40px 30px; min-height: 280px; }
+            .ad-title { font-size: 28px; }
+            .ad-desc { font-size: 15px; }
+            .ad-btn { font-size: 14px; padding: 12px 30px; }
+        }
+        /* ========================================================= */
+
         /* Genre Sections */
         .genre-section { margin-bottom: 32px; }
         .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -448,6 +527,30 @@
             <p>Top picks from Netflix, Prime, Disney+, HBO & more</p>
         </div>
 
+        <!-- ========================================== -->
+        <!-- 🔥 PROFESSIONAL OTT AD SECTION             -->
+        <!-- ========================================== -->
+        <div class="ott-ad-section">
+            <!-- Optional: Background Image -->
+            <div class="ad-bg"></div>
+            <!-- Gradient Overlay for Text Readability -->
+            <div class="ad-gradient"></div>
+            
+            <span class="ad-label">Sponsored</span>
+            
+            <div class="ad-content-wrapper">
+                <h3 class="ad-title">Upgrade Your Streaming Experience</h3>
+                <p class="ad-desc">Get ultra-fast downloads, zero lag, and exclusive 4K content. Join our premium network today and unlock the best of entertainment.</p>
+                <!-- Yahan apna Ad Link ya script daalein -->
+                <a href="https://t.me/rxplayer" target="_blank" class="ad-btn">
+                    Explore Now <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <!-- Agar aapke paas direct image ad ya iframe ad hai, toh aap is div ko use kar sakte hain background image ke bajaye. -->
+        </div>
+        <!-- ========================================== -->
+
         <!-- Loading Skeleton for initial load -->
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
@@ -481,7 +584,7 @@
             </template>
         </div>
 
-        <!-- Load More Button (To add more items to current sections) -->
+        <!-- Load More Button -->
         <div class="load-more-wrap" x-show="!loading">
             <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
                 <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
@@ -669,7 +772,6 @@
                 
                 currentPage: 1,
                 
-                // Yahan humne sirf acchi aur popular genres select kiye hain
                 sectionsConfig: [
                     { id: '10759', name: 'Action & Adventure', icon: 'fa-fire' },
                     { id: '80', name: 'Crime', icon: 'fa-user-secret' },
@@ -677,11 +779,11 @@
                     { id: '35', name: 'Comedy', icon: 'fa-face-laugh-squint' },
                     { id: '9648', name: 'Mystery', icon: 'fa-magnifying-glass' },
                     { id: '10765', name: 'Sci-Fi & Fantasy', icon: 'fa-rocket' },
-                    { id: '10749', name: 'Romance', icon: 'fa-heart' }, // Added per your request
+                    { id: '10749', name: 'Romance', icon: 'fa-heart' },
                     { id: '16', name: 'Animation', icon: 'fa-dragon' }
                 ],
                 
-                genreSections: {}, // { "Action & Adventure": [items], "Crime": [items] }
+                genreSections: {},
                 
                 // Details Modal State
                 detailModalOpen: false,
@@ -703,13 +805,10 @@
                     await this.fetchAllSections();
                 },
 
-                // --- FETCH DATA FOR SPECIFIC GENRES ---
                 async fetchAllSections(page = 1) {
                     this.loading = true;
                     try {
-                        // Create fetch promises for each specific genre
                         const promises = this.sectionsConfig.map(sec => {
-                            // Web Series networks: Netflix(213), Prime(1024), Disney+(2739), Apple(2552), HBO(49), Hulu(453)
                             const endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${page}&with_networks=213|1024|2739|2552|49|453&with_genres=${sec.id}`;
                             return fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`)
                                 .then(res => res.json())
@@ -724,7 +823,6 @@
                             
                             const items = (data.results || []).filter(s => s.poster_path);
                             
-                            // Deduplicate within section
                             const existingIds = new Set(this.genreSections[secName].map(i => i.id));
                             const newItems = items.filter(i => !existingIds.has(i.id));
                             
@@ -753,7 +851,6 @@
                     }
                 },
 
-                // --- DETAILS & UTILS ---
                 showModalAlert(message, type = 'info', duration = 3000) {
                     if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
                     this.modalAlert.message = message;
@@ -929,7 +1026,6 @@
                     return date ? date.substring(0, 4) : 'N/A';
                 },
 
-                // --- WATCHLIST ---
                 async loadWatchlist() {
                     if (!this.currentUser) return;
                     const snap = await db.collection('users').doc(this.currentUser.uid).collection('watchlist').get();
