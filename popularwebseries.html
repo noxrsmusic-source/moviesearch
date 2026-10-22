@@ -27,7 +27,7 @@
             --radius-sm: 8px;
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', sans-serif;
-            --header-offset: 160px; /* Slightly larger for double filter bars */
+            --header-offset: 160px; 
         }
 
         body {
@@ -85,15 +85,9 @@
 
         /* Filter Wrapper */
         .filters-wrapper {
-            position: fixed;
-            top: 120px; /* below header */
-            left: 0;
-            right: 0;
-            z-index: 990;
-            background: rgba(8, 8, 12, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            position: fixed; top: 120px; left: 0; right: 0; z-index: 990;
+            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(10px);
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
         }
         
         .filter-scroll {
@@ -104,34 +98,24 @@
         
         .filter-label {
             font-size: 11px; font-weight: 700; color: var(--text-muted); 
-            text-transform: uppercase; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 6px;
-            display: block;
+            text-transform: uppercase; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 6px; display: block;
         }
 
         .filter-btn {
             padding: 6px 16px; border-radius: 20px;
             background: rgba(255,255,255,0.05); color: var(--text-muted);
             font-size: 13px; font-weight: 600; white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.08);
-            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.08); transition: var(--transition);
         }
         .filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .filter-btn.active {
-            background: rgba(229, 9, 20, 0.15);
-            color: var(--primary-red);
-            border-color: var(--primary-red);
-        }
+        .filter-btn.active { background: rgba(229, 9, 20, 0.15); color: var(--primary-red); border-color: var(--primary-red); }
 
         /* Main Grid */
         .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px; margin-top: 20px;
         }
-        @media (min-width: 768px) {
-            .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
-        }
+        @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
 
         .movie-card {
             border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
@@ -149,8 +133,7 @@
         /* Load More Button */
         .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
         .btn-load-more {
-            padding: 12px 30px; border-radius: 30px;
-            background: rgba(229, 9, 20, 0.1); color: var(--primary-red);
+            padding: 12px 30px; border-radius: 30px; background: rgba(229, 9, 20, 0.1); color: var(--primary-red);
             border: 1.5px solid var(--primary-red); font-weight: 700; font-size: 14px;
             display: inline-flex; align-items: center; gap: 8px; transition: var(--transition);
         }
@@ -160,25 +143,74 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
-        /* Details Modal */
-        .detail-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; }
+        /* ======= FIXED DETAILS MODAL ======= */
+        .detail-modal-overlay { 
+            position: fixed; inset: 0; z-index: 9999; 
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
+            display: none; align-items: center; justify-content: center; padding: 16px; 
+        }
         .detail-modal-overlay.open { display: flex; }
-        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
-        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; }
+        
+        .detail-modal-box { 
+            background: var(--bg-card); border-radius: var(--radius); 
+            max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; 
+            position: relative; 
+        }
+        .detail-modal-close { 
+            position: absolute; top: 14px; right: 14px; z-index: 30; 
+            width: 38px; height: 38px; border-radius: 50%; 
+            background: rgba(0,0,0,0.75); color: #fff; display: flex; 
+            align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .detail-modal-close:hover { background: var(--primary-red); }
+        
         .detail-modal-loading { padding: 100px 20px; text-align: center; color: var(--primary-red); }
-        .detail-backdrop { width: 100%; aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
-        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.7) 60%, var(--bg-card) 100%); }
-        .detail-header-content { position: relative; padding: 24px; margin-top: -60px; z-index: 2; }
-        .detail-header-content h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
-        .detail-meta { display: flex; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; }
-        .detail-badge { font-size: 10px; padding: 3px 10px; background: var(--primary-red); border-radius: 4px; font-weight: 800; }
-        .detail-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; gap: 8px; border: none; }
+        
+        /* Backdrop Fix */
+        .detail-backdrop { 
+            position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; 
+            background-size: cover; background-position: center top; 
+            background-color: #0a0a0f; 
+        }
+        .detail-backdrop-gradient { 
+            position: absolute; inset: 0; 
+            background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.8) 70%, var(--bg-card) 100%); 
+        }
+        
+        /* Content Overlap Fix */
+        .detail-header-content { 
+            position: relative; padding: 20px 24px; 
+            margin-top: -60px; /* Overlap image */
+            z-index: 20; 
+        }
+        .detail-header-content h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .detail-meta { display: flex; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 16px; align-items: center; }
+        .detail-badge { font-size: 10px; padding: 3px 10px; background: var(--primary-red); border-radius: 4px; font-weight: 800; color: #fff; }
+        .detail-rating { color: #F5C518; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        
+        .detail-actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { 
+            padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; 
+            display: inline-flex; gap: 8px; border: none; align-items: center; justify-content: center;
+        }
         .detail-watch-btn { background: #fff; color: #000; }
         .detail-download-btn { background: var(--primary-green); color: #fff; }
         .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-        .detail-body { padding: 0 24px 28px; }
-        .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
+        .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
+        
+        /* Info Section Fix */
+        .detail-body { 
+            position: relative; z-index: 20; 
+            padding: 0 24px 28px; 
+        }
+        .detail-overview { 
+            font-size: 14px; line-height: 1.6; 
+            color: #d1d5db; /* Light gray, visible */
+            background: rgba(255,255,255,0.03);
+            padding: 16px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
     </style>
 </head>
 <body x-data="seriesApp()" x-init="init()">
@@ -207,9 +239,8 @@
         </div>
     </div>
 
-    <!-- Filters (Fixed below header) -->
+    <!-- Filters -->
     <div class="filters-wrapper" x-cloak>
-        <!-- Country Filter -->
         <span class="filter-label">Country</span>
         <div class="filter-scroll">
             <template x-for="c in countries" :key="c.id">
@@ -217,7 +248,6 @@
             </template>
         </div>
         
-        <!-- Genre Filter -->
         <span class="filter-label" style="margin-top: 8px;">Genre</span>
         <div class="filter-scroll">
             <template x-for="f in genres" :key="f.id">
@@ -229,13 +259,11 @@
     <!-- Main Content -->
     <main class="container">
         
-        <!-- Loading State -->
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
             <span>Loading TV series...</span>
         </div>
 
-        <!-- Results Grid -->
         <div class="results-grid" x-show="!loading">
             <template x-for="item in series" :key="item.id">
                 <div class="movie-card" @click="openDetails(item.id, 'tv')">
@@ -252,14 +280,12 @@
                 </div>
             </template>
             
-            <!-- Empty State -->
             <div class="empty-state" x-show="series.length === 0 && !loading">
                 <i class="fas fa-tv"></i>
                 <h3>No series found for this filter.</h3>
             </div>
         </div>
 
-        <!-- Load More Button -->
         <div class="load-more-wrap" x-show="!loading && series.length > 0 && currentPage < totalPages">
             <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
                 <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
@@ -268,16 +294,24 @@
         </div>
     </main>
 
-    <!-- Details Modal -->
+    <!-- Details Modal (FIXED) -->
     <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
-            <div x-show="detailLoading" class="detail-modal-loading"><i class="fas fa-circle-notch fa-spin"></i><span>Loading details…</span></div>
+            
+            <div x-show="detailLoading" class="detail-modal-loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Loading details…</span>
+            </div>
+            
             <template x-if="!detailLoading && detailData">
                 <div>
+                    <!-- Backdrop Image -->
                     <div class="detail-backdrop" :style="'background-image: url(' + detailBackdrop(detailData) + ')'">
                         <div class="detail-backdrop-gradient"></div>
                     </div>
+                    
+                    <!-- Header Info (Overlapping Image) -->
                     <div class="detail-header-content">
                         <h2 x-text="detailTitle(detailData)"></h2>
                         <div class="detail-meta">
@@ -285,6 +319,7 @@
                             <span x-text="detailYear(detailData)"></span>
                             <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
                         </div>
+                        
                         <div class="detail-actions">
                             <button class="detail-watch-btn" @click="goToPlayer()"><i class="fas fa-play"></i> Watch Now</button>
                             <button class="detail-download-btn" @click="downloadContent()"><i class="fas fa-download"></i> Download</button>
@@ -293,8 +328,10 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Overview Box -->
                     <div class="detail-body">
-                        <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                        <p class="detail-overview" x-text="detailData.overview || 'No description available for this series.'"></p>
                     </div>
                 </div>
             </template>
@@ -326,16 +363,13 @@
                 searchQuery: '',
                 currentUser: null,
                 
-                // Data
                 series: [],
                 currentPage: 1,
                 totalPages: 1,
                 
-                // Filters State
                 currentGenre: 'all',
                 currentCountry: 'all',
 
-                // Genres List
                 genres: [
                     { id: 'all', name: 'All Genres' },
                     { id: 10759, name: 'Action & Adventure' },
@@ -356,7 +390,6 @@
                     { id: 37, name: 'Western' }
                 ],
 
-                // Countries List (India First)
                 countries: [
                     { id: 'all', name: '🌍 All Countries' },
                     { id: 'IN', name: '🇮🇳 India' },
@@ -370,7 +403,6 @@
                     { id: 'ES', name: '🇪🇸 Spain' }
                 ],
 
-                // Modal State
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
@@ -408,12 +440,10 @@
                     try {
                         let endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${this.currentPage}`;
                         
-                        // Add Genre Filter
                         if (this.currentGenre !== 'all') {
                             endpoint += `&with_genres=${this.currentGenre}`;
                         }
                         
-                        // Add Country Filter
                         if (this.currentCountry !== 'all') {
                             endpoint += `&with_origin_country=${this.currentCountry}`;
                         }
@@ -424,8 +454,6 @@
                         this.totalPages = data.total_pages || 1;
                         
                         const results = (data.results || []).filter(s => s.poster_path);
-                        
-                        // Append if loading more, else replace (though resetAndFetch clears it)
                         this.series = [...this.series, ...results];
 
                     } catch(e) {
@@ -451,7 +479,6 @@
                     }
                 },
 
-                // --- DETAILS & UTILS ---
                 async openDetails(id, type) {
                     this.detailItem = { id, type };
                     this.detailLoading = true;
@@ -483,7 +510,6 @@
                 detailRatingVal(d) { return d.vote_average ? d.vote_average.toFixed(1) : '—'; },
                 detailBackdrop(d) { return d.backdrop_path ? 'https://image.tmdb.org/t/p/original' + d.backdrop_path : 'https://placehold.co/1280x720/14141F/666'; },
 
-                // --- WATCHLIST ---
                 async loadWatchlist() {
                     if (!this.currentUser) return;
                     const snap = await db.collection('users').doc(this.currentUser.uid).collection('watchlist').get();
