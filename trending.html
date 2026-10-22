@@ -6,179 +6,110 @@
     <title>Trending Now - RX Player</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         [x-cloak] { display: none !important; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         :root {
-            --primary-red: #E50914;
-            --primary-green: #22C55E;
-            --bg-primary: #08080C;
-            --bg-card: #14141F;
-            --bg-secondary: #0F0F17;
-            --text-white: #FFFFFF;
-            --text-muted: #9CA3AF;
-            --shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
-            --radius: 14px;
-            --radius-sm: 8px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-offset: 130px;
+            --primary-red: #E50914; --primary-green: #22C55E; --bg-primary: #08080C;
+            --bg-card: #14141F; --bg-secondary: #0F0F17; --text-white: #FFFFFF;
+            --text-muted: #9CA3AF; --shadow: 0 16px 40px rgba(0,0,0,0.8);
+            --radius: 14px; --radius-sm: 8px; --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', sans-serif; --header-offset: 130px;
         }
-
-        body {
-            font-family: var(--font) !important;
-            background: var(--bg-primary) !important;
-            color: var(--text-white) !important;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-            padding-top: var(--header-offset);
-            padding-bottom: 90px;
-            overflow-x: hidden;
-        }
-
+        body { font-family: var(--font) !important; background: var(--bg-primary) !important; color: var(--text-white) !important; line-height: 1.5; min-height: 100vh; padding-top: var(--header-offset); padding-bottom: 90px; }
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
         img { display: block; max-width: 100%; }
         .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
 
-        /* Header & Search */
-        .header-wrapper {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
+        /* Header */
+        .header-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); }
         .header-top { padding: 12px 0; }
-        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-        .header-left-cluster { display: flex; align-items: center; gap: 16px; }
-        .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; letter-spacing: -0.5px; }
+        .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
         .logo span { color: var(--primary-red); }
         .logo i { color: var(--primary-red); font-size: 20px; }
-
-        .user-status {
-            display: flex; align-items: center; gap: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 5px 12px 5px 6px; border-radius: 30px;
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
-            cursor: pointer; transition: var(--transition);
-        }
-        .user-status .avatar {
-            width: 30px; height: 30px; border-radius: 50%;
-            background: var(--bg-secondary);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 700;
-        }
+        .user-status { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 5px 12px 5px 6px; border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.08); cursor: pointer; }
+        .user-status .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
         .user-status .username { font-size: 13px; font-weight: 600; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
         .search-bar-row { padding: 4px 0 12px; }
         .header-search { width: 100%; position: relative; display: flex; align-items: center; }
-        .header-search input {
-            width: 100%; height: 44px; padding: 0 44px 0 48px;
-            border-radius: 50px; border: 1.5px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.05); color: var(--text-white);
-            font-size: 14.5px; outline: none; transition: var(--transition);
-        }
-        .header-search input:focus { border-color: var(--primary-red); background: rgba(255, 255, 255, 0.08); }
-        .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
-        .header-search .clear-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; display: none; }
-        .header-search .clear-btn.visible { display: block; }
+        .header-search input { width: 100%; height: 44px; padding: 0 44px 0 48px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #fff; font-size: 14.5px; outline: none; }
+        .header-search input:focus { border-color: var(--primary-red); }
+        .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
-        /* Main Content Grid */
+        /* Grid & Cards */
         .page-title-wrap { text-align: center; margin-bottom: 24px; padding-top: 10px; }
         .page-title-wrap h1 { font-size: 28px; font-weight: 900; color: #fff; }
         .page-title-wrap h1 i { color: var(--primary-red); margin-right: 8px; }
         .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-        }
-        @media (min-width: 768px) {
-            .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
-        }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        @media (min-width: 768px) { .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
 
-        .movie-card {
-            border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
-            display: flex; flex-direction: column; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition);
-        }
+        .movie-card { border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition); }
         .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
         .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
-        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-        .movie-card:hover .poster { transform: scale(1.04); }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; }
         .movie-card .card-info { padding: 8px 10px; }
         .movie-card .card-info h4 { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
-        /* Details Modal */
-        .detail-modal-overlay {
-            position: fixed; inset: 0; z-index: 2147483000;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
-            display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto;
+        /* Load More Button */
+        .load-more-wrap { text-align: center; margin-top: 30px; margin-bottom: 20px; }
+        .btn-load-more {
+            padding: 12px 30px; border-radius: 30px;
+            background: rgba(229, 9, 20, 0.1); color: var(--primary-red);
+            border: 1.5px solid var(--primary-red); font-weight: 700; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 8px; transition: var(--transition);
         }
+        .btn-load-more:hover { background: var(--primary-red); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(229,9,20,0.4); }
+        .btn-load-more:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Modal */
+        .detail-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; }
         .detail-modal-overlay.open { display: flex; }
-        .detail-modal-box {
-            background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%;
-            max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 24px 80px rgba(0,0,0,0.9); position: relative;
-            animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
-        @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .detail-modal-close {
-            position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px;
-            border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; display: flex;
-            align-items: center; justify-content: center; font-size: 15px; transition: var(--transition);
-            border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(8px);
-        }
-        .detail-modal-close:hover { background: var(--primary-red); transform: rotate(90deg); }
-        .detail-modal-loading { padding: 100px 20px; text-align: center; font-size: 32px; color: var(--primary-red); display: flex; flex-direction: column; align-items: center; gap: 16px; }
-        .detail-backdrop { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; background-size: cover; background-position: center top; background-color: #0a0a0f; }
-        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.20) 0%, rgba(20,20,31,0.70) 60%, var(--bg-card) 100%); }
-        .detail-header-content { position: relative; padding: 24px 24px 16px; margin-top: -60px; z-index: 2; }
-        .detail-header-content h2 { font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px; text-shadow: 0 2px 14px rgba(0,0,0,0.85); color: #fff; }
-        .detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; }
-        .detail-badge { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 4px; background: rgba(229,9,20,0.9); color: #fff; text-transform: uppercase; }
-        .detail-rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
-        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn, .detail-trailer-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; }
+        .detail-modal-loading { padding: 100px 20px; text-align: center; color: var(--primary-red); }
+        .detail-backdrop { width: 100%; aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
+        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.2) 0%, rgba(20,20,31,0.7) 60%, var(--bg-card) 100%); }
+        .detail-header-content { position: relative; padding: 24px; margin-top: -60px; z-index: 2; }
+        .detail-header-content h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+        .detail-meta { display: flex; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; }
+        .detail-badge { font-size: 10px; padding: 3px 10px; background: var(--primary-red); border-radius: 4px; font-weight: 800; }
+        .detail-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .detail-watch-btn, .detail-download-btn, .detail-watchlist-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; gap: 8px; border: none; }
         .detail-watch-btn { background: #fff; color: #000; }
-        .detail-trailer-btn { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #fff; }
-        .detail-download-btn { background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%); color: #fff; }
+        .detail-download-btn { background: var(--primary-green); color: #fff; }
         .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-        .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
         .detail-body { padding: 0 24px 28px; }
         .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
     </style>
 </head>
 <body x-data="trendingApp()" x-init="init()">
 
-    <!-- Header -->
     <div class="header-wrapper" x-cloak>
         <header class="header-top">
             <div class="container header-top-inner">
                 <div class="header-left-cluster">
                     <a class="logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
                 </div>
-                <div class="user-status" @click="openAuthModal()">
+                <div class="user-status" @click="goHome()">
                     <div class="avatar" x-text="currentUser ? currentUser.displayName.charAt(0).toUpperCase() : 'U'"></div>
                     <span class="username" x-text="currentUser ? currentUser.displayName : 'Guest'">Guest</span>
-                    <button class="logout-btn" x-show="currentUser" @click.stop="logout()" style="font-size:11px; margin-left:6px;">Logout</button>
                 </div>
             </div>
         </header>
         <div class="search-bar-row">
             <div class="container">
-                <form class="header-search" @submit.prevent="searchNow()">
+                <form class="header-search" @submit.prevent="goHome()">
                     <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
                     <input x-model="searchQuery" placeholder="Search movies, series, anime..." type="text">
-                    <button type="button" class="clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="searchQuery=''"><i class="fas fa-times"></i></button>
                 </form>
             </div>
         </div>
@@ -198,7 +129,7 @@
 
         <!-- Results Grid -->
         <div class="results-grid" x-show="!loading">
-            <template x-for="item in items" :key="item.id + (item.media_type || '')">
+            <template x-for="item in visibleItems" :key="item.id + (item.media_type || '')">
                 <div class="movie-card" @click="openDetails(item.id, item.media_type || 'movie')">
                     <div class="poster-wrap">
                         <img class="poster" :src="poster(item)" loading="lazy" alt="">
@@ -213,9 +144,17 @@
                 </div>
             </template>
         </div>
+
+        <!-- Load More Button -->
+        <div class="load-more-wrap" x-show="!loading && visibleItems.length < allItems.length">
+            <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
+                <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
+                <span x-text="loadingMore ? 'Loading...' : 'Load More'"></span>
+            </button>
+        </div>
     </main>
 
-    <!-- Details Modal -->
+    <!-- Details Modal (Same as before) -->
     <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
@@ -238,8 +177,7 @@
                             <button class="detail-watch-btn" @click="goToPlayer()"><i class="fas fa-play"></i> Watch Now</button>
                             <button class="detail-download-btn" @click="downloadContent()"><i class="fas fa-download"></i> Download</button>
                             <button class="detail-watchlist-btn" :class="{ 'active': isInWatchlist }" @click="toggleWatchlist()">
-                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i>
-                                <span x-text="isInWatchlist ? 'In Watch Later' : 'Watch Later'"></span>
+                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i> Watch Later
                             </button>
                         </div>
                     </div>
@@ -251,7 +189,6 @@
         </div>
     </div>
 
-    <!-- Firebase & Scripts -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -272,11 +209,16 @@
         function trendingApp() {
             return {
                 loading: true,
-                items: [],
+                loadingMore: false,
+                allItems: [],        // Stores all fetched items
+                visibleItems: [],    // Stores currently visible 18 items
+                limit: 18,           // Default items to show
+                page: 1,             // TMDB Page tracker
+                totalPages: 1,
+                
                 searchQuery: '',
                 currentUser: null,
                 
-                // Auth & Modal State
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
@@ -291,23 +233,20 @@
                     await this.fetchTrending();
                 },
 
-                // --- SMART FILTER LOGIC (From original index.html) ---
                 smartLatestFilter(items, minCount = 6) {
                     if (!items || !items.length) return [];
                     const currentYear = new Date().getFullYear();
                     let filtered = items.filter(item => {
                         const dateStr = item.release_date || item.first_air_date || '';
                         if (!dateStr) return false;
-                        const year = parseInt(dateStr.substring(0, 4), 10);
-                        return year >= (currentYear - 1);
+                        return parseInt(dateStr.substring(0, 4), 10) >= (currentYear - 1);
                     });
                     if (filtered.length < minCount) {
                         const additional = items.filter(item => {
                             if (filtered.includes(item)) return false;
                             const dateStr = item.release_date || item.first_air_date || '';
                             if (!dateStr) return false;
-                            const year = parseInt(dateStr.substring(0, 4), 10);
-                            return year >= (currentYear - 2);
+                            return parseInt(dateStr.substring(0, 4), 10) >= (currentYear - 2);
                         });
                         filtered = [...filtered, ...additional];
                     }
@@ -315,14 +254,16 @@
                 },
 
                 async fetchTrending() {
-                    this.loading = true;
                     try {
-                        const res = await fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent('/trending/all/week?language=en-US'));
+                        // Fetch multiple pages to have a good pool for "Load More"
+                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent('/trending/all/week?language=en-US&page=1')}`);
                         const data = await res.json();
-                        let results = data.results || [];
-                        results = results.filter(r => r.poster_path);
-                        // Apply original Smart Year Filter
-                        this.items = this.smartLatestFilter(results, 10);
+                        
+                        let results = (data.results || []).filter(r => r.poster_path);
+                        results = this.smartLatestFilter(results, 10);
+                        
+                        this.allItems = results;
+                        this.updateVisible();
                     } catch(e) {
                         console.warn("Fetch failed", e);
                     } finally {
@@ -330,88 +271,84 @@
                     }
                 },
 
-                searchNow() {
-                    if(this.searchQuery.trim().length > 1) {
-                        window.location.href = `index.html?search=${encodeURIComponent(this.searchQuery)}`;
-                    }
+                updateVisible() {
+                    this.visibleItems = this.allItems.slice(0, this.limit);
                 },
 
-                // --- DETAILS MODAL & UTILS ---
-                async openDetails(id, type) {
+                async loadMore() {
+                    this.loadingMore = true;
+                    this.limit += 18; // Increase visible limit
+                    
+                    // If we need more items than we currently have, fetch next page
+                    if (this.limit > this.allItems.length) {
+                        this.page++;
+                        try {
+                            const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent('/trending/all/week?language=en-US&page=' + this.page)}`);
+                            const data = await res.json();
+                            let newResults = (data.results || []).filter(r => r.poster_path);
+                            newResults = this.smartLatestFilter(newResults, 10);
+                            
+                            // Append new results avoiding duplicates
+                            const existingIds = new Set(this.allItems.map(i => i.id));
+                            const uniqueNew = newResults.filter(i => !existingIds.has(i.id));
+                            this.allItems = [...this.allItems, ...uniqueNew];
+                        } catch(e) { console.warn(e); }
+                    }
+                    
+                    this.updateVisible();
+                    this.loadingMore = false;
+                },
+
+                goHome() { window.location.href = 'index.html'; },
+                openDetails(id, type) {
                     this.detailItem = { id, type };
                     this.detailLoading = true;
                     this.detailModalOpen = true;
                     document.body.style.overflow = 'hidden';
-                    try {
-                        const endpoint = type === 'tv' ? `/tv/${id}?append_to_response=credits,videos` : `/movie/${id}?append_to_response=credits,videos`;
-                        const res = await fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(endpoint));
-                        const data = await res.json();
-                        this.detailData = data;
-                    } catch (e) {
-                        this.closeDetailModal();
-                    } finally {
-                        this.detailLoading = false;
-                    }
+                    fetch('/api/tmdb-proxy?endpoint=' + encodeURIComponent(type === 'tv' ? `/tv/${id}?append_to_response=credits` : `/movie/${id}?append_to_response=credits`))
+                        .then(res => res.json())
+                        .then(data => { this.detailData = data; })
+                        .catch(() => this.closeDetailModal())
+                        .finally(() => { this.detailLoading = false; });
                 },
-                closeDetailModal() {
-                    this.detailModalOpen = false;
-                    document.body.style.overflow = '';
-                },
+                closeDetailModal() { this.detailModalOpen = false; document.body.style.overflow = ''; },
                 goToPlayer() {
                     const { id, type } = this.detailItem;
-                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
-                    const poster = encodeURIComponent(this.poster(this.detailData));
-                    let url = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=watch&title=${title}&poster=${poster}`;
-                    window.location.href = url;
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=watch&title=${encodeURIComponent(this.detailTitle(this.detailData))}&poster=${encodeURIComponent(this.poster(this.detailData))}`;
                 },
                 downloadContent() {
                     const { id, type } = this.detailItem;
-                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
-                    const poster = encodeURIComponent(this.poster(this.detailData));
-                    let url = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=download&title=${title}&poster=${poster}`;
-                    window.location.href = url;
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${type}&action=download&title=${encodeURIComponent(this.detailTitle(this.detailData))}&poster=${encodeURIComponent(this.poster(this.detailData))}`;
                 },
-                poster(item) {
-                    if (!item || !item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
-                    return 'https://image.tmdb.org/t/p/w500' + item.poster_path;
-                },
-                title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
+                poster(item) { return item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : 'https://placehold.co/300x450/14141F/666'; },
+                title(item) { return item.title || item.name || 'Untitled'; },
                 year(item) { return (item.release_date || item.first_air_date || '').substring(0, 4) || 'N/A'; },
-                detailTitle(d) { return d ? (d.title || d.name || 'Untitled') : ''; },
+                detailTitle(d) { return d.title || d.name || 'Untitled'; },
                 detailYear(d) { return (d.release_date || d.first_air_date || '').substring(0, 4) || '—'; },
-                detailRatingVal(d) { return d && d.vote_average ? Number(d.vote_average).toFixed(1) : '—'; },
-                detailBackdrop(d) { return d && d.backdrop_path ? 'https://image.tmdb.org/t/p/original' + d.backdrop_path : 'https://placehold.co/1280x720/14141F/666'; },
+                detailRatingVal(d) { return d.vote_average ? d.vote_average.toFixed(1) : '—'; },
+                detailBackdrop(d) { return d.backdrop_path ? 'https://image.tmdb.org/t/p/original' + d.backdrop_path : 'https://placehold.co/1280x720/14141F/666'; },
 
-                // --- AUTH & WATCHLIST ---
                 async loadWatchlist() {
                     if (!this.currentUser) return;
                     const snap = await db.collection('users').doc(this.currentUser.uid).collection('watchlist').get();
                     this.watchlist = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
                 },
-                get isInWatchlist() {
-                    return (this.watchlist || []).some(w => String(w.id) === String(this.detailItem.id) && w.type === this.detailItem.type);
-                },
+                get isInWatchlist() { return this.watchlist.some(w => String(w.id) === String(this.detailItem.id) && w.type === this.detailItem.type); },
                 async toggleWatchlist() {
-                    if (!this.currentUser) {
-                        window.location.href = 'index.html';
-                        return;
-                    }
+                    if (!this.currentUser) { window.location.href = 'index.html'; return; }
                     const docId = `${this.detailItem.type}_${this.detailItem.id}`;
                     if (this.isInWatchlist) {
                         await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).delete();
                         this.watchlist = this.watchlist.filter(w => w.docId !== docId);
                     } else {
-                        const entry = {
+                        await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).set({
                             id: this.detailItem.id, type: this.detailItem.type, title: this.detailTitle(this.detailData),
                             poster_path: this.detailData.poster_path, vote_average: this.detailData.vote_average,
                             release_date: this.detailData.release_date || this.detailData.first_air_date
-                        };
-                        await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).set(entry);
+                        });
                         await this.loadWatchlist();
                     }
-                },
-                openAuthModal() { if(!this.currentUser) window.location.href = 'index.html'; },
-                logout() { auth.signOut(); }
+                }
             }
         }
     </script>
