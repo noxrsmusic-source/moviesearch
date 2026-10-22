@@ -2,6 +2,7 @@
   'use strict';
 
   const OVERLAY_ID = 'adblock-overlay-host';
+  const CONTINUE_ID = 'adblock-continue-host';
   const CHECK_TIMEOUT = 2000; 
   let overlayHost = null;
   let observer = null;
@@ -107,7 +108,51 @@
   }
 
   /* ============================================================
-     2. OVERLAY UI (With Poster Background & Forced Music)
+     2. CONTINUE BUTTON (NEW ADDITION)
+  ============================================================ */
+  function showContinueButton() {
+    if (document.getElementById(CONTINUE_ID)) return;
+
+    const host = document.createElement('div');
+    host.id = CONTINUE_ID;
+    host.style.cssText = 'position:fixed!important;inset:0!important;z-index:2147483646!important;background:rgba(8,8,12,0.95)!important;display:flex!important;align-items:center!important;justify-content:center!important;';
+
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = `
+      <style>
+        :host { all: initial; }
+        .wrap {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            text-align: center; padding: 20px;
+        }
+        .btn-continue {
+            background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+            color: #fff; border: none; padding: 16px 32px;
+            font-size: 18px; font-weight: 800; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(229, 9, 20, 0.5); transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-continue:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(229, 9, 20, 0.7); }
+        .icon { font-size: 20px; }
+      </style>
+      <div class="wrap">
+          <button class="btn-continue" id="continue-btn">
+             <span class="icon">▶</span> Click Here to Continue
+          </button>
+      </div>
+    `;
+    document.documentElement.appendChild(host);
+    
+    shadow.getElementById('continue-btn').addEventListener('click', () => {
+        host.remove(); // Remove continue button
+        showWarning(); // Now show the actual warning + music
+    });
+  }
+
+  /* ============================================================
+     3. OVERLAY UI (With Poster Background & Forced Music)
   ============================================================ */
   function createOverlayHost() {
     const host = document.createElement('div');
@@ -171,6 +216,12 @@
           padding: 40px 30px; border-radius: 16px; 
           box-shadow: 0 15px 35px rgba(0,0,0,0.6);
           border: 1px solid rgba(255,255,255,0.1);
+          animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         
         h2 { margin: 0 0 16px; font-size: 24px; color: #fff; font-weight: 700; letter-spacing: 0.5px;}
@@ -342,7 +393,7 @@
   }
 
   /* ============================================================
-     3. INITIALIZATION
+     4. INITIALIZATION
   ============================================================ */
   async function runCheck() {
     if (detectionRunning || !document.body) return;
@@ -350,7 +401,8 @@
     try {
       const result = await detectAdBlock();
       if (result.blocked) {
-        showWarning();
+        // Yahan hum direct warning nahi dikha rahe, balki Continue button dikha rahe hain
+        showContinueButton(); 
       }
     } catch (e) {
       console.warn("Detection error:", e);
