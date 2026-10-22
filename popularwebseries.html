@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>All TV Series - RX Player</title>
+    <title>Web Series - RX Player</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -167,9 +167,7 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
         .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
-        /* =========================================================
-           DETAILS MODAL (Exact copy from index.html)
-           ========================================================= */
+        /* DETAILS MODAL */
         .detail-modal-overlay {
             position: fixed; inset: 0; z-index: 9999;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
@@ -452,7 +450,7 @@
         }
     </style>
 </head>
-<body x-data="seriesApp()" x-init="init()">
+<body x-data="webseriesApp()" x-init="init()">
 
     <!-- Header -->
     <div class="header-wrapper" x-cloak>
@@ -471,7 +469,7 @@
         <div class="search-bar-row container">
             <form class="header-search" @submit.prevent="goHome()">
                 <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i></button>
-                <input x-model="searchQuery" placeholder="Search series..." type="text">
+                <input x-model="searchQuery" placeholder="Search web series..." type="text">
             </form>
             <button class="btn-open-filter" @click="openFilterModal()">
                 <i class="fas fa-sliders-h"></i> Filters
@@ -484,7 +482,7 @@
     <div class="filter-modal-overlay" :class="{ 'open': filterModalOpen }" @click.self="filterModalOpen = false" x-cloak>
         <div class="filter-modal-box">
             <div class="filter-modal-header">
-                <h3>Filter Series</h3>
+                <h3>Filter Web Series</h3>
                 <button class="filter-modal-close" @click="filterModalOpen = false"><i class="fas fa-times"></i></button>
             </div>
 
@@ -521,7 +519,7 @@
         
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
-            <span>Loading TV series...</span>
+            <span>Loading web series...</span>
         </div>
 
         <div class="results-grid" x-show="!loading">
@@ -533,7 +531,7 @@
                     <div class="card-info">
                         <h4 x-text="title(item)"></h4>
                         <div class="card-meta">
-                            <span>Series</span>
+                            <span>Web Series</span>
                             <span x-text="year(item)"></span>
                         </div>
                     </div>
@@ -542,7 +540,7 @@
             
             <div class="empty-state" x-show="series.length === 0 && !loading">
                 <i class="fas fa-tv"></i>
-                <h3>No series found for this filter.</h3>
+                <h3>No web series found for this filter.</h3>
             </div>
         </div>
 
@@ -554,9 +552,7 @@
         </div>
     </main>
 
-    <!-- =========================================================
-         DETAILS MODAL (Exactly like index.html)
-         ========================================================= -->
+    <!-- Details Modal -->
     <div class="detail-modal-overlay"
          :class="{ 'open': detailModalOpen }"
          @click.self="closeDetailModal()"
@@ -603,7 +599,7 @@
                     <div class="detail-header-content">
                         <h2 x-text="detailTitle(detailData)"></h2>
                         <div class="detail-meta">
-                            <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'SERIES' : 'MOVIE'"></span>
+                            <span class="detail-badge" x-text="detailItem.type === 'tv' ? 'WEB SERIES' : 'MOVIE'"></span>
                             <span x-text="detailYear(detailData)"></span>
                             <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
                             <span x-text="detailRuntimeVal(detailData)"></span>
@@ -726,7 +722,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        function seriesApp() {
+        function webseriesApp() {
             return {
                 loading: true,
                 loadingMore: false,
@@ -777,7 +773,7 @@
                     { id: 'ES', name: '🇪🇸 Spain' }
                 ],
 
-                // Details Modal State (From index.html)
+                // Details Modal State
                 detailModalOpen: false,
                 detailLoading: false,
                 detailData: null,
@@ -794,7 +790,7 @@
                         this.currentUser = user;
                         await this.loadWatchlist();
                     });
-                    await this.fetchSeries();
+                    await this.fetchWebSeries();
                 },
 
                 // --- FILTER LOGIC ---
@@ -821,13 +817,15 @@
                     
                     this.currentPage = 1;
                     this.series = [];
-                    this.fetchSeries();
+                    this.fetchWebSeries();
                 },
 
-                async fetchSeries() {
+                // --- FETCH WEB SERIES SPECIFIC LOGIC ---
+                // using TMDB's with_networks filter: Netflix (213), Prime Video (1024), Disney+ (2739), Apple TV+ (2552), HBO (49), Hulu (453)
+                async fetchWebSeries() {
                     this.loading = true;
                     try {
-                        let endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${this.currentPage}`;
+                        let endpoint = `/discover/tv?language=en-US&sort_by=popularity.desc&page=${this.currentPage}&with_networks=213|1024|2739|2552|49|453`;
                         
                         if (this.currentGenre !== 'all') {
                             endpoint += `&with_genres=${this.currentGenre}`;
@@ -856,7 +854,7 @@
                     if (this.currentPage >= this.totalPages) return;
                     this.loadingMore = true;
                     this.currentPage++;
-                    await this.fetchSeries();
+                    await this.fetchWebSeries();
                     this.loadingMore = false;
                 },
 
@@ -868,7 +866,7 @@
                     }
                 },
 
-                // --- DETAILS & UTILS (From index.html) ---
+                // --- DETAILS & UTILS ---
                 showModalAlert(message, type = 'info', duration = 3000) {
                     if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
                     this.modalAlert.message = message;
