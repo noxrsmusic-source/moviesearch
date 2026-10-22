@@ -108,51 +108,148 @@
   }
 
   /* ============================================================
-     2. CONTINUE BUTTON (NEW ADDITION)
+     2. CONTINUE BUTTON UI (WITH SCROLLING POSTER BACKGROUND)
   ============================================================ */
   function showContinueButton() {
     if (document.getElementById(CONTINUE_ID)) return;
 
     const host = document.createElement('div');
     host.id = CONTINUE_ID;
-    host.style.cssText = 'position:fixed!important;inset:0!important;z-index:2147483646!important;background:rgba(8,8,12,0.95)!important;display:flex!important;align-items:center!important;justify-content:center!important;';
+    host.style.cssText = 'position:fixed!important;inset:0!important;z-index:2147483646!important;background:#050505!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;font-family:sans-serif!important;overflow:hidden!important;';
 
     const shadow = host.attachShadow({ mode: 'open' });
+    
+    // HTML aur CSS for Continue Screen
     shadow.innerHTML = `
       <style>
         :host { all: initial; }
-        .wrap {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            text-align: center; padding: 20px;
+        
+        @keyframes scrollUp {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(calc(-50% - 6px)); }
         }
+        
+        .wrap { 
+          position: fixed; inset: 0; background: #050505;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; 
+          padding: 24px; text-align: center; z-index: 10; overflow: hidden;
+        }
+        
+        /* Poster Background Layer */
+        .overlay-bg-wrapper {
+          position: absolute; inset: 0; display: flex; justify-content: center; gap: 12px;
+          opacity: 0.45; z-index: 1; pointer-events: none; overflow: hidden;
+        }
+        
+        .scroll-column { display: flex; flex-direction: column; gap: 12px; width: 30%; will-change: transform; }
+        @media (min-width: 768px) { .scroll-column { width: 18%; } }
+        
+        .scroll-column-up-fast { animation: scrollUp 45s linear infinite; }
+        .scroll-column-up-slow { animation: scrollUp 60s linear infinite; }
+        .scroll-column-up-medium { animation: scrollUp 50s linear infinite; }
+        
+        .poster-card {
+          border-radius: 12px; overflow: hidden; aspect-ratio: 2 / 3;
+          background: #1c1c1e; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); flex-shrink: 0;
+        }
+        .poster-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        /* Dark Gradient */
+        .overlay-gradient {
+          position: absolute; inset: 0;
+          background: linear-gradient(180deg, rgba(15, 15, 15, 0.5) 0%, rgba(15, 15, 15, 0.9) 50%, #0f0f0f 100%);
+          z-index: 2; pointer-events: none;
+        }
+        
+        /* Button Container */
+        .btn-container {
+           position: relative; z-index: 10;
+           animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         .btn-continue {
             background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
-            color: #fff; border: none; padding: 16px 32px;
-            font-size: 18px; font-weight: 800; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 10px 25px rgba(229, 9, 20, 0.5); transition: 0.3s;
-            display: flex; align-items: center; gap: 10px;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            color: #fff; border: none; padding: 18px 40px;
+            font-size: 18px; font-weight: 900; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6); transition: 0.3s;
+            display: flex; align-items: center; gap: 12px;
+            text-transform: uppercase; letter-spacing: 1px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            border: 1px solid rgba(255,255,255,0.2);
         }
-        .btn-continue:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(229, 9, 20, 0.7); }
-        .icon { font-size: 20px; }
+        
+        .btn-continue:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 15px 40px rgba(229, 9, 20, 0.8); 
+        }
+        
+        .btn-continue:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .icon { 
+            font-size: 22px; 
+            animation: pulseIcon 2s infinite;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
       </style>
+      
       <div class="wrap">
-          <button class="btn-continue" id="continue-btn">
-             <span class="icon">▶</span> Click Here to Continue
-          </button>
+        <!-- Dynamic Poster Background -->
+        <div class="overlay-bg-wrapper" id="continue-bg-wrapper"></div>
+        <div class="overlay-gradient"></div>
+        
+        <!-- Button -->
+        <div class="btn-container">
+            <button class="btn-continue" id="continue-btn">
+               <span class="icon">▶</span> Continue to Player
+            </button>
+        </div>
       </div>
     `;
+    
     document.documentElement.appendChild(host);
     
+    // Populate Background Posters
+    const bgWrapper = shadow.getElementById('continue-bg-wrapper');
+    function createPosterHTML(url) { 
+      return `<div class="poster-card"><img src="${url}" alt="Poster"></div>`; 
+    }
+    function buildColumn(arr) { 
+      let html = ''; 
+      for(let i=0; i<5; i++) { arr.forEach(url => html += createPosterHTML(url)); } 
+      return html; 
+    }
+
+    if(bgWrapper) {
+      for(let i=0; i<6; i++) {
+        const col = document.createElement('div');
+        const speeds = ['fast', 'slow', 'medium'];
+        const arrays = [posters1, posters2, posters3];
+        col.className = `scroll-column scroll-column-up-${speeds[i % 3]}`;
+        col.innerHTML = buildColumn(arrays[i % 3]);
+        bgWrapper.appendChild(col);
+      }
+    }
+    
+    // Button Click Logic
     shadow.getElementById('continue-btn').addEventListener('click', () => {
-        host.remove(); // Remove continue button
-        showWarning(); // Now show the actual warning + music
+        host.remove(); // Remove continue button screen
+        showWarning(); // Show the actual warning + music
     });
   }
 
   /* ============================================================
-     3. OVERLAY UI (With Poster Background & Forced Music)
+     3. OVERLAY UI (WARNING + MUSIC)
   ============================================================ */
   function createOverlayHost() {
     const host = document.createElement('div');
