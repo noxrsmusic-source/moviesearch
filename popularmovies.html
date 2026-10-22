@@ -54,9 +54,20 @@
         }
         .header-top { padding: 12px 0; }
         .header-top-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        
+        .header-left-cluster { display: flex; align-items: center; gap: 16px; }
+        .back-btn { 
+            display: flex; align-items: center; justify-content: center; 
+            width: 38px; height: 38px; border-radius: 50%; 
+            background: rgba(255,255,255,0.06); color: #fff; 
+            border: 1px solid rgba(255,255,255,0.1); transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.15); transform: translateX(-2px); }
+
         .logo { font-size: 23px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
         .logo span { color: var(--primary-red); }
         .logo i { color: var(--primary-red); font-size: 20px; }
+
         .user-status { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.04); padding: 5px 12px 5px 6px; border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.08); cursor: pointer; }
         .user-status .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
         .user-status .username { font-size: 13px; font-weight: 600; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -72,28 +83,45 @@
         .header-search input:focus { border-color: var(--primary-red); background: rgba(255, 255, 255, 0.08); }
         .header-search .search-submit-btn { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
 
-        /* Genre Sections */
-        .page-title-wrap { text-align: center; margin-bottom: 30px; padding-top: 10px; }
-        .page-title-wrap h1 { font-size: 28px; font-weight: 900; color: #fff; }
-        .page-title-wrap h1 i { color: var(--primary-red); margin-right: 8px; }
-        .page-title-wrap p { color: var(--text-muted); font-size: 14px; }
-
-        .genre-section { margin-bottom: 32px; }
-        .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .section-heading-wrap h3 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #fff; }
-        .section-heading-wrap h3 i { color: var(--primary-red); }
-
-        .horizontal-cards-row {
-            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;
-            scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+        /* Filter Bar */
+        .filter-wrapper {
+            position: sticky;
+            top: var(--header-offset);
+            z-index: 990;
+            background: rgba(8, 8, 12, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
         }
-        .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
-        .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        
-        .horizontal-cards-row .movie-card { flex: 0 0 140px; scroll-snap-align: start; }
-        @media (min-width: 768px) { .horizontal-cards-row .movie-card { flex: 0 0 170px; } }
+        .filter-scroll {
+            display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 0 20px;
+        }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            padding: 8px 18px; border-radius: 20px;
+            background: rgba(255,255,255,0.05); color: var(--text-muted);
+            font-size: 13.5px; font-weight: 600; white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: var(--transition);
+        }
+        .filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .filter-btn.active {
+            background: rgba(229, 9, 20, 0.15);
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
 
-        /* Movie Card */
+        /* Main Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        @media (min-width: 768px) {
+            .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; }
+        }
+
         .movie-card {
             border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
             display: flex; flex-direction: column; cursor: pointer;
@@ -117,6 +145,9 @@
         }
         .btn-load-more:hover { background: var(--primary-red); color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(229,9,20,0.4); }
         .btn-load-more:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
 
         /* Details Modal */
         .detail-modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; }
@@ -146,6 +177,7 @@
         <header class="header-top">
             <div class="container header-top-inner">
                 <div class="header-left-cluster">
+                    <a href="index.html" class="back-btn" title="Go Back"><i class="fas fa-arrow-left"></i></a>
                     <a class="logo" href="index.html"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
                 </div>
                 <div class="user-status" @click="goHome()">
@@ -164,47 +196,50 @@
         </div>
     </div>
 
-    <main class="container">
-        <div class="page-title-wrap">
-            <h1><i class="fas fa-film"></i> All Movies</h1>
-            <p>Browse blockbusters, classics and hidden gems by genre</p>
+    <!-- Filter Bar -->
+    <div class="filter-wrapper" x-cloak>
+        <div class="filter-scroll">
+            <template x-for="f in filters" :key="f.id">
+                <button class="filter-btn" :class="{ 'active': currentFilter === f.id }" @click="changeFilter(f.id)" x-text="f.name"></button>
+            </template>
         </div>
+    </div>
 
+    <!-- Main Content -->
+    <main class="container">
+        
         <!-- Loading State -->
         <div x-show="loading" class="detail-modal-loading" style="padding: 40px;">
             <i class="fas fa-circle-notch fa-spin"></i>
-            <span>Loading movies collection...</span>
+            <span>Loading movies...</span>
         </div>
 
-        <!-- Genre Sections -->
-        <div x-show="!loading">
-            <template x-for="(movies, genre) in genreSections" :key="genre">
-                <div class="genre-section" x-show="movies.length > 0">
-                    <div class="section-heading-wrap">
-                        <h3><i class="fas" :class="getGenreIcon(genre)"></i> <span x-text="genre"></span></h3>
+        <!-- Results Grid -->
+        <div class="results-grid" x-show="!loading">
+            <template x-for="movie in movies" :key="movie.id">
+                <div class="movie-card" @click="openDetails(movie.id, 'movie')">
+                    <div class="poster-wrap">
+                        <img class="poster" :src="poster(movie)" loading="lazy" alt="">
                     </div>
-                    <div class="horizontal-cards-row">
-                        <template x-for="movie in movies" :key="movie.id">
-                            <div class="movie-card" @click="openDetails(movie.id, 'movie')">
-                                <div class="poster-wrap">
-                                    <img class="poster" :src="poster(movie)" loading="lazy" alt="">
-                                </div>
-                                <div class="card-info">
-                                    <h4 x-text="title(movie)"></h4>
-                                    <div class="card-meta">
-                                        <span>Movie</span>
-                                        <span x-text="year(movie)"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
+                    <div class="card-info">
+                        <h4 x-text="title(movie)"></h4>
+                        <div class="card-meta">
+                            <span>Movie</span>
+                            <span x-text="year(movie)"></span>
+                        </div>
                     </div>
                 </div>
             </template>
+            
+            <!-- Empty State -->
+            <div class="empty-state" x-show="movies.length === 0 && !loading">
+                <i class="fas fa-film"></i>
+                <h3>No movies found in this category.</h3>
+            </div>
         </div>
 
         <!-- Load More Button -->
-        <div class="load-more-wrap" x-show="!loading && currentPage < totalPages">
+        <div class="load-more-wrap" x-show="!loading && movies.length > 0 && currentPage < totalPages">
             <button class="btn-load-more" @click="loadMore()" :disabled="loadingMore">
                 <i class="fas" :class="loadingMore ? 'fa-circle-notch fa-spin' : 'fa-plus-circle'"></i>
                 <span x-text="loadingMore ? 'Loading...' : 'Load More Movies'"></span>
@@ -212,7 +247,7 @@
         </div>
     </main>
 
-    <!-- Details Modal -->
+    <!-- Details Modal (Same as before) -->
     <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
         <div class="detail-modal-box">
             <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
@@ -263,28 +298,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // TMDB Genre Map
-        const GENRE_MAP = {
-            28:    { name: 'Action',      icon: 'fa-fire' },
-            12:    { name: 'Adventure',   icon: 'fa-compass' },
-            16:    { name: 'Animation',   icon: 'fa-dragon' },
-            35:    { name: 'Comedy',      icon: 'fa-face-laugh-squint' },
-            80:    { name: 'Crime',       icon: 'fa-user-secret' },
-            99:    { name: 'Documentary', icon: 'fa-book' },
-            18:    { name: 'Drama',       icon: 'fa-masks-theater' },
-            10751: { name: 'Family',      icon: 'fa-people-roof' },
-            14:    { name: 'Fantasy',     icon: 'fa-wand-sparkles' },
-            36:    { name: 'History',     icon: 'fa-monument' },
-            27:    { name: 'Horror',      icon: 'fa-ghost' },
-            10402: { name: 'Music',       icon: 'fa-music' },
-            9648:  { name: 'Mystery',     icon: 'fa-magnifying-glass' },
-            10749: { name: 'Romance',     icon: 'fa-heart' },
-            878:   { name: 'Science Fiction', icon: 'fa-rocket' },
-            53:    { name: 'Thriller',    icon: 'fa-bolt' },
-            10752: { name: 'War',         icon: 'fa-gun' },
-            37:    { name: 'Western',     icon: 'fa-hat-cowboy' }
-        };
-
         function moviesApp() {
             return {
                 loading: true,
@@ -293,10 +306,33 @@
                 currentUser: null,
                 
                 // Data
-                allMovies: [],
-                genreSections: {}, // { "Action": [movies], "Comedy": [movies] }
+                movies: [],
                 currentPage: 1,
-                totalPages: 10, // Will update based on TMDB response
+                totalPages: 1,
+                
+                // Filters
+                currentFilter: 'all',
+                filters: [
+                    { id: 'all', name: 'All Movies' },
+                    { id: 28, name: 'Action' },
+                    { id: 12, name: 'Adventure' },
+                    { id: 16, name: 'Animation' },
+                    { id: 35, name: 'Comedy' },
+                    { id: 80, name: 'Crime' },
+                    { id: 99, name: 'Documentary' },
+                    { id: 18, name: 'Drama' },
+                    { id: 10751, name: 'Family' },
+                    { id: 14, name: 'Fantasy' },
+                    { id: 36, name: 'History' },
+                    { id: 27, name: 'Horror' },
+                    { id: 10402, name: 'Music' },
+                    { id: 9648, name: 'Mystery' },
+                    { id: 10749, name: 'Romance' },
+                    { id: 878, name: 'Sci-Fi' },
+                    { id: 53, name: 'Thriller' },
+                    { id: 10752, name: 'War' },
+                    { id: 37, name: 'Western' }
+                ],
 
                 // Modal State
                 detailModalOpen: false,
@@ -313,20 +349,32 @@
                     await this.fetchMovies();
                 },
 
-                getGenreIcon(genreName) {
-                    for (const key in GENRE_MAP) {
-                        if (GENRE_MAP[key].name === genreName) return GENRE_MAP[key].icon;
-                    }
-                    return 'fa-film';
+                async changeFilter(filterId) {
+                    if (this.currentFilter === filterId) return;
+                    this.currentFilter = filterId;
+                    this.currentPage = 1;
+                    this.movies = []; // Clear current list
+                    await this.fetchMovies();
                 },
 
                 async fetchMovies() {
                     this.loading = true;
                     try {
-                        // Fetch 3 pages initially for a rich experience
-                        const pagesToFetch = [1, 2, 3];
-                        await this.fetchAndProcessPages(pagesToFetch);
-                        this.currentPage = 3;
+                        // Construct URL based on filter
+                        let endpoint = `/discover/movie?language=en-US&sort_by=popularity.desc&page=${this.currentPage}`;
+                        
+                        if (this.currentFilter !== 'all') {
+                            endpoint += `&with_genres=${this.currentFilter}`;
+                        }
+
+                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
+                        const data = await res.json();
+                        
+                        this.totalPages = data.total_pages || 1;
+                        
+                        const results = (data.results || []).filter(m => m.poster_path);
+                        this.movies = [...this.movies, ...results];
+
                     } catch(e) {
                         console.warn("Fetch failed", e);
                     } finally {
@@ -335,68 +383,11 @@
                 },
 
                 async loadMore() {
+                    if (this.currentPage >= this.totalPages) return;
                     this.loadingMore = true;
-                    try {
-                        const nextPage = this.currentPage + 1;
-                        await this.fetchAndProcessPages([nextPage]);
-                        this.currentPage = nextPage;
-                    } catch(e) {
-                        console.warn("Load more failed", e);
-                    } finally {
-                        this.loadingMore = false;
-                    }
-                },
-
-                async fetchAndProcessPages(pages) {
-                    const safeFetch = async (page) => {
-                        const res = await fetch(`/api/tmdb-proxy?endpoint=${encodeURIComponent(`/discover/movie?language=en-US&sort_by=popularity.desc&page=${page}`)}`);
-                        return await res.json();
-                    };
-
-                    const results = await Promise.all(pages.map(p => safeFetch(p)));
-                    
-                    let newMovies = [];
-                    results.forEach(data => {
-                        if (data.total_pages) this.totalPages = data.total_pages;
-                        newMovies = newMovies.concat((data.results || []).filter(m => m.poster_path));
-                    });
-
-                    // Deduplicate against existing movies
-                    const existingIds = new Set(this.allMovies.map(m => m.id));
-                    newMovies = newMovies.filter(m => !existingIds.has(m.id));
-                    
-                    this.allMovies = [...this.allMovies, ...newMovies];
-
-                    // Now re-categorize into genres
-                    this.categorizeMovies(newMovies);
-                },
-
-                categorizeMovies(newMovies) {
-                    newMovies.forEach(movie => {
-                        // A movie can have multiple genres
-                        const genres = movie.genre_ids || [];
-                        genres.forEach(gid => {
-                            if (GENRE_MAP[gid]) {
-                                const genreName = GENRE_MAP[gid].name;
-                                if (!this.genreSections[genreName]) {
-                                    this.genreSections[genreName] = [];
-                                }
-                                // Add to that genre's array
-                                this.genreSections[genreName].push(movie);
-                            }
-                        });
-                    });
-
-                    // Optional: Sort genres by number of movies (descending) so biggest sections appear first
-                    const sortedGenres = {};
-                    Object.keys(this.genreSections)
-                        .sort((a, b) => this.genreSections[b].length - this.genreSections[a].length)
-                        .forEach(key => {
-                            // Limit to 20 movies per row to keep it clean, or let it scroll
-                            sortedGenres[key] = this.genreSections[key];
-                        });
-                    
-                    this.genreSections = sortedGenres;
+                    this.currentPage++;
+                    await this.fetchMovies();
+                    this.loadingMore = false;
                 },
 
                 goHome() {
