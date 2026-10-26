@@ -9,9 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     
-    <!-- Tenor GIF Embed Script -->
-    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -151,28 +148,31 @@
 
         /* GIF Container Styles */
         .promo-banner-gif {
-            width: 75px; height: 75px;
+            width: 80px; height: 80px;
             margin-bottom: 6px;
-            border-radius: 50%; /* Circular looks better for stickers */
+            border-radius: 12px; 
             overflow: hidden;
-            pointer-events: none; /* Prevent clicking the GIF */
+            pointer-events: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255,255,255,0.1);
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        /* Force Tenor iframe to fit the circular container */
-        .promo-banner-gif .tenor-gif-embed {
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
+        .promo-banner-gif.wide {
+            width: 140px; height: 60px;
         }
         .promo-banner-gif iframe {
-            width: 100% !important;
-            height: 100% !important;
-            transform: scale(1.1); /* Slight zoom to hide white edges */
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover;
         }
 
         .promo-banner-title { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 2px; letter-spacing: -0.2px; line-height: 1.2; }
         .promo-banner-desc { font-size: 10.5px; color: #A0A0AA; line-height: 1.3; margin-bottom: 8px; max-width: 260px; }
+        
         .promo-banner-btn {
             display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px;
             border-radius: 30px; font-size: 11px; font-weight: 800; color: #fff;
@@ -447,18 +447,21 @@
         const API = "/api";
         const STREAM_BASE = "https://nxsha.space/embed";
 
-        // Cycle: Telegram (10s) -> Shortener (10s)
+        // Cycle: Telegram (10s) -> Shortener (10s) -> API (10s) -> AdSpace (10s)
         const PROMO_CYCLE = [
             { type: 'telegram',  duration: 10000 },
-            { type: 'shortener', duration: 10000 }
+            { type: 'shortener', duration: 10000 },
+            { type: 'api',       duration: 10000 },
+            { type: 'adspace',   duration: 10000 }
         ];
 
         const TELEGRAM_URL  = 'https://t.me/rxplayer';
         const SHORTENER_URL = 'https://rxurl.in';
 
+        // Direct Iframe Embeds to bypass Tenor JS loading issues on dynamic content
         const TELEGRAM_BANNER_HTML = `
             <div class="promo-banner-gif">
-                <div class="tenor-gif-embed" data-postid="7335695788476514343" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/utya-telegram-duck-gif-7335695788476514343">Utya Telegram Duck Sticker</a>from <a href="https://tenor.com/search/utya-stickers">Utya Stickers</a></div>
+                <iframe src="https://tenor.com/embed/7335695788476514343" frameborder="0"></iframe>
             </div>
             <div class="promo-banner-title">Join Our Telegram</div>
             <div class="promo-banner-desc">Latest updates, backup links &amp; exclusive content</div>
@@ -469,13 +472,29 @@
 
         const SHORTENER_BANNER_HTML = `
             <div class="promo-banner-gif">
-                <div class="tenor-gif-embed" data-postid="11372748775060160816" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/counting-make-it-rain-dollars-bullish-bull-gif-11372748775060160816">Counting Make It Rain Sticker</a>from <a href="https://tenor.com/search/counting-stickers">Counting Stickers</a></div>
+                <iframe src="https://tenor.com/embed/11372748775060160816" frameborder="0"></iframe>
             </div>
             <div class="promo-banner-title">Earn Up To $5 / 1000 Views</div>
             <div class="promo-banner-desc">Share links with RX URL Shortener &amp; start earning today</div>
             <a href="${SHORTENER_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn shortener">
                 <i class="fas fa-link"></i> Start Earning
             </a>
+        `;
+
+        const API_BANNER_HTML = `
+            <div class="promo-banner-gif wide">
+                <iframe src="https://tenor.com/embed/7009745846662272460" frameborder="0"></iframe>
+            </div>
+            <div class="promo-banner-title">Get Our Premium API</div>
+            <div class="promo-banner-desc">Get this site's API at just ₹499. Contact Admin to get yours now!</div>
+        `;
+
+        const ADSPACE_BANNER_HTML = `
+            <div class="promo-banner-gif">
+                <iframe src="https://tenor.com/embed/5558575847817695995" frameborder="0"></iframe>
+            </div>
+            <div class="promo-banner-title">Place Your Ad Here</div>
+            <div class="promo-banner-desc">Reach thousands of daily visitors. Contact Admin to book this space!</div>
         `;
 
         let currentTmdbId = null;
@@ -704,7 +723,11 @@
             let timer = null;
 
             function showBanner(type) {
-                overlay.innerHTML = type === 'telegram' ? TELEGRAM_BANNER_HTML : SHORTENER_BANNER_HTML;
+                if (type === 'telegram') overlay.innerHTML = TELEGRAM_BANNER_HTML;
+                else if (type === 'shortener') overlay.innerHTML = SHORTENER_BANNER_HTML;
+                else if (type === 'api') overlay.innerHTML = API_BANNER_HTML;
+                else if (type === 'adspace') overlay.innerHTML = ADSPACE_BANNER_HTML;
+                
                 // Force reflow to restart animation
                 void overlay.offsetWidth;
                 overlay.classList.add('show');
@@ -935,8 +958,5 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
-    
-    <!-- Re-trigger Tenor embed script for dynamically added GIFs -->
-    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
 </body>
 </html>
