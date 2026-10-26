@@ -527,8 +527,20 @@
             } catch (e) { return null; }
         }
 
-        /* ---- removed rx-core guard dependency ---- */
-        // waitForGuardClear function removed so it doesn't redirect to index.html
+        /* ---- guard integration (REMOVED waitForGuardClear to stop index.html redirect) ---- */
+        let playerWasBlanked = false;
+        if (window.rxAdGuard) {
+            window.rxAdGuard.onState(b => {
+                const iframe = document.getElementById('playerIframe');
+                if (b && iframe && iframe.src && iframe.src !== 'about:blank') {
+                    iframe.src = 'about:blank';           // stop the stream while a blocker is on
+                    playerWasBlanked = true;
+                } else if (!b && playerWasBlanked) {
+                    playerWasBlanked = false;
+                    loadPlayer();
+                }
+            });
+        }
 
         function isTvType(t) {
             if (!t) return false;
@@ -707,6 +719,7 @@
             } catch (e) {}
         }
 
+        /* ---- Load Player (Removed goToAds redirect loop) ---- */
         async function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             hidePauseAds();
@@ -715,11 +728,11 @@
 
             const url = await getStreamUrl();
             
-            // If no valid URL from API, show error instead of redirecting to ads.html
+            // If no URL from API, show error instead of redirecting to ads
             if (!url) { 
-                showToast('Stream not available. Please provide a valid pass or check API.', 'error', 5000); 
+                showToast('Stream not available. Please ensure you have a valid pass.', 'error', 5000); 
                 return; 
-            } 
+            }
 
             if (iframeReloadTimer) { clearTimeout(iframeReloadTimer); iframeReloadTimer = null; }
             try { iframe.src = 'about:blank'; } catch (e) {}
@@ -921,7 +934,7 @@
                 episodeSelect.value = currentEpisode;
             }
 
-            // Load the initial player (Now without rx-core redirect)
+            // Load the initial player directly (Removed waitForGuardClear)
             loadPlayer();
 
             initShareModal();
