@@ -159,6 +159,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         .promo-banner-gif.wide {
             width: 140px; height: 60px;
@@ -182,8 +183,45 @@
         .promo-banner-btn.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); box-shadow: 0 4px 12px rgba(0, 136, 204, 0.45); }
         .promo-banner-btn.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45); }
 
-        .promo-desktop { flex: 0 0 340px; max-width: 340px; }
-        .promo-mobile { display: none; margin-top: 20px; }
+        /* Wrapper for text inside banner */
+        .promo-banner-content {
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .promo-desktop { flex: 0 0 340px; max-width: 340px; display: flex; }
+        
+        /* NEW: Sticky Mobile Promo Banner */
+        .promo-mobile-sticky {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+            background: #0A0A0F;
+            border-top: 1px solid rgba(229, 9, 20, 0.4);
+            padding: 6px 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.8);
+        }
+        .promo-mobile-sticky .promo-media-frame {
+            width: 100%; max-width: 500px; margin: 0 auto;
+            aspect-ratio: auto; height: 70px; /* Small height for sticky bar */
+            border-radius: var(--radius-sm);
+        }
+        /* Adjust inner layout for sticky mobile */
+        .promo-mobile-sticky .promo-banner-overlay {
+            flex-direction: row; text-align: left; justify-content: flex-start;
+            padding: 6px 10px; gap: 12px; transform: translateY(100%);
+        }
+        .promo-mobile-sticky .promo-banner-overlay.show {
+            transform: translateY(0);
+        }
+        .promo-mobile-sticky .promo-banner-gif {
+            width: 50px; height: 50px; margin-bottom: 0; border-radius: 8px;
+        }
+        .promo-mobile-sticky .promo-banner-content {
+            align-items: flex-start;
+        }
+        .promo-mobile-sticky .promo-banner-title { font-size: 12px; margin-bottom: 1px; }
+        .promo-mobile-sticky .promo-banner-desc { font-size: 9px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .promo-mobile-sticky .promo-banner-btn { padding: 4px 12px; font-size: 10px; }
+
 
         .player-info {
             margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px 24px;
@@ -295,6 +333,7 @@
         .toast .toast-icon { font-size: 20px; flex-shrink: 0; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* MOBILE VIEW */
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
             .header { padding: 6px 0; }
@@ -305,8 +344,12 @@
 
             .player-row { flex-direction: column; align-items: stretch; gap: 16px; }
             .player-wrapper { max-height: 55vh; border-radius: var(--radius-sm); }
-            .promo-desktop { display: none; }
-            .promo-mobile { display: flex; }
+            
+            .promo-desktop { display: none !important; }
+            .promo-mobile-sticky { display: block; }
+
+            /* Make space for the sticky banner at the bottom */
+            body { padding-bottom: 90px; }
 
             .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
             .player-info .title-section { width: 100%; min-width: auto; }
@@ -326,7 +369,7 @@
             .plot-section p { font-size: 13px; }
 
             .container { padding: 0 12px; }
-            .toast-container { right: 12px; bottom: 16px; }
+            .toast-container { right: 12px; bottom: 85px; } /* Moved up due to sticky banner */
 
             .share-modal-box { padding: 20px; }
             .share-modal-header h3 { font-size: 15px; }
@@ -334,7 +377,7 @@
         }
         @media (min-width: 769px) {
             .promo-desktop { display: flex; }
-            .promo-mobile { display: none; }
+            .promo-mobile-sticky { display: none !important; }
         }
     </style>
 </head>
@@ -371,7 +414,7 @@
                 </div>
             </div>
 
-            <!-- PROMO (desktop) -->
+            <!-- PROMO (DESKTOP ONLY) -->
             <div class="promo-media promo-desktop">
                 <div class="promo-media-label"><i class="fas fa-fire"></i> Featured</div>
                 <div class="promo-media-frame" id="promoDesktopFrame">
@@ -414,15 +457,14 @@
             <div class="plot-label"><i class="fas fa-align-left"></i> Synopsis</div>
             <p id="moviePlot">Loading description…</p>
         </div>
-
-        <!-- PROMO (mobile) -->
-        <div class="promo-media promo-mobile" id="promoMobileContainer">
-            <div class="promo-media-label"><i class="fas fa-fire"></i> Featured</div>
-            <div class="promo-media-frame" id="promoMobileFrame">
-                <div class="promo-banner-overlay" id="promoMobileOverlay"></div>
-            </div>
-        </div>
     </section>
+
+    <!-- PROMO (MOBILE STICKY BANNER) -->
+    <div class="promo-mobile-sticky" id="promoMobileSticky">
+        <div class="promo-media-frame" id="promoMobileFrame">
+            <div class="promo-banner-overlay" id="promoMobileOverlay"></div>
+        </div>
+    </div>
 
     <div class="share-modal-overlay" id="shareModalOverlay">
         <div class="share-modal-box">
@@ -458,43 +500,51 @@
         const TELEGRAM_URL  = 'https://t.me/rxplayer';
         const SHORTENER_URL = 'https://rxurl.in';
 
-        // Direct Iframe Embeds to bypass Tenor JS loading issues on dynamic content
+        // Wrapped content in promo-banner-content for better mobile sticky layout
         const TELEGRAM_BANNER_HTML = `
             <div class="promo-banner-gif">
                 <iframe src="https://tenor.com/embed/7335695788476514343" frameborder="0"></iframe>
             </div>
-            <div class="promo-banner-title">Join Our Telegram</div>
-            <div class="promo-banner-desc">Latest updates, backup links &amp; exclusive content</div>
-            <a href="${TELEGRAM_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn telegram">
-                <i class="fab fa-telegram-plane"></i> Join Now
-            </a>
+            <div class="promo-banner-content">
+                <div class="promo-banner-title">Join Our Telegram</div>
+                <div class="promo-banner-desc">Latest updates, backup links &amp; exclusive content</div>
+                <a href="${TELEGRAM_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn telegram">
+                    <i class="fab fa-telegram-plane"></i> Join Now
+                </a>
+            </div>
         `;
 
         const SHORTENER_BANNER_HTML = `
             <div class="promo-banner-gif">
                 <iframe src="https://tenor.com/embed/10489259387067798554" frameborder="0"></iframe>
             </div>
-            <div class="promo-banner-title">Earn Up To $5 / 1000 Views</div>
-            <div class="promo-banner-desc">Share links with RX URL Shortener &amp; start earning today</div>
-            <a href="${SHORTENER_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn shortener">
-                <i class="fas fa-link"></i> Start Earning
-            </a>
+            <div class="promo-banner-content">
+                <div class="promo-banner-title">Earn Up To $5 / 1000 Views</div>
+                <div class="promo-banner-desc">Share links with RX URL Shortener &amp; start earning today</div>
+                <a href="${SHORTENER_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn shortener">
+                    <i class="fas fa-link"></i> Start Earning
+                </a>
+            </div>
         `;
 
         const API_BANNER_HTML = `
             <div class="promo-banner-gif wide">
                 <iframe src="https://tenor.com/embed/7009745846662272460" frameborder="0"></iframe>
             </div>
-            <div class="promo-banner-title">Get Our Premium API</div>
-            <div class="promo-banner-desc">Get this site's API at just ₹499. Contact Admin to get yours now!</div>
+            <div class="promo-banner-content">
+                <div class="promo-banner-title">Get Our Premium API</div>
+                <div class="promo-banner-desc">Get this site's API at just ₹499. Contact Admin to get yours now!</div>
+            </div>
         `;
 
         const ADSPACE_BANNER_HTML = `
             <div class="promo-banner-gif">
                 <iframe src="https://tenor.com/embed/5558575847817695995" frameborder="0"></iframe>
             </div>
-            <div class="promo-banner-title">Place Your Ad Here</div>
-            <div class="promo-banner-desc">Reach thousands of daily visitors. Contact Admin to book this space!</div>
+            <div class="promo-banner-content">
+                <div class="promo-banner-title">Place Your Ad Here</div>
+                <div class="promo-banner-desc">Reach thousands of daily visitors. Contact Admin to book this space!</div>
+            </div>
         `;
 
         let currentTmdbId = null;
