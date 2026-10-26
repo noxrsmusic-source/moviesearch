@@ -509,15 +509,6 @@
             try { return JSON.parse(sessionStorage.getItem(PASS_KEY) || 'null'); } catch (e) { return null; }
         }
 
-        function goToAds() {
-            const title = encodeURIComponent(document.getElementById('movieTitle').textContent || 'Movie');
-            location.replace(
-                `https://rxplayer.in/ads.html?id=${encodeURIComponent(currentTmdbId)}` +
-                `&type=${currentType}&action=watch&title=${title}` +
-                `&season=${currentSeason || 1}&episode=${currentEpisode || 1}`
-            );
-        }
-
         async function getStreamUrl() {
             const saved = readPass();
             if (!saved || String(saved.id) !== String(currentTmdbId)) return null;
@@ -536,27 +527,8 @@
             } catch (e) { return null; }
         }
 
-        /* ---- guard integration ---- */
-        function waitForGuardClear() {
-            return new Promise(resolve => {
-                if (!window.rxAdGuard) { location.replace('index.html'); return; }
-                window.rxAdGuard.onState(b => { if (!b) resolve(); });
-            });
-        }
-
-        let playerWasBlanked = false;
-        if (window.rxAdGuard) {
-            window.rxAdGuard.onState(b => {
-                const iframe = document.getElementById('playerIframe');
-                if (b && iframe && iframe.src && iframe.src !== 'about:blank') {
-                    iframe.src = 'about:blank';           // stop the stream while a blocker is on
-                    playerWasBlanked = true;
-                } else if (!b && playerWasBlanked) {
-                    playerWasBlanked = false;
-                    loadPlayer();
-                }
-            });
-        }
+        /* ---- removed rx-core guard dependency ---- */
+        // waitForGuardClear function removed so it doesn't redirect to index.html
 
         function isTvType(t) {
             if (!t) return false;
@@ -735,7 +707,6 @@
             } catch (e) {}
         }
 
-        /* ---- new loadPlayer (replaces the old one) ---- */
         async function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             hidePauseAds();
@@ -743,7 +714,12 @@
             if (!currentTmdbId) { showToast('No content ID provided.', 'error'); return; }
 
             const url = await getStreamUrl();
-            if (!url) { goToAds(); return; }          // no valid pass -> back to the ads page
+            
+            // If no valid URL from API, show error instead of redirecting to ads.html
+            if (!url) { 
+                showToast('Stream not available. Please provide a valid pass or check API.', 'error', 5000); 
+                return; 
+            } 
 
             if (iframeReloadTimer) { clearTimeout(iframeReloadTimer); iframeReloadTimer = null; }
             try { iframe.src = 'about:blank'; } catch (e) {}
@@ -945,8 +921,7 @@
                 episodeSelect.value = currentEpisode;
             }
 
-            // Load the initial player
-            await waitForGuardClear();
+            // Load the initial player (Now without rx-core redirect)
             loadPlayer();
 
             initShareModal();
