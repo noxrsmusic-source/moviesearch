@@ -23,7 +23,6 @@
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-height: 62px;
-            --server-green: #22C55E;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -113,189 +112,81 @@
         .pause-badge.visible { display: flex; }
         .pause-badge i { font-size: 32px; color: #fff; opacity: 0.8; }
 
-        /* =========================================================
-           PROMO MEDIA (Video + Rotating Banners)
-           Neutral class names — adblock safe
-           ========================================================= */
+        /* PROMO MEDIA */
         .promo-media {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            background: rgba(229, 9, 20, 0.04);
-            border: 1px solid rgba(229, 9, 20, 0.22);
-            border-radius: var(--radius);
-            padding: 10px;
-            width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            background: rgba(229, 9, 20, 0.04); border: 1px solid rgba(229, 9, 20, 0.22);
+            border-radius: var(--radius); padding: 10px; width: 100%;
             box-shadow: 0 4px 20px rgba(229, 9, 20, 0.08);
         }
         .promo-media-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.4px;
-            margin-bottom: 8px;
-            width: 100%;
-            text-align: left;
-            text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
+            font-weight: 700; color: #fff; letter-spacing: 0.4px; margin-bottom: 8px;
+            width: 100%; text-align: left; text-transform: uppercase;
         }
         .promo-media-label i { color: var(--primary-red); font-size: 12px; }
 
         .promo-media-frame {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            background: #000;
-            position: relative;
+            width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-sm);
+            overflow: hidden; background: #000; position: relative;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
 
-        /* Video stage — holds the iframe, fades in/out */
         .promo-video-stage {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            background: #000;
-            opacity: 1;
-            transition: opacity 0.45s ease;
-            pointer-events: none;
+            position: absolute; inset: 0; z-index: 1; background: #000;
+            opacity: 1; transition: opacity 0.45s ease; pointer-events: none;
         }
         .promo-video-stage.fade-out { opacity: 0; }
         .promo-video-stage iframe {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-            transform: scale(1.2);
-            transform-origin: center;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            border: 0; display: block; transform: scale(1.2); transform-origin: center;
             pointer-events: none !important;
         }
 
-        /* Invisible click-blocker (above iframe, below banner) */
         .promo-click-blocker {
-            position: absolute;
-            inset: 0;
-            z-index: 5;
-            background: transparent;
-            cursor: default;
+            position: absolute; inset: 0; z-index: 5; background: transparent; cursor: default;
         }
 
-        /* Sound-off indicator */
         .promo-sound-badge {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            z-index: 3;
-            background: rgba(0, 0, 0, 0.72);
-            color: #fff;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            pointer-events: none;
-            backdrop-filter: blur(4px);
+            position: absolute; bottom: 8px; left: 8px; z-index: 3;
+            background: rgba(0, 0, 0, 0.72); color: #fff; width: 24px; height: 24px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 11px; pointer-events: none; backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Banner overlay — premium slide-up + fade-in animation */
         .promo-banner-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 14px;
-            background: linear-gradient(135deg, #1a0508 0%, #0a0a0f 100%);
+            position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 14px; background: linear-gradient(135deg, #1a0508 0%, #0a0a0f 100%);
             border-radius: var(--radius-sm);
-
-            /* Animation state (hidden) */
-            opacity: 0;
-            transform: translateY(24px) scale(0.96);
-            transition:
-                opacity 0.5s cubic-bezier(0.34, 1.2, 0.64, 1),
-                transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+            opacity: 0; transform: translateY(24px) scale(0.96);
+            transition: opacity 0.5s cubic-bezier(0.34, 1.2, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
             pointer-events: none;
         }
         .promo-banner-overlay.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
+            opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
         }
 
         .promo-banner-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 10px;
-            animation: promoPulse 1.8s ease-in-out infinite;
+            width: 46px; height: 46px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 20px;
+            margin-bottom: 10px; animation: promoPulse 1.8s ease-in-out infinite;
         }
-        .promo-banner-icon.telegram {
-            background: linear-gradient(135deg, #0088cc, #0077b5);
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
-        }
-        .promo-banner-icon.shortener {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-        }
-        @keyframes promoPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
+        .promo-banner-icon.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); color: #fff; box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4); }
+        .promo-banner-icon.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+        @keyframes promoPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
-        .promo-banner-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 4px;
-            letter-spacing: -0.2px;
-            line-height: 1.2;
-        }
-        .promo-banner-desc {
-            font-size: 11.5px;
-            color: #A0A0AA;
-            line-height: 1.4;
-            margin-bottom: 12px;
-            max-width: 260px;
-        }
+        .promo-banner-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; letter-spacing: -0.2px; line-height: 1.2; }
+        .promo-banner-desc { font-size: 11.5px; color: #A0A0AA; line-height: 1.4; margin-bottom: 12px; max-width: 260px; }
         .promo-banner-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 800;
-            color: #fff;
-            text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px;
+            border-radius: 30px; font-size: 12px; font-weight: 800; color: #fff;
+            text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .promo-banner-btn:hover { transform: translateY(-2px); }
-        .promo-banner-btn.telegram {
-            background: linear-gradient(135deg, #0088cc, #0077b5);
-            box-shadow: 0 6px 16px rgba(0, 136, 204, 0.45);
-        }
-        .promo-banner-btn.shortener {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
-        }
+        .promo-banner-btn.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); box-shadow: 0 6px 16px rgba(0, 136, 204, 0.45); }
+        .promo-banner-btn.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45); }
 
         .promo-desktop { flex: 0 0 340px; max-width: 340px; }
         .promo-mobile { display: none; margin-top: 20px; }
@@ -333,7 +224,6 @@
             opacity: 0; visibility: hidden; transition: var(--transition); padding: 20px;
         }
         .share-modal-overlay.open { opacity: 1; visibility: visible; }
-
         .share-modal-box {
             background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius); width: 100%; max-width: 400px; padding: 24px;
@@ -341,37 +231,25 @@
             position: relative;
         }
         .share-modal-overlay.open .share-modal-box { transform: translateY(0) scale(1); }
-
-        .share-modal-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-        }
+        .share-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .share-modal-header h3 { font-size: 16px; font-weight: 800; display: flex; gap: 8px; align-items: center; }
         .share-modal-header h3 i { color: var(--primary-red); }
         .share-modal-close {
             background: rgba(255,255,255,0.06); border: none; color: var(--text-muted);
-            width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; cursor: pointer; transition: var(--transition);
+            width: 32px; height: 32px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: var(--transition);
         }
         .share-modal-close:hover { background: var(--primary-red); color: #fff; transform: rotate(90deg); }
-
         .share-modal-body { display: flex; flex-direction: column; gap: 12px; }
-
         .share-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
             padding: 14px 20px; border-radius: 30px; width: 100%;
             font-size: 13.5px; font-weight: 700; color: #fff;
             transition: var(--transition); cursor: pointer; border: none;
         }
-        .share-earn {
-            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
-        }
+        .share-earn { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3); }
         .share-earn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(245, 158, 11, 0.5); }
-        .share-direct {
-            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
-        }
+        .share-direct { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3); }
         .share-direct:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(56, 189, 248, 0.5); }
 
         .episode-controls {
@@ -381,10 +259,7 @@
         }
         .episode-controls.visible { display: flex; }
         .episode-controls .control-group { display: flex; align-items: center; gap: 8px; }
-        .episode-controls label {
-            font-size: 13px; font-weight: 600; color: var(--text-muted);
-            display: flex; align-items: center; gap: 6px;
-        }
+        .episode-controls label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
         .episode-controls select {
             padding: 8px 14px; border-radius: 30px; background: var(--bg-secondary);
             border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-white);
@@ -424,10 +299,7 @@
         .toast.success { border-left-color: #22C55E; }
         .toast.error { border-left-color: var(--primary-red); }
         .toast .toast-icon { font-size: 20px; flex-shrink: 0; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
@@ -489,7 +361,6 @@
     <section class="player-section container">
         <div class="player-row">
             <div class="player-wrapper" id="playerWrapper">
-
                 <iframe id="playerIframe" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
 
                 <div class="pause-ad-overlay top" id="pauseAdTop">
@@ -530,7 +401,6 @@
                     <span id="movieGenre">—</span>
                 </div>
             </div>
-
             <div class="share-icon-wrap">
                 <button class="share-icon-btn" id="openShareModalBtn">
                     <i class="fas fa-share-alt"></i> Share
@@ -591,12 +461,6 @@
         const API = "/api";
         const STREAM_BASE = "https://nxsha.space/embed";
 
-        /* =========================================================
-           PROMO CONFIG
-           Video + Banners rotate. Video is ALWAYS muted (recreated
-           fresh each cycle + postMessage mute retries so it never
-           unmutes after a banner).
-           ========================================================= */
         const PROMO_VIDEO_BASE =
             'https://geo.dailymotion.com/player/x8lr5.html?video=xbr7cuy' +
             '&autoplay=1' +
@@ -610,7 +474,6 @@
             '&endscreen-enable=false' +
             '&queue-enable=false';
 
-        // Cycle: Video (10s) → Telegram (5s) → Video (10s) → Shortener (5s) → loop
         const PROMO_CYCLE = [
             { type: 'video',     duration: 10000 },
             { type: 'telegram',  duration: 5000  },
@@ -618,7 +481,6 @@
             { type: 'shortener', duration: 5000  }
         ];
 
-        // 🔧 CHANGE these to your real links
         const TELEGRAM_URL  = 'https://t.me/rxplayer';
         const SHORTENER_URL = 'https://rxurl.in';
 
@@ -640,9 +502,6 @@
             </a>
         `;
 
-        /* =========================================================
-           STATE
-           ========================================================= */
         let currentTmdbId = null;
         let currentType = 'movie';
         let currentSeason = 1;
@@ -654,7 +513,6 @@
         let isPaused = false;
         let iframeReloadTimer = null;
 
-        // Global registry of all live promo iframes (for global mute re-sends)
         const promoLiveIframes = new Set();
 
         function forceMuteAll() {
@@ -668,7 +526,6 @@
             });
         }
 
-        // Belt & suspenders: any tap anywhere or any tab-refocus forces mute again
         document.addEventListener('click', () => forceMuteAll(), true);
         document.addEventListener('touchstart', () => forceMuteAll(), { capture: true, passive: true });
         window.addEventListener('focus', () => forceMuteAll());
@@ -858,9 +715,6 @@
             document.getElementById('episodeControls').classList.toggle('visible', isSeries());
         }
 
-        /* =========================================================
-           PAUSE ADS
-           ========================================================= */
         function loadPauseAdScript() {
             const adCode = `
                 <script>
@@ -888,13 +742,6 @@
             else showPauseAds();
         }
 
-        /* =========================================================
-           PROMO CONTROLLER
-           Video is RECREATED FRESH each video-phase (DOM remove +
-           new element). This is the critical fix for the unmute
-           bug — Dailymotion cannot remember state across a new
-           iframe element.
-           ========================================================= */
         function createPromoController(stage, frame, overlay) {
             let idx = 0;
             let active = false;
@@ -918,12 +765,12 @@
 
                 const iframe = document.createElement('iframe');
                 iframe.setAttribute('frameborder', '0');
-                iframe.setAttribute('allow', 'autoplay; encrypted-media');
-                iframe.setAttribute('allowfullscreen', '');
-                iframe.setAttribute('referrerpolicy', 'no-referrer');
+                // FIXED: Combined allow attributes and removed allowfullscreen conflict
+                iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
+                // FIXED: Added referrerpolicy so Dailymotion allows the embed
+                iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
 
                 iframe.onload = () => {
-                    // Fire mute command multiple times to beat Dailymotion's init
                     [150, 500, 1200, 2500, 4000].forEach(delay => {
                         setTimeout(() => {
                             try {
@@ -943,19 +790,16 @@
             }
 
             function showVideoPhase() {
-                // Crossfade: video fades in, banner fades out
                 overlay.classList.remove('show');
                 stage.classList.remove('fade-out');
                 createFreshVideo();
             }
 
             function showBannerPhase(type) {
-                // Crossfade: video fades out, banner fades in
                 stage.classList.add('fade-out');
                 overlay.innerHTML = type === 'telegram' ? TELEGRAM_BANNER_HTML : SHORTENER_BANNER_HTML;
                 overlay.classList.add('show');
 
-                // Kill video after the fade completes (prevents any audio leak)
                 if (stopDelayTimer) clearTimeout(stopDelayTimer);
                 stopDelayTimer = setTimeout(() => {
                     if (active && currentIframe) removeCurrentIframe();
@@ -1021,9 +865,6 @@
             window.addEventListener('resize', checkViewport);
         }
 
-        /* =========================================================
-           SHARE MODAL
-           ========================================================= */
         function initShareModal() {
             const openBtn = document.getElementById('openShareModalBtn');
             const closeBtn = document.getElementById('closeShareModalBtn');
@@ -1092,9 +933,6 @@
             document.body.removeChild(t);
         }
 
-        /* =========================================================
-           MAIN INIT
-           ========================================================= */
         async function init() {
             const params = new URLSearchParams(window.location.search);
             const rawId = params.get('id');
