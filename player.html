@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- Tenor GIF Embed Script -->
+    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -112,7 +116,7 @@
         .pause-badge.visible { display: flex; }
         .pause-badge i { font-size: 32px; color: #fff; opacity: 0.8; }
 
-        /* PROMO MEDIA */
+        /* PROMO MEDIA (Only Banners) */
         .promo-media {
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             background: rgba(229, 9, 20, 0.04); border: 1px solid rgba(229, 9, 20, 0.22);
@@ -132,61 +136,10 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
 
-        .promo-video-stage {
-            position: absolute; inset: 0; z-index: 1; background: #000;
-            opacity: 1; transition: opacity 0.45s ease; pointer-events: none;
-        }
-        .promo-video-stage.fade-out { opacity: 0; }
-        .promo-video-stage iframe {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            border: 0; display: block; transform: scale(1.2); transform-origin: center;
-            pointer-events: none !important;
-        }
-
-        .promo-click-blocker {
-            position: absolute; inset: 0; z-index: 5; background: transparent; cursor: default;
-        }
-
-        /* NEW: Manual Mute Button */
-        .promo-mute-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            z-index: 7; /* Above banners and blocker */
-            background: rgba(229, 9, 20, 0.9);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-            transition: all 0.2s ease;
-            backdrop-filter: blur(4px);
-        }
-        .promo-mute-btn:hover {
-            background: #ff0f1b;
-            transform: scale(1.05);
-        }
-        .promo-mute-btn.hidden {
-            display: none;
-        }
-
-        .promo-sound-badge {
-            position: absolute; bottom: 8px; left: 8px; z-index: 3;
-            background: rgba(0, 0, 0, 0.72); color: #fff; width: 24px; height: 24px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 11px; pointer-events: none; backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
         .promo-banner-overlay {
             position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center;
-            padding: 14px; background: linear-gradient(135deg, #1a0508 0%, #0a0a0f 100%);
+            padding: 10px; background: linear-gradient(135deg, #1a0508 0%, #0a0a0f 100%);
             border-radius: var(--radius-sm);
             opacity: 0; transform: translateY(24px) scale(0.96);
             transition: opacity 0.5s cubic-bezier(0.34, 1.2, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
@@ -196,25 +149,38 @@
             opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
         }
 
-        .promo-banner-icon {
-            width: 46px; height: 46px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-size: 20px;
-            margin-bottom: 10px; animation: promoPulse 1.8s ease-in-out infinite;
+        /* GIF Container Styles */
+        .promo-banner-gif {
+            width: 75px; height: 75px;
+            margin-bottom: 6px;
+            border-radius: 50%; /* Circular looks better for stickers */
+            overflow: hidden;
+            pointer-events: none; /* Prevent clicking the GIF */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255,255,255,0.1);
         }
-        .promo-banner-icon.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); color: #fff; box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4); }
-        .promo-banner-icon.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
-        @keyframes promoPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        /* Force Tenor iframe to fit the circular container */
+        .promo-banner-gif .tenor-gif-embed {
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+        }
+        .promo-banner-gif iframe {
+            width: 100% !important;
+            height: 100% !important;
+            transform: scale(1.1); /* Slight zoom to hide white edges */
+        }
 
-        .promo-banner-title { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px; letter-spacing: -0.2px; line-height: 1.2; }
-        .promo-banner-desc { font-size: 11.5px; color: #A0A0AA; line-height: 1.4; margin-bottom: 12px; max-width: 260px; }
+        .promo-banner-title { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 2px; letter-spacing: -0.2px; line-height: 1.2; }
+        .promo-banner-desc { font-size: 10.5px; color: #A0A0AA; line-height: 1.3; margin-bottom: 8px; max-width: 260px; }
         .promo-banner-btn {
-            display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px;
-            border-radius: 30px; font-size: 12px; font-weight: 800; color: #fff;
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px;
+            border-radius: 30px; font-size: 11px; font-weight: 800; color: #fff;
             text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .promo-banner-btn:hover { transform: translateY(-2px); }
-        .promo-banner-btn.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); box-shadow: 0 6px 16px rgba(0, 136, 204, 0.45); }
-        .promo-banner-btn.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45); }
+        .promo-banner-btn.telegram { background: linear-gradient(135deg, #0088cc, #0077b5); box-shadow: 0 4px 12px rgba(0, 136, 204, 0.45); }
+        .promo-banner-btn.shortener { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.45); }
 
         .promo-desktop { flex: 0 0 340px; max-width: 340px; }
         .promo-mobile { display: none; margin-top: 20px; }
@@ -409,15 +375,7 @@
             <div class="promo-media promo-desktop">
                 <div class="promo-media-label"><i class="fas fa-fire"></i> Featured</div>
                 <div class="promo-media-frame" id="promoDesktopFrame">
-                    <div class="promo-video-stage" id="promoDesktopStage">
-                        <div class="promo-sound-badge"><i class="fas fa-volume-mute"></i></div>
-                    </div>
-                    <div class="promo-click-blocker"></div>
                     <div class="promo-banner-overlay" id="promoDesktopOverlay"></div>
-                    <!-- Manual Mute Button -->
-                    <button class="promo-mute-btn" onclick="forceMuteAll(this)">
-                        <i class="fas fa-volume-mute"></i> Ads Sound Mute
-                    </button>
                 </div>
             </div>
         </div>
@@ -461,15 +419,7 @@
         <div class="promo-media promo-mobile" id="promoMobileContainer">
             <div class="promo-media-label"><i class="fas fa-fire"></i> Featured</div>
             <div class="promo-media-frame" id="promoMobileFrame">
-                <div class="promo-video-stage" id="promoMobileStage">
-                    <div class="promo-sound-badge"><i class="fas fa-volume-mute"></i></div>
-                </div>
-                <div class="promo-click-blocker"></div>
                 <div class="promo-banner-overlay" id="promoMobileOverlay"></div>
-                <!-- Manual Mute Button -->
-                <button class="promo-mute-btn" onclick="forceMuteAll(this)">
-                    <i class="fas fa-volume-mute"></i> Ads Sound Mute
-                </button>
             </div>
         </div>
     </section>
@@ -497,31 +447,19 @@
         const API = "/api";
         const STREAM_BASE = "https://nxsha.space/embed";
 
-        const PROMO_VIDEO_BASE =
-            'https://geo.dailymotion.com/player/x8lr5.html?video=xbr7cuy' +
-            '&autoplay=1' +
-            '&mute=1' +
-            '&dm_mute=1' +
-            '&controls=0' +
-            '&ui-start-screen-info=false' +
-            '&ui-logo=false' +
-            '&ui-highlight=false' +
-            '&sharing-enable=false' +
-            '&endscreen-enable=false' +
-            '&queue-enable=false';
-
+        // Cycle: Telegram (10s) -> Shortener (10s)
         const PROMO_CYCLE = [
-            { type: 'video',     duration: 10000 },
-            { type: 'telegram',  duration: 5000  },
-            { type: 'video',     duration: 10000 },
-            { type: 'shortener', duration: 5000  }
+            { type: 'telegram',  duration: 10000 },
+            { type: 'shortener', duration: 10000 }
         ];
 
         const TELEGRAM_URL  = 'https://t.me/rxplayer';
         const SHORTENER_URL = 'https://rxurl.in';
 
         const TELEGRAM_BANNER_HTML = `
-            <div class="promo-banner-icon telegram"><i class="fab fa-telegram-plane"></i></div>
+            <div class="promo-banner-gif">
+                <div class="tenor-gif-embed" data-postid="7335695788476514343" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/utya-telegram-duck-gif-7335695788476514343">Utya Telegram Duck Sticker</a>from <a href="https://tenor.com/search/utya-stickers">Utya Stickers</a></div>
+            </div>
             <div class="promo-banner-title">Join Our Telegram</div>
             <div class="promo-banner-desc">Latest updates, backup links &amp; exclusive content</div>
             <a href="${TELEGRAM_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn telegram">
@@ -530,7 +468,9 @@
         `;
 
         const SHORTENER_BANNER_HTML = `
-            <div class="promo-banner-icon shortener"><i class="fas fa-dollar-sign"></i></div>
+            <div class="promo-banner-gif">
+                <div class="tenor-gif-embed" data-postid="11372748775060160816" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/counting-make-it-rain-dollars-bullish-bull-gif-11372748775060160816">Counting Make It Rain Sticker</a>from <a href="https://tenor.com/search/counting-stickers">Counting Stickers</a></div>
+            </div>
             <div class="promo-banner-title">Earn Up To $5 / 1000 Views</div>
             <div class="promo-banner-desc">Share links with RX URL Shortener &amp; start earning today</div>
             <a href="${SHORTENER_URL}" target="_blank" rel="noopener noreferrer" class="promo-banner-btn shortener">
@@ -548,39 +488,6 @@
         let tmdbMetadata = null;
         let isPaused = false;
         let iframeReloadTimer = null;
-
-        const promoLiveIframes = new Set();
-
-        // Force mute all active promo iframes and give button feedback
-        window.forceMuteAll = function(btnEl) {
-            let success = false;
-            promoLiveIframes.forEach(iframe => {
-                try {
-                    if (iframe.contentWindow) {
-                        iframe.contentWindow.postMessage(JSON.stringify({ command: 'mute', parameters: [] }), '*');
-                        iframe.contentWindow.postMessage(JSON.stringify({ command: 'volume', parameters: [0] }), '*');
-                        success = true;
-                    }
-                } catch (e) {}
-            });
-
-            if (btnEl) {
-                const originalHtml = btnEl.innerHTML;
-                btnEl.innerHTML = '<i class="fas fa-check"></i> Muted';
-                btnEl.style.background = '#22C55E'; // Green success
-                setTimeout(() => {
-                    btnEl.innerHTML = originalHtml;
-                    btnEl.style.background = ''; // Revert to original
-                }, 2000);
-            }
-        };
-
-        document.addEventListener('click', () => window.forceMuteAll(), true);
-        document.addEventListener('touchstart', () => window.forceMuteAll(), { capture: true, passive: true });
-        window.addEventListener('focus', () => window.forceMuteAll());
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) window.forceMuteAll();
-        });
 
         function isTvType(t) {
             if (!t) return false;
@@ -791,86 +698,37 @@
             else showPauseAds();
         }
 
-        function createPromoController(stage, frame, overlay) {
+        function createPromoController(overlay) {
             let idx = 0;
             let active = false;
             let timer = null;
-            let currentIframe = null;
-            let stopDelayTimer = null;
 
-            // Button toggle function
-            const muteBtn = frame.querySelector('.promo-mute-btn');
-
-            function removeCurrentIframe() {
-                if (currentIframe) {
-                    promoLiveIframes.delete(currentIframe);
-                    try { currentIframe.src = 'about:blank'; } catch (e) {}
-                    if (currentIframe.parentNode) {
-                        currentIframe.parentNode.removeChild(currentIframe);
-                    }
-                    currentIframe = null;
-                }
-            }
-
-            function createFreshVideo() {
-                removeCurrentIframe();
-
-                const iframe = document.createElement('iframe');
-                iframe.setAttribute('frameborder', '0');
-                iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
-                iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-                iframe.setAttribute('muted', 'true');
-
-                iframe.onload = () => {
-                    [150, 500, 1200, 2500, 4000].forEach(delay => {
-                        setTimeout(() => {
-                            try {
-                                if (iframe.contentWindow) {
-                                    iframe.contentWindow.postMessage(JSON.stringify({ command: 'mute', parameters: [] }), '*');
-                                    iframe.contentWindow.postMessage(JSON.stringify({ command: 'volume', parameters: [0] }), '*');
-                                }
-                            } catch (e) {}
-                        }, delay);
-                    });
-                };
-
-                iframe.src = PROMO_VIDEO_BASE + '&_r=' + Date.now() + '&_m=' + Math.random().toString(36).slice(2);
-                stage.appendChild(iframe);
-                currentIframe = iframe;
-                promoLiveIframes.add(iframe);
-            }
-
-            function showVideoPhase() {
-                overlay.classList.remove('show');
-                stage.classList.remove('fade-out');
-                if (muteBtn) muteBtn.classList.remove('hidden');
-                createFreshVideo();
-            }
-
-            function showBannerPhase(type) {
-                stage.classList.add('fade-out');
+            function showBanner(type) {
                 overlay.innerHTML = type === 'telegram' ? TELEGRAM_BANNER_HTML : SHORTENER_BANNER_HTML;
+                // Force reflow to restart animation
+                void overlay.offsetWidth;
                 overlay.classList.add('show');
-                if (muteBtn) muteBtn.classList.add('hidden');
+            }
 
-                if (stopDelayTimer) clearTimeout(stopDelayTimer);
-                stopDelayTimer = setTimeout(() => {
-                    if (active && currentIframe) removeCurrentIframe();
-                }, 500);
+            function hideBanner() {
+                overlay.classList.remove('show');
             }
 
             function tick() {
                 if (!active) return;
                 const state = PROMO_CYCLE[idx];
-
-                if (state.type === 'video') showVideoPhase();
-                else showBannerPhase(state.type);
-
-                if (timer) clearTimeout(timer);
-                timer = setTimeout(() => {
-                    idx = (idx + 1) % PROMO_CYCLE.length;
-                    tick();
-                }, state.duration);
+                
+                hideBanner(); // Slide out
+                
+                setTimeout(() => {
+                    if (!active) return;
+                    showBanner(state.type); // Slide in new banner
+                    
+                    timer = setTimeout(() => {
+                        idx = (idx + 1) % PROMO_CYCLE.length;
+                        tick();
+                    }, state.duration);
+                }, 500); // Wait for slide out transition to finish
             }
 
             return {
@@ -878,31 +736,27 @@
                     if (active) return;
                     active = true;
                     idx = 0;
-                    tick();
+                    showBanner(PROMO_CYCLE[0].type);
+                    timer = setTimeout(() => {
+                        idx = 1;
+                        tick();
+                    }, PROMO_CYCLE[0].duration);
                 },
                 stop() {
                     active = false;
                     if (timer) { clearTimeout(timer); timer = null; }
-                    if (stopDelayTimer) { clearTimeout(stopDelayTimer); stopDelayTimer = null; }
-                    removeCurrentIframe();
-                    overlay.classList.remove('show');
-                    overlay.innerHTML = '';
-                    stage.classList.remove('fade-out');
-                    if (muteBtn) muteBtn.classList.add('hidden');
+                    hideBanner();
+                    setTimeout(() => { overlay.innerHTML = ''; }, 500);
                 }
             };
         }
 
         function initPromoVideo() {
-            const dStage   = document.getElementById('promoDesktopStage');
-            const dFrame   = document.getElementById('promoDesktopFrame');
             const dOverlay = document.getElementById('promoDesktopOverlay');
-            const mStage   = document.getElementById('promoMobileStage');
-            const mFrame   = document.getElementById('promoMobileFrame');
             const mOverlay = document.getElementById('promoMobileOverlay');
 
-            const desktopCtrl = createPromoController(dStage, dFrame, dOverlay);
-            const mobileCtrl  = createPromoController(mStage, mFrame, mOverlay);
+            const desktopCtrl = createPromoController(dOverlay);
+            const mobileCtrl  = createPromoController(mOverlay);
 
             function checkViewport() {
                 const isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -1081,5 +935,8 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    
+    <!-- Re-trigger Tenor embed script for dynamically added GIFs -->
+    <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
 </body>
 </html>
