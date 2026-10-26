@@ -509,6 +509,15 @@
             try { return JSON.parse(sessionStorage.getItem(PASS_KEY) || 'null'); } catch (e) { return null; }
         }
 
+        function goToAds() {
+            const title = encodeURIComponent(document.getElementById('movieTitle').textContent || 'Movie');
+            location.replace(
+                `https://rxplayer.in/ads.html?id=${encodeURIComponent(currentTmdbId)}` +
+                `&type=${currentType}&action=watch&title=${title}` +
+                `&season=${currentSeason || 1}&episode=${currentEpisode || 1}`
+            );
+        }
+
         async function getStreamUrl() {
             const saved = readPass();
             if (!saved || String(saved.id) !== String(currentTmdbId)) return null;
@@ -527,7 +536,14 @@
             } catch (e) { return null; }
         }
 
-        /* ---- guard integration (REMOVED waitForGuardClear to stop index.html redirect) ---- */
+        /* ---- guard integration ---- */
+        function waitForGuardClear() {
+            return new Promise(resolve => {
+                if (!window.rxAdGuard) { location.replace('index.html'); return; }
+                window.rxAdGuard.onState(b => { if (!b) resolve(); });
+            });
+        }
+
         let playerWasBlanked = false;
         if (window.rxAdGuard) {
             window.rxAdGuard.onState(b => {
@@ -719,7 +735,7 @@
             } catch (e) {}
         }
 
-        /* ---- Load Player (Removed goToAds redirect loop) ---- */
+        /* ---- new loadPlayer (replaces the old one) ---- */
         async function loadPlayer() {
             const iframe = document.getElementById('playerIframe');
             hidePauseAds();
@@ -727,12 +743,7 @@
             if (!currentTmdbId) { showToast('No content ID provided.', 'error'); return; }
 
             const url = await getStreamUrl();
-            
-            // If no URL from API, show error instead of redirecting to ads
-            if (!url) { 
-                showToast('Stream not available. Please ensure you have a valid pass.', 'error', 5000); 
-                return; 
-            }
+            if (!url) { goToAds(); return; }          // no valid pass -> back to the ads page
 
             if (iframeReloadTimer) { clearTimeout(iframeReloadTimer); iframeReloadTimer = null; }
             try { iframe.src = 'about:blank'; } catch (e) {}
@@ -934,7 +945,8 @@
                 episodeSelect.value = currentEpisode;
             }
 
-            // Load the initial player directly (Removed waitForGuardClear)
+            // Load the initial player
+            await waitForGuardClear();
             loadPlayer();
 
             initShareModal();
