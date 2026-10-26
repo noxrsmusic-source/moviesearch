@@ -147,6 +147,34 @@
             position: absolute; inset: 0; z-index: 5; background: transparent; cursor: default;
         }
 
+        /* NEW: Manual Mute Button */
+        .promo-mute-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 7; /* Above banners and blocker */
+            background: rgba(229, 9, 20, 0.9);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+        .promo-mute-btn:hover {
+            background: #ff0f1b;
+            transform: scale(1.05);
+        }
+        .promo-mute-btn.hidden {
+            display: none;
+        }
+
         .promo-sound-badge {
             position: absolute; bottom: 8px; left: 8px; z-index: 3;
             background: rgba(0, 0, 0, 0.72); color: #fff; width: 24px; height: 24px;
@@ -386,6 +414,10 @@
                     </div>
                     <div class="promo-click-blocker"></div>
                     <div class="promo-banner-overlay" id="promoDesktopOverlay"></div>
+                    <!-- Manual Mute Button -->
+                    <button class="promo-mute-btn" onclick="forceMuteAll(this)">
+                        <i class="fas fa-volume-mute"></i> Ads Sound Mute
+                    </button>
                 </div>
             </div>
         </div>
@@ -434,6 +466,10 @@
                 </div>
                 <div class="promo-click-blocker"></div>
                 <div class="promo-banner-overlay" id="promoMobileOverlay"></div>
+                <!-- Manual Mute Button -->
+                <button class="promo-mute-btn" onclick="forceMuteAll(this)">
+                    <i class="fas fa-volume-mute"></i> Ads Sound Mute
+                </button>
             </div>
         </div>
     </section>
@@ -515,22 +551,35 @@
 
         const promoLiveIframes = new Set();
 
-        function forceMuteAll() {
+        // Force mute all active promo iframes and give button feedback
+        window.forceMuteAll = function(btnEl) {
+            let success = false;
             promoLiveIframes.forEach(iframe => {
                 try {
                     if (iframe.contentWindow) {
                         iframe.contentWindow.postMessage(JSON.stringify({ command: 'mute', parameters: [] }), '*');
                         iframe.contentWindow.postMessage(JSON.stringify({ command: 'volume', parameters: [0] }), '*');
+                        success = true;
                     }
                 } catch (e) {}
             });
-        }
 
-        document.addEventListener('click', () => forceMuteAll(), true);
-        document.addEventListener('touchstart', () => forceMuteAll(), { capture: true, passive: true });
-        window.addEventListener('focus', () => forceMuteAll());
+            if (btnEl) {
+                const originalHtml = btnEl.innerHTML;
+                btnEl.innerHTML = '<i class="fas fa-check"></i> Muted';
+                btnEl.style.background = '#22C55E'; // Green success
+                setTimeout(() => {
+                    btnEl.innerHTML = originalHtml;
+                    btnEl.style.background = ''; // Revert to original
+                }, 2000);
+            }
+        };
+
+        document.addEventListener('click', () => window.forceMuteAll(), true);
+        document.addEventListener('touchstart', () => window.forceMuteAll(), { capture: true, passive: true });
+        window.addEventListener('focus', () => window.forceMuteAll());
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) forceMuteAll();
+            if (!document.hidden) window.forceMuteAll();
         });
 
         function isTvType(t) {
@@ -749,6 +798,9 @@
             let currentIframe = null;
             let stopDelayTimer = null;
 
+            // Button toggle function
+            const muteBtn = frame.querySelector('.promo-mute-btn');
+
             function removeCurrentIframe() {
                 if (currentIframe) {
                     promoLiveIframes.delete(currentIframe);
@@ -765,10 +817,9 @@
 
                 const iframe = document.createElement('iframe');
                 iframe.setAttribute('frameborder', '0');
-                // FIXED: Combined allow attributes and removed allowfullscreen conflict
                 iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
-                // FIXED: Added referrerpolicy so Dailymotion allows the embed
                 iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                iframe.setAttribute('muted', 'true');
 
                 iframe.onload = () => {
                     [150, 500, 1200, 2500, 4000].forEach(delay => {
@@ -792,6 +843,7 @@
             function showVideoPhase() {
                 overlay.classList.remove('show');
                 stage.classList.remove('fade-out');
+                if (muteBtn) muteBtn.classList.remove('hidden');
                 createFreshVideo();
             }
 
@@ -799,6 +851,7 @@
                 stage.classList.add('fade-out');
                 overlay.innerHTML = type === 'telegram' ? TELEGRAM_BANNER_HTML : SHORTENER_BANNER_HTML;
                 overlay.classList.add('show');
+                if (muteBtn) muteBtn.classList.add('hidden');
 
                 if (stopDelayTimer) clearTimeout(stopDelayTimer);
                 stopDelayTimer = setTimeout(() => {
@@ -835,6 +888,7 @@
                     overlay.classList.remove('show');
                     overlay.innerHTML = '';
                     stage.classList.remove('fade-out');
+                    if (muteBtn) muteBtn.classList.add('hidden');
                 }
             };
         }
