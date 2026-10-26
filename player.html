@@ -82,6 +82,9 @@
         }
         .player-wrapper iframe { width: 100%; height: 100%; border: none; display: block; position: relative; z-index: 1; }
 
+        /* =========================================================
+           PAUSE ADS (kept for revenue — user pauses video → 2 ads show)
+           ========================================================= */
         .pause-ad-overlay {
             position: absolute; left: 0; right: 0; z-index: 10; display: none;
             align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.75);
@@ -138,8 +141,8 @@
         .custom-fs-btn:hover { background: var(--primary-red); border-color: var(--primary-red); transform: scale(1.05); }
 
         /* =========================================================
-           PROMO VIDEO CONTAINER (replaces sponsored ad box)
-           Neutral class names — NOT recognized as ad by adblockers
+           PROMO VIDEO CONTAINER
+           Neutral class names — NOT detected as ad by adblockers
            ========================================================= */
         .promo-media {
             display: flex;
@@ -179,7 +182,6 @@
             position: relative;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
-        /* Zoomed iframe hides Dailymotion title bar — same trick as loading page */
         .promo-media-frame iframe {
             width: 100%;
             height: 100%;
@@ -187,7 +189,7 @@
             display: block;
             transform: scale(1.2);
             transform-origin: center;
-            pointer-events: none; /* user cannot pause/interact */
+            pointer-events: none;
         }
         .promo-desktop { flex: 0 0 340px; max-width: 340px; }
         .promo-mobile { display: none; margin-top: 20px; }
@@ -326,7 +328,7 @@
         }
 
         /* =========================================================
-           MOBILE RESPONSIVE STYLES
+           MOBILE RESPONSIVE
            ========================================================= */
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
@@ -348,15 +350,10 @@
             .player-info .title-section h1 { font-size: 20px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
 
-            .share-icon-wrap {
-                width: 100%;
-                margin-top: 4px;
-            }
+            .share-icon-wrap { width: 100%; margin-top: 4px; }
             .share-icon-btn {
-                width: 100%;
-                justify-content: center;
-                padding: 12px 20px;
-                font-size: 14px;
+                width: 100%; justify-content: center;
+                padding: 12px 20px; font-size: 14px;
             }
 
             .episode-controls { padding: 14px; flex-direction: column; align-items: stretch; gap: 12px; }
@@ -401,6 +398,7 @@
 
                 <iframe id="playerIframe" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
 
+                <!-- ✅ PAUSE ADS (shown when user pauses the video) -->
                 <div class="pause-ad-overlay top" id="pauseAdTop">
                     <span class="ad-label"><i class="fas fa-pause"></i> Paused</span>
                     <div class="ad-inner" id="pauseAdTopInner"></div>
@@ -415,7 +413,7 @@
                 </div>
             </div>
 
-            <!-- ✅ PROMO VIDEO (desktop sidebar — replaces sponsored ad) -->
+            <!-- ✅ PROMO VIDEO (desktop sidebar — replaced old ad.html iframe) -->
             <div class="promo-media promo-desktop">
                 <div class="promo-media-label"><i class="fas fa-play-circle"></i> RX Video</div>
                 <div class="promo-media-frame">
@@ -460,7 +458,7 @@
             <p id="moviePlot">Loading description…</p>
         </div>
 
-        <!-- ✅ PROMO VIDEO (mobile bottom — replaces sponsored ad) -->
+        <!-- ✅ PROMO VIDEO (mobile bottom) -->
         <div class="promo-media promo-mobile" id="promoMobileContainer">
             <div class="promo-media-label"><i class="fas fa-play-circle"></i> RX Video</div>
             <div class="promo-media-frame">
@@ -469,7 +467,6 @@
         </div>
     </section>
 
-    <!-- 🆕 Share Modal Popup -->
     <div class="share-modal-overlay" id="shareModalOverlay">
         <div class="share-modal-box">
             <div class="share-modal-header">
@@ -495,7 +492,7 @@
 
         /* =========================================================
            PROMO VIDEO CONFIG
-           (this is the RX Player's OWN promotional video — not an ad)
+           RX Player's OWN promotional video (not third-party ad)
            ========================================================= */
         const PROMO_VIDEO_URL = 'https://geo.dailymotion.com/player/x8lr5.html?video=xbr7cuy&autoplay=1&mute=1';
         const PROMO_LOOP_MS   = 10000; // restart every 10 seconds
@@ -733,6 +730,9 @@
             document.getElementById('episodeControls').classList.toggle('visible', isSeries());
         }
 
+        /* =========================================================
+           PAUSE ADS (revenue — runs when user pauses)
+           ========================================================= */
         function loadPauseAdScript() {
             const adCode = `
                 <script>
@@ -762,9 +762,8 @@
 
         /* =========================================================
            PROMO VIDEO LOOP CONTROLLER
-           Loads the RX Player promotional video in the visible
-           container (desktop sidebar OR mobile bottom).
-           Reloads every 10s so it restarts from the beginning.
+           Loads the RX promo video, restarts every 10 seconds.
+           Auto-swaps between desktop/mobile container on resize.
            ========================================================= */
         function initPromoVideo() {
             const desktopIframe = document.getElementById('promoDesktopIframe');
@@ -820,7 +819,9 @@
             window.addEventListener('resize', checkViewport);
         }
 
-        // 🆕 Share Modal Logic
+        /* =========================================================
+           SHARE MODAL
+           ========================================================= */
         function initShareModal() {
             const openBtn = document.getElementById('openShareModalBtn');
             const closeBtn = document.getElementById('closeShareModalBtn');
@@ -847,7 +848,6 @@
             }
         }
 
-        // 🆕 Share Button Logic (Native Share + Fallback)
         function initShareButtons() {
             const earnBtn = document.getElementById('shareEarnBtn');
             const directBtn = document.getElementById('shareDirectBtn');
@@ -925,6 +925,9 @@
             document.body.removeChild(textArea);
         }
 
+        /* =========================================================
+           MAIN INIT
+           ========================================================= */
         async function init() {
             const params = new URLSearchParams(window.location.search);
             const rawId = params.get('id');
