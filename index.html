@@ -848,7 +848,7 @@
         }
 
         /* =========================================================
-           NEW: 24-HOUR AD-BLOCKER NOTIFICATION POPUP CSS
+           NOTIFICATION POPUP (Only shown to unprotected users)
            ========================================================= */
         .notification-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88);
@@ -858,7 +858,7 @@
         .notification-box {
             background: linear-gradient(135deg, #1A1A24, #0A0A0F);
             border: 1px solid rgba(229, 9, 20, 0.4); border-radius: 16px;
-            max-width: 450px; width: 100%; padding: 32px 24px; text-align: center;
+            max-width: 460px; width: 100%; padding: 32px 24px; text-align: center;
             box-shadow: 0 24px 80px rgba(0,0,0,0.95); position: relative;
             animation: modalIn 0.4s cubic-bezier(0.4,0,0.2,1);
         }
@@ -886,7 +886,30 @@
             filter: drop-shadow(0 0 15px rgba(229,9,20,0.5));
         }
         .notif-title { font-size: 22px; font-weight: 900; margin-bottom: 12px; color: white; line-height: 1.3; }
-        .notif-text { font-size: 14.5px; color: #D1D5DB; line-height: 1.6; margin-bottom: 26px; }
+        .notif-text { font-size: 14.5px; color: #D1D5DB; line-height: 1.6; margin-bottom: 16px; }
+
+        /* NEW: Info callout about 10-second ad page */
+        .notif-ad-info {
+            background: rgba(56, 189, 248, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 22px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            text-align: left;
+            font-size: 12.5px;
+            color: #BAE6FD;
+            line-height: 1.55;
+        }
+        .notif-ad-info i {
+            color: #38bdf8;
+            font-size: 17px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
         .notif-action-btn {
             background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
             color: white; padding: 14px 24px; border-radius: 30px;
@@ -900,22 +923,28 @@
 <body x-data="rxPlayerApp()" x-init="init()">
 
     <!-- =========================================================
-         NEW: 24-HOUR NOTIFICATION POPUP
+         NOTIFICATION POPUP — only shown to users WITHOUT
+         adblocker / Brave / Private DNS (checked in JS)
          ========================================================= -->
     <div class="notification-overlay" x-show="showNotification" x-cloak x-transition.opacity>
         <div class="notification-box" @click.stop>
-            <!-- Close Button (Only way to dismiss) -->
             <button class="notif-close" @click="closeNotification()" title="Close"><i class="fas fa-times"></i></button>
             
-            <!-- Translate Button -->
             <button class="notif-translate-btn" @click="toggleNotificationLang()" x-text="notificationLang === 'en' ? 'हिंदी' : 'English'"></button>
 
-            <!-- Content -->
             <div class="notif-icon"><i class="fas fa-shield-alt"></i></div>
             
             <h2 class="notif-title" x-text="notificationLang === 'en' ? 'Ad-Free Experience Recommended' : 'विज्ञापन-मुक्त अनुभव की सलाह'"></h2>
             
             <p class="notif-text" x-text="notificationLang === 'en' ? 'For using our site without pop-up ads, please download our App or use an Adblocker / Brave Browser.' : 'बिना पॉप-अप विज्ञापनों के हमारी साइट का उपयोग करने के लिए, कृपया हमारा ऐप डाउनलोड करें या एडब्लॉकर / ब्रेव ब्राउज़र का उपयोग करें।'"></p>
+
+            <!-- NEW: 10-second ad page info -->
+            <div class="notif-ad-info">
+                <i class="fas fa-info-circle"></i>
+                <span x-text="notificationLang === 'en' 
+                    ? 'When you Watch or Download any movie / series, a 10-second ad page will open first (no popup ads). After the timer ends, you will be auto-redirected to your destination.'
+                    : 'जब आप कोई मूवी / सीरीज़ देखते या डाउनलोड करते हैं, तो पहले 10 सेकंड का विज्ञापन पेज खुलेगा (कोई पॉप-अप विज्ञापन नहीं)। टाइमर खत्म होने के बाद आपको स्वचालित रूप से आपके गंतव्य पर रीडायरेक्ट कर दिया जाएगा।'"></span>
+            </div>
             
             <a href="https://www.rxplayer.in/downloadlanding.html" class="notif-action-btn" target="_blank" style="text-decoration: none;">
                 <i class="fas fa-download"></i>
@@ -923,7 +952,6 @@
             </a>
         </div>
     </div>
-    <!-- ========================================================= -->
 
     <div id="preloader">
         <div class="preloader-logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
@@ -1342,10 +1370,8 @@
         const WATCH_PAGE_URL = 'player.html';
         const GUEST_PROFILE_KEY = 'rx_guest_profile_v1';
 
-        /* 🔒 Locked auto sections — admin can't delete, only hide/add items */
         const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
 
-        /* 🎬 TMDB Genre map — OTT filter me genre-wise sections banane ke liye */
         const OTT_GENRE_MAP = {
             28:    { name: 'Action',      icon: 'fas fa-fire' },
             12:    { name: 'Adventure',   icon: 'fas fa-compass' },
@@ -1389,10 +1415,12 @@
                 activeOtt: 'all',
 
                 /* =========================================================
-                   NEW: NOTIFICATION POPUP VARIABLES
+                   NOTIFICATION POPUP
                    ========================================================= */
                 showNotification: false,
                 notificationLang: 'en',
+                _protectionChecked: false,
+                _hasProtection: false,
 
                 loginEmail: '',
                 loginPassword: '',
@@ -1444,10 +1472,8 @@
 
                 modalAlert: { show: false, message: '', type: 'info', timer: null },
 
-                /* ✅ Genre-based sections for OTT filter */
                 ottGenreSections: [],
 
-                /* ✅ NEW SHAPE — mirrors admin's saveSectionsConfig() shape */
                 sectionsConfig: { sections: [], perOtt: {} },
                 ottPlatforms: [
                     { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg', providerId: 1899, networkId: 49,   type: 'ott' },
@@ -1481,8 +1507,8 @@
                    INIT
                    ========================================================= */
                 async init() {
-                    // Check 24 hour notification popup
-                    this.checkNotificationPopup();
+                    // Check notification (async — checks adblock/brave/private-DNS first)
+                    this.checkNotificationPopup().catch(() => {});
 
                     setTimeout(() => {
                         const preloader = document.getElementById('preloader');
@@ -1508,21 +1534,121 @@
                 },
 
                 /* =========================================================
-                   NEW: NOTIFICATION POPUP LOGIC
+                   PROTECTION DETECTION (Adblock / Brave / Private DNS)
                    ========================================================= */
-                checkNotificationPopup() {
+                async detectProtection() {
+                    // 1) Check if network is even up first — if offline, skip popup
+                    let networkOk = false;
+                    try {
+                        const ctrl = new AbortController();
+                        const t = setTimeout(() => ctrl.abort(), 3000);
+                        await fetch('https://www.google.com/generate_204', {
+                            method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: ctrl.signal
+                        });
+                        clearTimeout(t);
+                        networkOk = true;
+                    } catch (e) {
+                        networkOk = false;
+                    }
+
+                    // 2) Brave browser detection
+                    try {
+                        if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+                            const isBrave = await navigator.brave.isBrave();
+                            if (isBrave) return true;
+                        }
+                    } catch (e) {}
+
+                    // 3) Ad-blocker bait element test
+                    try {
+                        const bait = document.createElement('div');
+                        bait.className = 'adsbox ad-banner ad-placement pub_300x250 pub_300x250m text-ad textAd sponsored-ad ad-slot banner-ads';
+                        bait.id = 'rx-ad-bait-test';
+                        bait.style.cssText = 'position:absolute;left:-9999px;top:-9999px;height:12px;width:300px;pointer-events:none;';
+                        bait.innerHTML = '&nbsp;';
+                        document.body.appendChild(bait);
+                        await new Promise(r => setTimeout(r, 200));
+                        const cs = window.getComputedStyle(bait);
+                        const blocked =
+                            bait.offsetHeight === 0 ||
+                            bait.offsetWidth === 0 ||
+                            cs.display === 'none' ||
+                            cs.visibility === 'hidden' ||
+                            cs.opacity === '0' ||
+                            cs.position === 'absolute' && cs.left === '-9999px' && cs.height === '0px';
+                        bait.remove();
+                        if (blocked) return true;
+                    } catch (e) {}
+
+                    // 4) Network-level / Private DNS blocking test
+                    //    (blocks known ad/tracker domains at DNS layer)
+                    if (networkOk) {
+                        const testDomains = [
+                            'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',
+                            'https://googleads.g.doubleclick.net/pagead/id',
+                            'https://www.googletagmanager.com/gtag/js'
+                        ];
+                        let blockedCount = 0;
+                        for (const url of testDomains) {
+                            try {
+                                const ctrl = new AbortController();
+                                const t = setTimeout(() => ctrl.abort(), 2500);
+                                await fetch(url, {
+                                    method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: ctrl.signal
+                                });
+                                clearTimeout(t);
+                            } catch (e) {
+                                blockedCount++;
+                            }
+                        }
+                        // If 2 or more ad domains are unreachable → Private DNS / DNS-blocker active
+                        if (blockedCount >= 2) return true;
+                    }
+
+                    return false;
+                },
+
+                /* =========================================================
+                   NOTIFICATION POPUP CONTROL
+                   Show ONLY to users WITHOUT adblock / Brave / Private DNS
+                   Max once per 24 hours
+                   ========================================================= */
+                async checkNotificationPopup() {
                     const lastShown = localStorage.getItem('rx_notification_shown');
                     const now = Date.now();
-                    const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in ms
+                    const twentyFourHours = 24 * 60 * 60 * 1000;
 
-                    if (!lastShown || (now - parseInt(lastShown)) > twentyFourHours) {
-                        this.showNotification = true;
+                    // Still within 24h → skip entirely
+                    if (lastShown && (now - parseInt(lastShown)) <= twentyFourHours) {
+                        return;
                     }
+
+                    // Run protection detection
+                    let protected_ = false;
+                    try {
+                        protected_ = await this.detectProtection();
+                    } catch (e) {
+                        // Fail-safe: on detection error, don't nag the user
+                        return;
+                    }
+
+                    this._protectionChecked = true;
+                    this._hasProtection = protected_;
+
+                    // If user is using adblock / Brave / Private DNS → do NOT show popup
+                    if (protected_) {
+                        // Mark as "shown" for 24h anyway so we don't re-run detection repeatedly
+                        // (they already opted out by using protection)
+                        return;
+                    }
+
+                    // Show popup for unprotected users (once per 24h)
+                    this.showNotification = true;
                 },
 
                 closeNotification() {
                     this.showNotification = false;
-                    // Set current time so it won't show for next 24 hours
+                    // Save timestamp so it won't show again for 24h
                     localStorage.setItem('rx_notification_shown', Date.now().toString());
                 },
 
