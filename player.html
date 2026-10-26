@@ -23,7 +23,6 @@
             --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-height: 62px;
-            --sticky-banner-height: 70px;
             --server-green: #22C55E;
         }
         html { scroll-behavior: smooth; }
@@ -35,7 +34,7 @@
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             padding-top: var(--header-height);
-            padding-bottom: var(--sticky-banner-height);
+            padding-bottom: 20px;
         }
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
@@ -138,28 +137,60 @@
         }
         .custom-fs-btn:hover { background: var(--primary-red); border-color: var(--primary-red); transform: scale(1.05); }
 
-        .ad-banner-container {
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08);
-            border-radius: var(--radius); padding: 12px 10px; width: 100%;
-        }
-        .ad-banner-label {
-            font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
-            color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: left;
-        }
-        .ad-iframe-frame {
-            width: 100%; height: 250px; border: none; border-radius: var(--radius-sm);
-            background: transparent; display: block;
-        }
-        .ad-desktop { flex: 0 0 340px; max-width: 340px; }
-
-        .ad-mobile-stack {
-            display: none; flex-direction: column; align-items: center; gap: 8px;
-            margin-top: 20px; width: 100%; max-width: 100%; padding: 10px;
-            background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.08);
+        /* =========================================================
+           PROMO VIDEO CONTAINER (replaces sponsored ad box)
+           Neutral class names — NOT recognized as ad by adblockers
+           ========================================================= */
+        .promo-media {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: rgba(229, 9, 20, 0.04);
+            border: 1px solid rgba(229, 9, 20, 0.22);
             border-radius: var(--radius);
+            padding: 10px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.08);
         }
-        .ad-mobile-stack .ad-iframe-frame { height: 140px; }
+        .promo-media-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.4px;
+            margin-bottom: 8px;
+            width: 100%;
+            text-align: left;
+            text-transform: uppercase;
+        }
+        .promo-media-label i {
+            color: var(--primary-red);
+            font-size: 12px;
+        }
+        .promo-media-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #000;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+        /* Zoomed iframe hides Dailymotion title bar — same trick as loading page */
+        .promo-media-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            transform: scale(1.2);
+            transform-origin: center;
+            pointer-events: none; /* user cannot pause/interact */
+        }
+        .promo-desktop { flex: 0 0 340px; max-width: 340px; }
+        .promo-mobile { display: none; margin-top: 20px; }
 
         .player-info {
             margin-top: 20px; display: flex; flex-wrap: wrap; gap: 16px 24px;
@@ -179,7 +210,6 @@
         }
         .player-info .title-section .meta .rating { color: #F5C518; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
-        /* 🆕 Share Icon Button (New Placement) */
         .share-icon-wrap {
             display: flex;
             align-items: center;
@@ -193,14 +223,13 @@
         }
         .share-icon-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
 
-        /* 🆕 Share Modal Popup */
         .share-modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden; transition: var(--transition); padding: 20px;
         }
         .share-modal-overlay.open { opacity: 1; visibility: visible; }
-        
+
         .share-modal-box {
             background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: var(--radius); width: 100%; max-width: 400px; padding: 24px;
@@ -208,7 +237,7 @@
             position: relative;
         }
         .share-modal-overlay.open .share-modal-box { transform: translateY(0) scale(1); }
-        
+
         .share-modal-header {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
         }
@@ -221,10 +250,9 @@
             font-size: 14px; cursor: pointer; transition: var(--transition);
         }
         .share-modal-close:hover { background: var(--primary-red); color: #fff; transform: rotate(90deg); }
-        
+
         .share-modal-body { display: flex; flex-direction: column; gap: 12px; }
-        
-        /* Share Buttons inside Modal */
+
         .share-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
             padding: 14px 20px; border-radius: 30px; width: 100%;
@@ -279,29 +307,8 @@
             display: flex; align-items: center; gap: 6px;
         }
 
-        .sticky-bottom-banner {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
-            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; padding: 6px 12px 8px;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7); transition: var(--transition);
-        }
-        .sticky-banner-header {
-            width: 100%; max-width: 320px; display: flex;
-            justify-content: center; align-items: center; margin-bottom: 2px;
-        }
-        .sticky-banner-label {
-            font-size: 9px; text-transform: uppercase;
-            letter-spacing: 0.6px; color: var(--text-muted);
-        }
-        .sticky-banner-content {
-            width: 320px; height: 50px; max-width: 100%;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-        }
-
         .toast-container {
-            position: fixed; bottom: 80px; right: 24px; z-index: 9999;
+            position: fixed; bottom: 20px; right: 24px; z-index: 9999;
             display: flex; flex-direction: column; gap: 10px; max-width: 380px; width: 100%;
         }
         .toast {
@@ -319,7 +326,7 @@
         }
 
         /* =========================================================
-           🖥️ MOBILE RESPONSIVE STYLES
+           MOBILE RESPONSIVE STYLES
            ========================================================= */
         @media (max-width: 768px) {
             :root { --header-height: 56px; }
@@ -328,54 +335,49 @@
             .logo i { font-size: 15px; }
             .header-actions .back-btn { font-size: 12px; padding: 4px 12px; }
             .header-actions .profile-btn { width: 30px; height: 30px; font-size: 12px; }
-            
+
             .player-row { flex-direction: column; align-items: stretch; gap: 16px; }
             .player-wrapper { max-height: 55vh; border-radius: var(--radius-sm); }
-            .ad-desktop { display: none; }
-            .ad-mobile-stack { display: flex; }
+            .promo-desktop { display: none; }
+            .promo-mobile { display: flex; }
             .player-branding { top: 8px; right: 8px; padding: 4px 10px; font-size: 10px; min-width: 90px; }
             .custom-fs-btn { bottom: 10px; right: 8px; width: 40px; height: 40px; font-size: 14px; }
-            
-            /* Player Info Mobile Fix */
+
             .player-info { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
             .player-info .title-section { width: 100%; min-width: auto; }
             .player-info .title-section h1 { font-size: 20px; }
             .player-info .title-section .meta { font-size: 12px; gap: 8px; }
-            
-            /* Share Icon Mobile Fix (Full width, proper padding) */
-            .share-icon-wrap { 
-                width: 100%; 
+
+            .share-icon-wrap {
+                width: 100%;
                 margin-top: 4px;
             }
-            .share-icon-btn { 
-                width: 100%; 
-                justify-content: center; 
-                padding: 12px 20px; 
-                font-size: 14px; 
+            .share-icon-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+                font-size: 14px;
             }
-            
-            /* Episode Controls Mobile Fix */
+
             .episode-controls { padding: 14px; flex-direction: column; align-items: stretch; gap: 12px; }
             .episode-controls .control-group { width: 100%; flex-direction: column; align-items: flex-start; gap: 6px; }
             .episode-controls label { width: 100%; }
             .episode-controls select { width: 100%; max-width: none; padding: 10px; }
             .episode-controls .apply-btn { width: 100%; padding: 12px; }
-            
-            /* Plot Mobile Fix */
+
             .plot-section { padding: 16px; margin-top: 12px; }
             .plot-section p { font-size: 13px; }
-            
+
             .container { padding: 0 12px; }
-            .toast-container { right: 12px; bottom: 74px; }
-            
-            /* Share Modal Mobile */
+            .toast-container { right: 12px; bottom: 16px; }
+
             .share-modal-box { padding: 20px; }
             .share-modal-header h3 { font-size: 15px; }
             .share-btn { padding: 12px 16px; font-size: 13px; }
         }
         @media (min-width: 769px) {
-            .ad-desktop { display: flex; }
-            .ad-mobile-stack { display: none; }
+            .promo-desktop { display: flex; }
+            .promo-mobile { display: none; }
         }
     </style>
 </head>
@@ -413,13 +415,15 @@
                 </div>
             </div>
 
-            <div class="ad-banner-container ad-desktop">
-                <div class="ad-banner-label"><i class="fas fa-ad"></i> Sponsored</div>
-                <iframe class="ad-iframe-frame" src="ad.html" scrolling="no" loading="lazy"></iframe>
+            <!-- ✅ PROMO VIDEO (desktop sidebar — replaces sponsored ad) -->
+            <div class="promo-media promo-desktop">
+                <div class="promo-media-label"><i class="fas fa-play-circle"></i> RX Video</div>
+                <div class="promo-media-frame">
+                    <iframe id="promoDesktopIframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen frameborder="0"></iframe>
+                </div>
             </div>
         </div>
 
-        <!-- 🆕 Player Info (Share button moved outside title section) -->
         <div class="player-info" id="playerInfo">
             <div class="title-section">
                 <h1 id="movieTitle">Loading…</h1>
@@ -431,8 +435,7 @@
                     <span id="movieGenre">—</span>
                 </div>
             </div>
-            
-            <!-- Share Icon Button (Now sits on the right side on PC, full width on mobile) -->
+
             <div class="share-icon-wrap">
                 <button class="share-icon-btn" id="openShareModalBtn">
                     <i class="fas fa-share-alt"></i> Share
@@ -457,29 +460,14 @@
             <p id="moviePlot">Loading description…</p>
         </div>
 
-        <div class="ad-mobile-stack" id="mobileAdStack">
-            <div class="ad-banner-label"><i class="fas fa-ad"></i> Sponsored</div>
-            <iframe class="ad-iframe-frame" src="ad.html" scrolling="no" loading="lazy"></iframe>
+        <!-- ✅ PROMO VIDEO (mobile bottom — replaces sponsored ad) -->
+        <div class="promo-media promo-mobile" id="promoMobileContainer">
+            <div class="promo-media-label"><i class="fas fa-play-circle"></i> RX Video</div>
+            <div class="promo-media-frame">
+                <iframe id="promoMobileIframe" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen frameborder="0"></iframe>
+            </div>
         </div>
     </section>
-
-    <div class="sticky-bottom-banner" id="stickyBottomBanner">
-        <div class="sticky-banner-header">
-            <span class="sticky-banner-label">Sponsored</span>
-        </div>
-        <div class="sticky-banner-content" id="stickyAdContent">
-            <script>
-                atOptions = {
-                    'key': '4a5f21676e17448c3ce7697746d1287c',
-                    'format': 'iframe',
-                    'height': 50,
-                    'width': 320,
-                    'params': {}
-                };
-            </script>
-            <script src="https://www.highrevenueformat.com/4a5f21676e17448c3ce7697746d1287c/invoke.js"></script>
-        </div>
-    </div>
 
     <!-- 🆕 Share Modal Popup -->
     <div class="share-modal-overlay" id="shareModalOverlay">
@@ -500,10 +488,17 @@
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
-   
+
     <script>
         const API = "/api";
         const STREAM_BASE = "https://nxsha.space/embed";
+
+        /* =========================================================
+           PROMO VIDEO CONFIG
+           (this is the RX Player's OWN promotional video — not an ad)
+           ========================================================= */
+        const PROMO_VIDEO_URL = 'https://geo.dailymotion.com/player/x8lr5.html?video=xbr7cuy&autoplay=1&mute=1';
+        const PROMO_LOOP_MS   = 10000; // restart every 10 seconds
 
         let currentTmdbId = null;
         let currentType = 'movie';
@@ -765,6 +760,66 @@
             else { showPauseAds(); }
         }
 
+        /* =========================================================
+           PROMO VIDEO LOOP CONTROLLER
+           Loads the RX Player promotional video in the visible
+           container (desktop sidebar OR mobile bottom).
+           Reloads every 10s so it restarts from the beginning.
+           ========================================================= */
+        function initPromoVideo() {
+            const desktopIframe = document.getElementById('promoDesktopIframe');
+            const mobileIframe  = document.getElementById('promoMobileIframe');
+            let desktopInterval = null;
+            let mobileInterval  = null;
+
+            function reload(iframe) {
+                if (!iframe) return;
+                iframe.src = 'about:blank';
+                setTimeout(() => {
+                    iframe.src = PROMO_VIDEO_URL + '&_r=' + Date.now();
+                }, 30);
+            }
+
+            function startDesktop() {
+                if (desktopInterval) return;
+                reload(desktopIframe);
+                desktopInterval = setInterval(() => reload(desktopIframe), PROMO_LOOP_MS);
+            }
+            function stopDesktop() {
+                if (desktopInterval) {
+                    clearInterval(desktopInterval);
+                    desktopInterval = null;
+                }
+                if (desktopIframe) desktopIframe.src = 'about:blank';
+            }
+            function startMobile() {
+                if (mobileInterval) return;
+                reload(mobileIframe);
+                mobileInterval = setInterval(() => reload(mobileIframe), PROMO_LOOP_MS);
+            }
+            function stopMobile() {
+                if (mobileInterval) {
+                    clearInterval(mobileInterval);
+                    mobileInterval = null;
+                }
+                if (mobileIframe) mobileIframe.src = 'about:blank';
+            }
+
+            function checkViewport() {
+                const isMobile = window.matchMedia('(max-width: 768px)').matches;
+                if (isMobile) {
+                    stopDesktop();
+                    startMobile();
+                } else {
+                    stopMobile();
+                    startDesktop();
+                }
+            }
+
+            checkViewport();
+            window.addEventListener('resize', checkViewport);
+        }
+
         // 🆕 Share Modal Logic
         function initShareModal() {
             const openBtn = document.getElementById('openShareModalBtn');
@@ -799,7 +854,6 @@
 
             if (earnBtn) {
                 earnBtn.addEventListener('click', () => {
-                    // Jab user click karega toh soon.html par redirect hoga
                     window.location.href = 'soon.html';
                 });
             }
@@ -810,21 +864,19 @@
                     const year = document.getElementById('movieYear').textContent;
                     const rating = document.getElementById('movieRating').textContent.replace('⭐', '').trim();
                     const overview = document.getElementById('moviePlot').textContent;
-                    
+
                     const urlParams = new URLSearchParams(window.location.search);
                     const id = urlParams.get('id');
                     const type = urlParams.get('type');
                     const season = urlParams.get('season') || '';
                     const episode = urlParams.get('episode') || '';
 
-                    // Landing page URL building
                     let landingUrl = `${window.location.origin}/landing.html?id=${id}&type=${type}`;
                     if (season) landingUrl += `&season=${season}`;
                     if (episode) landingUrl += `&episode=${episode}`;
 
                     const shareText = `🎬 ${title} (${year})\n⭐ Rating: ${rating}\n\n📝 ${overview}\n\n📺 Watch or Download here:\n${landingUrl}`;
 
-                    // Check if Native Share is supported (Mobile)
                     if (navigator.share) {
                         try {
                             await navigator.share({
@@ -834,19 +886,15 @@
                             });
                             showToast('✅ Shared successfully!', 'success', 3000);
                         } catch (err) {
-                            // If user cancels the share dialog, do nothing or show info
                             if (err.name !== 'AbortError') {
                                 showToast('❌ Sharing failed. Copying instead...', 'error');
-                                // Fallback to copy if error (excluding user cancel)
                                 copyToClipboard(shareText);
                             }
                         }
                     } else {
-                        // Fallback for Desktop
                         copyToClipboard(shareText);
                     }
-                    
-                    // Close modal after sharing action
+
                     const overlay = document.getElementById('shareModalOverlay');
                     if (overlay) overlay.classList.remove('open');
                 });
@@ -883,6 +931,7 @@
             const typeParam = (params.get('type') || 'movie').toLowerCase();
 
             loadPauseAdScript();
+            initPromoVideo();
 
             if (!rawId) {
                 document.getElementById('movieTitle').textContent = 'No content specified';
@@ -933,10 +982,8 @@
                 episodeSelect.value = currentEpisode;
             }
 
-            // Load the initial player
             loadPlayer();
 
-            // Init Share Modal and Share Buttons
             initShareModal();
             initShareButtons();
 
