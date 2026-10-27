@@ -613,9 +613,7 @@ img{ display:block; max-width:100%; object-fit:cover; }
   background:rgba(229,9,20,0.12);
 }
 
-/* ============================================================
-   LYRICS PANEL
-   ============================================================ */
+/* LYRICS PANEL */
 .lyrics-overlay{
   position:fixed; inset:0; z-index:2500;
   background:linear-gradient(180deg, rgba(14,14,20,0.985) 0%, rgba(6,6,10,1) 100%);
@@ -709,10 +707,6 @@ img{ display:block; max-width:100%; object-fit:cover; }
   height:100%; width:0%; background:var(--primary-red);
   border-radius:4px; transition:width 0.15s linear;
 }
-
-/* ============================================================
-   LYRICS MINI CONTROLS (Play/Pause, Next, Prev)
-   ============================================================ */
 .lyrics-controls{
   display:flex;
   align-items:center;
@@ -2638,6 +2632,49 @@ function bindPlaylistViewBar(){
   }
 }
 
+function renderArtistCard(artistName, songs) {
+    currentPlaylist = songs;
+    const topSong = songs[0];
+    const cover = topSong.coverUrl || FALLBACK_COVER;
+    
+    trackCountLabel.textContent = `${songs.length} Songs`;
+    listSectionTitle.textContent = 'Artist Profile';
+    searchStatus.classList.remove('visible');
+
+    songListContainer.innerHTML = `
+        <div class="artist-profile-card" style="
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; padding: 30px 20px; 
+            background: var(--bg-card); border-radius: var(--radius); 
+            border: 1px solid rgba(255,255,255,0.06); margin-bottom: 20px;
+            text-align: center; cursor: pointer; transition: var(--transition);
+        " id="artistCardTrigger">
+            <div style="position: relative;">
+                <img src="${cover}" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-red); box-shadow: 0 8px 24px rgba(0,0,0,0.6);" onerror="handleImageError(this)" />
+                <div style="position: absolute; bottom: 0; right: 0; background: var(--primary-red); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; border: 2px solid var(--bg-card);">
+                    <i class="fas fa-play"></i>
+                </div>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 900; margin-top: 16px; color: #fff;">${escapeHtml(artistName)}</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Artist Playlist • ${songs.length} songs</p>
+            <p style="color: var(--primary-red); font-size: 12px; font-weight: 700; margin-top: 12px;"><i class="fas fa-hand-pointer"></i> Tap to view all songs</p>
+        </div>
+    `;
+
+    document.getElementById('artistCardTrigger').addEventListener('click', () => {
+        searchQuery = '';
+        musicSearchInput.value = '';
+        searchClearBtn.classList.remove('visible');
+        searchStatus.classList.remove('visible');
+        
+        currentPlaylist = songs;
+        currentIndex = 0;
+        listSectionTitle.textContent = artistName;
+        renderSongList(songs);
+        playSongAtIndex(0);
+    });
+}
+
 function renderSongList(songs){
   trackCountLabel.textContent = `${songs.length} Track${songs.length === 1 ? '' : 's'}`;
 
@@ -2946,7 +2983,7 @@ function playSongAtIndex(index){
   bumpSongStat(song.id, 'plays', 1);
 
   audio.src = song.audioUrl;
-  audio.loop = false;
+  audio.loop = (loopMode === 'single'); // <--- SINGLE LOOP FIX
   bottomPlayer.classList.add('visible');
   const cover = song.coverUrl || FALLBACK_COVER;
   bottomCover.src = cover;
@@ -2991,7 +3028,6 @@ function updatePlayPauseIcon(playing){
   const icon = playing ? 'fa-pause' : 'fa-play';
   bottomPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
   fsPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
-  /* NEW: sync lyrics mini play/pause button */
   if (lyricsPlayPauseBtn) lyricsPlayPauseBtn.innerHTML = `<i class="fas ${icon}"></i>`;
   updatePlayingHighlight();
 }
@@ -3312,15 +3348,26 @@ function prevSong(){
 
 async function playFromAutoplay(){
   const seed = currentSong || currentPlaylist[currentIndex];
-  if (autoplayQueue.length === 0 && seed){
+  if (!seed) return;
+
+  if (autoplayQueue.length === 0){
+    showToast('Fetching more songs...', 'info');
     await ensureAutoplayQueue(seed, true);
   }
+
   if (autoplayQueue.length === 0){
-    audio.pause();
-    updatePlayPauseIcon(false);
-    showToast('No more recommendations found.', 'info');
+    const artist = seed.artist || 'Trending Hindi';
+    const fallback = await fetchVercel(`${artist} songs`);
+    if (fallback.length) {
+        autoplayQueue.push(...fallback);
+    }
+  }
+
+  if (autoplayQueue.length === 0){
+    showToast('No more songs available.', 'error');
     return;
   }
+
   const next = autoplayQueue.shift();
   currentPlaylist.push(next);
   currentIndex = currentPlaylist.length - 1;
@@ -3481,7 +3528,6 @@ function openLyricsPanel(){
   lyricsPanel.classList.add('open');
   document.body.style.overflow = 'hidden';
   fsLyricsBtn.classList.add('active');
-  /* NEW: sync mini play/pause icon on open */
   if (lyricsPlayPauseBtn) {
     lyricsPlayPauseBtn.innerHTML = `<i class="fas ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>`;
   }
@@ -3728,6 +3774,7 @@ audio.addEventListener('seeked', () => {
 });
 audio.addEventListener('ended', () => {
   if (loopMode === 'single'){
+    // Native loop handles this now, but just in case
     audio.currentTime = 0;
     audio.play().catch(()=>{});
     return;
@@ -3747,6 +3794,20 @@ audio.addEventListener('loadedmetadata', () => {
   updateLyricsProgress();
 });
 
+let audioErrorCount = 0;
+audio.addEventListener('error', () => {
+    if (!currentSong) return;
+    audioErrorCount++;
+    if (audioErrorCount > 5) {
+        showToast('Multiple songs failed. Check connection.', 'error');
+        audioErrorCount = 0;
+        return;
+    }
+    showToast('Song failed to load. Skipping...', 'error');
+    setTimeout(() => { nextSong(); }, 1000);
+});
+audio.addEventListener('playing', () => { audioErrorCount = 0; });
+
 bottomPlayPauseBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
 bottomPrevBtn.addEventListener('click', e => { e.stopPropagation(); prevSong(); });
 bottomNextBtn.addEventListener('click', e => { e.stopPropagation(); nextSong(); });
@@ -3754,7 +3815,6 @@ fsPlayPauseBtn.addEventListener('click', togglePlay);
 fsPrevBtn.addEventListener('click', prevSong);
 fsNextBtn.addEventListener('click', nextSong);
 
-/* NEW: lyrics mini controls */
 if (lyricsPlayPauseBtn) lyricsPlayPauseBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
 if (lyricsPrevBtn) lyricsPrevBtn.addEventListener('click', e => { e.stopPropagation(); prevSong(); });
 if (lyricsNextBtn) lyricsNextBtn.addEventListener('click', e => { e.stopPropagation(); nextSong(); });
@@ -3770,6 +3830,7 @@ fsLoopBtn.addEventListener('click', () => {
   let idx = modes.indexOf(loopMode);
   idx = (idx + 1) % modes.length;
   loopMode = modes[idx];
+  audio.loop = (loopMode === 'single'); // <--- SINGLE LOOP FIX
   updateLoopUI();
   showToast(`Loop: ${loopMode}`, 'info');
 });
@@ -3778,6 +3839,7 @@ function updateLoopUI(){
   fsLoopBtn.classList.toggle('active', loopMode !== 'none');
   const badge = fsLoopBtn.querySelector('.loop-badge');
   if (badge) badge.style.display = loopMode === 'single' ? 'flex' : 'none';
+  audio.loop = (loopMode === 'single'); // <--- SYNC LOOP STATE
 }
 
 function handleSeekMove(clientX, wrap){
@@ -4094,6 +4156,17 @@ async function runSearch(query){
     if (!seen.has(s.id)){ seen.add(s.id); merged.push(s); }
   });
 
+  // --- ARTIST DETECTION LOGIC ---
+  if (merged.length > 0) {
+      const topArtist = merged[0].artist || '';
+      const isArtistQuery = topArtist.toLowerCase().replace(/\s/g, '').includes(clean.toLowerCase().replace(/\s/g, '')) && clean.split(' ').length <= 4;
+      
+      if (isArtistQuery && merged.filter(s => s.artist.toLowerCase().includes(clean.toLowerCase())).length >= 3) {
+          renderArtistCard(topArtist, merged);
+          return;
+      }
+  }
+
   searchStatus.textContent = `${merged.length} result${merged.length === 1 ? '' : 's'} found`;
   listSectionTitle.textContent = `Search: "${clean}"`;
   currentPlaylist = merged;
@@ -4211,10 +4284,8 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v19 — Smart lyrics + mini controls');
+console.log('🔊 RX PLAYER v20 — Smart Artist View & Loop Fix');
 </script>
-
-
 
 </body>
 </html>
