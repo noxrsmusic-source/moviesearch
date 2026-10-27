@@ -1674,7 +1674,7 @@
                         { id: 'newreleases', title: 'New Releases', icon: 'fas fa-star', locked: true, order: 1, badge: 'NEW', explorePage: 'new-releases/new-releases.html', exploreLabel: 'All new releases', enabled: true, customItems: [], removedIds: [] },
                         { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle', locked: true, order: 2, badge: 'RESUME', explorePage: '', exploreLabel: '', enabled: true, customItems: [], removedIds: [] },
                         { id: 'trending', title: 'Trending Now', icon: 'fas fa-fire', locked: true, order: 3, badge: 'HOT', explorePage: 'Trending/trending.html', exploreLabel: "See what's hot", enabled: true, customItems: [], removedIds: [] },
-                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 4, badge: 'SMART', explorePage: 'pickedforyou.html', exploreLabel: '', enabled: true, customItems: [], removedIds: [] },
+                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', locked: true, order: 4, badge: 'SMART', explorePage: 'pickedforyou.html', exploreLabel: 'See all recommendations', enabled: true, customItems: [], removedIds: [] },
                         { id: 'series', title: 'Web Series', icon: 'fas fa-tv', locked: false, order: 5, badge: '', explorePage: 'webseries.html', exploreLabel: 'All web series', enabled: true, customItems: [], removedIds: [] },
                         { id: 'kdrama', title: 'K-Drama Series', icon: 'fas fa-heart', locked: false, order: 6, badge: '', explorePage: 'kdrama.html', exploreLabel: 'All K-Dramas', enabled: true, customItems: [], removedIds: [] },
                         { id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon', locked: false, order: 7, badge: '', explorePage: 'anime.html', exploreLabel: 'All anime', enabled: true, customItems: [], removedIds: [] },
@@ -1847,7 +1847,8 @@
 
                         if (isAuto) {
                             let pool = pools[id] || [];
-                            if (id !== 'newreleases' && id !== 'continuewatching') {
+                            // 👇 यहाँ 'picked' को भी फिल्टर से बाहर रखा है ताकि सारी रेकमेंडेड मूवीज़ दिखें
+                            if (id !== 'newreleases' && id !== 'continuewatching' && id !== 'picked') {
                                 pool = this.filterBySmartLatest(pool, 6);
                             }
                             items = pool.filter(i => i && !removed.includes(String(i.id)));
@@ -2480,7 +2481,7 @@
                     });
                 },
 
-                 async _doRefreshPersonalizedRecommendations() {
+                async _doRefreshPersonalizedRecommendations() {
                     const genreAffinity = this.calculateGenreAffinity();
                     const candidateData = await this.buildRecommendationCandidates();
                     const watchedKeys = new Set();
@@ -2495,6 +2496,7 @@
                     scored.sort((a, b) => b.score - a.score);
                     this.recommendedPickedForYou = this._applyDiversity(scored, 20).map(s => s.item);
 
+                    // 👇 नया लॉजिक: अगर 12 से कम आइटम हैं, तो ट्रेंडिंग से भरें
                     if (this.recommendedPickedForYou.length < 12) {
                         const existingIds = new Set(this.recommendedPickedForYou.map(i => `${i.media_type || 'movie'}:${i.id}`));
                         const fallbackPool = [...(this.trending || []), ...(this.popularMovies || []), ...(this.tvShows || [])];
@@ -2508,6 +2510,20 @@
                             }
                         }
                     }
+                },
+
+                _buildColdStartRecommendations() {
+                    const pool = [...(this.trending || []).slice(0, 10), ...(this.popularMovies || []).slice(0, 10)];
+                    return pool;
+                },
+
+                async computePersonalizedRecommendations() {
+                    const hasHistory = (this.guestProfile.watchHistory || []).length > 0;
+                    if (!hasHistory) {
+                        this.recommendedPickedForYou = this._buildColdStartRecommendations();
+                        return;
+                    }
+                    await this._doRefreshPersonalizedRecommendations();
                 },
 
                 /* =========================================================
