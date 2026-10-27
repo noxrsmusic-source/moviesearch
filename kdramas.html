@@ -1,1 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>K-Dramas - RX Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <style>
+        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --primary-red: #E50914;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #0F0F17;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-height: 62px;
+        }
+
+        body {
+            font-family: var(--font) !important;
+            background: var(--bg-primary) !important;
+            color: var(--text-white) !important;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+
+        /* HEADER */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 10px 0; height: var(--header-height);
+            display: flex; align-items: center;
+        }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+        .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 18px; }
+        .header-actions .back-btn {
+            padding: 6px 16px; border-radius: 30px; background: rgba(255, 255, 255, 0.08);
+            font-size: 13px; font-weight: 600; transition: var(--transition);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .header-actions .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+        /* SEARCH BAR */
+        .search-container {
+            margin: 20px auto 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 800px;
+        }
+        .search-container input {
+            width: 100%; height: 46px; padding: 0 44px 0 48px;
+            border-radius: 50px; border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05); color: var(--text-white);
+            font-size: 14.5px; outline: none; transition: var(--transition);
+        }
+        .search-container input:focus { 
+            border-color: var(--primary-red); 
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+        }
+        .search-container .search-icon {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 16px;
+        }
+        .search-container .clear-btn {
+            position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 16px; cursor: pointer;
+            display: none;
+        }
+        .search-container .clear-btn.visible { display: block; }
+
+        /* FILTER SECTION */
+        .filter-section {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .filter-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px; align-items: end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label {
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .filter-group select {
+            height: 40px; padding: 0 12px; border-radius: var(--radius-sm);
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff; font-size: 13px; outline: none; cursor: pointer;
+            font-family: var(--font); transition: var(--transition);
+        }
+        .filter-group select:focus { border-color: var(--primary-red); }
+        .filter-group select option { background: var(--bg-card); color: #fff; }
+        
+        .reset-btn {
+            height: 40px; padding: 0 20px; border-radius: var(--radius-sm);
+            background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.4);
+            color: var(--primary-red); font-weight: 700; font-size: 13px;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: var(--transition);
+        }
+        .reset-btn:hover { background: var(--primary-red); color: #fff; }
+
+        /* SECTIONS */
+        .section-heading-wrap { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; margin-top: 28px; }
+        .section-heading-wrap h3 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .section-heading-wrap h3 i { color: var(--primary-red); }
+        
+        .horizontal-cards-row {
+            display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px;
+            scroll-snap-type: x mandatory; scrollbar-width: thin;
+        }
+        .horizontal-cards-row::-webkit-scrollbar { height: 6px; }
+        .horizontal-cards-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .horizontal-cards-row .movie-card { flex: 0 0 125px; scroll-snap-align: start; }
+        @media (min-width: 768px) {
+            .horizontal-cards-row .movie-card { flex: 0 0 170px; }
+            .horizontal-cards-row { gap: 16px; }
+        }
+
+        /* GRID FOR FILTERED RESULTS & SEARCH */
+        .filtered-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; }
+        @media (min-width: 768px) { .filtered-results { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
+
+        /* MOVIE CARD */
+        .movie-card {
+            border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card);
+            display: flex; flex-direction: column; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.04); transition: all var(--transition);
+        }
+        @media (min-width: 768px) { .movie-card { border-radius: var(--radius); } }
+        .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: var(--shadow); }
+        .movie-card .poster-wrap { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; }
+        .movie-card .poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster { transform: scale(1.04); }
+        .movie-card .card-info { padding: 8px 10px; }
+        @media (min-width: 768px) { .movie-card .card-info { padding: 12px 14px; } }
+        .movie-card .card-info h4 { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (min-width: 768px) { .movie-card .card-info h4 { font-size: 14px; } }
+        .movie-card .card-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px; }
+        @media (min-width: 768px) { .movie-card .card-meta { font-size: 11.5px; margin-top: 6px; } }
+
+        /* LOADER */
+        .loader-container { display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 60px 0; gap: 15px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 16px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
+
+        /* DETAIL MODAL */
+        .detail-modal-overlay { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+        .detail-modal-overlay.open { display: flex; }
+        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.9); position: relative; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1); }
+        @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: var(--transition); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(8px); }
+        .detail-modal-close:hover { background: var(--primary-red); transform: rotate(90deg); }
+        .detail-modal-loading { padding: 100px 20px; text-align: center; font-size: 32px; color: var(--primary-red); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .detail-backdrop { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; background-size: cover; background-position: center top; background-color: #0a0a0f; }
+        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.20) 0%, rgba(20,20,31,0.70) 60%, var(--bg-card) 100%); }
+        .detail-header-content { position: relative; padding: 24px 24px 16px; margin-top: -60px; z-index: 2; }
+        @media (min-width: 768px) { .detail-header-content { margin-top: -80px; padding: 28px 28px 20px; } }
+        .detail-header-content h2 { font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; text-shadow: 0 2px 14px rgba(0,0,0,0.85); color: #fff; }
+        .detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+        .detail-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 4px; background: rgba(229,9,20,0.9); color: #fff; text-transform: uppercase; }
+        .detail-rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .detail-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+        .detail-genre-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15); color: #e5e5e5; backdrop-filter: blur(6px); }
+        .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .detail-watch-btn, .detail-download-btn, .detail-trailer-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        .detail-watch-btn { background: #fff; color: #000; }
+        .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
+        .detail-download-btn { background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%); color: #fff; border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
+        .detail-download-btn:hover { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); transform: scale(1.04); box-shadow: 0 10px 26px rgba(34,197,94,0.5); }
+        .detail-trailer-btn { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #fff; border: 1px solid rgba(56,189,248,0.4); box-shadow: 0 6px 20px rgba(56,189,248,0.35); }
+        .detail-trailer-btn:hover:not(:disabled) { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); transform: scale(1.04); box-shadow: 0 10px 26px rgba(56,189,248,0.5); }
+        .detail-trailer-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .detail-trailer-wrap { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; z-index: 5; }
+        .detail-trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .detail-trailer-close { position: absolute; top: 12px; right: 12px; z-index: 10; padding: 8px 16px; background: rgba(0,0,0,0.75); color: #fff; border-radius: 30px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); cursor: pointer; }
+        .detail-body { padding: 0 24px 28px; }
+        @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
+        .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
+        
+        /* Episode Selector */
+        .detail-selector-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); }
+        .detail-selector-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+        .detail-selector-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .detail-selector-group select { background: var(--bg-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; font-family: var(--font); }
+        .detail-selector-group select:focus { border-color: var(--primary-red); }
+
+        @media (max-width: 640px) { .detail-modal-overlay { padding: 10px; align-items: center; } .detail-modal-box { border-radius: var(--radius); max-height: 92vh; } .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; } .detail-actions { width: 100%; flex-direction: column; } .detail-watch-btn, .detail-download-btn, .detail-trailer-btn { width: 100%; justify-content: center; } }
+    </style>
+</head>
+<body x-data="kdramaApp()" x-init="init()">
+
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+            </a>
+            <div class="header-actions">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- SEARCH BAR -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+                type="text" 
+                x-model="searchQuery" 
+                @input="onSearchInput($event.target.value)" 
+                placeholder="Search for a K-Drama by name..." 
+                autocomplete="off"
+            >
+            <i class="fas fa-times clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="clearSearch()"></i>
+        </div>
+
+        <!-- FILTER BAR (Non-Sticky) -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label><i class="fas fa-masks-theater"></i> Genre</label>
+                    <select x-model="filters.genre" @change="applyFilters()">
+                        <option value="">All Genres</option>
+                        <option value="10749">Romance</option>
+                        <option value="35">Comedy</option>
+                        <option value="9648">Mystery & Thriller</option>
+                        <option value="10759">Action & Adventure</option>
+                        <option value="18">Drama</option>
+                        <option value="10765">Sci-Fi & Fantasy</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> Year</label>
+                    <select x-model="filters.year" @change="applyFilters()">
+                        <option value="">All Years</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="older">Older Classics</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="reset-btn" @click="resetFilters()"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOADER -->
+        <div class="loader-container" x-show="loading" x-cloak>
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted); font-size: 14px;">Loading K-Dramas...</p>
+        </div>
+
+        <!-- 1. SEARCH RESULTS -->
+        <div x-show="!loading && searchQuery.length > 0" x-cloak>
+            <div class="section-heading-wrap">
+                <h3><i class="fas fa-search"></i> Search Results</h3>
+                <span style="font-size: 13px; color: var(--text-muted);" x-text="searchResults.length + ' dramas found'"></span>
+            </div>
+            
+            <div class="filtered-results" x-show="searchResults.length > 0">
+                <template x-for="item in searchResults" :key="'search-'+item.id">
+                    <div class="movie-card" @click="openDetails(item.id)">
+                        <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                        <div class="card-info">
+                            <h4 x-text="title(item)"></h4>
+                            <div class="card-meta">
+                                <span x-text="year(item)"></span>
+                                <span style="color: #F5C518;" x-text="rating(item) !== 'N/A' ? '⭐ ' + rating(item) : 'series'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="empty-state" x-show="searchResults.length === 0">
+                <i class="fas fa-search-minus"></i>
+                <h3>No results found</h3>
+                <p>Try a different K-Drama name.</p>
+            </div>
+        </div>
+
+        <!-- 2. FILTERED RESULTS -->
+        <div x-show="!loading && searchQuery.length === 0 && hasActiveFilters" x-cloak>
+            <div class="section-heading-wrap">
+                <h3><i class="fas fa-filter"></i> Filtered Results</h3>
+                <span style="font-size: 13px; color: var(--text-muted);" x-text="filteredSeries.length + ' dramas found'"></span>
+            </div>
+            
+            <div class="filtered-results" x-show="filteredSeries.length > 0">
+                <template x-for="item in filteredSeries" :key="'filtered-'+item.id">
+                    <div class="movie-card" @click="openDetails(item.id)">
+                        <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                        <div class="card-info">
+                            <h4 x-text="title(item)"></h4>
+                            <div class="card-meta">
+                                <span x-text="year(item)"></span>
+                                <span style="color: #F5C518;" x-text="rating(item) !== 'N/A' ? '⭐ ' + rating(item) : 'series'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="empty-state" x-show="filteredSeries.length === 0">
+                <i class="fas fa-filter"></i>
+                <h3>No dramas match your filters</h3>
+                <p>Try changing the filters or click reset.</p>
+            </div>
+        </div>
+
+        <!-- 3. DEFAULT SECTIONS -->
+        <div x-show="!loading && searchQuery.length === 0 && !hasActiveFilters" x-cloak>
+            <template x-for="(sec, idx) in sections" :key="'sec-'+sec.id">
+                <div>
+                    <div class="section-heading-wrap">
+                        <h3><i :class="sec.icon"></i> <span x-text="sec.title"></span></h3>
+                    </div>
+                    <div class="horizontal-cards-row">
+                        <template x-for="item in sec.items" :key="sec.id + '-' + item.id">
+                            <div class="movie-card" @click="openDetails(item.id)">
+                                <div class="poster-wrap">
+                                    <img class="poster" :src="poster(item)" loading="lazy" alt="">
+                                </div>
+                                <div class="card-info">
+                                    <h4 x-text="title(item)"></h4>
+                                    <div class="card-meta">
+                                        <span x-text="year(item)"></span>
+                                        <span style="color: #F5C518;" x-text="rating(item) !== 'N/A' ? '⭐ ' + rating(item) : 'series'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+    </main>
+
+    <!-- DETAIL MODAL -->
+    <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
+        <div class="detail-modal-box">
+            <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
+            <div x-show="detailLoading" class="detail-modal-loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Loading details…</span>
+            </div>
+            <template x-if="!detailLoading && detailData">
+                <div>
+                    <div class="detail-backdrop" :style="trailerActive ? '' : 'background-image: url(' + detailBackdrop(detailData) + ')'">
+                        <template x-if="!trailerActive"><div class="detail-backdrop-gradient"></div></template>
+                        <template x-if="trailerActive && detailTrailerKey">
+                            <div class="detail-trailer-wrap">
+                                <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=1&rel=0&modestbranding=1'" allowfullscreen></iframe>
+                                <button type="button" class="detail-trailer-close" @click="closeTrailer()"><i class="fas fa-times"></i> Close Trailer</button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="detail-header-content">
+                        <h2 x-text="detailTitle(detailData)"></h2>
+                        <div class="detail-meta">
+                            <span class="detail-badge">K-DRAMA</span>
+                            <span x-text="detailYear(detailData)"></span>
+                            <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
+                            <span x-text="detailRuntimeVal(detailData)"></span>
+                        </div>
+                        <div class="detail-genres" x-show="detailData.genres">
+                            <template x-for="g in detailData.genres" :key="g.id"><span class="detail-genre-chip" x-text="g.name"></span></template>
+                        </div>
+                        
+                        <!-- Season & Episode Selector -->
+                        <div class="detail-selector-row" x-show="detailSeasonsList.length > 0">
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-layer-group"></i> Season</label>
+                                <select x-model="selectedSeason" @change="onSeasonChange()">
+                                    <template x-for="s in detailSeasonsList" :key="s.season_number">
+                                        <option :value="s.season_number" x-text="s.name + ' (' + s.episode_count + ' Eps)'"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="detail-selector-group">
+                                <label><i class="fas fa-list-ol"></i> Episode</label>
+                                <select x-model="selectedEpisode">
+                                    <template x-for="epNum in currentSeasonEpisodesCount" :key="epNum">
+                                        <option :value="epNum" x-text="'Episode ' + epNum"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="detail-actions">
+                            <button class="detail-watch-btn" @click="goToPlayer()"><i class="fas fa-play"></i> Watch Now</button>
+                            <button class="detail-trailer-btn" @click="watchTrailer()" :disabled="!detailTrailerKey"><i class="fas fa-film"></i> Watch Trailer</button>
+                            <button class="detail-download-btn" @click="downloadContent()"><i class="fas fa-download"></i> Download</button>
+                        </div>
+                    </div>
+                    <div class="detail-body">
+                        <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <script>
+        const API = "/api";
+
+        function kdramaApp() {
+            return {
+                loading: true,
+                sections: [],
+                filteredSeries: [],
+                
+                // Search State
+                searchQuery: '',
+                searchResults: [],
+                _searchDebounce: null,
+
+                filters: {
+                    genre: '',
+                    year: ''
+                },
+                
+                // Details Modal
+                detailModalOpen: false,
+                detailLoading: false,
+                detailData: null,
+                detailItem: { id: null },
+                trailerActive: false,
+                selectedSeason: 1,
+                selectedEpisode: 1,
+                currentSeasonEpisodesCount: 1,
+
+                get hasActiveFilters() {
+                    return Object.values(this.filters).some(v => v !== '');
+                },
+
+                get detailSeasonsList() {
+                    if (!this.detailData || !this.detailData.seasons) return [];
+                    return this.detailData.seasons.filter(s => s.season_number > 0);
+                },
+
+                async init() {
+                    await this.loadAllSections();
+                },
+
+                async request(url) {
+                    try {
+                        const res = await fetch(API + url);
+                        const data = await res.json();
+                        if (!res.ok || data.success === false) throw new Error(data.error || "Request failed");
+                        return data;
+                    } catch (e) { return { results: [] }; }
+                },
+
+                async fetchTmdb(endpoint) {
+                    return this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+                },
+
+                // SEARCH LOGIC
+                onSearchInput(val) {
+                    if (this._searchDebounce) clearTimeout(this._searchDebounce);
+                    this._searchDebounce = setTimeout(async () => {
+                        if (val.trim().length >= 2) {
+                            await this.performSearch(val.trim());
+                        } else if (val.trim().length === 0) {
+                            this.searchResults = [];
+                        }
+                    }, 500);
+                },
+
+                async performSearch(query) {
+                    this.loading = true;
+                    const res = await this.fetchTmdb(`/search/tv?query=${encodeURIComponent(query)}&language=en-US&page=1`);
+                    // Filter out anime and non-korean just to be safe
+                    this.searchResults = (res.results || []).filter(i => 
+                        i.poster_path && 
+                        (!i.genre_ids || !i.genre_ids.includes(16)) && 
+                        (i.original_language === 'ko')
+                    );
+                    this.loading = false;
+                },
+
+                clearSearch() {
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                },
+
+                // FILTER LOGIC
+                async applyFilters() {
+                    if (!this.hasActiveFilters) {
+                        this.filteredSeries = [];
+                        return;
+                    }
+
+                    this.loading = true;
+
+                    let params = ['sort_by=popularity.desc', 'with_original_language=ko', 'without_genres=16'];
+                    if (this.filters.genre) params.push(`with_genres=${this.filters.genre}`);
+                    
+                    if (this.filters.year === 'older') {
+                        params.push(`first_air_date.lte=2010`);
+                    } else if (this.filters.year) {
+                        params.push(`first_air_date_year=${this.filters.year}`);
+                    }
+
+                    const endpoint = `/discover/tv?${params.join('&')}`;
+                    const res = await this.fetchTmdb(endpoint);
+                    
+                    this.filteredSeries = (res.results || []).filter(i => i.poster_path);
+                    this.loading = false;
+                },
+
+                resetFilters() {
+                    this.filters = { genre: '', year: '' };
+                    this.filteredSeries = [];
+                },
+
+                // DEFAULT SECTIONS (K-Drama Specific)
+                async loadAllSections() {
+                    this.loading = true;
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    
+                    const base = 'with_original_language=ko&without_genres=16';
+
+                    const endpoints = [
+                        { id: 'trending', title: 'Trending K-Dramas', icon: 'fas fa-fire', url: `/discover/tv?sort_by=popularity.desc&${base}` },
+                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', url: `/discover/tv?sort_by=vote_average.desc&vote_count.gte=100&${base}` },
+                        { id: 'recent', title: 'Recently Added', icon: 'fas fa-clock', url: `/discover/tv?sort_by=first_air_date.desc&first_air_date.gte=${sixMonthsAgo}&first_air_date.lte=${today}&${base}` },
+                        { id: 'romance', title: 'Romance & Romantic Comedy', icon: 'fas fa-heart', url: `/discover/tv?with_genres=10749,35&${base}` },
+                        { id: 'thriller', title: 'Thriller & Mystery', icon: 'fas fa-bolt', url: `/discover/tv?with_genres=9648&${base}` },
+                        { id: 'action', title: 'Action & Adventure', icon: 'fas fa-masks-theater', url: `/discover/tv?with_genres=10759&${base}` },
+                        { id: 'historical', title: 'Historical & Fantasy', icon: 'fas fa-dragon', url: `/discover/tv?with_genres=10765&${base}` },
+                        { id: 'toprated', title: 'Top-Rated Dramas', icon: 'fas fa-star', url: `/discover/tv?sort_by=vote_average.desc&vote_count.gte=200&${base}` },
+                        { id: 'hidden', title: 'Hidden Gems', icon: 'fas fa-gem', url: `/discover/tv?sort_by=vote_average.desc&vote_count.gte=50&vote_average.gte=8&${base}` }
+                    ];
+
+                    const promises = endpoints.map(async (ep) => {
+                        const res = await this.fetchTmdb(ep.url);
+                        let items = (res.results || []).filter(i => i.poster_path);
+                        if (items.length === 0) return null;
+                        return { ...ep, items: items.slice(0, 20) };
+                    });
+
+                    const results = await Promise.all(promises);
+                    this.sections = results.filter(r => r !== null);
+                    this.loading = false;
+                },
+
+                // UTILS
+                poster(item) {
+                    if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    if (!item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
+                    const p = String(item.poster_path);
+                    if (p.startsWith('http')) return p;
+                    return 'https://image.tmdb.org/t/p/w500' + (p.startsWith('/') ? p : '/' + p);
+                },
+                title(item) { return item ? (item.title || item.name || 'Untitled') : ''; },
+                year(item) { const d = item.first_air_date || item.release_date; return d ? d.substring(0, 4) : 'N/A'; },
+                rating(item) { return (item && typeof item.vote_average === 'number') ? item.vote_average.toFixed(1) : 'N/A'; },
+
+                // DETAILS MODAL
+                async openDetails(id) {
+                    this.detailItem = { id };
+                    this.detailData = null;
+                    this.trailerActive = false;
+                    this.detailLoading = true;
+                    this.detailModalOpen = true;
+                    this.selectedSeason = 1;
+                    this.selectedEpisode = 1;
+                    document.body.style.overflow = 'hidden';
+
+                    try {
+                        const endpoint = `/tv/${id}?language=en-US&append_to_response=videos`;
+                        const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
+                        this.detailData = data;
+                        
+                        if (data.seasons && data.seasons.length > 0) {
+                            const validSeasons = data.seasons.filter(s => s.season_number > 0);
+                            this.selectedSeason = validSeasons.length > 0 ? validSeasons[0].season_number : 1;
+                            this.onSeasonChange();
+                        }
+                    } catch (e) {
+                        this.closeDetailModal();
+                    } finally {
+                        this.detailLoading = false;
+                    }
+                },
+                onSeasonChange() {
+                    if (!this.detailData || !this.detailData.seasons) return;
+                    const seasonObj = this.detailData.seasons.find(s => s.season_number == this.selectedSeason);
+                    this.currentSeasonEpisodesCount = seasonObj ? (seasonObj.episode_count || 1) : 1;
+                    this.selectedEpisode = 1;
+                },
+                closeDetailModal() {
+                    this.detailModalOpen = false;
+                    document.body.style.overflow = '';
+                },
+                goToPlayer() {
+                    const id = this.detailItem.id;
+                    const t = encodeURIComponent(this.detailTitle(this.detailData));
+                    const p = encodeURIComponent(this.poster(this.detailData));
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=tv&action=watch&title=${t}&poster=${p}&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                },
+                downloadContent() {
+                    const id = this.detailItem.id;
+                    const t = encodeURIComponent(this.detailTitle(this.detailData));
+                    const p = encodeURIComponent(this.poster(this.detailData));
+                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=tv&action=download&title=${t}&poster=${p}&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                },
+                get detailTrailerKey() {
+                    if (!this.detailData || !this.detailData.videos) return null;
+                    const v = this.detailData.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+                    return v ? v.key : null;
+                },
+                watchTrailer() { if (this.detailTrailerKey) this.trailerActive = true; },
+                closeTrailer() { this.trailerActive = false; },
+                detailTitle(d) { return d ? (d.title || d.name) : ''; },
+                detailYear(d) { const dt = d.first_air_date || d.release_date; return dt ? dt.slice(0,4) : ''; },
+                detailRatingVal(d) { return d.vote_average ? d.vote_average.toFixed(1) : '—'; },
+                detailRuntimeVal(d) { 
+                    if (!d) return '—';
+                    const n = d.number_of_seasons || (Array.isArray(d.seasons) ? d.seasons.length : 0);
+                    return n ? `${n} Season${n > 1 ? 's' : ''}` : '—';
+                },
+                detailBackdrop(d) { return d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : this.poster(d); }
+            }
+        }
+    </script>
+</body>
+</html>
