@@ -1,1 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>New Releases - RX Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --primary-red: #E50914;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #1A1A24;
+            --text-white: #FFFFFF;
+            --text-muted: #A0A0AA;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --header-height: 62px;
+        }
+
+        body {
+            background: var(--bg-primary); color: var(--text-white);
+            min-height: 100vh; padding-top: var(--header-height);
+            padding-bottom: 40px; overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: 'Inter', sans-serif; border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-red); }
+        
+        .container { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+
+        /* HEADER */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(8, 8, 12, 0.95); backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 10px 0; height: var(--header-height);
+            display: flex; align-items: center;
+        }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+        .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 18px; }
+        .header-actions .back-btn {
+            padding: 6px 16px; border-radius: 30px; background: rgba(255, 255, 255, 0.08);
+            font-size: 13px; font-weight: 600; transition: var(--transition);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .header-actions .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+        /* HERO & FILTERS */
+        .hero-section { padding: 30px 0 20px; text-align: center; }
+        .hero-title { font-size: clamp(24px, 5vw, 36px); font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .hero-title span { color: var(--primary-red); }
+        .hero-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+        .filter-row {
+            display: flex; justify-content: center; align-items: center;
+            gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+        }
+        .filter-group {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px; border-radius: 30px;
+        }
+        .filter-group i { color: var(--primary-red); font-size: 14px; }
+        .filter-group select {
+            background: transparent; border: none; color: #fff;
+            font-size: 14px; font-weight: 600; outline: none; cursor: pointer;
+            font-family: 'Inter', sans-serif; appearance: none;
+            padding-right: 20px; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 0 center; background-size: 10px;
+        }
+        .filter-group select option { background: var(--bg-secondary); color: #fff; }
+
+        /* LOADING SKELETONS */
+        .loader-container { display: none; padding: 40px 0; text-align: center; }
+        .loader-container.active { display: block; }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary-red); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* MOVIE SECTIONS */
+        .movie-section { margin-bottom: 34px; display: none; }
+        .movie-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .section-header h2 { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .section-header h2 i { color: var(--primary-red); font-size: 16px; }
+
+        .horizontal-scroll {
+            display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+            scroll-snap-type: x mandatory; scrollbar-width: thin;
+        }
+        .horizontal-scroll::-webkit-scrollbar { height: 6px; }
+        .horizontal-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        .movie-card {
+            flex: 0 0 130px; scroll-snap-align: start; border-radius: var(--radius-sm);
+            background: var(--bg-card); overflow: hidden; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.04); transition: var(--transition);
+            position: relative;
+        }
+        @media (min-width: 768px) { .movie-card { flex: 0 0 170px; } }
+        .movie-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.4); box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        
+        .poster-wrap { width: 100%; aspect-ratio: 2/3; overflow: hidden; background: #12121c; position: relative; }
+        .poster-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster-wrap img { transform: scale(1.05); }
+        
+        .card-info { padding: 10px; }
+        .card-info h4 { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        @media (min-width: 768px) { .card-info h4 { font-size: 14px; } }
+        .card-meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px; align-items: center; }
+        @media (min-width: 768px) { .card-meta { font-size: 11.5px; margin-top: 6px; } }
+        
+        .rating-badge { color: #F5C518; font-weight: 700; display: flex; align-items: center; gap: 3px; }
+        .lang-badge { 
+            position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); 
+            color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; 
+            border-radius: 4px; text-transform: uppercase; backdrop-filter: blur(4px);
+        }
+
+        .empty-state { display: none; text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state.active { display: block; }
+        .empty-state i { font-size: 40px; color: var(--primary-red); margin-bottom: 12px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+            </a>
+            <div class="header-actions">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <h1 class="hero-title">New <span>Releases</span></h1>
+            <p class="hero-subtitle">Discover the latest movies, filtered by country and genre.</p>
+            
+            <div class="filter-row">
+                <div class="filter-group">
+                    <i class="fas fa-globe"></i>
+                    <select id="countryFilter">
+                        <option value="en">🌍 Hollywood (English)</option>
+                        <option value="hi">🇮🇳 Bollywood (Hindi)</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="zh">🇨🇳 Chinese</option>
+                        <option value="tl">🇵🇭 Filipino</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="fr">🇫🇷 French</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOADER -->
+        <div class="loader-container" id="loader">
+            <div class="spinner"></div>
+            <p style="color: var(--text-muted); font-size: 14px;">Fetching latest releases...</p>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-film"></i>
+            <h3>No new releases found</h3>
+            <p>Try changing the country or check back later.</p>
+        </div>
+
+        <!-- SECTIONS CONTAINER -->
+        <div id="sectionsContainer">
+            <!-- Sections will be injected here via JS -->
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = 'https://rxplayer-indol.vercel.app/api';
+        
+        // Genres to fetch (ID: Name)
+        const GENRES = {
+            28:    { name: 'Action',      icon: 'fas fa-fire' },
+            35:    { name: 'Comedy',      icon: 'fas fa-face-laugh-squint' },
+            18:    { name: 'Drama',       icon: 'fas fa-masks-theater' },
+            53:    { name: 'Thriller',    icon: 'fas fa-bolt' },
+            27:    { name: 'Horror',      icon: 'fas fa-ghost' },
+            10749: { name: 'Romance',     icon: 'fas fa-heart' },
+            878:   { name: 'Sci-Fi',      icon: 'fas fa-rocket' },
+            16:    { name: 'Animation',   icon: 'fas fa-dragon' }
+        };
+
+        const countrySelect = document.getElementById('countryFilter');
+        const loader = document.getElementById('loader');
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        const emptyState = document.getElementById('emptyState');
+
+        // Get date 3 months ago for "New Releases"
+        function getThreeMonthsAgo() {
+            const d = new Date();
+            d.setMonth(d.getMonth() - 3);
+            return d.toISOString().split('T')[0];
+        }
+
+        async function proxyRequest(endpoint) {
+            try {
+                const res = await fetch(`${API_BASE}/tmdb-proxy?endpoint=${encodeURIComponent(endpoint)}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.success === false) throw new Error(data.error);
+                return data;
+            } catch (e) {
+                console.warn('API Error:', e.message);
+                return { results: [] };
+            }
+        }
+
+        async function loadNewReleases() {
+            const lang = countrySelect.value;
+            const dateGte = getThreeMonthsAgo();
+            const today = new Date().toISOString().split('T')[0];
+
+            loader.classList.add('active');
+            sectionsContainer.innerHTML = '';
+            emptyState.classList.remove('active');
+
+            let hasResults = false;
+            let allSectionsHTML = '';
+
+            // Fetch genres sequentially (or with Promise.all) to avoid rate limits
+            for (const [genreId, genreInfo] of Object.entries(GENRES)) {
+                // Construct TMDB Discover Query
+                const endpoint = `/discover/movie?language=en-US&sort_by=primary_release_date.desc&include_adult=false&page=1` +
+                                 `&with_original_language=${lang}` +
+                                 `&with_genres=${genreId}` +
+                                 `&primary_release_date.gte=${dateGte}` +
+                                 `&primary_release_date.lte=${today}` +
+                                 `&vote_count.gte=5`; // Ensure it's somewhat known
+
+                const data = await proxyRequest(endpoint);
+                let movies = (data.results || []).filter(m => m.poster_path);
+
+                if (movies.length > 0) {
+                    hasResults = true;
+                    
+                    // Build HTML for this genre section
+                    let cardsHTML = movies.map(movie => {
+                        const title = movie.title || movie.name || 'Untitled';
+                        const poster = `https://image.tmdb.org/t/p/w300${movie.poster_path}`;
+                        const year = (movie.release_date || '').slice(0, 4);
+                        const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+                        const langCode = movie.original_language ? movie.original_language.toUpperCase() : '';
+
+                        // Build URL for the player
+                        const playerUrl = `player.html?id=${movie.id}&type=movie&title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}`;
+
+                        return `
+                            <div class="movie-card" onclick="window.location.href='${playerUrl}'">
+                                <div class="poster-wrap">
+                                    <img src="${poster}" alt="${title}" loading="lazy">
+                                    <span class="lang-badge">${langCode}</span>
+                                </div>
+                                <div class="card-info">
+                                    <h4>${title}</h4>
+                                    <div class="card-meta">
+                                        <span>${year}</span>
+                                        <span class="rating-badge"><i class="fas fa-star"></i> ${rating}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    allSectionsHTML += `
+                        <section class="movie-section active">
+                            <div class="section-header">
+                                <h2><i class="${genreInfo.icon}"></i> New in ${genreInfo.name}</h2>
+                            </div>
+                            <div class="horizontal-scroll">
+                                ${cardsHTML}
+                            </div>
+                        </section>
+                    `;
+                }
+            }
+
+            loader.classList.remove('active');
+
+            if (hasResults) {
+                sectionsContainer.innerHTML = allSectionsHTML;
+            } else {
+                emptyState.classList.add('active');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNewReleases();
+
+            // Re-fetch when country changes
+            countrySelect.addEventListener('change', () => {
+                loadNewReleases();
+            });
+        });
+    </script>
+</body>
+</html>
