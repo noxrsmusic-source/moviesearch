@@ -259,7 +259,6 @@
                         <option value="IN">India</option>
                         <option value="US">USA</option>
                         <option value="KR">South Korea</option>
-                        <option value="JP">Japan</option>
                         <option value="CN">China</option>
                         <option value="GB">UK</option>
                     </select>
@@ -269,7 +268,6 @@
                     <select x-model="filters.genre" @change="applyFilters()">
                         <option value="">All Genres</option>
                         <option value="10759">Action & Adventure</option>
-                        <option value="16">Animation</option>
                         <option value="35">Comedy</option>
                         <option value="80">Crime</option>
                         <option value="18">Drama</option>
@@ -285,7 +283,6 @@
                         <option value="hi">Hindi</option>
                         <option value="en">English</option>
                         <option value="ko">Korean</option>
-                        <option value="ja">Japanese</option>
                         <option value="ta">Tamil</option>
                         <option value="te">Telugu</option>
                     </select>
@@ -370,7 +367,7 @@
             </div>
         </div>
 
-        <!-- 3. DEFAULT 15 SECTIONS -->
+        <!-- 3. DEFAULT SECTIONS (No Anime) -->
         <div x-show="!loading && searchQuery.length === 0 && !hasActiveFilters" x-cloak>
             <template x-for="(sec, idx) in sections" :key="'sec-'+sec.id">
                 <div>
@@ -536,7 +533,8 @@
                 async performSearch(query) {
                     this.loading = true;
                     const res = await this.fetchTmdb(`/search/tv?query=${encodeURIComponent(query)}&language=en-US&page=1`);
-                    this.searchResults = (res.results || []).filter(i => i.poster_path);
+                    // Filter out anime (genre 16) from search results as well
+                    this.searchResults = (res.results || []).filter(i => i.poster_path && (!i.genre_ids || !i.genre_ids.includes(16)));
                     this.loading = false;
                 },
 
@@ -554,7 +552,7 @@
 
                     this.loading = true;
 
-                    let params = ['sort_by=popularity.desc'];
+                    let params = ['sort_by=popularity.desc', 'without_genres=16']; // Exclude Anime
                     if (this.filters.country) params.push(`with_origin_country=${this.filters.country}`);
                     if (this.filters.genre) params.push(`with_genres=${this.filters.genre}`);
                     if (this.filters.language) params.push(`with_original_language=${this.filters.language}`);
@@ -577,34 +575,35 @@
                     this.filteredSeries = [];
                 },
 
-                // DEFAULT SECTIONS (15 Sections as requested)
+                // DEFAULT SECTIONS (Anime removed & excluded)
                 async loadAllSections() {
                     this.loading = true;
                     
                     const today = new Date().toISOString().split('T')[0];
                     const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
+                    // Added &without_genres=16 to exclude Anime/Animation everywhere
                     const endpoints = [
-                        { id: 'trending', title: 'Trending Worldwide', icon: 'fas fa-fire', url: '/trending/tv/day?language=en-US' },
-                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', url: '/tv/popular?language=en-US' },
-                        { id: 'recent', title: 'Recently Added', icon: 'fas fa-clock', url: `/discover/tv?sort_by=first_air_date.desc&first_air_date.gte=${sixMonthsAgo}&first_air_date.lte=${today}&vote_count.gte=5` },
-                        { id: 'indian', title: 'Indian Web Series', icon: 'fas fa-om', url: '/discover/tv?with_origin_country=IN' },
-                        { id: 'international', title: 'International Hits', icon: 'fas fa-globe', url: '/discover/tv?with_origin_country=US' },
-                        { id: 'hindidub', title: 'Hindi-Dubbed Series', icon: 'fas fa-language', url: '/discover/tv?with_original_language=hi' },
-                        { id: 'korean', title: 'Korean Dramas', icon: 'fas fa-heart', url: '/discover/tv?with_original_language=ko' },
-                        { id: 'anime', title: 'Anime Series', icon: 'fas fa-dragon', url: '/discover/tv?with_original_language=ja&with_genres=16' },
-                        { id: 'crime', title: 'Crime & Investigation', icon: 'fas fa-user-secret', url: '/discover/tv?with_genres=80' },
-                        { id: 'thriller', title: 'Thriller & Mystery', icon: 'fas fa-bolt', url: '/discover/tv?with_genres=9648' }, 
-                        { id: 'toprated', title: 'Top-Rated Worldwide', icon: 'fas fa-star', url: '/tv/top_rated?language=en-US' },
-                        { id: 'scifi', title: 'Sci-Fi & Fantasy', icon: 'fas fa-rocket', url: '/discover/tv?with_genres=10765' },
-                        { id: 'romance', title: 'Romance & Comedy', icon: 'fas fa-heart', url: '/discover/tv?with_genres=35,10749' },
-                        { id: 'horror', title: 'Horror & Supernatural', icon: 'fas fa-ghost', url: '/discover/tv?with_genres=9648' },
-                        { id: 'hidden', title: 'Hidden Gems', icon: 'fas fa-gem', url: '/discover/tv?sort_by=vote_average.desc&vote_count.gte=100&vote_average.gte=8' }
+                        { id: 'trending', title: 'Trending Worldwide', icon: 'fas fa-fire', url: '/discover/tv?sort_by=popularity.desc&without_genres=16&language=en-US' },
+                        { id: 'picked', title: 'Picked For You', icon: 'fas fa-wand-magic-sparkles', url: '/discover/tv?sort_by=popularity.desc&without_genres=16&language=en-US' },
+                        { id: 'recent', title: 'Recently Added', icon: 'fas fa-clock', url: `/discover/tv?sort_by=first_air_date.desc&first_air_date.gte=${sixMonthsAgo}&first_air_date.lte=${today}&vote_count.gte=5&without_genres=16` },
+                        { id: 'indian', title: 'Indian Web Series', icon: 'fas fa-om', url: '/discover/tv?with_origin_country=IN&without_genres=16' },
+                        { id: 'international', title: 'International Hits', icon: 'fas fa-globe', url: '/discover/tv?with_origin_country=US&without_genres=16' },
+                        { id: 'hindidub', title: 'Hindi-Dubbed Series', icon: 'fas fa-language', url: '/discover/tv?with_original_language=hi&without_genres=16' },
+                        { id: 'korean', title: 'Korean Dramas', icon: 'fas fa-heart', url: '/discover/tv?with_original_language=ko&without_genres=16' },
+                        { id: 'crime', title: 'Crime & Investigation', icon: 'fas fa-user-secret', url: '/discover/tv?with_genres=80&without_genres=16' },
+                        { id: 'thriller', title: 'Thriller & Mystery', icon: 'fas fa-bolt', url: '/discover/tv?with_genres=9648&without_genres=16' }, 
+                        { id: 'toprated', title: 'Top-Rated Worldwide', icon: 'fas fa-star', url: '/discover/tv?sort_by=vote_average.desc&vote_count.gte=200&without_genres=16' },
+                        { id: 'scifi', title: 'Sci-Fi & Fantasy', icon: 'fas fa-rocket', url: '/discover/tv?with_genres=10765&without_genres=16' },
+                        { id: 'romance', title: 'Romance & Comedy', icon: 'fas fa-heart', url: '/discover/tv?with_genres=35,10749&without_genres=16' },
+                        { id: 'horror', title: 'Horror & Supernatural', icon: 'fas fa-ghost', url: '/discover/tv?with_genres=9648&without_genres=16' },
+                        { id: 'hidden', title: 'Hidden Gems', icon: 'fas fa-gem', url: '/discover/tv?sort_by=vote_average.desc&vote_count.gte=100&vote_average.gte=8&without_genres=16' }
                     ];
 
                     const promises = endpoints.map(async (ep) => {
                         const res = await this.fetchTmdb(ep.url);
-                        let items = (res.results || []).filter(i => i.poster_path);
+                        // Ensure no anime slips through
+                        let items = (res.results || []).filter(i => i.poster_path && (!i.genre_ids || !i.genre_ids.includes(16)));
                         if (items.length === 0) return null;
                         return { ...ep, items: items.slice(0, 20) };
                     });
