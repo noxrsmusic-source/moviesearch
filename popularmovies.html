@@ -65,13 +65,44 @@
         }
         .header-actions .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
+        /* SEARCH BAR */
+        .search-container {
+            margin: 20px auto 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 800px;
+        }
+        .search-container input {
+            width: 100%; height: 46px; padding: 0 44px 0 48px;
+            border-radius: 50px; border: 1.5px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05); color: var(--text-white);
+            font-size: 14.5px; outline: none; transition: var(--transition);
+        }
+        .search-container input:focus { 
+            border-color: var(--primary-red); 
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+        }
+        .search-container .search-icon {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 16px;
+        }
+        .search-container .clear-btn {
+            position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 16px; cursor: pointer;
+            display: none;
+        }
+        .search-container .clear-btn.visible { display: block; }
+
         /* FILTER SECTION */
         .filter-section {
             background: var(--bg-secondary);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius);
+            padding: 20px;
             margin-bottom: 24px;
-            position: sticky; top: var(--header-height); z-index: 900;
+            /* Sticky Removed */
         }
         .filter-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -117,7 +148,7 @@
             .horizontal-cards-row { gap: 16px; }
         }
 
-        /* GRID FOR FILTERED RESULTS */
+        /* GRID FOR FILTERED RESULTS & SEARCH */
         .filtered-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 20px; }
         @media (min-width: 768px) { .filtered-results { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px; } }
 
@@ -196,9 +227,23 @@
         </div>
     </header>
 
-    <!-- FILTER BAR -->
-    <div class="filter-section">
-        <div class="container">
+    <main class="container">
+        
+        <!-- SEARCH BAR -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+                type="text" 
+                x-model="searchQuery" 
+                @input="onSearchInput($event.target.value)" 
+                placeholder="Search for a movie by name..." 
+                autocomplete="off"
+            >
+            <i class="fas fa-times clear-btn" :class="{ 'visible': searchQuery.length > 0 }" @click="clearSearch()"></i>
+        </div>
+
+        <!-- FILTER BAR (Non-Sticky) -->
+        <div class="filter-section">
             <div class="filter-grid">
                 <div class="filter-group">
                     <label><i class="fas fa-globe"></i> Country</label>
@@ -249,31 +294,48 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label><i class="fas fa-volume-up"></i> Audio</label>
-                    <select x-model="filters.audio" @change="applyFilters()">
-                        <option value="">All Audio</option>
-                        <option value="hi">Hindi Dubbed</option>
-                        <option value="en">English Dubbed</option>
-                        <option value="original">Original Audio</option>
-                    </select>
-                </div>
-                <div class="filter-group">
                     <button class="reset-btn" @click="resetFilters()"><i class="fas fa-undo"></i> Reset</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <main class="container">
-        
         <!-- LOADER -->
         <div class="loader-container" x-show="loading" x-cloak>
             <div class="spinner"></div>
-            <p style="color: var(--text-muted); font-size: 14px;">Loading movies...</p>
+            <p style="color: var(--text-muted); font-size: 14px;">Loading...</p>
         </div>
 
-        <!-- FILTERED RESULTS GRID -->
-        <div x-show="!loading && hasActiveFilters" x-cloak>
+        <!-- 1. SEARCH RESULTS (Highest Priority) -->
+        <div x-show="!loading && searchQuery.length > 0" x-cloak>
+            <div class="section-heading-wrap">
+                <h3><i class="fas fa-search"></i> Search Results</h3>
+                <span style="font-size: 13px; color: var(--text-muted);" x-text="searchResults.length + ' movies found'"></span>
+            </div>
+            
+            <div class="filtered-results" x-show="searchResults.length > 0">
+                <template x-for="item in searchResults" :key="'search-'+item.id">
+                    <div class="movie-card" @click="openDetails(item.id, 'movie')">
+                        <div class="poster-wrap"><img class="poster" :src="poster(item)" loading="lazy" alt=""></div>
+                        <div class="card-info">
+                            <h4 x-text="title(item)"></h4>
+                            <div class="card-meta">
+                                <span x-text="year(item)"></span>
+                                <span style="color: #F5C518;" x-text="rating(item) !== 'N/A' ? '⭐ ' + rating(item) : 'movie'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="empty-state" x-show="searchResults.length === 0">
+                <i class="fas fa-search-minus"></i>
+                <h3>No results found</h3>
+                <p>Try a different movie name.</p>
+            </div>
+        </div>
+
+        <!-- 2. FILTERED RESULTS (Second Priority) -->
+        <div x-show="!loading && searchQuery.length === 0 && hasActiveFilters" x-cloak>
             <div class="section-heading-wrap">
                 <h3><i class="fas fa-filter"></i> Filtered Results</h3>
                 <span style="font-size: 13px; color: var(--text-muted);" x-text="filteredMovies.length + ' movies found'"></span>
@@ -295,14 +357,14 @@
             </div>
 
             <div class="empty-state" x-show="filteredMovies.length === 0">
-                <i class="fas fa-search-minus"></i>
-                <h3>No movies found</h3>
-                <p>Try changing your filters or reset them.</p>
+                <i class="fas fa-filter"></i>
+                <h3>No movies match your filters</h3>
+                <p>Try changing the filters or click reset.</p>
             </div>
         </div>
 
-        <!-- DEFAULT 15 SECTIONS -->
-        <div x-show="!loading && !hasActiveFilters" x-cloak>
+        <!-- 3. DEFAULT 15 SECTIONS (Lowest Priority) -->
+        <div x-show="!loading && searchQuery.length === 0 && !hasActiveFilters" x-cloak>
             <template x-for="(sec, idx) in sections" :key="'sec-'+sec.id">
                 <div>
                     <div class="section-heading-wrap">
@@ -327,6 +389,7 @@
                 </div>
             </template>
         </div>
+
     </main>
 
     <!-- DETAIL MODAL -->
@@ -381,12 +444,17 @@
                 loading: true,
                 sections: [],
                 filteredMovies: [],
+                
+                // Search State
+                searchQuery: '',
+                searchResults: [],
+                _searchDebounce: null,
+
                 filters: {
                     country: '',
                     genre: '',
                     language: '',
-                    year: '',
-                    audio: ''
+                    year: ''
                 },
                 
                 // Details Modal
@@ -417,59 +485,31 @@
                     return this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                 },
 
-                async loadAllSections() {
+                // SEARCH LOGIC
+                onSearchInput(val) {
+                    if (this._searchDebounce) clearTimeout(this._searchDebounce);
+                    this._searchDebounce = setTimeout(async () => {
+                        if (val.trim().length >= 2) {
+                            await this.performSearch(val.trim());
+                        } else if (val.trim().length === 0) {
+                            this.searchResults = [];
+                        }
+                    }, 500);
+                },
+
+                async performSearch(query) {
                     this.loading = true;
-                    
-                    const today = new Date().toISOString().split('T')[0];
-                    const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-                    const endpoints = [
-                        { id: 'trending', title: 'Trending Worldwide', icon: 'fas fa-fire', url: '/trending/movie/day?language=en-US' },
-                        { id: 'recent', title: 'Recently Added', icon: 'fas fa-clock', url: `/discover/movie?sort_by=primary_release_date.desc&primary_release_date.gte=${sixMonthsAgo}&primary_release_date.lte=${today}&vote_count.gte=5` },
-                        { id: 'indian', title: 'Indian Cinema', icon: 'fas fa-om', url: '/discover/movie?with_origin_country=IN' },
-                        { id: 'hollywood', title: 'Hollywood Hits', icon: 'fas fa-film', url: '/discover/movie?with_origin_country=US' },
-                        { id: 'korean', title: 'Korean Movies', icon: 'fas fa-heart', url: '/discover/movie?with_original_language=ko' },
-                        { id: 'anime', title: 'Anime Movies', icon: 'fas fa-dragon', url: '/discover/movie?with_original_language=ja&with_genres=16' },
-                        { id: 'chinese', title: 'Chinese Movies', icon: 'fas fa-yin-yang', url: '/discover/movie?with_original_language=zh' },
-                        { id: 'hindidub', title: 'Hindi-Dubbed Movies', icon: 'fas fa-language', url: '/discover/movie?with_original_language=hi' }, // Simulated
-                        { id: 'toprated', title: 'Top-Rated Worldwide', icon: 'fas fa-star', url: '/movie/top_rated?language=en-US' },
-                        { id: 'horror', title: 'Horror & Supernatural', icon: 'fas fa-ghost', url: '/discover/movie?with_genres=27' },
-                        { id: 'crime', title: 'Crime & Mystery', icon: 'fas fa-user-secret', url: '/discover/movie?with_genres=80,9648' },
-                        { id: 'romance', title: 'Romance & Comedy', icon: 'fas fa-heart', url: '/discover/movie?with_genres=10749,35' },
-                        { id: 'scifi', title: 'Sci-Fi & Fantasy', icon: 'fas fa-rocket', url: '/discover/movie?with_genres=878,14' },
-                        { id: 'classics', title: 'Classics & Hidden Gems', icon: 'fas fa-gem', url: '/discover/movie?primary_release_date.lte=2000&vote_average.gte=7&vote_count.gte=500' }
-                    ];
-
-                    // Fetch all in parallel
-                    const promises = endpoints.map(async (ep) => {
-                        const res = await this.fetchTmdb(ep.url);
-                        let items = (res.results || []).filter(i => i.poster_path);
-                        // Ensure at least 1 item to show the section
-                        if (items.length === 0) return null;
-                        return { ...ep, items: items.slice(0, 20) };
-                    });
-
-                    const results = await Promise.all(promises);
-                    
-                    // Picked for you (mock)
-                    const pickedRes = await this.fetchTmdb('/movie/popular?language=en-US');
-                    const picked = {
-                        id: 'picked',
-                        title: 'Picked For You',
-                        icon: 'fas fa-wand-magic-sparkles',
-                        items: (pickedRes.results || []).filter(i => i.poster_path).slice(0, 20)
-                    };
-
-                    this.sections = results.filter(r => r !== null);
-                    
-                    // Insert Picked at index 1 (after Trending)
-                    if (picked.items.length > 0) {
-                        this.sections.splice(1, 0, picked);
-                    }
-
+                    const res = await this.fetchTmdb(`/search/movie?query=${encodeURIComponent(query)}&language=en-US&page=1`);
+                    this.searchResults = (res.results || []).filter(i => i.poster_path);
                     this.loading = false;
                 },
 
+                clearSearch() {
+                    this.searchQuery = '';
+                    this.searchResults = [];
+                },
+
+                // FILTER LOGIC
                 async applyFilters() {
                     if (!this.hasActiveFilters) {
                         this.filteredMovies = [];
@@ -489,10 +529,6 @@
                         params.push(`primary_release_year=${this.filters.year}`);
                     }
 
-                    // Audio filter (best effort mapping)
-                    if (this.filters.audio === 'hi') params.push(`with_original_language=hi`);
-                    else if (this.filters.audio === 'en') params.push(`with_original_language=en`);
-
                     const endpoint = `/discover/movie?${params.join('&')}`;
                     const res = await this.fetchTmdb(endpoint);
                     
@@ -501,10 +537,61 @@
                 },
 
                 resetFilters() {
-                    this.filters = { country: '', genre: '', language: '', year: '', audio: '' };
+                    this.filters = { country: '', genre: '', language: '', year: '' };
                     this.filteredMovies = [];
                 },
 
+                // DEFAULT SECTIONS
+                async loadAllSections() {
+                    this.loading = true;
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+                    const endpoints = [
+                        { id: 'trending', title: 'Trending Worldwide', icon: 'fas fa-fire', url: '/trending/movie/day?language=en-US' },
+                        { id: 'recent', title: 'Recently Added', icon: 'fas fa-clock', url: `/discover/movie?sort_by=primary_release_date.desc&primary_release_date.gte=${sixMonthsAgo}&primary_release_date.lte=${today}&vote_count.gte=5` },
+                        { id: 'indian', title: 'Indian Cinema', icon: 'fas fa-om', url: '/discover/movie?with_origin_country=IN' },
+                        { id: 'hollywood', title: 'Hollywood Hits', icon: 'fas fa-film', url: '/discover/movie?with_origin_country=US' },
+                        { id: 'korean', title: 'Korean Movies', icon: 'fas fa-heart', url: '/discover/movie?with_original_language=ko' },
+                        { id: 'anime', title: 'Anime Movies', icon: 'fas fa-dragon', url: '/discover/movie?with_original_language=ja&with_genres=16' },
+                        { id: 'chinese', title: 'Chinese Movies', icon: 'fas fa-yin-yang', url: '/discover/movie?with_original_language=zh' },
+                        { id: 'hindidub', title: 'Hindi-Dubbed Movies', icon: 'fas fa-language', url: '/discover/movie?with_original_language=hi' },
+                        { id: 'toprated', title: 'Top-Rated Worldwide', icon: 'fas fa-star', url: '/movie/top_rated?language=en-US' },
+                        { id: 'horror', title: 'Horror & Supernatural', icon: 'fas fa-ghost', url: '/discover/movie?with_genres=27' },
+                        { id: 'crime', title: 'Crime & Mystery', icon: 'fas fa-user-secret', url: '/discover/movie?with_genres=80,9648' },
+                        { id: 'romance', title: 'Romance & Comedy', icon: 'fas fa-heart', url: '/discover/movie?with_genres=10749,35' },
+                        { id: 'scifi', title: 'Sci-Fi & Fantasy', icon: 'fas fa-rocket', url: '/discover/movie?with_genres=878,14' },
+                        { id: 'classics', title: 'Classics & Hidden Gems', icon: 'fas fa-gem', url: '/discover/movie?primary_release_date.lte=2000&vote_average.gte=7&vote_count.gte=500' }
+                    ];
+
+                    const promises = endpoints.map(async (ep) => {
+                        const res = await this.fetchTmdb(ep.url);
+                        let items = (res.results || []).filter(i => i.poster_path);
+                        if (items.length === 0) return null;
+                        return { ...ep, items: items.slice(0, 20) };
+                    });
+
+                    const results = await Promise.all(promises);
+                    
+                    const pickedRes = await this.fetchTmdb('/movie/popular?language=en-US');
+                    const picked = {
+                        id: 'picked',
+                        title: 'Picked For You',
+                        icon: 'fas fa-wand-magic-sparkles',
+                        items: (pickedRes.results || []).filter(i => i.poster_path).slice(0, 20)
+                    };
+
+                    this.sections = results.filter(r => r !== null);
+                    
+                    if (picked.items.length > 0) {
+                        this.sections.splice(1, 0, picked);
+                    }
+
+                    this.loading = false;
+                },
+
+                // UTILS
                 poster(item) {
                     if (!item) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
                     if (!item.poster_path) return 'https://placehold.co/300x450/14141F/666?text=No+Image';
