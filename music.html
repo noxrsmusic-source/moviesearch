@@ -2137,7 +2137,7 @@ function decryptSaavnMediaUrl(encryptedUrl){
 }
 
 /* ============================================================
- *  ARTIST NAME EXTRACTION — prefers JioSaavn's real artist fields
+ *  ARTIST NAME EXTRACTION
  * ============================================================ */
 const PLACEHOLDER_ARTIST_NAMES = new Set([
   'bollywood artist','unknown artist','artist','various artists',
@@ -2633,12 +2633,11 @@ function bindPlaylistViewBar(){
 }
 
 function openArtistView(artistName, songs) {
-    searchQuery = '';
-    musicSearchInput.value = '';
-    searchClearBtn.classList.remove('visible');
-    searchStatus.classList.remove('visible');
-    searchStatus.textContent = '';
+    // DO NOT clear search input here so the user can keep typing if they want
     updateFeedVisibility();
+    
+    // We keep searchQuery as is, so the user knows what they searched for.
+    // We also don't reset the input value.
 
     currentPlaylist = songs;
     currentIndex = 0;
