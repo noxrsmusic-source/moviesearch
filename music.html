@@ -980,6 +980,166 @@ img{ display:block; max-width:100%; object-fit:cover; }
   to{ opacity:1; transform:translateY(0); }
 }
 
+/* ARTIST SEARCH CARD (Big Spotify Style) */
+.artist-search-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(229,9,20,0.15) 0%, var(--bg-card) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 24px;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.artist-search-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(229,9,20,0.2) 0%, transparent 60%);
+    opacity: 0;
+    transition: var(--transition);
+    pointer-events: none;
+}
+.artist-search-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary-red);
+    box-shadow: var(--shadow);
+}
+.artist-search-card:hover::before { opacity: 1; }
+.artist-search-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-red);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+.artist-search-info {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+.artist-search-name {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+.artist-search-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--primary-red);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+.artist-search-stats {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+.artist-search-arrow {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    transition: var(--transition);
+    z-index: 1;
+}
+.artist-search-card:hover .artist-search-arrow {
+    background: var(--primary-red);
+    transform: scale(1.1);
+}
+
+/* ARTIST PROFILE HEADER (Spotify style horizontal) */
+.artist-profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px 20px;
+    background: linear-gradient(180deg, rgba(229,9,20,0.15) 0%, var(--bg-card) 100%);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+.artist-profile-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(229,9,20,0.15) 0%, transparent 60%);
+    pointer-events: none;
+}
+@media (min-width: 768px) {
+    .artist-profile-header {
+        flex-direction: row;
+        text-align: left;
+        gap: 30px;
+        padding: 30px 40px;
+    }
+}
+.artist-profile-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-red);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+@media (min-width: 768px) {
+    .artist-profile-avatar {
+        margin-bottom: 0;
+        width: 160px;
+        height: 160px;
+    }
+}
+.artist-profile-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+@media (min-width: 768px) {
+    .artist-profile-details { align-items: flex-start; }
+}
+.artist-profile-name {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+.artist-profile-stats {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
 @media (min-width:601px){
   .page-header{ margin:20px 0 16px; }
   .page-title{ font-size:22px; }
@@ -998,6 +1158,9 @@ img{ display:block; max-width:100%; object-fit:cover; }
   .artist-card{ flex:0 0 100px; }
   .artist-avatar{ width:80px; height:80px; }
   .fs-player-cover{ width:170px; height:170px; }
+  .artist-search-card { flex-direction: column; text-align: center; padding: 20px; gap: 12px; }
+  .artist-search-arrow { display: none; }
+  .artist-search-name { font-size: 22px; }
 }
 @media (max-width:600px){
   .lyrics-inner{ max-width:100%; padding:64px 16px 12px; }
@@ -2632,12 +2795,37 @@ function bindPlaylistViewBar(){
   }
 }
 
-function openArtistView(artistName, songs) {
-    // DO NOT clear search input here so the user can keep typing if they want
+function renderArtistSearchCard(artistName, songs) {
     updateFeedVisibility();
-    
-    // We keep searchQuery as is, so the user knows what they searched for.
-    // We also don't reset the input value.
+    const topSong = songs[0];
+    const cover = topSong.coverUrl || FALLBACK_COVER;
+
+    listSectionTitle.textContent = 'Artist Found';
+    trackCountLabel.textContent = '1 Artist';
+
+    const html = `
+        <div class="artist-search-card" id="artistSearchResultCard">
+            <img src="${cover}" class="artist-search-avatar" onerror="handleImageError(this)" />
+            <div class="artist-search-info">
+                <span class="artist-search-badge">Artist</span>
+                <div class="artist-search-name">${escapeHtml(artistName)}</div>
+                <div class="artist-search-stats">${songs.length} songs available to stream</div>
+            </div>
+            <div class="artist-search-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+    `;
+    songListContainer.innerHTML = html;
+
+    document.getElementById('artistSearchResultCard').addEventListener('click', () => {
+        openArtistView(artistName, songs);
+    });
+}
+
+function openArtistView(artistName, songs) {
+    // We do not clear search input here so the user can keep typing if they want.
+    updateFeedVisibility();
 
     currentPlaylist = songs;
     currentIndex = 0;
@@ -2647,13 +2835,16 @@ function openArtistView(artistName, songs) {
     const cover = topSong.coverUrl || FALLBACK_COVER;
     
     const headerHtml = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; background: linear-gradient(180deg, rgba(229,9,20,0.15) 0%, var(--bg-card) 100%); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 24px; text-align: center;">
-            <img src="${cover}" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-red); box-shadow: 0 8px 24px rgba(0,0,0,0.6); margin-bottom: 16px;" onerror="handleImageError(this)" />
-            <h2 style="font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.5px;">${escapeHtml(artistName)}</h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Artist Playlist • ${songs.length} songs</p>
-            <button id="playArtistAllBtn" style="margin-top: 16px; padding: 10px 24px; border-radius: 30px; background: var(--primary-red); color: #fff; font-weight: 800; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(229,9,20,0.4);">
-                <i class="fas fa-play"></i> Play All
-            </button>
+        <div class="artist-profile-header">
+            <img src="${cover}" class="artist-profile-avatar" onerror="handleImageError(this)" />
+            <div class="artist-profile-details">
+                <span class="artist-search-badge" style="margin-bottom: 4px;">Artist</span>
+                <h2 class="artist-profile-name">${escapeHtml(artistName)}</h2>
+                <p class="artist-profile-stats">${songs.length} songs • RX Player Exclusive</p>
+                <button id="playArtistAllBtn" class="action-btn action-upload" style="padding: 10px 24px; font-size: 14px; border-radius: 30px;">
+                    <i class="fas fa-play"></i> Play All
+                </button>
+            </div>
         </div>
     `;
     
@@ -4160,7 +4351,7 @@ async function runSearch(query){
           realArtists.forEach(a => counts[a] = (counts[a] || 0) + 1);
           artistName = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
       }
-      openArtistView(artistName, merged);
+      renderArtistSearchCard(artistName, merged);
       return;
   }
 
@@ -4281,7 +4472,7 @@ auth.onAuthStateChanged(user => {
   if (user) loadUserData();
 });
 
-console.log('🔊 RX PLAYER v20 — Smart Artist View & Loop Fix');
+console.log('🔊 RX PLAYER v21 — Spotify Style Artist Card & Profile');
 </script>
 
 </body>
