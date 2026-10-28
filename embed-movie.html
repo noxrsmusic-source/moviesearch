@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RX Player</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+iframe{width:100%;height:100%;border:0;display:block}
+.brand{position:absolute;bottom:6px;right:8px;font:600 11px Inter,sans-serif;
+color:rgba(255,255,255,.5);background:rgba(0,0,0,.5);padding:3px 8px;border-radius:6px;
+text-decoration:none;z-index:5}
+.brand:hover{color:#fff}
+</style></head><body>
+<iframe id="p" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
+<a class="brand" href="https://rxplayer.com" target="_blank">▶ RX Player</a>
+<script>
+const p=new URLSearchParams(location.search);
+const id=p.get('id'),type=p.get('type')||'movie';
+const s=p.get('season')||'1',e=p.get('episode')||'1';
+if(!id){document.body.innerHTML='<p style="color:#fff;font:14px sans-serif;padding:20px">Missing ?id=</p>';}
+else{
+const url=type==='tv'
+?`https://nxsha.space/embed/tv/${id}/${s}/${e}?color=netflix&disable_dl_button=true&disable_app_ad=true`
+:`https://nxsha.space/embed/movie/${id}?color=netflix&disable_dl_button=true&disable_app_ad=true`;
+document.getElementById('p').src=url;
+}
+</script></body></html>
