@@ -306,6 +306,9 @@
             <aside class="admin-sidebar" id="adminSidebar">
                 <div class="sidebar-nav-tabs">
                     <button class="sidebar-tab-btn active" id="tabNavUsers" onclick="switchAdminTab('users')"><i class="fas fa-user-friends"></i> Users Manager</button>
+                    <!-- NEW API PAYMENTS TAB -->
+                    <button class="sidebar-tab-btn" id="tabNavPayments" onclick="switchAdminTab('payments')"><i class="fas fa-money-check-alt"></i> API Payments</button>
+                    
                     <button class="sidebar-tab-btn" id="tabNavMedia" onclick="switchAdminTab('media')"><i class="fas fa-film"></i> Media Catalog</button>
                     <button class="sidebar-tab-btn" id="tabNavSections" onclick="switchAdminTab('sections')"><i class="fas fa-layer-group"></i> Home Sections</button>
                     <button class="sidebar-tab-btn" id="tabNavOtt" onclick="switchAdminTab('ott')"><i class="fas fa-tv"></i> OTT Filters</button>
@@ -333,6 +336,36 @@
             </aside>
 
             <section class="admin-main">
+
+                <!-- API PAYMENTS (NEW) -->
+                <div class="tab-content" id="tabContentPayments">
+                    <h1 class="page-title"><i class="fas fa-money-check-alt" style="color:var(--primary-green);"></i> API Payment Requests</h1>
+                    <p class="page-subtitle">Verify UPI payments below. Approving a payment will automatically activate the user's API key.</p>
+                    <div style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn-secondary" onclick="loadApiPayments()"><i class="fas fa-sync"></i> Refresh Requests</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>User Email</th>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>API Key</th>
+                                    <th>UTR</th>
+                                    <th>Screenshot</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apiPaymentsTableBody">
+                                <tr><td colspan="10" style="text-align:center;">Loading payments…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <!-- USERS -->
                 <div class="tab-content active" id="tabContentUsers">
@@ -400,11 +433,8 @@
                         <strong style="color:var(--primary-red);">✏️ Fully Manual:</strong> All other sections — admin creates &amp; controls every item.
                     </p>
 
-                    <div class="ott-context-bar" id="sectionContextBar">
-                        <!-- filled by JS -->
-                    </div>
+                    <div class="ott-context-bar" id="sectionContextBar"></div>
 
-                    <!-- ADD NEW SECTION FORM -->
                     <div class="add-section-form" id="addSectionForm">
                         <h4><i class="fas fa-plus-circle"></i> Add New Custom Section</h4>
                         <div class="form-grid">
@@ -648,29 +678,27 @@
         const TMDB_PROXY = API_BASE + '/api/tmdb-proxy?endpoint=';
         const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
-// 🔒 LOCKED AUTO SECTIONS — admin can't delete these (only hide/add items)
         const LOCKED_AUTO_SECTIONS = ['newreleases', 'continuewatching', 'trending', 'picked'];
         const LOCKED_AUTO_META = {
             newreleases:      { title: 'New Releases',      icon: 'fas fa-star',                endpoint: '/movie/now_playing?language=en-US&page=1' },
             continuewatching: { title: 'Continue Watching', icon: 'fas fa-play-circle',         endpoint: '' },
             trending:         { title: 'Trending Now',      icon: 'fas fa-fire',                endpoint: '/trending/all/week?language=en-US' },
             picked:           { title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', endpoint: '/movie/popular?language=en-US&page=1' }
-            };
+        };
 
-        // Default sections — admin can add/remove any except LOCKED ones
-       const DEFAULT_SECTIONS = [
-    { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle',         locked: true,  order: 1,  badge: 'RESUME', explorePage: '' },
-    { id: 'newreleases',      title: 'New Releases',      icon: 'fas fa-star',                locked: true,  order: 2,  badge: 'NEW',    explorePage: 'newreleases.html' },
-    { id: 'trending',         title: 'Trending Now',      icon: 'fas fa-fire',                locked: true,  order: 3,  badge: 'HOT',    explorePage: 'trending.html' },
-    { id: 'picked',           title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', locked: true,  order: 4,  badge: 'SMART',  explorePage: 'explore.html' },
-    { id: 'series',           title: 'Web Series',        icon: 'fas fa-tv',                  locked: false, order: 5,  badge: '',       explorePage: 'webseries.html' },
-    { id: 'kdrama',           title: 'K-Drama Series',    icon: 'fas fa-heart',               locked: false, order: 6,  badge: '',       explorePage: 'kdrama.html' },
-    { id: 'anime',            title: 'Anime Series',      icon: 'fas fa-dragon',              locked: false, order: 7,  badge: '',       explorePage: 'anime.html' },
-    { id: 'movies',           title: 'Popular Movies',    icon: 'fas fa-film',                locked: false, order: 8,  badge: '',       explorePage: 'movies.html' },
-    { id: 'indianseries',     title: 'Indian Series',     icon: 'fas fa-om',                  locked: false, order: 9,  badge: '',       explorePage: 'indianseries.html' },
-    { id: 'cdrama',           title: 'C-Drama Series',    icon: 'fas fa-yin-yang',            locked: false, order: 10, badge: '',       explorePage: 'cdrama.html' },
-    { id: 'pdrama',           title: 'P-Drama Series',    icon: 'fas fa-sun',                 locked: false, order: 11, badge: '',       explorePage: 'pdrama.html' }
-];
+        const DEFAULT_SECTIONS = [
+            { id: 'continuewatching', title: 'Continue Watching', icon: 'fas fa-play-circle',         locked: true,  order: 1,  badge: 'RESUME', explorePage: '' },
+            { id: 'newreleases',      title: 'New Releases',      icon: 'fas fa-star',                locked: true,  order: 2,  badge: 'NEW',    explorePage: 'newreleases.html' },
+            { id: 'trending',         title: 'Trending Now',      icon: 'fas fa-fire',                locked: true,  order: 3,  badge: 'HOT',    explorePage: 'trending.html' },
+            { id: 'picked',           title: 'Picked For You',    icon: 'fas fa-wand-magic-sparkles', locked: true,  order: 4,  badge: 'SMART',  explorePage: 'explore.html' },
+            { id: 'series',           title: 'Web Series',        icon: 'fas fa-tv',                  locked: false, order: 5,  badge: '',       explorePage: 'webseries.html' },
+            { id: 'kdrama',           title: 'K-Drama Series',    icon: 'fas fa-heart',               locked: false, order: 6,  badge: '',       explorePage: 'kdrama.html' },
+            { id: 'anime',            title: 'Anime Series',      icon: 'fas fa-dragon',              locked: false, order: 7,  badge: '',       explorePage: 'anime.html' },
+            { id: 'movies',           title: 'Popular Movies',    icon: 'fas fa-film',                locked: false, order: 8,  badge: '',       explorePage: 'movies.html' },
+            { id: 'indianseries',     title: 'Indian Series',     icon: 'fas fa-om',                  locked: false, order: 9,  badge: '',       explorePage: 'indianseries.html' },
+            { id: 'cdrama',           title: 'C-Drama Series',    icon: 'fas fa-yin-yang',            locked: false, order: 10, badge: '',       explorePage: 'cdrama.html' },
+            { id: 'pdrama',           title: 'P-Drama Series',    icon: 'fas fa-sun',                 locked: false, order: 11, badge: '',       explorePage: 'pdrama.html' }
+        ];
 
         const DEFAULT_OTTS = [
             { name: 'HBO',         logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',                              query: 'HBO',      type: 'ott' },
@@ -690,24 +718,17 @@
         let allSongs = [];
         let allRequests = [];
         let allUsers = [];
+        let allApiPayments = []; // NEW
+        
         let totalDownloadsCount = 0;
-
-        // sectionsConfig NEW SHAPE:
-        // {
-        //   sections: [ { id, title, icon, locked, order, badge, explorePage, customItems, removedIds, enabled }, ... ],
-        //   perOtt: { "Netflix": { sections: [...] }, ... }
-        // }
         let sectionsConfig = { sections: [], perOtt: {} };
-        let homeSectionData = {};       // live TMDB items for currently previewed OTT
+        let homeSectionData = {};       
         let ottsConfig = [];
-        let activeSectionOtt = 'all';   // which OTT is being edited in Home Sections tab
+        let activeSectionOtt = 'all';   
         let targetSectionKeyForMovie = null;
         let modalSearchResults = [];
         let selectedNewIcon = 'fas fa-film';
 
-        // ============================================================
-        // SMART YEAR FILTER — only latest 2 years (2024-2026 when now=2026)
-        // ============================================================
         function smartLatestFilter(items, minCount = 6) {
             if (!items || !items.length) return [];
             const currentYear = new Date().getFullYear();
@@ -730,9 +751,6 @@
             return filtered.length > 0 ? filtered : items.slice(0, 20);
         }
 
-        // ============================================================
-        // TOAST + TAB
-        // ============================================================
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -744,8 +762,8 @@
         }
 
         function switchAdminTab(tabName) {
-            const tabs = ['users','media','sections','ott','music','requests','bugreports','version','creators'];
-            const tabMap = { users:'Users', media:'Media', sections:'Sections', ott:'Ott', music:'Music', requests:'Requests', bugreports:'BugReports', version:'Version', creators:'Creators' };
+            const tabs = ['users','payments','media','sections','ott','music','requests','bugreports','version','creators'];
+            const tabMap = { users:'Users', payments:'Payments', media:'Media', sections:'Sections', ott:'Ott', music:'Music', requests:'Requests', bugreports:'BugReports', version:'Version', creators:'Creators' };
             tabs.forEach(t => {
                 const navBtn = document.getElementById('tabNav' + tabMap[t]);
                 const content = document.getElementById('tabContent' + tabMap[t]);
@@ -755,11 +773,11 @@
             if (tabName === 'sections' && Object.keys(homeSectionData).length === 0) {
                 loadHomeSectionData();
             }
+            if (tabName === 'payments') {
+                loadApiPayments(); // NEW
+            }
         }
 
-        // ============================================================
-        // LOGIN
-        // ============================================================
         function checkLogin() {
             const overlay = document.getElementById('loginOverlay');
             if (sessionStorage.getItem('rx_admin_logged_in') === 'true') {
@@ -784,9 +802,6 @@
             }
         });
 
-        // ============================================================
-        // DOWNLOADS
-        // ============================================================
         function listenToDownloads() {
             db.collection('analytics').doc('downloads').onSnapshot(doc => {
                 totalDownloadsCount = doc.exists ? (doc.data().totalDownloads || 0) : 0;
@@ -805,17 +820,84 @@
             } catch(e) { showToast('Error resetting download count.', 'error'); }
         }
 
-        // ============================================================
-        // LOAD ALL
-        // ============================================================
         async function loadAllData() {
             await loadOttConfig();
             await Promise.all([
-                loadUsers(), loadMediaCatalog(), loadSectionsConfig(),
+                loadUsers(), loadApiPayments(), loadMediaCatalog(), loadSectionsConfig(),
                 loadSongs(), loadRequests(),
                 loadBugReports(), loadAppVersionConfig(), loadCreators()
             ]);
             updateDashboard();
+        }
+
+        // ============================================================
+        // NEW: API PAYMENTS LOGIC
+        // ============================================================
+        async function loadApiPayments() {
+            try {
+                const snap = await db.collection('apiPaymentRequests').orderBy('createdAt', 'desc').get();
+                allApiPayments = [];
+                snap.forEach(doc => allApiPayments.push({ id: doc.id, ...doc.data() }));
+                renderApiPaymentsTable();
+            } catch (e) { 
+                console.error(e); 
+                const tbody = document.getElementById('apiPaymentsTableBody');
+                if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="table-empty">Error loading payments. Check Firestore rules.</td></tr>`;
+            }
+        }
+
+        function renderApiPaymentsTable() {
+            const tbody = document.getElementById('apiPaymentsTableBody');
+            if (!tbody) return;
+            if (!allApiPayments.length) { tbody.innerHTML = `<tr><td colspan="10" class="table-empty">No API payment requests yet.</td></tr>`; return; }
+            
+            tbody.innerHTML = allApiPayments.map((p, i) => {
+                let dateStr = 'N/A';
+                if (p.createdAt) dateStr = new Date(p.createdAt.toMillis()).toLocaleString();
+                const statusClass = p.status === 'approved' ? 'active' : (p.status === 'rejected' ? 'rejected' : 'pending');
+                
+                return `<tr>
+                    <td>${i + 1}</td>
+                    <td style="font-size:12px;">${dateStr}</td>
+                    <td><span class="key-text">${p.email || 'N/A'}</span></td>
+                    <td><span class="status-badge ${p.plan === 'pro' ? 'series' : 'movie'}">${p.plan ? p.plan.toUpperCase() : 'STARTER'}</span></td>
+                    <td><strong>₹${p.amount}</strong></td>
+                    <td><span class="key-text">${p.apiKey}</span></td>
+                    <td><span class="key-text">${p.utr}</span></td>
+                    <td>${p.screenshotUrl ? `<a href="${p.screenshotUrl}" target="_blank"><img src="${p.screenshotUrl}" style="height:40px;border-radius:4px;border:1px solid #444;" /></a>` : 'None'}</td>
+                    <td><span class="status-badge ${statusClass}">${p.status ? p.status.toUpperCase() : 'PENDING'}</span></td>
+                    <td>
+                        ${p.status === 'pending' ? `
+                            <button class="btn-action-sm activate" onclick="approveApiPayment('${p.id}', '${p.apiKey}')" title="Approve & Activate"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn-action-sm deactivate" onclick="rejectApiPayment('${p.id}', '${p.apiKey}')" title="Reject"><i class="fas fa-times"></i> Reject</button>
+                        ` : '—'}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function approveApiPayment(reqId, apiKey) {
+            if (!confirm('Approve this payment and activate the API key?')) return;
+            try {
+                // 1. Approve Payment Request
+                await db.collection('apiPaymentRequests').doc(reqId).update({ status: 'approved' });
+                // 2. Activate API Key
+                await db.collection('apiKeys').doc(apiKey).update({ status: 'active' });
+                showToast('Payment verified & API Key activated!', 'success');
+                loadApiPayments();
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function rejectApiPayment(reqId, apiKey) {
+            if (!confirm('Reject this payment? The API key will remain suspended.')) return;
+            try {
+                // 1. Reject Payment Request
+                await db.collection('apiPaymentRequests').doc(reqId).update({ status: 'rejected' });
+                // 2. Suspend API Key
+                await db.collection('apiKeys').doc(apiKey).update({ status: 'suspended' });
+                showToast('Payment rejected.', 'info');
+                loadApiPayments();
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
         }
 
         // ============================================================
@@ -876,7 +958,7 @@
         }
 
         // ============================================================
-        // TMDB HELPERS
+        // TMDB HELPERS & MEDIA CATALOG
         // ============================================================
         async function tmdbFetch(endpoint) {
             const url = TMDB_PROXY + encodeURIComponent(endpoint);
@@ -898,9 +980,6 @@
 
         function tmdbTypeFor(category) { return category === 'movie' ? 'movie' : 'tv'; }
 
-        // ============================================================
-        // MEDIA CATALOG
-        // ============================================================
         async function loadMediaCatalog() {
             try {
                 const snap = await db.collection('mediaCatalog').orderBy('createdAt', 'desc').get();
@@ -1014,18 +1093,15 @@
         }
 
         // ============================================================
-        // HOME SECTIONS CONFIG — NEW SHAPE
+        // HOME SECTIONS CONFIG
         // ============================================================
-
         function getDefaultSectionsDeep() {
             return JSON.parse(JSON.stringify(DEFAULT_SECTIONS.map(s => ({
                 ...s, customItems: [], removedIds: [], enabled: true
             }))));
         }
 
-        // Ensure sectionsConfig always has the right shape
         function normalizeSectionsConfig(raw) {
-            // New shape detection
             if (raw && Array.isArray(raw.sections)) {
                 const sections = raw.sections.filter(s => s && s.id).map(s => ({
                     id: String(s.id),
@@ -1040,33 +1116,30 @@
                     removedIds: Array.isArray(s.removedIds) ? s.removedIds.map(String) : []
                 })).sort((a, b) => a.order - b.order);
 
-             // Ensure locked sections exist AND force correct order (newreleases always first)
-LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
-    if (!sections.find(x => x.id === lid)) {
-        const meta = LOCKED_AUTO_META[lid];
-        sections.push({
-            id: lid, title: meta.title, icon: meta.icon,
-            locked: true, order: i + 1,
-            badge: lid === 'continuewatching' ? 'RESUME' : (lid === 'newreleases' ? 'NEW' : (lid === 'trending' ? 'HOT' : 'SMART')),
-            explorePage: lid === 'continuewatching' ? '' : (lid === 'picked' ? '' : (lid === 'newreleases' ? 'newreleases.html' : 'trending.html')),
-            enabled: true, customItems: [], removedIds: []
-        });
-    } else {
-        const s = sections.find(x => x.id === lid);
-        s.locked = true;
-        if (!s.title) s.title = LOCKED_AUTO_META[lid].title;
-        if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
-    }
-});
+                LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+                    if (!sections.find(x => x.id === lid)) {
+                        const meta = LOCKED_AUTO_META[lid];
+                        sections.push({
+                            id: lid, title: meta.title, icon: meta.icon,
+                            locked: true, order: i + 1,
+                            badge: lid === 'continuewatching' ? 'RESUME' : (lid === 'newreleases' ? 'NEW' : (lid === 'trending' ? 'HOT' : 'SMART')),
+                            explorePage: lid === 'continuewatching' ? '' : (lid === 'picked' ? '' : (lid === 'newreleases' ? 'newreleases.html' : 'trending.html')),
+                            enabled: true, customItems: [], removedIds: []
+                        });
+                    } else {
+                        const s = sections.find(x => x.id === lid);
+                        s.locked = true;
+                        if (!s.title) s.title = LOCKED_AUTO_META[lid].title;
+                        if (!s.icon) s.icon = LOCKED_AUTO_META[lid].icon;
+                    }
+                });
 
-// 🔥 FORCE-FIX ORDER for locked sections — newreleases=1, continuewatching=2, trending=3, picked=4
-LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
-    const s = sections.find(x => x.id === lid);
-    if (s) s.order = i + 1;
-});
+                LOCKED_AUTO_SECTIONS.forEach((lid, i) => {
+                    const s = sections.find(x => x.id === lid);
+                    if (s) s.order = i + 1;
+                });
 
-// Re-sort after adding + force-ordering locked ones
-sections.sort((a, b) => (a.order || 99) - (b.order || 99));
+                sections.sort((a, b) => (a.order || 99) - (b.order || 99));
 
                 const perOtt = {};
                 if (raw.perOtt && typeof raw.perOtt === 'object') {
@@ -1089,22 +1162,15 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                         };
                     });
                 }
-
                 return { sections, perOtt };
             }
-
-            // Legacy or empty → use defaults
             return { sections: getDefaultSectionsDeep(), perOtt: {} };
         }
 
-        // Get the correct section list for the currently active OTT
         function getCurrentSections() {
             if (activeSectionOtt === 'all') return sectionsConfig.sections;
             if (!sectionsConfig.perOtt[activeSectionOtt]) {
-                // First time this OTT is edited → clone defaults
-                sectionsConfig.perOtt[activeSectionOtt] = {
-                    sections: getDefaultSectionsDeep()
-                };
+                sectionsConfig.perOtt[activeSectionOtt] = { sections: getDefaultSectionsDeep() };
             }
             return sectionsConfig.perOtt[activeSectionOtt].sections;
         }
@@ -1126,7 +1192,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             }
         }
 
-        // Live TMDB data for currently viewed OTT — smart year filtered
         async function loadHomeSectionData() {
             const container = document.getElementById('sectionsListContainer');
             if (container) container.innerHTML = `<div class="table-empty"><i class="fas fa-spinner fa-spin"></i> Loading live items for <b>${activeSectionOtt === 'all' ? 'All Platforms' : activeSectionOtt}</b>…</div>`;
@@ -1136,7 +1201,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                 const currentSections = getCurrentSections();
 
                 if (activeSectionOtt === 'all') {
-                    // Fetch defaults for all sections
                     const promises = currentSections.map(sec => {
                         let endpoint;
                         if (sec.id === 'trending') endpoint = '/trending/all/week?language=en-US';
@@ -1148,8 +1212,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                         else if (sec.id === 'indianseries') endpoint = '/discover/tv?language=en-US&with_original_language=hi&sort_by=popularity.desc&page=1';
                         else if (sec.id === 'cdrama') endpoint = '/discover/tv?language=en-US&with_original_language=zh&sort_by=popularity.desc&page=1';
                         else if (sec.id === 'pdrama') endpoint = '/discover/tv?language=en-US&with_original_language=tl&sort_by=popularity.desc&page=1';
-
-                        // 🆕 NEW RELEASES — Movies + Web Series + Anime (latest launched)
                         else if (sec.id === 'newreleases') {
                             const today = new Date().toISOString().split('T')[0];
                             const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -1161,7 +1223,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                                 const movies = (m.results || []).map(x => ({ ...x, media_type: 'movie' }));
                                 const tvs    = (t.results || []).map(x => ({ ...x, media_type: 'tv' }));
                                 const anime  = (a.results || []).map(x => ({ ...x, media_type: 'tv' }));
-                                // Round-robin interleave: movie → tv → anime
                                 const out = [];
                                 const maxLen = Math.max(movies.length, tvs.length, anime.length);
                                 for (let i = 0; i < maxLen; i++) {
@@ -1172,7 +1233,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                                 return { results: out };
                             });
                         }
-
                         else return Promise.resolve({ results: [] });
                         return tmdbFetch(endpoint).catch(() => ({ results: [] }));
                     });
@@ -1181,7 +1241,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
 
                     currentSections.forEach((sec, i) => {
                         let items = (results[i].results || []).filter(r => r.poster_path);
-                        // Apply smart year filter for trending & picked only (newreleases is already fresh & date-filtered)
                         if (sec.id === 'trending' || sec.id === 'picked') {
                             items = smartLatestFilter(items, 8);
                         }
@@ -1195,19 +1254,17 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
                         }));
                     });
                 } else {
-                    // OTT-specific: use search/multi with the OTT's query keyword
                     const ott = ottsConfig.find(o => o.name === activeSectionOtt);
                     const keyword = ott ? ott.query : activeSectionOtt;
                     const res = await tmdbFetch(`/search/multi?query=${encodeURIComponent(keyword)}&page=1`);
                     const items = (res.results || []).filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'));
                     const smartItems = smartLatestFilter(items, 6);
 
-                    // Distribute smart items across sections
                     const pools = {
                         trending:    smartItems.slice(0, 12),
                         movies:      smartItems.slice(2, 14).reverse(),
                         picked:      smartItems.slice(4, 16),
-                        newreleases: smartItems.slice(6, 18),   // 🆕
+                        newreleases: smartItems.slice(6, 18),
                         series:      smartItems.filter(i => i.media_type === 'tv').slice(0, 10),
                         kdrama:      smartItems.filter(i => i.original_language === 'ko').slice(0, 10),
                         anime:       smartItems.filter(i => i.genre_ids && i.genre_ids.includes(16)).slice(0, 10),
@@ -1275,9 +1332,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             } catch (e) { showToast('Save failed: ' + e.message, 'error'); }
         }
 
-        // ============================================================
-        // RENDER SECTIONS LIST — with lock / add / remove / reorder
-        // ============================================================
         function renderSectionsList() {
             renderContextBar();
             const container = document.getElementById('sectionsListContainer');
@@ -1389,9 +1443,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             if (el) el.textContent = totalCustom;
         }
 
-        // ============================================================
-        // ADD / DELETE / REORDER SECTIONS
-        // ============================================================
         document.querySelectorAll('.icon-pick-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.icon-pick-btn').forEach(b => b.classList.remove('selected'));
@@ -1406,7 +1457,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             const badge = document.getElementById('newSectionBadge').value.trim().toUpperCase();
             if (!title) return showToast('Please enter a section title', 'error');
 
-            // Generate a unique slug id
             let baseId = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             if (!baseId) baseId = 'custom-' + Date.now();
             const sections = getCurrentSections();
@@ -1460,7 +1510,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             if (idx < 0) return;
             const newIdx = idx + direction;
             if (newIdx < 0 || newIdx >= sections.length) return;
-            // Swap order values
             const a = sections[idx], b = sections[newIdx];
             const tmp = a.order;
             a.order = b.order;
@@ -1516,9 +1565,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             showToast('Custom item removed', 'info');
         }
 
-        // ============================================================
-        // TMDB SEARCH MODAL
-        // ============================================================
         function openMovieModal(sectionId) {
             targetSectionKeyForMovie = sectionId;
             modalSearchResults = [];
@@ -2027,7 +2073,6 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
             const mainDls = document.getElementById('panelTotalDownloads');
             if (mainDls) mainDls.textContent = totalDownloadsCount;
 
-            // Count ALL custom items across ALL sections (default + per-OTT)
             let total = 0;
             (sectionsConfig.sections || []).forEach(s => { total += (s.customItems || []).length; });
             Object.keys(sectionsConfig.perOtt || {}).forEach(ott => {
@@ -2044,12 +2089,15 @@ sections.sort((a, b) => (a.order || 99) - (b.order || 99));
         });
 
         // ============================================================
-        // EXPOSE
+        // EXPOSE GLOBAL FUNCTIONS
         // ============================================================
         window.switchAdminTab = switchAdminTab;
         window.loadUsers = loadUsers;
         window.filterUsersTable = filterUsersTable;
         window.sendResetPasswordEmail = sendResetPasswordEmail;
+        window.loadApiPayments = loadApiPayments;         // NEW
+        window.approveApiPayment = approveApiPayment;     // NEW
+        window.rejectApiPayment = rejectApiPayment;       // NEW
         window.autoFillMediaFromTmdb = autoFillMediaFromTmdb;
         window.startEditMedia = startEditMedia;
         window.cancelMediaEdit = cancelMediaEdit;
