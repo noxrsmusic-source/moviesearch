@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>RX Player — Report a Bug</title>
+    <meta name="description" content="Report bugs and issues with RX Player.">
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-red: #E50914;
+            --bg-primary: #0A0A0F;
+            --bg-card: #161622;
+            --bg-secondary: #12121A;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-offset: 85px;
+            --success-green: #22C55E;
+            --error-red: #EF4444;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font) !important;
+            background: var(--bg-primary) !important;
+            color: var(--text-white) !important;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-offset);
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        input, textarea { font-family: var(--font); }
+        .container { max-width: 700px; margin: 0 auto; padding: 0 16px; }
+
+        /* ===== HEADER ===== */
+        .header-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 0;
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 19px; }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+        /* ===== BUG REPORT FORM ===== */
+        .bug-report-section {
+            padding: 20px 0 40px;
+        }
+
+        .bug-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .bug-header .icon-wrap {
+            width: 64px;
+            height: 64px;
+            background: rgba(239, 68, 68, 0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--primary-red);
+            margin: 0 auto 12px;
+        }
+        .bug-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .bug-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .bug-form {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+        .form-group label .required {
+            color: var(--primary-red);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-white);
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-group textarea:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
+        }
+        .form-group textarea::placeholder { color: var(--text-muted); }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"] {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-white);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-group input:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
+        }
+        .form-group input::placeholder { color: var(--text-muted); }
+
+        /* ===== FILE UPLOAD ===== */
+        .file-upload-area {
+            position: relative;
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .file-upload-area:hover {
+            border-color: var(--primary-red);
+            background: rgba(229, 9, 20, 0.04);
+        }
+        .file-upload-area.dragover {
+            border-color: var(--primary-red);
+            background: rgba(229, 9, 20, 0.08);
+        }
+        .file-upload-area .upload-icon {
+            font-size: 32px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .file-upload-area p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .file-upload-area .file-name {
+            font-size: 12px;
+            color: var(--success-green);
+            margin-top: 6px;
+            display: none;
+        }
+        .file-upload-area .file-name.visible { display: block; }
+        .file-upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ===== UPLOAD PREVIEW ===== */
+        .upload-preview {
+            display: none;
+            margin-top: 12px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            max-width: 200px;
+        }
+        .upload-preview.visible { display: block; }
+        .upload-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .upload-preview .remove-img {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: var(--transition);
+        }
+        .upload-preview .remove-img:hover { background: var(--error-red); }
+
+        /* ===== SUBMIT BUTTON ===== */
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 30px;
+            background: var(--primary-red);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.35);
+            margin-top: 6px;
+        }
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 28px rgba(229, 9, 20, 0.5);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .submit-btn .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .submit-btn.loading .spinner { display: block; }
+        .submit-btn.loading .btn-text { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+            width: 100%;
+        }
+        .toast {
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideUp 0.3s ease;
+            font-size: 14px;
+        }
+        .toast.success { border-left-color: var(--success-green); }
+        .toast.error { border-left-color: var(--error-red); }
+        .toast .toast-icon { font-size: 18px; flex-shrink: 0; }
+        .toast .toast-close {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            :root { --header-offset: 75px; }
+            .bug-form { padding: 18px 14px; }
+            .bug-header h1 { font-size: 20px; }
+            .toast-container { right: 12px; left: 12px; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="header-wrapper">
+        <div class="container header-inner">
+            <a class="logo" href="/" title="RX Player Home">
+                <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+            </a>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== BUG REPORT SECTION ===== -->
+    <section class="bug-report-section container">
+        <div class="bug-header">
+            <div class="icon-wrap">
+                <i class="fas fa-bug"></i>
+            </div>
+            <h1>Report a Bug</h1>
+            <p>Help us improve RX Player by reporting any issues you encounter.</p>
+        </div>
+
+        <form class="bug-form" id="bugForm" novalidate>
+            <!-- Description -->
+            <div class="form-group">
+                <label for="bugDescription">Describe the bug <span class="required">*</span></label>
+                <textarea id="bugDescription" placeholder="Tell us what happened. Include steps to reproduce if possible…" required></textarea>
+            </div>
+
+            <!-- Device / OS Info (optional) -->
+            <div class="form-group">
+                <label for="deviceInfo">Device & OS (optional)</label>
+                <input type="text" id="deviceInfo" placeholder="e.g. Samsung S21, Android 13">
+            </div>
+
+            <!-- Email (optional) -->
+            <div class="form-group">
+                <label for="userEmail">Your Email (optional)</label>
+                <input type="email" id="userEmail" placeholder="So we can follow up if needed">
+            </div>
+
+            <!-- Screenshot Upload -->
+            <div class="form-group">
+                <label>Attach Screenshot <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+                <div class="file-upload-area" id="fileDropArea">
+                    <div class="upload-icon"><i class="fas fa-image"></i></div>
+                    <p>Tap to choose a screenshot</p>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:4px;">PNG, JPG, WEBP — Max 5MB</p>
+                    <div class="file-name" id="fileName">📎 <span id="fileLabel"></span></div>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+                <div class="upload-preview" id="uploadPreview">
+                    <img id="previewImage" src="" alt="Screenshot preview">
+                    <button type="button" class="remove-img" id="removeImageBtn"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="spinner"></span>
+                <span class="btn-text"><i class="fas fa-paper-plane"></i> Submit Bug Report</span>
+            </button>
+        </form>
+    </section>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== FIREBASE & CLOUDINARY ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ============================================================
+        //  CONFIGURATION
+        // ============================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            databaseURL: "https://rxplayer-a2582-default-rtdb.firebaseio.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc",
+            measurementId: "G-28GFZHBB6P"
+        };
+
+        const CLOUDINARY_CLOUD_NAME = 'du9nysbwl';
+        const CLOUDINARY_UPLOAD_PRESET = 'Spotifreebyadmin';
+
+        // ============================================================
+        //  FIREBASE INIT
+        // ============================================================
+        if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        const db = firebase.firestore();
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const form = document.getElementById('bugForm');
+        const description = document.getElementById('bugDescription');
+        const deviceInfo = document.getElementById('deviceInfo');
+        const userEmail = document.getElementById('userEmail');
+        const fileInput = document.getElementById('fileInput');
+        const fileDropArea = document.getElementById('fileDropArea');
+        const fileName = document.getElementById('fileName');
+        const fileLabel = document.getElementById('fileLabel');
+        const previewContainer = document.getElementById('uploadPreview');
+        const previewImage = document.getElementById('previewImage');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let selectedFile = null;
+        let isSubmitting = false;
+
+        // ============================================================
+        //  TOAST SYSTEM
+        // ============================================================
+        function showToast(message, type = 'info', duration = 5000) {
+            const icons = {
+                info: 'fa-info-circle',
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle'
+            };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></span>
+                <span>${message}</span>
+                <button class="toast-close"><i class="fas fa-times"></i></button>
+            `;
+            toastContainer.appendChild(toast);
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 300);
+            });
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, duration);
+        }
+
+        // ============================================================
+        //  FILE HANDLING
+        // ============================================================
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image size must be less than 5MB.', 'error');
+                    fileInput.value = '';
+                    return;
+                }
+                selectedFile = file;
+                fileLabel.textContent = file.name;
+                fileName.classList.add('visible');
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    previewImage.src = ev.target.result;
+                    previewContainer.classList.add('visible');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        fileDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropArea.classList.add('dragover');
+        });
+        fileDropArea.addEventListener('dragleave', () => {
+            fileDropArea.classList.remove('dragover');
+        });
+        fileDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image size must be less than 5MB.', 'error');
+                    return;
+                }
+                selectedFile = file;
+                fileInput.files = e.dataTransfer.files;
+                fileLabel.textContent = file.name;
+                fileName.classList.add('visible');
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    previewImage.src = ev.target.result;
+                    previewContainer.classList.add('visible');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            fileName.classList.remove('visible');
+            previewContainer.classList.remove('visible');
+            previewImage.src = '';
+        });
+
+        // ============================================================
+        //  UPLOAD TO CLOUDINARY
+        // ============================================================
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            try {
+                const res = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    { method: 'POST', body: formData }
+                );
+                const data = await res.json();
+                if (data.secure_url) {
+                    return data.secure_url;
+                } else {
+                    throw new Error('Cloudinary upload failed');
+                }
+            } catch (err) {
+                console.error('Cloudinary error:', err);
+                throw new Error('Failed to upload screenshot. Please try again.');
+            }
+        }
+
+        // ============================================================
+        //  SUBMIT BUG REPORT
+        // ============================================================
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate
+            const desc = description.value.trim();
+            if (!desc || desc.length < 5) {
+                showToast('Please describe the bug in detail (at least 5 characters).', 'error');
+                description.focus();
+                return;
+            }
+
+            if (isSubmitting) return;
+            isSubmitting = true;
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                let screenshotUrl = null;
+
+                // Upload screenshot if selected
+                if (selectedFile) {
+                    try {
+                        screenshotUrl = await uploadToCloudinary(selectedFile);
+                    } catch (uploadErr) {
+                        showToast(uploadErr.message || 'Screenshot upload failed. You can submit without it.', 'error');
+                        // Continue without screenshot
+                    }
+                }
+
+                // Build report data
+                const reportData = {
+                    description: desc,
+                    deviceInfo: deviceInfo.value.trim() || 'Not specified',
+                    email: userEmail.value.trim() || 'Not specified',
+                    screenshotUrl: screenshotUrl || null,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: new Date().toISOString(),
+                    status: 'pending', // pending | reviewed | fixed
+                    userAgent: navigator.userAgent,
+                    appVersion: '1.0.0'
+                };
+
+                // Save to Firestore
+                const docRef = await db.collection('bugReports').add(reportData);
+
+                // Success
+                showToast('✅ Bug report submitted successfully! Thank you for helping improve RX Player.', 'success', 6000);
+
+                // Reset form
+                form.reset();
+                selectedFile = null;
+                fileInput.value = '';
+                fileName.classList.remove('visible');
+                previewContainer.classList.remove('visible');
+                previewImage.src = '';
+
+            } catch (err) {
+                console.error('Submit error:', err);
+                showToast('❌ Failed to submit report. Please try again.', 'error');
+            } finally {
+                isSubmitting = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ============================================================
+        //  AUTO-DETECT DEVICE INFO (optional)
+        // ============================================================
+        (function autoDetectDevice() {
+            try {
+                const ua = navigator.userAgent;
+                let info = '';
+                if (/Android/i.test(ua)) {
+                    const match = ua.match(/Android\s([\d.]+)/);
+                    info = `Android ${match ? match[1] : 'unknown'}`;
+                } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                    const match = ua.match(/OS\s([\d_]+)/);
+                    info = `iOS ${match ? match[1].replace(/_/g, '.') : 'unknown'}`;
+                } else if (/Windows/i.test(ua)) {
+                    info = 'Windows';
+                } else if (/Mac/i.test(ua)) {
+                    info = 'macOS';
+                } else if (/Linux/i.test(ua)) {
+                    info = 'Linux';
+                }
+                if (info && !deviceInfo.value) {
+                    deviceInfo.placeholder = `e.g. ${info} (auto-detected)`;
+                }
+            } catch (e) { /* ignore */ }
+        })();
+
+        console.log('🐞 RX Player Bug Reporter loaded. Help us squash those bugs!');
+    </script>
+
+</body>
+</html>
