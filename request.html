@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>RX Player — Request Content</title>
+    <meta name="description" content="Request movies, series, anime, or music content." />
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-red: #E50914;
+            --primary-green: #22C55E;
+            --telegram-blue: #0088cc;
+            --earn-gold: #F59E0B;
+            --api-blue: #38bdf8;
+            --bug-red: #ef4444;
+            --bg-primary: #0A0A0F;
+            --bg-card: #161622;
+            --bg-secondary: #12121A;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-offset: 68px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font) !important;
+            background: var(--bg-primary) !important;
+            color: var(--text-white) !important;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            padding-top: var(--header-offset);
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; font-family: var(--font); border: none; background: none; color: inherit; }
+        img { display: block; max-width: 100%; }
+        .container { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+
+        /* ===== NAVBAR (IDENTICAL TO MAIN APP) ===== */
+        .header-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.96);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            height: var(--header-offset);
+            display: flex;
+            align-items: center;
+        }
+        .header-top { width: 100%; }
+        .header-top-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+        }
+        .header-left-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hamburger-btn {
+            font-size: 18px;
+            color: var(--text-white);
+            background: rgba(255, 255, 255, 0.06);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
+        }
+        .hamburger-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 19px; }
+
+        /* User status */
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 10px 4px 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .user-status:hover { background: rgba(255, 255, 255, 0.08); }
+        .user-status .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .user-status .username {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-white);
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-status .logout-btn {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.06);
+            transition: var(--transition);
+        }
+        .user-status .logout-btn:hover { color: #fff; background: rgba(255,255,255,0.14); }
+
+        /* ===== SIDE DRAWER ===== */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            z-index: 99998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .drawer-overlay.open { opacity: 1; visibility: visible; }
+
+        .drawer-menu {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 290px;
+            height: 100%;
+            background: var(--bg-card);
+            z-index: 99999;
+            box-shadow: 6px 0 30px rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .drawer-overlay.open .drawer-menu { left: 0; }
+
+        .drawer-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .drawer-close {
+            font-size: 18px;
+            color: var(--text-muted);
+            padding: 6px;
+        }
+        .drawer-close:hover { color: #fff; }
+        .drawer-links { padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+        .drawer-link {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .drawer-link:hover, .drawer-link.active { background: rgba(255, 255, 255, 0.06); color: var(--text-white); }
+        .drawer-link.highlight { background: rgba(245, 158, 11, 0.12); color: var(--earn-gold); }
+        .drawer-link.api { background: rgba(56, 189, 248, 0.12); color: var(--api-blue); }
+        .drawer-link.tg { background: rgba(0, 136, 204, 0.12); color: #38bdf8; }
+        .drawer-link.bug { background: rgba(239, 68, 68, 0.12); color: var(--bug-red); }
+        .drawer-footer { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: var(--text-muted); text-align: center; }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            margin: 20px 0 16px;
+        }
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-title i { color: var(--primary-red); font-size: 20px; }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        /* ===== REQUEST FORM CARD ===== */
+        .request-form {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: var(--shadow);
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .form-group label .required {
+            color: var(--primary-red);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-white);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-red);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+        .form-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-white);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-red);
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-top: 4px;
+            box-shadow: 0 4px 16px rgba(229, 9, 20, 0.3);
+        }
+        .btn-primary:hover { background: #b20710; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ===== AUTH PROMPT ===== */
+        .auth-prompt {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: var(--shadow);
+        }
+        .auth-prompt .icon {
+            font-size: 44px;
+            color: var(--text-muted);
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+        .auth-prompt h3 {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .auth-prompt p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-bottom: 18px;
+        }
+        .auth-prompt .btn-login-prompt {
+            padding: 10px 24px;
+            border-radius: 30px;
+            background: var(--primary-red);
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
+        }
+        .auth-prompt .btn-login-prompt:hover { background: #b20710; }
+
+        /* ===== AUTH MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            max-width: 420px;
+            width: 100%;
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .modal-header h3 {
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-header h3 i { color: var(--primary-red); }
+        .modal-close {
+            font-size: 16px;
+            color: var(--text-muted);
+            padding: 4px;
+        }
+        .modal-close:hover { color: #fff; }
+        .auth-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 6px;
+        }
+        .auth-tabs button {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+        }
+        .auth-tabs button.active { background: var(--primary-red); color: #fff; }
+        .auth-form .form-group { margin-bottom: 11px; }
+        .auth-form .form-group label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .auth-form .form-group input {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            font-size: 13.5px;
+            outline: none;
+        }
+        .auth-form .form-group input:focus { border-color: var(--primary-red); }
+        .auth-form .btn-primary { margin-top: 4px; padding: 11px; font-size: 14px; }
+
+        /* Forgot password link and styles */
+        .forgot-password-link {
+            display: block;
+            text-align: right;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .forgot-password-link:hover {
+            color: var(--primary-red);
+            text-decoration: underline;
+        }
+        .auth-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .auth-back-link:hover { color: #fff; }
+        .reset-helper-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 16px;
+            left: 16px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            padding: 11px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideUp 0.3s ease;
+            font-size: 13px;
+            pointer-events: auto;
+        }
+        .toast.success { border-left-color: var(--primary-green); }
+        .toast.error { border-left-color: var(--primary-red); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (min-width: 601px) {
+            .page-header { margin: 24px 0 20px; }
+            .page-title { font-size: 24px; }
+            .user-status .username { max-width: 140px; }
+            .toast-container { left: auto; right: 24px; max-width: 360px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER (WITH HAMBURGER DRAWER & ACCOUNT BADGE) ===== -->
+    <div class="header-wrapper" id="mainHeader">
+        <header class="header-top">
+            <div class="container header-top-inner">
+                <div class="header-left-cluster">
+                    <button aria-label="Open Navigation Drawer" class="hamburger-btn" id="drawerOpenBtn" type="button">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <a class="logo" href="/" title="RX Player Home">
+                        <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+                    </a>
+                </div>
+                
+                <div class="user-status" id="userStatus" title="Account">
+                    <div class="avatar" id="userAvatar"><i class="fas fa-user"></i></div>
+                    <span class="username" id="userDisplayName">Guest</span>
+                    <button class="logout-btn" id="logoutBtn" style="display:none;">Logout</button>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- ===== SIDE DRAWER ===== -->
+    <div class="drawer-overlay" id="drawerOverlay">
+        <aside class="drawer-menu" id="drawerMenu">
+            <div class="drawer-header">
+                <div class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
+                <button aria-label="Close Menu" class="drawer-close" id="drawerCloseBtn" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="drawer-links">
+                <a class="drawer-link" href="/"><i class="fas fa-home"></i> Home</a>
+                <a class="drawer-link" href="music.html"><i class="fas fa-music"></i> Music</a>
+                <a class="drawer-link active" href="request.html"><i class="fas fa-paper-plane"></i> Request Content</a>
+                <a class="drawer-link bug" href="bug.html"><i class="fas fa-bug"></i> Report a Bug</a>
+                <a class="drawer-link api" href="https://rxplayerapi.blogspot.com" rel="noopener noreferrer" target="_blank"><i class="fas fa-code"></i> Get RX Player API</a>
+                <a class="drawer-link highlight" href="https://rxplayeraffiliateprogram.blogspot.com/" rel="noopener noreferrer" target="_blank"><i class="fas fa-hand-holding-dollar"></i> Earn With Us</a>
+                <a class="drawer-link tg" href="https://t.me/rxplayer" rel="noopener noreferrer" target="_blank"><i class="fab fa-telegram-plane"></i> Join Backup Channel</a>
+            </div>
+            <div class="drawer-footer">
+                <span>RX Player Search Engine © 2026</span>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="container">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-paper-plane"></i> Request Content</h1>
+            <p class="page-subtitle">Request movies, series, anime, music, or any media you'd like to see on RX Player.</p>
+        </div>
+
+        <div id="requestContainer">
+            <div class="empty-state" style="text-align: center; padding: 40px 14px; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin" style="font-size: 28px;"></i> Loading…
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== AUTH MODAL (Login / Register / Forgot Password) ===== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="authModalTitle"><i class="fas fa-user-circle"></i> Account</h3>
+                <button class="modal-close" id="authModalClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="auth-tabs" id="authTabsContainer">
+                <button class="active" data-tab="login">Login</button>
+                <button data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required />
+                    <span class="forgot-password-link" id="forgotPasswordBtn">Forgot password?</span>
+                </div>
+                <button type="submit" class="btn-primary" id="loginSubmitBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display:none;">
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="registerName" placeholder="Your name" required />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="your@email.com" required />
+                </div>
+                <div class="form-group">
+                    <label>Password (min 6 chars)</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" minlength="6" required />
+                </div>
+                <button type="submit" class="btn-primary" id="registerSubmitBtn"><i class="fas fa-user-plus"></i> Create Account</button>
+            </form>
+
+            <!-- Forgot Password Form -->
+            <form id="forgotPasswordForm" class="auth-form" style="display:none;">
+                <p class="reset-helper-text">Enter your registered email address and we'll send you a password reset link.</p>
+                <div class="form-group">
+                    <label>Registered Email</label>
+                    <input type="email" id="resetEmail" placeholder="your@email.com" required />
+                </div>
+                <button type="submit" class="btn-primary" id="resetSubmitBtn"><i class="fas fa-paper-plane"></i> Send Reset Link</button>
+                <div>
+                    <span class="auth-back-link" id="backToLoginBtn"><i class="fas fa-arrow-left"></i> Back to Login</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // ============================================================
+        //  CONFIG
+        // ============================================================
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            databaseURL: "https://rxplayer-a2582-default-rtdb.firebaseio.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc",
+            measurementId: "G-28GFZHBB6P"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const drawerOpenBtn = document.getElementById('drawerOpenBtn');
+        const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        const requestContainer = document.getElementById('requestContainer');
+        const userStatus = document.getElementById('userStatus');
+        const userDisplayName = document.getElementById('userDisplayName');
+        const userAvatar = document.getElementById('userAvatar');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const authModal = document.getElementById('authModal');
+        const authModalClose = document.getElementById('authModalClose');
+        const authModalTitle = document.getElementById('authModalTitle');
+        const authTabsContainer = document.getElementById('authTabsContainer');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const backToLoginBtn = document.getElementById('backToLoginBtn');
+        const resetEmail = document.getElementById('resetEmail');
+        const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerName = document.getElementById('registerName');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+        const authTabs = document.querySelectorAll('.auth-tabs button');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let currentUser = null;
+
+        // ============================================================
+        //  DRAWER CONTROLS
+        // ============================================================
+        function openDrawer() {
+            if (drawerOverlay) {
+                drawerOverlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeDrawer() {
+            if (drawerOverlay) {
+                drawerOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+        if (drawerOpenBtn) drawerOpenBtn.addEventListener('click', openDrawer);
+        if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
+        if (drawerOverlay) {
+            drawerOverlay.addEventListener('click', (e) => {
+                if (e.target === drawerOverlay) closeDrawer();
+            });
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        function showToast(message, type = 'info', duration = 3500) {
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ============================================================
+        //  AUTH VIEW SWITCHERS
+        // ============================================================
+        function showLoginView() {
+            authTabsContainer.style.display = 'flex';
+            authTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'login'));
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            forgotPasswordForm.style.display = 'none';
+            authModalTitle.innerHTML = '<i class="fas fa-user-circle"></i> Account';
+        }
+
+        function showForgotPasswordView() {
+            authTabsContainer.style.display = 'none';
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'none';
+            forgotPasswordForm.style.display = 'block';
+            authModalTitle.innerHTML = '<i class="fas fa-key"></i> Reset Password';
+            resetEmail.value = loginEmail.value || '';
+        }
+
+        // ============================================================
+        //  AUTH STATE & USER BADGE HANDLER
+        // ============================================================
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            updateUIForAuth();
+            if (user) {
+                userDisplayName.textContent = user.displayName || user.email || 'User';
+                userAvatar.innerHTML = user.displayName ? user.displayName.charAt(0).toUpperCase() : '<i class="fas fa-user"></i>';
+
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.displayName) {
+                            userDisplayName.textContent = data.displayName;
+                            userAvatar.innerHTML = data.displayName.charAt(0).toUpperCase();
+                        }
+                    }
+                }).catch(() => {});
+                renderRequestForm();
+            } else {
+                renderAuthPrompt();
+            }
+        });
+
+        function updateUIForAuth() {
+            if (currentUser) {
+                logoutBtn.style.display = 'inline-block';
+                userDisplayName.textContent = currentUser.displayName || currentUser.email || 'User';
+                userAvatar.innerHTML = currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : '<i class="fas fa-user"></i>';
+            } else {
+                logoutBtn.style.display = 'none';
+                userDisplayName.textContent = 'Guest';
+                userAvatar.innerHTML = '<i class="fas fa-user"></i>';
+                if (authModal.classList.contains('open')) authModal.classList.remove('open');
+            }
+        }
+
+        // Clicking the user-status badge opens auth if guest
+        if (userStatus) {
+            userStatus.addEventListener('click', (e) => {
+                if (e.target.closest('#logoutBtn')) return;
+                if (!currentUser) {
+                    showLoginView();
+                    authModal.classList.add('open');
+                }
+            });
+        }
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            auth.signOut().then(() => {
+                showToast('Logged out.', 'info');
+            }).catch(() => {});
+        });
+
+        // ============================================================
+        //  RENDER LOGIC
+        // ============================================================
+        function renderAuthPrompt() {
+            requestContainer.innerHTML = `
+                <div class="auth-prompt">
+                    <div class="icon"><i class="fas fa-lock"></i></div>
+                    <h3>Login Required</h3>
+                    <p>You need to be logged in to request content.</p>
+                    <button class="btn-login-prompt" id="openAuthBtn"><i class="fas fa-sign-in-alt"></i> Login / Register</button>
+                </div>
+            `;
+            document.getElementById('openAuthBtn').addEventListener('click', () => {
+                showLoginView();
+                authModal.classList.add('open');
+            });
+        }
+
+        function renderRequestForm() {
+            requestContainer.innerHTML = `
+                <form class="request-form" id="requestForm">
+                    <div class="form-group">
+                        <label>Content Title <span class="required">*</span></label>
+                        <input type="text" id="reqTitle" placeholder="e.g. The Dark Knight" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Type <span class="required">*</span></label>
+                        <select id="reqType" required>
+                            <option value="">Select type</option>
+                            <option value="movie">Movie</option>
+                            <option value="series">TV Series</option>
+                            <option value="anime">Anime</option>
+                            <option value="music">Music / Song</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Details (optional)</label>
+                        <textarea id="reqDetails" placeholder="Any extra info: release year, artist, genre, language..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" id="requestSubmitBtn">
+                        <i class="fas fa-paper-plane"></i> Send Request
+                    </button>
+                </form>
+            `;
+
+            const form = document.getElementById('requestForm');
+            form.addEventListener('submit', handleRequestSubmit);
+        }
+
+        // ============================================================
+        //  HANDLE REQUEST SUBMIT
+        // ============================================================
+        async function handleRequestSubmit(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                showToast('Please login first.', 'error');
+                return;
+            }
+
+            const title = document.getElementById('reqTitle').value.trim();
+            const type = document.getElementById('reqType').value;
+            const details = document.getElementById('reqDetails').value.trim();
+
+            if (!title) return showToast('Please enter a title.', 'error');
+            if (!type) return showToast('Please select a type.', 'error');
+
+            const submitBtn = document.getElementById('requestSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+
+            try {
+                await db.collection('contentRequests').add({
+                    title,
+                    type,
+                    details: details || '',
+                    requestedBy: currentUser.uid,
+                    requestedByEmail: currentUser.email,
+                    status: 'pending',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast(`Request for "${title}" sent successfully!`, 'success');
+                document.getElementById('reqTitle').value = '';
+                document.getElementById('reqType').value = '';
+                document.getElementById('reqDetails').value = '';
+            } catch (err) {
+                showToast('Request failed: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
+            }
+        }
+
+        // ============================================================
+        //  AUTH MODAL LOGIC
+        // ============================================================
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                authTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                forgotPasswordForm.style.display = 'none';
+                if (tabName === 'login') {
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
+                } else {
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                }
+            });
+        });
+
+        // Toggle to Forgot Password view
+        forgotPasswordBtn.addEventListener('click', () => {
+            showForgotPasswordView();
+        });
+
+        // Back to Login view
+        backToLoginBtn.addEventListener('click', () => {
+            showLoginView();
+        });
+
+        // Forgot Password Submit Handler
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = resetEmail.value.trim();
+            if (!email) return showToast('Please enter your email.', 'error');
+
+            resetSubmitBtn.disabled = true;
+            resetSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending link…';
+
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showToast(`Password reset link sent to ${email}! Check inbox / spam.`, 'success', 5000);
+                showLoginView();
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                resetSubmitBtn.disabled = false;
+                resetSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+            if (!email || !password) return showToast('Please fill all fields.', 'error');
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Logged in successfully!', 'success');
+                authModal.classList.remove('open');
+                loginEmail.value = '';
+                loginPassword.value = '';
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = registerName.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            if (!name || !email || !password) return showToast('Please fill all fields.', 'error');
+            if (password.length < 6) return showToast('Password must be at least 6 characters.', 'error');
+            try {
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                await cred.user.updateProfile({ displayName: name });
+                await db.collection('users').doc(cred.user.uid).set({
+                    displayName: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showToast('Account created! You are now logged in.', 'success');
+                authModal.classList.remove('open');
+                registerName.value = '';
+                registerEmail.value = '';
+                registerPassword.value = '';
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        authModalClose.addEventListener('click', () => {
+            authModal.classList.remove('open');
+        });
+
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) authModal.classList.remove('open');
+        });
+    </script>
+</body>
+</html>
