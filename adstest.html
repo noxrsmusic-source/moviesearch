@@ -17,7 +17,6 @@
             --primary-red-hover: #b80710;
             --bg-primary: #08080C;
             --bg-card: #14141F;
-            --bg-secondary: #0F0F17;
             --text-white: #FFFFFF;
             --text-muted: #9CA3AF;
             --border-subtle: rgba(255,255,255,0.08);
@@ -39,7 +38,6 @@
             padding: 20px 16px 60px;
         }
 
-        /* HEADER */
         .header {
             width: 100%;
             max-width: 600px;
@@ -79,7 +77,6 @@
             transform: translateY(-2px);
         }
 
-        /* MAIN CONTAINER */
         .main-container {
             width: 100%;
             max-width: 600px;
@@ -88,7 +85,6 @@
             gap: 30px;
         }
 
-        /* CONTACT FORM BOX */
         .contact-box {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -185,7 +181,6 @@
             transform: translateY(0);
         }
 
-        /* BANNER / NOTICE BOARD BOX */
         .notice-section {
             display: flex;
             flex-direction: column;
@@ -205,7 +200,7 @@
         }
         .notice-box {
             width: 100%;
-            max-width: 340px; /* Fixed square size */
+            max-width: 340px;
             aspect-ratio: 1 / 1;
             background: var(--bg-card);
             border: 2px dashed rgba(255,255,255,0.1);
@@ -221,7 +216,6 @@
             display: block;
         }
 
-        /* TOAST NOTIFICATION */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -255,7 +249,6 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="header">
         <a href="index.html" class="logo">
             <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
@@ -267,7 +260,6 @@
 
     <main class="main-container">
         
-        <!-- CONTACT ADMIN FORM -->
         <div class="contact-box">
             <h1 class="page-title">Contact Admin</h1>
             <p class="page-subtitle">Have a question, feedback, or need support? Fill out the form below and we'll get back to you as soon as possible.</p>
@@ -301,51 +293,37 @@
             </form>
         </div>
 
-        <!-- SQUARE NOTICE BOARD (LOADING THE LINK DIRECTLY) -->
         <div class="notice-section">
             <h2 class="notice-title"><i class="fas fa-bullhorn"></i> Important Notice</h2>
-            <!-- यहाँ पर सीधे आपका लिंक लोड होगा -->
             <div class="notice-box">
-                <iframe src="https://uplcm.com/4/10362569" title="Site Notice Board" scrolling="no" loading="lazy"></iframe>
+                <!-- Yahan banner.html load hoga, aur click karne par isi box me link open hoga -->
+                <iframe src="banner.html" title="Site Notice Board" scrolling="no" loading="lazy"></iframe>
             </div>
         </div>
 
     </main>
 
-    <!-- SUCCESS TOAST -->
     <div class="toast" id="toastMsg">
         <i class="fas fa-check-circle"></i> <span>Message sent successfully!</span>
     </div>
 
     <script>
-        // Form Submit Logic (Simulated)
         document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent page reload
-            
+            e.preventDefault();
             const btn = this.querySelector('.submit-btn');
             const originalText = btn.innerHTML;
-            
-            // Button loading state
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending...';
             btn.disabled = true;
 
-            // Simulate network request
             setTimeout(() => {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-                
-                // Reset form
                 this.reset();
-
-                // Show success toast
                 const toast = document.getElementById('toastMsg');
                 toast.classList.add('show');
-                
                 setTimeout(() => {
                     toast.classList.remove('show');
                 }, 4000);
-
             }, 1500);
         });
     </script>
