@@ -109,6 +109,7 @@
         table .btn-action-sm.edit { background: rgba(245,158,11,0.15); color: #f59e0b; }
         table .btn-action-sm.manage { background: rgba(56,189,248,0.15); color: #38bdf8; }
         table .btn-action-sm.reset-btn { background: rgba(56,189,248,0.15); color: #38bdf8; }
+        table .btn-action-sm.renew { background: rgba(56,189,248,0.15); color: #38bdf8; }
 
         .table-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
         .table-empty i { font-size: 32px; opacity: 0.3; margin-bottom: 10px; display: block; }
@@ -306,9 +307,7 @@
             <aside class="admin-sidebar" id="adminSidebar">
                 <div class="sidebar-nav-tabs">
                     <button class="sidebar-tab-btn active" id="tabNavUsers" onclick="switchAdminTab('users')"><i class="fas fa-user-friends"></i> Users Manager</button>
-                    <!-- NEW API PAYMENTS TAB -->
                     <button class="sidebar-tab-btn" id="tabNavPayments" onclick="switchAdminTab('payments')"><i class="fas fa-money-check-alt"></i> API Payments</button>
-                    
                     <button class="sidebar-tab-btn" id="tabNavMedia" onclick="switchAdminTab('media')"><i class="fas fa-film"></i> Media Catalog</button>
                     <button class="sidebar-tab-btn" id="tabNavSections" onclick="switchAdminTab('sections')"><i class="fas fa-layer-group"></i> Home Sections</button>
                     <button class="sidebar-tab-btn" id="tabNavOtt" onclick="switchAdminTab('ott')"><i class="fas fa-tv"></i> OTT Filters</button>
@@ -337,10 +336,10 @@
 
             <section class="admin-main">
 
-                <!-- API PAYMENTS (NEW) -->
+                <!-- API PAYMENTS -->
                 <div class="tab-content" id="tabContentPayments">
                     <h1 class="page-title"><i class="fas fa-money-check-alt" style="color:var(--primary-green);"></i> API Payment Requests</h1>
-                    <p class="page-subtitle">Verify UPI payments below. Approving a payment will automatically activate the user's API key.</p>
+                    <p class="page-subtitle">Verify UPI payments below. Approving activates the key for 30 days. Use Renew to extend.</p>
                     <div style="margin-bottom:16px; display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn-secondary" onclick="loadApiPayments()"><i class="fas fa-sync"></i> Refresh Requests</button>
                     </div>
@@ -357,11 +356,12 @@
                                     <th>UTR</th>
                                     <th>Screenshot</th>
                                     <th>Status</th>
+                                    <th>Expires On</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="apiPaymentsTableBody">
-                                <tr><td colspan="10" style="text-align:center;">Loading payments…</td></tr>
+                                <tr><td colspan="11" style="text-align:center;">Loading payments…</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -718,7 +718,7 @@
         let allSongs = [];
         let allRequests = [];
         let allUsers = [];
-        let allApiPayments = []; // NEW
+        let allApiPayments = [];
         
         let totalDownloadsCount = 0;
         let sectionsConfig = { sections: [], perOtt: {} };
@@ -774,7 +774,7 @@
                 loadHomeSectionData();
             }
             if (tabName === 'payments') {
-                loadApiPayments(); // NEW
+                loadApiPayments();
             }
         }
 
@@ -842,19 +842,23 @@
             } catch (e) { 
                 console.error(e); 
                 const tbody = document.getElementById('apiPaymentsTableBody');
-                if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="table-empty">Error loading payments. Check Firestore rules.</td></tr>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="table-empty">Error loading payments. Check Firestore rules.</td></tr>`;
             }
         }
 
         function renderApiPaymentsTable() {
             const tbody = document.getElementById('apiPaymentsTableBody');
             if (!tbody) return;
-            if (!allApiPayments.length) { tbody.innerHTML = `<tr><td colspan="10" class="table-empty">No API payment requests yet.</td></tr>`; return; }
+            if (!allApiPayments.length) { tbody.innerHTML = `<tr><td colspan="11" class="table-empty">No API payment requests yet.</td></tr>`; return; }
             
             tbody.innerHTML = allApiPayments.map((p, i) => {
                 let dateStr = 'N/A';
                 if (p.createdAt) dateStr = new Date(p.createdAt.toMillis()).toLocaleString();
                 const statusClass = p.status === 'approved' ? 'active' : (p.status === 'rejected' ? 'rejected' : 'pending');
+                
+                // Expiry Logic
+                let expDateStr = '—';
+                if (p.expiresAt) expDateStr = new Date(p.expiresAt).toLocaleDateString();
                 
                 return `<tr>
                     <td>${i + 1}</td>
@@ -866,24 +870,31 @@
                     <td><span class="key-text">${p.utr}</span></td>
                     <td>${p.screenshotUrl ? `<a href="${p.screenshotUrl}" target="_blank"><img src="${p.screenshotUrl}" style="height:40px;border-radius:4px;border:1px solid #444;" /></a>` : 'None'}</td>
                     <td><span class="status-badge ${statusClass}">${p.status ? p.status.toUpperCase() : 'PENDING'}</span></td>
+                    <td><span style="font-size:12px;color:${p.status === 'approved' ? '#22C55E' : 'var(--text-muted)'};">${expDateStr}</span></td>
                     <td>
                         ${p.status === 'pending' ? `
-                            <button class="btn-action-sm activate" onclick="approveApiPayment('${p.id}', '${p.apiKey}')" title="Approve & Activate"><i class="fas fa-check"></i> Approve</button>
+                            <button class="btn-action-sm activate" onclick="approveApiPayment('${p.id}', '${p.apiKey}')" title="Approve & Activate 30 Days"><i class="fas fa-check"></i> Approve</button>
                             <button class="btn-action-sm deactivate" onclick="rejectApiPayment('${p.id}', '${p.apiKey}')" title="Reject"><i class="fas fa-times"></i> Reject</button>
-                        ` : '—'}
+                        ` : `
+                            <button class="btn-action-sm renew" onclick="renewApiKey('${p.apiKey}', '${p.id}')" title="Renew 30 Days"><i class="fas fa-sync"></i> Renew</button>
+                        `}
                     </td>
                 </tr>`;
             }).join('');
         }
 
         async function approveApiPayment(reqId, apiKey) {
-            if (!confirm('Approve this payment and activate the API key?')) return;
+            if (!confirm('Approve this payment and activate the API key for 30 days?')) return;
             try {
-                // 1. Approve Payment Request
-                await db.collection('apiPaymentRequests').doc(reqId).update({ status: 'approved' });
-                // 2. Activate API Key
-                await db.collection('apiKeys').doc(apiKey).update({ status: 'active' });
-                showToast('Payment verified & API Key activated!', 'success');
+                const expiry = Date.now() + (30 * 24 * 60 * 60 * 1000); // 30 Days
+                
+                // 1. Approve Payment Request & Save Expiry
+                await db.collection('apiPaymentRequests').doc(reqId).update({ status: 'approved', expiresAt: expiry });
+                
+                // 2. Activate API Key & Save Expiry
+                await db.collection('apiKeys').doc(apiKey).update({ status: 'active', expiresAt: expiry });
+                
+                showToast('Payment verified & API Key activated for 30 days!', 'success');
                 loadApiPayments();
             } catch (e) { showToast('Error: ' + e.message, 'error'); }
         }
@@ -891,13 +902,30 @@
         async function rejectApiPayment(reqId, apiKey) {
             if (!confirm('Reject this payment? The API key will remain suspended.')) return;
             try {
-                // 1. Reject Payment Request
                 await db.collection('apiPaymentRequests').doc(reqId).update({ status: 'rejected' });
-                // 2. Suspend API Key
                 await db.collection('apiKeys').doc(apiKey).update({ status: 'suspended' });
                 showToast('Payment rejected.', 'info');
                 loadApiPayments();
             } catch (e) { showToast('Error: ' + e.message, 'error'); }
+        }
+
+        async function renewApiKey(apiKey, reqId) {
+            if (!confirm('Renew this API key for 30 more days?')) return;
+            try {
+                const expiry = Date.now() + (30 * 24 * 60 * 60 * 1000);
+                
+                await db.collection('apiKeys').doc(apiKey).update({
+                    status: 'active',
+                    expiresAt: expiry
+                });
+                
+                if (reqId) {
+                    await db.collection('apiPaymentRequests').doc(reqId).update({ expiresAt: expiry });
+                }
+                
+                showToast('API Key renewed for 30 days!', 'success');
+                loadApiPayments();
+            } catch (e) { showToast('Error renewing key: ' + e.message, 'error'); }
         }
 
         // ============================================================
@@ -2095,9 +2123,10 @@
         window.loadUsers = loadUsers;
         window.filterUsersTable = filterUsersTable;
         window.sendResetPasswordEmail = sendResetPasswordEmail;
-        window.loadApiPayments = loadApiPayments;         // NEW
-        window.approveApiPayment = approveApiPayment;     // NEW
-        window.rejectApiPayment = rejectApiPayment;       // NEW
+        window.loadApiPayments = loadApiPayments;
+        window.approveApiPayment = approveApiPayment;
+        window.rejectApiPayment = rejectApiPayment;
+        window.renewApiKey = renewApiKey; // NEW
         window.autoFillMediaFromTmdb = autoFillMediaFromTmdb;
         window.startEditMedia = startEditMedia;
         window.cancelMediaEdit = cancelMediaEdit;
