@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RX Player Music</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,sans-serif}
+body{height:100vh;display:flex;align-items:center;justify-content:center;background:#0A0A0F;color:#fff}
+.card{display:flex;align-items:center;gap:12px;padding:10px 14px;width:100%;max-width:420px;
+background:#161622;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+.cover{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#222}
+.info{flex:1;min-width:0}
+.title{font:700 14px Inter;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist{font:500 12px Inter;color:#9CA3AF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.play{width:40px;height:40px;border-radius:50%;border:0;background:#E50914;color:#fff;
+font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+</style></head><body>
+<div class="card">
+<img class="cover" id="cover" src="https://placehold.co/56/161622/666?text=♪" alt="">
+<div class="info">
+<div class="title" id="title">Loading…</div>
+<div class="artist" id="artist">—</div>
+</div>
+<button class="play" id="play">▶</button>
+</div>
+<audio id="audio" preload="none"></audio>
+<script>
+const p=new URLSearchParams(location.search);
+const id=p.get('id'),q=p.get('query');
+const audio=document.getElementById('audio'),btn=document.getElementById('play');
+async function load(){
+const query=id?`id=${encodeURIComponent(id)}`:`query=${encodeURIComponent(q||'trending hindi')}`;
+const r=await fetch(`https://rxplayer.com/api/v1/music/search?${query}&key=EMBED_DEMO`);
+const j=await r.json();
+const t=j.data&&j.data[0];
+if(!t){document.getElementById('title').textContent='Not found';return;}
+document.getElementById('cover').src=t.cover||'';
+document.getElementById('title').textContent=t.title;
+document.getElementById('artist').textContent=t.artist;
+audio.src=t.stream_url;
+}
+btn.onclick=()=>{
+if(!audio.src){load().then(()=>{audio.play();btn.textContent='⏸';});return;}
+if(audio.paused){audio.play();btn.textContent='⏸';}
+else{audio.pause();btn.textContent='▶';}
+};
+audio.onended=()=>btn.textContent='▶';
+load();
+</script></body></html>
