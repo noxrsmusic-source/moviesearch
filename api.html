@@ -143,9 +143,9 @@
         </div>
       </div>
 
-      <!-- Movies Section -->
+            <!-- Movies Section -->
       <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-film"></i> Movies & TV Shows</div>
+        <div class="doc-title"><i class="fas fa-film"></i> Movies, Series & Anime</div>
         
         <div style="margin-bottom:12px;">
           <span class="method get">GET</span>
@@ -153,12 +153,22 @@
         </div>
         <table>
           <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-          <tr><td>id <span class="req">REQUIRED</span></td><td>Integer</td><td>TMDB Movie or TV ID (e.g., 969681)</td></tr>
-          <tr><td>type</td><td>String</td><td><code>movie</code> (default) or <code>tv</code></td></tr>
+          <tr><td>id <span class="req">REQUIRED</span></td><td>Integer</td><td>TMDB ID (e.g., 969681)</td></tr>
+          <tr><td>type</td><td>String</td><td><code>movie</code> (for Movies) OR <code>tv</code> (for Series & Anime)</td></tr>
         </table>
+        
+        <p style="font-size:13px; color:var(--muted); margin: 10px 0;"><i class="fas fa-info-circle"></i> <b>Note:</b> Anime aur Web Series dono TMDB par <code>tv</code> type mein aate hain.</p>
+
+        <p style="font-size:14px; font-weight:600; margin-bottom:6px;">Movie Example:</p>
         <div class="code-container">
           <button class="code-copy" onclick="copyCode(this)">Copy</button>
           <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&type=movie&key=YOUR_KEY</div>
+        </div>
+
+        <p style="font-size:14px; font-weight:600; margin-top:16px; margin-bottom:6px;">Series / Anime Example (e.g., Breaking Bad / One Piece):</p>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=1396&type=tv&key=YOUR_KEY</div>
         </div>
       </div>
 
