@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RX Player — API Dashboard & Docs</title>
+<title>RX Player — API Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
@@ -17,73 +17,62 @@
     --code-bg: #050508;
     --gold: #F59E0B;
     --green: #22C55E;
-    --blue: #38bdf8;
   }
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
   body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
   
-  /* Header */
-  .header { width: 100%; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  /* Header & Nav */
+  .header { width: 100%; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; height: 64px; }
   .logo { font-size: 20px; font-weight: 900; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 6px; }
   .logo span { color: var(--primary); }
+  .nav-links { display: flex; gap: 20px; height: 100%; }
+  .nav-link { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+  .nav-link:hover, .nav-link.active { color: var(--text); border-bottom-color: var(--primary); }
   .user-info { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
   .user-info span { color: var(--text); font-weight: 600; }
   
   /* Layout */
-  .layout { display: flex; max-width: 1200px; width: 100%; margin: 0 auto; padding: 30px 20px; gap: 30px; flex-wrap: wrap; }
-  .sidebar { flex: 1; min-width: 300px; max-width: 350px; }
-  .main-content { flex: 2; min-width: 300px; }
-  
-  /* Cards & UI */
+  .container { max-width: 1100px; width: 100%; margin: 0 auto; padding: 40px 20px; flex: 1; }
+  .view-section { display: none; animation: fadeIn 0.3s ease; }
+  .view-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Common UI */
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-  .title { font-size: 20px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-  .title i { color: var(--primary); }
-  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
-  
-  /* Buttons */
-  .btn { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-decoration: none; }
+  .title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 30px; line-height: 1.6; }
+  .btn { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
   .btn:hover { background: #b80710; transform: translateY(-2px); }
   
-  /* Pricing UI */
-  .pricing-card { position: relative; overflow: hidden; border-color: var(--primary); }
-  .ribbon { position: absolute; top: 15px; right: -30px; background: var(--primary); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 30px; transform: rotate(45deg); }
-  .plan-badge { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center; }
-  .plan-badge .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .plan-badge .value { font-size: 20px; font-weight: 800; color: var(--gold); }
-  .pricing-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
-  .pricing-row span:first-child { color: var(--muted); }
-  .pricing-row span:last-child { font-weight: 700; }
-  
-  /* Documentation Specific */
-  .doc-section { margin-bottom: 40px; }
-  .doc-section:last-child { margin-bottom: 0; }
-  .doc-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .doc-title i { color: var(--primary); }
-  
-  .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-right: 8px; letter-spacing: 0.5px; }
-  .method.get { background: rgba(34, 197, 94, 0.15); color: var(--green); }
-  .endpoint { font-family: monospace; font-size: 14px; font-weight: 600; color: #e2e8f0; }
-  
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 600; }
-  td { color: #e2e8f0; }
-  .req { color: var(--primary); font-weight: 700; font-size: 11px; margin-left: 6px; }
-  
-  /* Code Blocks */
-  .code-container { position: relative; margin-top: 10px; }
-  .code-block { background: var(--code-bg); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #a5b4fc; overflow-x: auto; border: 1px solid var(--border); line-height: 1.5; }
-  .code-copy { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: var(--muted); border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
-  .code-copy:hover { background: rgba(255,255,255,0.2); color: #fff; }
-  
-  /* Login Prompt */
-  .login-prompt { text-align: center; padding: 20px 0; }
+  /* Home / Pricing */
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+  .price-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; text-align: center; position: relative; transition: 0.3s; }
+  .price-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+  .price-card.popular { border-color: var(--primary); }
+  .price-card.popular::before { content: "POPULAR"; position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); background: var(--primary); color: #fff; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; }
+  .price-amount { font-size: 36px; font-weight: 900; margin: 16px 0; }
+  .price-amount span { font-size: 14px; color: var(--muted); font-weight: 500; }
+  .feature-list { list-style: none; margin: 24px 0; text-align: left; }
+  .feature-list li { font-size: 14px; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .feature-list li i { color: var(--green); }
 
-  @media (max-width: 768px) {
-    .layout { flex-direction: column; }
-    .sidebar { max-width: 100%; }
-  }
+  /* Docs */
+  .doc-title { font-size: 18px; font-weight: 700; margin: 30px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .doc-title i { color: var(--primary); }
+  .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-right: 8px; background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  .code-container { position: relative; margin-top: 10px; }
+  .code-block { background: var(--code-bg); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #a5b4fc; overflow-x: auto; border: 1px solid var(--border); }
+  .code-copy { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: var(--muted); border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  
+  /* Dashboard */
+  .key-box { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--gold); margin-top: 16px; }
+  .key-text { font-family: monospace; font-size: 16px; color: var(--gold); font-weight: 600; overflow-x: auto; }
+  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 10px; }
+  .status-pending { background: rgba(245, 158, 11, 0.15); color: var(--gold); }
+  .status-active { background: rgba(34, 197, 94, 0.15); color: var(--green); }
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -92,155 +81,158 @@
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <a href="index.html" class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span> API</a>
+  <a href="index.html" class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></a>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="switchTab('home', this)">Home</div>
+    <div class="nav-link" onclick="switchTab('docs', this)">Documentation</div>
+    <div class="nav-link" onclick="switchTab('dashboard', this)">Dashboard</div>
+  </div>
   <div class="user-info">
     <i class="fas fa-user-circle" style="font-size:18px;"></i> 
-    <span id="userName">Loading...</span>
+    <span id="userName">Guest</span>
   </div>
 </div>
 
-<div class="layout">
-  
-  <!-- SIDEBAR: PRICING & UPGRADE -->
-  <div class="sidebar">
-    <div class="card pricing-card">
-      <div class="ribbon">PRO</div>
-      
-      <div class="title"><i class="fas fa-crown" style="color:var(--gold);"></i> API Access</div>
-      
-      <div id="loginSection" class="login-prompt" style="display:none;">
-        <p class="subtitle">Please login to view your plan and upgrade.</p>
-        <a href="music.html" class="btn">Login Now</a>
+<div class="container">
+
+  <!-- ================= VIEW: HOME (PRICING) ================= -->
+  <div id="view-home" class="view-section active">
+    <div style="text-align: center; max-width: 700px; margin: 0 auto 40px;">
+      <h1 class="title" style="font-size: 32px;">Build with RX Player API</h1>
+      <p class="subtitle">Access millions of Movies, TV Shows, Anime, and Music. Lightning-fast JSON API for developers. Embeds for normal users.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Free Plan -->
+      <div class="price-card">
+        <h3 style="font-size: 20px;">Free</h3>
+        <div class="price-amount">₹0 <span>/ forever</span></div>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Unlimited Embed Players</li>
+          <li><i class="fas fa-check"></i> Movie, TV & Music Embeds</li>
+          <li><i class="fas fa-times" style="color:var(--primary);"></i> No JSON API Access</li>
+          <li><i class="fas fa-times" style="color:var(--primary);"></i> Ads included</li>
+        </ul>
+        <button class="btn" style="background:var(--border); width:100%;" onclick="switchTab('docs', document.querySelectorAll('.nav-link')[1])">View Embeds</button>
       </div>
 
-      <div id="apiSection" style="display:none;">
-        <p class="subtitle">Free plan only includes <b>Ads-supported Embeds</b>. Upgrade to use the JSON API.</p>
-        
-        <div class="plan-badge">
-          <div class="label">Current Plan</div>
-          <div class="value" id="currentPlanText">FREE (EMBED ONLY)</div>
-        </div>
+      <!-- Starter Plan -->
+      <div class="price-card popular">
+        <h3 style="font-size: 20px;">Starter</h3>
+        <div class="price-amount">₹499 <span>/ month</span></div>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Full JSON API Access</li>
+          <li><i class="fas fa-check"></i> 10,000 Requests / day</li>
+          <li><i class="fas fa-check"></i> Ad-free Embeds</li>
+          <li><i class="fas fa-check"></i> 1 API Key</li>
+        </ul>
+        <button class="btn" style="width:100%;" onclick="switchTab('dashboard', document.querySelectorAll('.nav-link')[2])">Buy Starter</button>
+      </div>
 
-        <div class="pricing-row">
-          <span>Starter Plan</span>
-          <span>₹499 / mo</span>
-        </div>
-        <div class="pricing-row">
-          <span>Pro Plan</span>
-          <span>₹1499 / mo</span>
-        </div>
-        
-        <a href="https://t.me/rxplayer" target="_blank" class="btn" style="background:#0088cc; margin-top: 16px; box-shadow:0 4px 12px rgba(0,136,204,0.4);">
-          <i class="fab fa-telegram-plane"></i> Contact to Buy
-        </a>
-        
-        <p style="font-size:11px; color:var(--muted); text-align:center; margin-top:12px; line-height:1.4;">
-          Payment ke baad aapko API Key aur 10,000 daily requests milengi.
-        </p>
+      <!-- Pro Plan -->
+      <div class="price-card">
+        <h3 style="font-size: 20px;">Pro</h3>
+        <div class="price-amount">₹1499 <span>/ month</span></div>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Everything in Starter</li>
+          <li><i class="fas fa-check"></i> 50,000 Requests / day</li>
+          <li><i class="fas fa-check"></i> 3 API Keys</li>
+          <li><i class="fas fa-check"></i> Priority Support</li>
+        </ul>
+        <button class="btn" style="width:100%;" onclick="switchTab('dashboard', document.querySelectorAll('.nav-link')[2])">Buy Pro</button>
       </div>
     </div>
   </div>
 
-  <!-- MAIN CONTENT: DOCUMENTATION -->
-  <div class="main-content">
-    <div class="card">
-      <div class="title"><i class="fas fa-book-open"></i> API Documentation</div>
-      <p class="subtitle">Integrate RX Player's movie and music database into your website or app.</p>
+  <!-- ================= VIEW: DOCUMENTATION ================= -->
+  <div id="view-docs" class="view-section">
+    <h1 class="title">API Documentation</h1>
+    
+    <div class="doc-title"><i class="fas fa-code"></i> Embed Players (Free)</div>
+    <p class="subtitle" style="font-size: 13px; margin-bottom: 10px;">Directly paste these iframes into your website. No API key required.</p>
+    
+    <p style="font-size:14px; font-weight:600; margin: 15px 0 5px;">Movie Embed:</p>
+    <div class="code-container">
+      <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-movie.html?id=969681&type=movie" width="800" height="450" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+    </div>
 
-      <!-- Auth Section -->
-      <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-shield-alt"></i> Authentication</div>
-        <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Pass your API key in the URL parameter <code>key</code> OR in the header <code>X-API-Key</code>.</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&key=YOUR_API_KEY</div>
-        </div>
+    <p style="font-size:14px; font-weight:600; margin: 15px 0 5px;">TV Series / Anime Embed:</p>
+    <div class="code-container">
+      <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-movie.html?id=1396&type=tv&season=1&episode=1" width="800" height="450" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+    </div>
+
+    <div class="doc-title"><i class="fas fa-shield-alt"></i> JSON API (Paid)</div>
+    <p class="subtitle" style="font-size: 13px; margin-bottom: 10px;">Pass your API key in the URL parameter <code>key</code>.</p>
+
+    <p style="font-size:14px; font-weight:600; margin: 15px 0 5px;">1. Get Movie / TV / Anime Details</p>
+    <span class="method">GET</span> <span style="font-family:monospace;">/api/v1/movie/details</span>
+    <table>
+      <tr><th>Parameter</th><th>Description</th></tr>
+      <tr><td>id <span style="color:var(--primary);">*</span></td><td>TMDB ID (e.g., 969681)</td></tr>
+      <tr><td>type</td><td><code>movie</code> or <code>tv</code></td></tr>
+      <tr><td>key <span style="color:var(--primary);">*</span></td><td>Your API Key</td></tr>
+    </table>
+    <div class="code-container">
+      <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&type=movie&key=YOUR_KEY</div>
+    </div>
+
+    <p style="font-size:14px; font-weight:600; margin: 20px 0 5px;">2. Music Search</p>
+    <span class="method">GET</span> <span style="font-family:monospace;">/api/v1/music/search</span>
+    <table>
+      <tr><th>Parameter</th><th>Description</th></tr>
+      <tr><td>q <span style="color:var(--primary);">*</span></td><td>Song or Artist name</td></tr>
+      <tr><td>key <span style="color:var(--primary);">*</span></td><td>Your API Key</td></tr>
+    </table>
+    <div class="code-container">
+      <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/music/search?q=arijit&key=YOUR_KEY</div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: DASHBOARD ================= -->
+  <div id="view-dashboard" class="view-section">
+    <h1 class="title">Developer Dashboard</h1>
+    
+    <!-- Not logged in -->
+    <div id="dashNotLoggedIn" class="card" style="text-align: center; padding: 50px;">
+      <i class="fas fa-lock" style="font-size: 40px; color: var(--muted); margin-bottom: 20px;"></i>
+      <h2 style="margin-bottom: 10px;">Login Required</h2>
+      <p class="subtitle">You must be logged in to generate an API key.</p>
+      <a href="music.html" class="btn">Login via Music Page</a>
+    </div>
+
+    <!-- Logged in -->
+    <div id="dashLoggedIn" style="display: none;">
+      <!-- Key generation -->
+      <div id="noKeyBox" class="card" style="text-align: center;">
+        <h3 style="margin-bottom: 10px;">Generate API Key</h3>
+        <p class="subtitle" style="font-size: 13px;">Generate a key below. Your key will remain <b>Pending</b> until you complete the payment.</p>
+        <button class="btn" id="genKeyBtn" onclick="generateApiKey()"><i class="fas fa-plus-circle"></i> Generate Key</button>
       </div>
 
-      <!-- Movies & Series Section -->
-      <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-film"></i> Movies, Series & Anime</div>
+      <!-- Key Display -->
+      <div id="keyBox" class="card" style="display: none;">
+        <h3 style="margin-bottom: 10px;">Your API Key</h3>
+        <div class="key-box">
+          <span class="key-text" id="userApiKey">rx_...</span>
+          <button class="btn" style="padding: 8px 12px;" onclick="copyUserKey()"><i class="fas fa-copy"></i></button>
+        </div>
         
-        <div style="margin-bottom:12px;">
-          <span class="method get">GET</span>
-          <span class="endpoint">/api/v1/movie/details</span>
-        </div>
-        <table>
-          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-          <tr><td>id <span class="req">REQUIRED</span></td><td>Integer</td><td>TMDB ID (e.g., 969681)</td></tr>
-          <tr><td>type</td><td>String</td><td><code>movie</code> (for Movies) OR <code>tv</code> (for Series & Anime)</td></tr>
-        </table>
-        
-        <p style="font-size:13px; color:var(--muted); margin: 10px 0;"><i class="fas fa-info-circle"></i> <b>Note:</b> Anime aur Web Series dono TMDB par <code>tv</code> type mein aate hain. Iframe automatically Season 1, Episode 1 load karega.</p>
-
-        <p style="font-size:14px; font-weight:600; margin-bottom:6px;">Movie Example:</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&type=movie&key=YOUR_KEY</div>
+        <div id="keyStatusContainer">
+          <!-- Status will be injected via JS -->
         </div>
 
-        <p style="font-size:14px; font-weight:600; margin-top:16px; margin-bottom:6px;">Series / Anime Example (e.g., Breaking Bad / One Piece):</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=1396&type=tv&key=YOUR_KEY</div>
+        <div id="paymentInfo" style="margin-top: 20px; background: rgba(255,255,255,0.02); border: 1px dashed var(--border); padding: 15px; border-radius: 8px;">
+          <h4 style="color: var(--gold); margin-bottom: 8px;"><i class="fas fa-info-circle"></i> Payment Instructions</h4>
+          <p style="font-size: 13px; color: var(--muted);">Please pay <b>₹499</b> to UPI: <code style="color:#fff; font-size: 14px;">rxplayer@upi</code> and send the screenshot along with this key to Telegram.</p>
+          <a href="https://t.me/rxplayer" target="_blank" class="btn" style="background: #0088cc; margin-top: 10px; font-size: 13px; padding: 8px 16px;"><i class="fab fa-telegram-plane"></i> Contact Admin</a>
         </div>
       </div>
-
-      <!-- Music Section -->
-      <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-music"></i> Music Search</div>
-        
-        <div style="margin-bottom:12px;">
-          <span class="method get">GET</span>
-          <span class="endpoint">/api/v1/music/search</span>
-        </div>
-        <table>
-          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
-          <tr><td>q <span class="req">REQUIRED</span></td><td>String</td><td>Song or Artist name (e.g., arijit singh)</td></tr>
-        </table>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/music/search?q=arijit&key=YOUR_KEY</div>
-        </div>
-      </div>
-
-      <!-- Embeds Section (Free) -->
-      <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-code"></i> Embed Players (Free & Unlimited)</div>
-        <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">You can directly embed these iframes into your website without any API key. (Ads included).</p>
-        
-        <p style="font-size:14px; font-weight:600; margin-bottom:6px;">Movie Embed:</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-movie.html?id=969681&type=movie" width="800" height="450" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
-        </div>
-
-        <p style="font-size:14px; font-weight:600; margin-top:16px; margin-bottom:6px;">Series / Anime Embed:</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-movie.html?id=1396&type=tv&season=1&episode=1" width="800" height="450" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
-        </div>
-
-        <p style="font-size:14px; font-weight:600; margin-top:16px; margin-bottom:6px;">Music Embed:</p>
-        <div class="code-container">
-          <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-music.html?query=arijit" width="100%" height="120" frameborder="0"&gt;&lt;/iframe&gt;</div>
-        </div>
-      </div>
-
-      <!-- Errors Section -->
-      <div class="doc-section">
-        <div class="doc-title"><i class="fas fa-exclamation-triangle"></i> Error Codes</div>
-        <table>
-          <tr><th>Code</th><th>Meaning</th></tr>
-          <tr><td><code>401</code></td><td>Invalid or Missing API Key</td></tr>
-          <tr><td><code>403</code></td><td>API Key is suspended OR Free Plan used for JSON API</td></tr>
-          <tr><td><code>429</code></td><td>Daily Rate Limit Exceeded</td></tr>
-          <tr><td><code>404</code></td><td>Movie/Song Not Found</td></tr>
-        </table>
-      </div>
-
     </div>
   </div>
 
@@ -262,44 +254,100 @@
 
   let currentUser = null;
 
+  // 1. Tab Switching Logic
+  function switchTab(tabId, navElement) {
+    // Hide all views
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    // Remove active from nav
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    
+    // Show selected
+    document.getElementById('view-' + tabId).classList.add('active');
+    if(navElement) navElement.classList.add('active');
+  }
+
+  // 2. Auth State
   auth.onAuthStateChanged(user => {
     if (user) {
       currentUser = user;
       document.getElementById('userName').textContent = user.displayName || user.email;
-      document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('apiSection').style.display = 'block';
-      
-      // Check user's current plan (optional, just for UI display)
-      checkUserPlan();
+      document.getElementById('dashNotLoggedIn').style.display = 'none';
+      document.getElementById('dashLoggedIn').style.display = 'block';
+      checkExistingKey();
     } else {
       currentUser = null;
       document.getElementById('userName').textContent = 'Guest';
-      document.getElementById('loginSection').style.display = 'block';
-      document.getElementById('apiSection').style.display = 'none';
+      document.getElementById('dashNotLoggedIn').style.display = 'block';
+      document.getElementById('dashLoggedIn').style.display = 'none';
     }
   });
 
-  async function checkUserPlan() {
+  // 3. Check if user already has a key
+  async function checkExistingKey() {
     try {
       const snap = await db.collection('apiKeys').where('uid', '==', currentUser.uid).get();
       if (!snap.empty) {
-        const data = snap.docs[0].data();
-        const planText = document.getElementById('currentPlanText');
-        if (data.plan === 'pro' || data.plan === 'starter' || data.plan === 'enterprise') {
-          planText.textContent = data.plan.toUpperCase() + " PLAN";
-          planText.style.color = 'var(--green)';
+        const doc = snap.docs[0];
+        const data = doc.data();
+        
+        document.getElementById('noKeyBox').style.display = 'none';
+        document.getElementById('keyBox').style.display = 'block';
+        document.getElementById('userApiKey').textContent = doc.id;
+
+        const statusContainer = document.getElementById('keyStatusContainer');
+        const paymentInfo = document.getElementById('paymentInfo');
+
+        if (data.status === 'active') {
+          statusContainer.innerHTML = `<div class="status-badge status-active"><i class="fas fa-check-circle"></i> Active (${data.plan.toUpperCase()} Plan)</div>`;
+          paymentInfo.style.display = 'none';
         } else {
-          planText.textContent = "FREE (EMBED ONLY)";
-          planText.style.color = 'var(--gold)';
+          statusContainer.innerHTML = `<div class="status-badge status-pending"><i class="fas fa-clock"></i> Pending Admin Approval</div>`;
+          paymentInfo.style.display = 'block';
         }
+      } else {
+        document.getElementById('noKeyBox').style.display = 'block';
+        document.getElementById('keyBox').style.display = 'none';
       }
-    } catch (e) { console.error("Error fetching plan:", e); }
+    } catch(e) { console.error(e); }
   }
 
-  // Function to copy code blocks
+  // 4. Generate Key
+  async function generateApiKey() {
+    const btn = document.getElementById('genKeyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+    try {
+      const rand = crypto.getRandomValues(new Uint8Array(12));
+      const newKey = 'rx_' + Array.from(rand, b => b.toString(16).padStart(2,'0')).join('');
+
+      // Key saved with status: 'pending' and plan: 'starter'
+      await db.collection('apiKeys').doc(newKey).set({
+        uid: currentUser.uid,
+        email: currentUser.email || 'no-email',
+        plan: 'starter',
+        dailyLimit: 10000,
+        status: 'pending', // 🚨 PENDING STATUS
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      checkExistingKey(); // Refresh UI
+    } catch (e) {
+      alert('Failed: ' + e.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus-circle"></i> Generate Key';
+    }
+  }
+
+  // 5. Copy Helper Functions
+  function copyUserKey() {
+    const key = document.getElementById('userApiKey').innerText;
+    navigator.clipboard.writeText(key);
+    alert('API Key copied!');
+  }
+
   function copyCode(btn) {
     const codeBlock = btn.nextElementSibling;
-    // Remove "GET " or "POST " text for easier copy (optional)
     let textToCopy = codeBlock.innerText;
     if(textToCopy.startsWith("GET ")) textToCopy = textToCopy.substring(4);
     
@@ -307,10 +355,7 @@
       const html = btn.innerText;
       btn.innerText = 'Copied!';
       btn.style.color = '#22C55E';
-      setTimeout(() => {
-        btn.innerText = html;
-        btn.style.color = 'var(--muted)';
-      }, 2000);
+      setTimeout(() => { btn.innerText = html; btn.style.color = 'var(--muted)'; }, 2000);
     });
   }
 </script>
