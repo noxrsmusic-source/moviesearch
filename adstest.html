@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Contact Admin - RX Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --primary-red: #E50914;
+            --primary-red-hover: #b80710;
+            --bg-primary: #08080C;
+            --bg-card: #14141F;
+            --bg-secondary: #0F0F17;
+            --text-white: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --border-subtle: rgba(255,255,255,0.08);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-white);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 16px 60px;
+        }
+
+        /* HEADER */
+        .header {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-top: 10px;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #fff;
+        }
+        .logo span { color: var(--primary-red); }
+        .logo i { color: var(--primary-red); font-size: 18px; }
+        .back-btn {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-subtle);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        /* MAIN CONTAINER */
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* CONTACT FORM BOX */
+        .contact-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), #ff4d5e);
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            font-size: 14px;
+            font-family: var(--font);
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary-red);
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 0 3px rgba(229,9,20,0.15);
+        }
+        .form-group select option {
+            background: var(--bg-card);
+            color: #fff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-red-hover));
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(229,9,20,0.35);
+            transition: var(--transition);
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(229,9,20,0.5);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* BANNER / NOTICE BOARD BOX */
+        .notice-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .notice-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notice-title i {
+            color: var(--primary-red);
+        }
+        .notice-box {
+            width: 100%;
+            max-width: 340px; /* Fixed square size */
+            aspect-ratio: 1 / 1;
+            background: var(--bg-card);
+            border: 2px dashed rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+        }
+        .notice-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #22C55E;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .contact-box { padding: 20px; }
+            .page-title { font-size: 20px; }
+            .notice-box { max-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="index.html" class="logo">
+            <i class="fas fa-play-circle"></i> RX<span>PLAYER</span>
+        </a>
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </header>
+
+    <main class="main-container">
+        
+        <!-- CONTACT ADMIN FORM -->
+        <div class="contact-box">
+            <h1 class="page-title">Contact Admin</h1>
+            <p class="page-subtitle">Have a question, feedback, or need support? Fill out the form below and we'll get back to you as soon as possible.</p>
+
+            <form id="contactForm">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select required>
+                        <option value="" disabled selected>Select a topic...</option>
+                        <option value="api">API Access Request</option>
+                        <option value="bug">Report a Bug</option>
+                        <option value="content">Content Request / DMCA</option>
+                        <option value="general">General Inquiry</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea placeholder="Write your message here..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+
+        <!-- SQUARE NOTICE BOARD (LOADING banner.html) -->
+        <div class="notice-section">
+            <h2 class="notice-title"><i class="fas fa-bullhorn"></i> Important Notice</h2>
+            <!-- This is not an ad. Neutral class names used to bypass adblockers -->
+            <div class="notice-box">
+                <iframe src="banner.html" title="Site Notice Board" scrolling="no" loading="lazy"></iframe>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SUCCESS TOAST -->
+    <div class="toast" id="toastMsg">
+        <i class="fas fa-check-circle"></i> <span>Message sent successfully!</span>
+    </div>
+
+    <script>
+        // Form Submit Logic (Simulated)
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent page reload
+            
+            const btn = this.querySelector('.submit-btn');
+            const originalText = btn.innerHTML;
+            
+            // Button loading state
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            // Simulate network request
+            setTimeout(() => {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Reset form
+                this.reset();
+
+                // Show success toast
+                const toast = document.getElementById('toastMsg');
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
+
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
