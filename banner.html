@@ -7,178 +7,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0A0A0F;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Animated Background Grid & Gradient */
-        .bg-animation {
-            position: absolute;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 50% 0%, rgba(229, 9, 20, 0.4) 0%, transparent 60%),
-                radial-gradient(circle at 50% 100%, rgba(229, 9, 20, 0.2) 0%, transparent 60%);
-            animation: pulseBg 4s infinite alternate;
-            z-index: 1;
-        }
-
-        @keyframes pulseBg {
-            0% { opacity: 0.6; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.1); }
-        }
-
-        /* Floating Particles */
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            z-index: 1;
-            animation: floatUp linear infinite;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-100px) scale(1); opacity: 0; }
-        }
-
-        /* Main Clickable Card */
-        .banner-card {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            height: 90%;
-            background: rgba(20, 20, 31, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-            text-decoration: none;
-            color: #fff;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(229, 9, 20, 0.1);
-            cursor: pointer;
-        }
-
-        /* Hover Effects */
-        .banner-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            border-color: #E50914;
-            box-shadow: 0 15px 40px rgba(229, 9, 20, 0.4), inset 0 0 30px rgba(229, 9, 20, 0.2);
-        }
-
-        /* Animated Icon (Gift/Star) */
-        .icon-container {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #E50914, #ff4d5e);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            color: #fff;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
-            animation: bounceIcon 2s ease-in-out infinite;
-        }
-
-        @keyframes bounceIcon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* Text Styling */
-        .banner-title {
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #fff, #ffb3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.2;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        .banner-subtitle {
-            font-size: 13px;
-            color: #9CA3AF;
-            margin-bottom: 25px;
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
-
-        /* Call to Action Button */
-        .cta-btn {
-            background: #E50914;
-            color: #fff;
-            padding: 12px 28px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
-            animation: pulseBtn 1.5s infinite;
-            transition: 0.3s;
-        }
-
-        .banner-card:hover .cta-btn {
-            background: #fff;
-            color: #E50914;
-        }
-
-        @keyframes pulseBtn {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(229, 9, 20, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: #0A0A0F; overflow: hidden; position: relative; }
+        .bg-animation { position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(229, 9, 20, 0.4) 0%, transparent 60%), radial-gradient(circle at 50% 100%, rgba(229, 9, 20, 0.2) 0%, transparent 60%); animation: pulseBg 4s infinite alternate; z-index: 1; }
+        @keyframes pulseBg { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 1; transform: scale(1.1); } }
+        .particle { position: absolute; background: rgba(255, 255, 255, 0.15); border-radius: 50%; z-index: 1; animation: floatUp linear infinite; }
+        @keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100px) scale(1); opacity: 0; } }
+        
+        .banner-card { position: relative; z-index: 10; width: 90%; height: 90%; background: rgba(20, 20, 31, 0.85); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; text-decoration: none; color: #fff; transition: all 0.3s ease; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(229, 9, 20, 0.1); cursor: pointer; }
+        .banner-card:hover { transform: translateY(-5px) scale(1.02); border-color: #E50914; box-shadow: 0 15px 40px rgba(229, 9, 20, 0.4), inset 0 0 30px rgba(229, 9, 20, 0.2); }
+        .icon-container { width: 80px; height: 80px; background: linear-gradient(135deg, #E50914, #ff4d5e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; color: #fff; margin-bottom: 20px; box-shadow: 0 0 20px rgba(229, 9, 20, 0.6); animation: bounceIcon 2s ease-in-out infinite; }
+        @keyframes bounceIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .banner-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; background: linear-gradient(90deg, #fff, #ffb3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; animation: fadeInDown 0.8s ease; }
+        .banner-subtitle { font-size: 13px; color: #9CA3AF; margin-bottom: 25px; animation: fadeInUp 0.8s ease 0.2s both; }
+        .cta-btn { background: #E50914; color: #fff; padding: 12px 28px; border-radius: 30px; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4); animation: pulseBtn 1.5s infinite; transition: 0.3s; }
+        .banner-card:hover .cta-btn { background: #fff; color: #E50914; }
+        @keyframes pulseBtn { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(229, 9, 20, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Background Animation -->
     <div class="bg-animation"></div>
     
-    <!-- Particles -->
     <div class="particle" style="width: 10px; height: 10px; left: 10%; animation-duration: 5s; animation-delay: 0s;"></div>
     <div class="particle" style="width: 15px; height: 15px; left: 30%; animation-duration: 7s; animation-delay: 1s;"></div>
     <div class="particle" style="width: 8px; height: 8px; left: 50%; animation-duration: 6s; animation-delay: 2s;"></div>
     <div class="particle" style="width: 12px; height: 12px; left: 70%; animation-duration: 8s; animation-delay: 0.5s;"></div>
     <div class="particle" style="width: 20px; height: 20px; left: 90%; animation-duration: 9s; animation-delay: 1.5s;"></div>
 
-    <!-- Main Clickable Banner -->
-    <a href="https://uplcm.com/4/10362569" target="_blank" class="banner-card">
+    <!-- YAHAN TARGET="_BLANK" KI JAGAH TARGET="_SELF" KAR DIYA GAYA HAI -->
+    <a href="https://uplcm.com/4/10362569" target="_self" class="banner-card">
         
         <div class="icon-container">
             <i class="fas fa-gift"></i>
