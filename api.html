@@ -232,6 +232,15 @@
         </div>
         
         <div id="keyStatusContainer"></div>
+
+        <!-- Renewal Section -->
+        <div style="margin-top: 24px; border-top: 1px dashed var(--border); padding-top: 20px;">
+          <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--muted);">Renew / Extend Plan (30 Days)</h4>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn" onclick="openPaymentModal(499)"><i class="fas fa-sync"></i> Renew Starter (₹499)</button>
+            <button class="btn" style="background:var(--gold); color:#000;" onclick="openPaymentModal(1499)"><i class="fas fa-crown"></i> Renew Pro (₹1499)</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -389,33 +398,42 @@
       const cldData = await res.json();
       if (!cldData.secure_url) throw new Error("Image upload failed.");
       
-      // 2. Generate API Key & Expiry Date (30 Days)
-      progress.innerText = "Generating API Key...";
-      const rand = crypto.getRandomValues(new Uint8Array(12));
-      const newKey = 'rx_' + Array.from(rand, b => b.toString(16).padStart(2,'0')).join('');
+      progress.innerText = "Processing Payment...";
       const planName = currentPlanAmount === 499 ? 'starter' : 'pro';
       const dailyLimit = currentPlanAmount === 499 ? 10000 : 50000;
+      const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000); // 30 Days
+
+      // 2. CHECK KAREIN KI USER KE PAAS PEHLE SE KEY HAI YA NAHI
+      const existingKeySnap = await db.collection('apiKeys').where('uid', '==', currentUser.uid).get();
       
-      // 🚨 YAHAN 30 DIN KI EXPIRY SET KI GAYI HAI
-      const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000); 
+      let finalKey = ''; // Isme hum current ya nayi key save karenge
 
-      // 3. Save to apiKeys (status: pending)
-      await db.collection('apiKeys').doc(newKey).set({
-        uid: currentUser.uid,
-        email: currentUser.email || 'no-email',
-        plan: planName,
-        dailyLimit: dailyLimit,
-        status: 'pending',
-        expiresAt: expiresAt, // Naya field
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      if (!existingKeySnap.empty) {
+        // Agar key pehle se hai, toh wahi use karo (Renewal)
+        finalKey = existingKeySnap.docs[0].id;
+        // Hum apiKeys document ko yahan update nahi karenge, Admin approve karega tab hoga.
+      } else {
+        // Agar nahi hai, toh Nayi key generate karo
+        const rand = crypto.getRandomValues(new Uint8Array(12));
+        finalKey = 'rx_' + Array.from(rand, b => b.toString(16).padStart(2,'0')).join('');
+        
+        await db.collection('apiKeys').doc(finalKey).set({
+          uid: currentUser.uid,
+          email: currentUser.email || 'no-email',
+          plan: planName,
+          dailyLimit: dailyLimit,
+          status: 'pending',
+          expiresAt: expiresAt,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
 
-      // 4. Save to apiPaymentRequests
+      // 3. Save to apiPaymentRequests (Admin ko dikhane ke liye)
       progress.innerText = "Saving request...";
       await db.collection('apiPaymentRequests').add({
         uid: currentUser.uid,
         email: currentUser.email || 'no-email',
-        apiKey: newKey,
+        apiKey: finalKey, // Purani ya nayi jo bhi hai
         plan: planName,
         amount: currentPlanAmount,
         utr: utr,
@@ -424,7 +442,7 @@
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      alert("Payment submitted successfully! Admin will verify and activate your key.");
+      alert("Payment submitted successfully! Admin will verify and activate/renew your key.");
       document.getElementById('paymentModal').classList.remove('open');
       document.getElementById('paymentUtr').value = '';
       fileInput.value = '';
