@@ -80,7 +80,7 @@
   .form-group input:focus { border-color: var(--primary); }
 
   @media (max-width: 768px) {
-    .nav-links { display: none; } /* Hide nav on mobile for simplicity */
+    .nav-links { display: none; } 
   }
 </style>
 
@@ -326,11 +326,18 @@
         const statusContainer = document.getElementById('keyStatusContainer');
 
         if (data.status === 'active') {
-          statusContainer.innerHTML = `<div class="status-badge status-active"><i class="fas fa-check-circle"></i> Active (${data.plan.toUpperCase()} Plan)</div>`;
+          // Agar active hai, toh expiry date show karo
+          const expDate = data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : 'N/A';
+          statusContainer.innerHTML = `
+            <div class="status-badge status-active"><i class="fas fa-check-circle"></i> Active (${data.plan.toUpperCase()} Plan)</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">
+              <i class="fas fa-calendar-alt"></i> Expires on: <strong style="color:#fff;">${expDate}</strong>
+            </div>
+          `;
         } else if (data.status === 'pending') {
           statusContainer.innerHTML = `<div class="status-badge status-pending"><i class="fas fa-clock"></i> Payment Under Verification</div>`;
         } else {
-          statusContainer.innerHTML = `<div class="status-badge status-suspended"><i class="fas fa-ban"></i> Key Suspended</div>`;
+          statusContainer.innerHTML = `<div class="status-badge status-suspended"><i class="fas fa-ban"></i> Key Suspended / Expired</div>`;
         }
       } else {
         document.getElementById('noKeyBox').style.display = 'block';
@@ -382,12 +389,15 @@
       const cldData = await res.json();
       if (!cldData.secure_url) throw new Error("Image upload failed.");
       
-      // 2. Generate API Key
+      // 2. Generate API Key & Expiry Date (30 Days)
       progress.innerText = "Generating API Key...";
       const rand = crypto.getRandomValues(new Uint8Array(12));
       const newKey = 'rx_' + Array.from(rand, b => b.toString(16).padStart(2,'0')).join('');
       const planName = currentPlanAmount === 499 ? 'starter' : 'pro';
       const dailyLimit = currentPlanAmount === 499 ? 10000 : 50000;
+      
+      // 🚨 YAHAN 30 DIN KI EXPIRY SET KI GAYI HAI
+      const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000); 
 
       // 3. Save to apiKeys (status: pending)
       await db.collection('apiKeys').doc(newKey).set({
@@ -396,6 +406,7 @@
         plan: planName,
         dailyLimit: dailyLimit,
         status: 'pending',
+        expiresAt: expiresAt, // Naya field
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
