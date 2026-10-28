@@ -2,17 +2,18 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      // ✅ Snake_case keys use karein (Firebase Admin SDK ko yahi chahiye)
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      // \n ko actual newline mein convert karna zaroori hai
-      private_key: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    }),
-  });
+  try {
+    // Vercel se single-line JSON string aayegi, usko object mein convert kar rahe hain
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    
+    initializeApp({
+      credential: cert(serviceAccount)
+    });
+  } catch (error) {
+    console.error("Firebase Init Error:", error.message);
+    throw new Error("Firebase Service Account JSON is invalid.");
+  }
 }
-
 const db = getFirestore();
 
 export async function requireKey(req){
