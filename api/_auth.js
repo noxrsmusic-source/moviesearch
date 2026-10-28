@@ -4,13 +4,15 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 if (!getApps().length) {
   initializeApp({
     credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // Vercel mein private key mein \n hota hai, use actual newline mein convert karna padta hai
-      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+      // ✅ Snake_case keys use karein (Firebase Admin SDK ko yahi chahiye)
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      // \n ko actual newline mein convert karna zaroori hai
+      private_key: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
     }),
   });
 }
+
 const db = getFirestore();
 
 export async function requireKey(req){
