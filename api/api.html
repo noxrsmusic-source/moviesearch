@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RX Player — API Dashboard & Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #E50914;
+    --bg: #0A0A0F;
+    --card: #161622;
+    --text: #FFFFFF;
+    --muted: #9CA3AF;
+    --border: rgba(255,255,255,0.08);
+    --code-bg: #050508;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+  
+  /* Header */
+  .header { width: 100%; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 20px; font-weight: 900; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+  .logo span { color: var(--primary); }
+  .user-info { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+  .user-info span { color: var(--text); font-weight: 600; }
+  
+  /* Layout */
+  .layout { display: flex; max-width: 1200px; width: 100%; margin: 0 auto; padding: 30px 20px; gap: 30px; flex-wrap: wrap; }
+  .sidebar { flex: 1; min-width: 300px; max-width: 350px; }
+  .main-content { flex: 2; min-width: 300px; }
+  
+  /* Cards & UI */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .title { font-size: 20px; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .title i { color: var(--primary); }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+  
+  /* Buttons */
+  .btn { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+  .btn:hover { background: #b80710; transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  
+  /* Key Box */
+  .key-box { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--primary); margin-top: 16px; }
+  .key-text { font-family: monospace; font-size: 15px; color: var(--primary); font-weight: 600; overflow-x: auto; white-space: nowrap; }
+  .copy-btn { background: rgba(229,9,20,0.1); color: var(--primary); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+  .copy-btn:hover { background: rgba(229,9,20,0.2); }
+  
+  /* Documentation Specific */
+  .doc-section { margin-bottom: 40px; }
+  .doc-section:last-child { margin-bottom: 0; }
+  .doc-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .doc-title i { color: var(--primary); }
+  
+  .method { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; margin-right: 8px; letter-spacing: 0.5px; }
+  .method.get { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+  .endpoint { font-family: monospace; font-size: 14px; font-weight: 600; color: #e2e8f0; }
+  
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  td { color: #e2e8f0; }
+  .req { color: var(--primary); font-weight: 700; font-size: 11px; margin-left: 6px; }
+  
+  /* Code Blocks */
+  .code-container { position: relative; margin-top: 10px; }
+  .code-block { background: var(--code-bg); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #a5b4fc; overflow-x: auto; border: 1px solid var(--border); line-height: 1.5; }
+  .code-copy { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); color: var(--muted); border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+  .code-copy:hover { background: rgba(255,255,255,0.2); color: #fff; }
+  
+  /* Login Prompt */
+  .login-prompt { text-align: center; padding: 40px 0; }
+  .login-prompt a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar { max-width: 100%; }
+  }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span> API</a>
+  <div class="user-info">
+    <i class="fas fa-user-circle" style="font-size:18px;"></i> 
+    <span id="userName">Loading...</span>
+  </div>
+</div>
+
+<div class="layout">
+  
+  <!-- SIDEBAR: API KEY GENERATION -->
+  <div class="sidebar">
+    <div class="card">
+      <div class="title"><i class="fas fa-key"></i> Your API Key</div>
+      
+      <div id="loginSection" class="login-prompt" style="display:none;">
+        <p class="subtitle">Please login to generate your API key.</p>
+        <a href="music.html" class="btn">Go to Login Page</a>
+      </div>
+
+      <div id="apiSection" style="display:none;">
+        <p class="subtitle">Keep this key secret. Use it in your requests as <code>?key=YOUR_KEY</code>.</p>
+        
+        <div id="keyContainer" style="display:none;">
+          <div class="key-box">
+            <span class="key-text" id="apiKeyText">rx_...</span>
+            <button class="copy-btn" onclick="copyKey()"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <div style="color:#22C55E; font-size:12px; margin-top:12px; display:flex; align-items:center; gap:6px; font-weight:600;">
+            <i class="fas fa-check-circle"></i> Plan: Free (1,000 requests/day)
+          </div>
+        </div>
+        
+        <div id="noKeyContainer">
+          <button class="btn" id="generateBtn" onclick="generateApiKey()"><i class="fas fa-plus-circle"></i> Generate API Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT: DOCUMENTATION -->
+  <div class="main-content">
+    <div class="card">
+      <div class="title"><i class="fas fa-book-open"></i> API Documentation</div>
+      <p class="subtitle">Integrate RX Player's movie and music database into your website or app.</p>
+
+      <!-- Auth Section -->
+      <div class="doc-section">
+        <div class="doc-title"><i class="fas fa-shield-alt"></i> Authentication</div>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:10px;">Pass your API key in the URL parameter <code>key</code> OR in the header <code>X-API-Key</code>.</p>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&key=YOUR_API_KEY</div>
+        </div>
+      </div>
+
+      <!-- Movies Section -->
+      <div class="doc-section">
+        <div class="doc-title"><i class="fas fa-film"></i> Movies & TV Shows</div>
+        
+        <div style="margin-bottom:12px;">
+          <span class="method get">GET</span>
+          <span class="endpoint">/api/v1/movie/details</span>
+        </div>
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+          <tr><td>id <span class="req">REQUIRED</span></td><td>Integer</td><td>TMDB Movie or TV ID (e.g., 969681)</td></tr>
+          <tr><td>type</td><td>String</td><td><code>movie</code> (default) or <code>tv</code></td></tr>
+        </table>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/movie/details?id=969681&type=movie&key=YOUR_KEY</div>
+        </div>
+      </div>
+
+      <!-- Music Section -->
+      <div class="doc-section">
+        <div class="doc-title"><i class="fas fa-music"></i> Music Search</div>
+        
+        <div style="margin-bottom:12px;">
+          <span class="method get">GET</span>
+          <span class="endpoint">/api/v1/music/search</span>
+        </div>
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+          <tr><td>q <span class="req">REQUIRED</span></td><td>String</td><td>Song or Artist name (e.g., arijit singh)</td></tr>
+        </table>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">GET https://rxplayer-indol.vercel.app/api/v1/music/search?q=arijit&key=YOUR_KEY</div>
+        </div>
+      </div>
+
+      <!-- Embeds Section -->
+      <div class="doc-section">
+        <div class="doc-title"><i class="fas fa-code"></i> Embed Players (No API Key Needed)</div>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">You can directly embed these iframes into your website.</p>
+        
+        <p style="font-size:14px; font-weight:600; margin-bottom:6px;">Movie Embed:</p>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-movie.html?id=969681&type=movie" width="800" height="450" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+        </div>
+
+        <p style="font-size:14px; font-weight:600; margin-top:16px; margin-bottom:6px;">Music Embed:</p>
+        <div class="code-container">
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+          <div class="code-block">&lt;iframe src="https://rxplayer-indol.vercel.app/embed-music.html?query=arijit" width="100%" height="120" frameborder="0"&gt;&lt;/iframe&gt;</div>
+        </div>
+      </div>
+
+      <!-- Errors Section -->
+      <div class="doc-section">
+        <div class="doc-title"><i class="fas fa-exclamation-triangle"></i> Error Codes</div>
+        <table>
+          <tr><th>Code</th><th>Meaning</th></tr>
+          <tr><td><code>401</code></td><td>Invalid or Missing API Key</td></tr>
+          <tr><td><code>403</code></td><td>API Key is suspended</td></tr>
+          <tr><td><code>429</code></td><td>Daily Rate Limit Exceeded</td></tr>
+          <tr><td><code>404</code></td><td>Movie/Song Not Found</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+    authDomain: "rxplayer-a2582.firebaseapp.com",
+    projectId: "rxplayer-a2582",
+    storageBucket: "rxplayer-a2582.firebasestorage.app",
+    messagingSenderId: "208971977557",
+    appId: "1:208971977557:web:501ee9138aa40dbef595dc"
+  };
+
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let currentUser = null;
+  let currentKey = null;
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('userName').textContent = user.displayName || user.email;
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('apiSection').style.display = 'block';
+      checkExistingKey();
+    } else {
+      currentUser = null;
+      document.getElementById('userName').textContent = 'Guest';
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('apiSection').style.display = 'none';
+    }
+  });
+
+  async function checkExistingKey() {
+    try {
+      const snap = await db.collection('apiKeys').where('uid', '==', currentUser.uid).get();
+      if (!snap.empty) {
+        const doc = snap.docs[0];
+        currentKey = doc.id;
+        document.getElementById('apiKeyText').textContent = currentKey;
+        document.getElementById('keyContainer').style.display = 'block';
+        document.getElementById('noKeyContainer').style.display = 'none';
+      } else {
+        document.getElementById('keyContainer').style.display = 'none';
+        document.getElementById('noKeyContainer').style.display = 'block';
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  async function generateApiKey() {
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+    try {
+      const rand = crypto.getRandomValues(new Uint8Array(12));
+      const newKey = 'rx_' + Array.from(rand, b => b.toString(16).padStart(2,'0')).join('');
+
+      await db.collection('apiKeys').doc(newKey).set({
+        uid: currentUser.uid,
+        email: currentUser.email || 'no-email',
+        plan: 'free',
+        dailyLimit: 1000,
+        suspended: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      currentKey = newKey;
+      document.getElementById('apiKeyText').textContent = currentKey;
+      document.getElementById('keyContainer').style.display = 'block';
+      document.getElementById('noKeyContainer').style.display = 'none';
+      
+    } catch (e) {
+      alert('Failed to generate key: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus-circle"></i> Generate API Key';
+    }
+  }
+
+  function copyKey() {
+    if (!currentKey) return;
+    navigator.clipboard.writeText(currentKey).then(() => {
+      const btn = document.querySelector('.key-box .copy-btn');
+      const html = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.style.color = '#22C55E';
+      setTimeout(() => {
+        btn.innerHTML = html;
+        btn.style.color = 'var(--primary)';
+      }, 2000);
+    });
+  }
+
+  // Function to copy code blocks
+  function copyCode(btn) {
+    const codeBlock = btn.nextElementSibling;
+    navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+      const html = btn.innerText;
+      btn.innerText = 'Copied!';
+      btn.style.color = '#22C55E';
+      setTimeout(() => {
+        btn.innerText = html;
+        btn.style.color = 'var(--muted)';
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
