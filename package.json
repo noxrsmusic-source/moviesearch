@@ -1,0 +1,8 @@
+{
+  "name": "rxplayer-api",
+  "version": "1.0.0",
+  "description": "RX Player API",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
