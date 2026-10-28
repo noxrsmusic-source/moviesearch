@@ -8,10 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
+
         :root {
             --primary-red: #E50914;
             --primary-red-hover: #b80710;
@@ -38,207 +38,39 @@
             padding: 20px 16px 60px;
         }
 
-        .header {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-top: 10px;
-        }
-        .logo {
-            font-size: 22px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            color: #fff;
-        }
+        .header { width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; padding-top: 10px; }
+        .logo { font-size: 22px; font-weight: 900; display: flex; align-items: center; gap: 6px; text-decoration: none; color: #fff; }
         .logo span { color: var(--primary-red); }
         .logo i { color: var(--primary-red); font-size: 18px; }
-        .back-btn {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border-subtle);
-            color: #fff;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: var(--transition);
-        }
-        .back-btn:hover {
-            background: rgba(255,255,255,0.12);
-            transform: translateY(-2px);
-        }
+        .back-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); color: #fff; padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        .back-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
 
-        .main-container {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
+        .main-container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 30px; }
 
-        .contact-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-            position: relative;
-            overflow: hidden;
-        }
-        .contact-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, var(--primary-red), #ff4d5e);
-        }
-        .page-title {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-        .page-subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-        }
+        .contact-box { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 30px; box-shadow: 0 16px 40px rgba(0,0,0,0.6); position: relative; overflow: hidden; }
+        .contact-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--primary-red), #ff4d5e); }
+        .page-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .page-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-        .form-group label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            border: 1.5px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.03);
-            color: #fff;
-            font-size: 14px;
-            font-family: var(--font);
-            outline: none;
-            transition: var(--transition);
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--primary-red);
-            background: rgba(255,255,255,0.06);
-            box-shadow: 0 0 0 3px rgba(229,9,20,0.15);
-        }
-        .form-group select option {
-            background: var(--bg-card);
-            color: #fff;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #fff; font-size: 14px; font-family: var(--font); outline: none; transition: var(--transition); }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-red); background: rgba(255,255,255,0.06); box-shadow: 0 0 0 3px rgba(229,9,20,0.15); }
+        .form-group select option { background: var(--bg-card); color: #fff; }
 
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, var(--primary-red), var(--primary-red-hover));
-            color: #fff;
-            font-size: 15px;
-            font-weight: 800;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-            box-shadow: 0 8px 24px rgba(229,9,20,0.35);
-            transition: var(--transition);
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(229,9,20,0.5);
-        }
-        .submit-btn:active {
-            transform: translateY(0);
-        }
+        .submit-btn { width: 100%; padding: 14px; border-radius: 30px; background: linear-gradient(135deg, var(--primary-red), var(--primary-red-hover)); color: #fff; font-size: 15px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; box-shadow: 0 8px 24px rgba(229,9,20,0.35); transition: var(--transition); }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(229,9,20,0.5); }
+        .submit-btn:active { transform: translateY(0); }
 
-        .notice-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .notice-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-white);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .notice-title i {
-            color: var(--primary-red);
-        }
-        .notice-box {
-            width: 100%;
-            max-width: 340px;
-            aspect-ratio: 1 / 1;
-            background: var(--bg-card);
-            border: 2px dashed rgba(255,255,255,0.1);
-            border-radius: var(--radius);
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
-        }
-        .notice-box iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
+        .notice-section { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .notice-title { font-size: 18px; font-weight: 800; color: var(--text-white); display: flex; align-items: center; gap: 8px; }
+        .notice-title i { color: var(--primary-red); }
+        .notice-box { width: 100%; max-width: 340px; aspect-ratio: 1 / 1; background: var(--bg-card); border: 2px dashed rgba(255,255,255,0.1); border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: 0 16px 40px rgba(0,0,0,0.6); }
+        .notice-box iframe { width: 100%; height: 100%; border: none; display: block; overflow: auto; }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #22C55E;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            opacity: 0;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 9999;
-        }
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #22C55E; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; opacity: 0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 9999; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         @media (max-width: 480px) {
             .contact-box { padding: 20px; }
@@ -259,7 +91,7 @@
     </header>
 
     <main class="main-container">
-        
+
         <div class="contact-box">
             <h1 class="page-title">Contact Admin</h1>
             <p class="page-subtitle">Have a question, feedback, or need support? Fill out the form below and we'll get back to you as soon as possible.</p>
@@ -296,8 +128,15 @@
         <div class="notice-section">
             <h2 class="notice-title"><i class="fas fa-bullhorn"></i> Important Notice</h2>
             <div class="notice-box">
-                <!-- Yahan banner.html load hoga, aur click karne par isi box me link open hoga -->
-                <iframe src="banner.html" title="Site Notice Board" scrolling="no" loading="lazy"></iframe>
+                <!-- sandbox me allow-top-navigation NAHI hai -> ad page iframe se bahar nahi niklega,
+                     click hamesha is square box ke andar hi khulega -->
+                <iframe
+                    src="banner.html"
+                    title="Site Notice Board"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-orientation-lock">
+                </iframe>
             </div>
         </div>
 
@@ -321,9 +160,7 @@
                 this.reset();
                 const toast = document.getElementById('toastMsg');
                 toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
+                setTimeout(() => { toast.classList.remove('show'); }, 4000);
             }, 1500);
         });
     </script>
