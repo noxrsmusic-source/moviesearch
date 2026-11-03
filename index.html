@@ -2686,46 +2686,48 @@
                     }, 300);
                 },
 
-                goToPlayer() {
-                    if (!this.detailItem || !this.detailItem.id) return;
-                    const { id, type } = this.detailItem;
-                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
-                    const poster = encodeURIComponent(this.poster(this.detailData));
-                    
-                    let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=watch&title=${title}&poster=${poster}`;
-                    if (type === 'tv') {
-                        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
-                    } else {
-                        url += `&season=1&episode=1`;
-                    }
-                    window.location.href = url;
-                },
+               goToPlayer() {
+    if (!this.detailItem || !this.detailItem.id) return;
+    const { id, type } = this.detailItem;
+    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
+    const poster = encodeURIComponent(this.poster(this.detailData));
+
+    //  Direct to player.html (no ads.html)
+    let url = `player.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&title=${title}&poster=${poster}`;
+    if (type === 'tv') {
+        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+    } else {
+        url += `&season=1&episode=1`;
+    }
+    window.location.href = url;
+},
 
                 downloadContent() {
-                    if (!this.detailItem || !this.detailItem.id) {
-                        this.showToast('Download link available nahi hai.', 'error');
-                        return;
-                    }
+    if (!this.detailItem || !this.detailItem.id) {
+        this.showToast('Download link available nahi hai.', 'error');
+        return;
+    }
 
-                    const { id, type } = this.detailItem;
-                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
-                    const poster = encodeURIComponent(this.poster(this.detailData));
-                    
-                    let url = `https://rxplayer.in/ads.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&action=download&title=${title}&poster=${poster}`;
+    const { id, type } = this.detailItem;
+    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Movie');
+    const poster = encodeURIComponent(this.poster(this.detailData));
 
-                    if (type === 'tv') {
-                        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
-                    } else {
-                        url += `&season=1&episode=1`;
-                    }
+    //  Direct to download.html (no ads.html)
+    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&title=${title}&poster=${poster}`;
 
-                    const label = type === 'tv'
-                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
-                        : (this.detailTitle(this.detailData) || 'Movie');
+    if (type === 'tv') {
+        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
+    } else {
+        url += `&season=1&episode=1`;
+    }
 
-                    this.showToast(`Opening download page for ${label}…`, 'success');
-                    window.location.href = url;
-                },
+    const label = type === 'tv'
+        ? `S${this.selectedSeason} E${this.selectedEpisode}`
+        : (this.detailTitle(this.detailData) || 'Movie');
+
+    this.showToast(`Opening download page for ${label}…`, 'success');
+    window.location.href = url;
+},
 
                 get detailTrailerKey() {
                     if (!this.detailData || !this.detailData.videos || !this.detailData.videos.results) return null;
