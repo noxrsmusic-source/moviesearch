@@ -2797,34 +2797,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function renderArtistSearchCard(artistName, songs) {
-      updateFeedVisibility();
-      const topSong = songs[0];
-      const cover = topSong.coverUrl || FALLBACK_COVER;
-
-      listSectionTitle.textContent = 'Artist Found';
-      trackCountLabel.textContent = '1 Artist';
-
-      const html = `
-          <div class="artist-search-card" id="artistSearchResultCard">
-              <img src="${cover}" class="artist-search-avatar" onerror="handleImageError(this)" />
-              <div class="artist-search-info">
-                  <span class="artist-search-badge">Artist</span>
-                  <div class="artist-search-name">${escapeHtml(artistName)}</div>
-                  <div class="artist-search-stats">${songs.length} songs available to stream</div>
-              </div>
-              <div class="artist-search-arrow">
-                  <i class="fas fa-chevron-right"></i>
-              </div>
-          </div>
-      `;
-      songListContainer.innerHTML = html;
-
-      document.getElementById('artistSearchResultCard').addEventListener('click', () => {
-          openArtistView(artistName, songs);
-      });
-  }
-
   function openArtistView(artistName, songs) {
       updateFeedVisibility();
       currentPlaylist = songs;
@@ -4338,24 +4310,21 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!seen.has(s.id)){ seen.add(s.id); merged.push(s); }
     });
 
-    // --- REVISED ARTIST DETECTION LOGIC ---
-    // This now ensures that only a genuine artist search triggers the profile card.
+    // --- ARTIST DETECTION LOGIC (Spotify Style) ---
     const words = clean.split(' ').length;
     const lowerQuery = clean.toLowerCase();
-
-    // 1. Find if any real artists match the search query
     const artistCounts = {};
+    
+    // Count how many times a real artist name appears in the search results
     merged.forEach(s => {
         if (s.artist && !isPlaceholderArtistName(s.artist)) {
             const lowerArtist = s.artist.toLowerCase();
-            // If the artist name matches the query (e.g. searching "Arijit" matches "Arijit Singh")
             if (lowerArtist.includes(lowerQuery) || lowerQuery.includes(lowerArtist)) {
                 artistCounts[s.artist] = (artistCounts[s.artist] || 0) + 1;
             }
         }
     });
 
-    // 2. Determine the most frequent matched artist
     let dominantArtist = null;
     let maxCount = 0;
     for (const [artist, count] of Object.entries(artistCounts)) {
@@ -4365,24 +4334,54 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 3. Show Artist Card ONLY if we have a strong artist match AND it's a short query
-    const isProbablyArtist = words >= 1 && words <= 3 && !/song|mp3|download|audio|music|remix|status|video/i.test(clean);
-    
-    if (isProbablyArtist && dominantArtist && maxCount >= 2) {
-        renderArtistSearchCard(dominantArtist, merged);
-        return;
-    }
-    // --- END ARTIST DETECTION LOGIC ---
+    const isProbablyArtist = words >= 1 && words <= 4 && !/song|mp3|download|audio|music|remix|status|video/i.test(clean);
+    let topResultHtml = '';
 
-    // If it's a song search, show the normal list
+    // If it's likely an artist, create the Top Result Card HTML
+    if (isProbablyArtist && dominantArtist && maxCount >= 1) {
+        const artistSongs = merged.filter(s => s.artist === dominantArtist);
+        const topSongCover = artistSongs[0]?.coverUrl || FALLBACK_COVER;
+
+        topResultHtml = `
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 12px; color: #fff;">Top Result</h3>
+                <div class="artist-search-card" id="artistSearchResultCard" style="margin-bottom: 0;">
+                    <img src="${topSongCover}" class="artist-search-avatar" onerror="handleImageError(this)" />
+                    <div class="artist-search-info">
+                        <span class="artist-search-badge">Artist</span>
+                        <div class="artist-search-name">${escapeHtml(dominantArtist)}</div>
+                        <div class="artist-search-stats">${artistSongs.length} songs available to stream</div>
+                    </div>
+                    <div class="artist-search-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     searchStatus.textContent = `${merged.length} result${merged.length === 1 ? '' : 's'} found`;
     listSectionTitle.textContent = `Search: "${clean}"`;
     currentPlaylist = merged;
+
     if (currentSong){
-      const idx = merged.findIndex(s => s.id === currentSong.id);
-      currentIndex = idx >= 0 ? idx : 0;
+        const idx = merged.findIndex(s => s.id === currentSong.id);
+        currentIndex = idx >= 0 ? idx : 0;
     } else currentIndex = 0;
-    renderSongList(merged);
+
+    // Render Song List WITH the artist card on top if it exists
+    renderSongList(merged, topResultHtml);
+
+    // Bind the click event for the artist card
+    if (topResultHtml) {
+        const artistCard = document.getElementById('artistSearchResultCard');
+        if (artistCard) {
+            artistCard.addEventListener('click', () => {
+                const artistSongs = merged.filter(s => s.artist === dominantArtist);
+                openArtistView(dominantArtist, artistSongs);
+            });
+        }
+    }
   }
 
   function renderHorizontalCards(songs, container){
