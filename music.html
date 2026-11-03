@@ -1213,6 +1213,10 @@ img{ display:block; max-width:100%; object-fit:cover; }
     </div>
     <div class="drawer-links">
       <a class="drawer-link" href="index.html" id="navHome"><i class="fas fa-home"></i> Home</a>
+      <!-- Added missing navigation links so JS doesn't crash -->
+      <a class="drawer-link" id="navMusic"><i class="fas fa-music"></i> Music</a>
+      <a class="drawer-link" id="navRequest"><i class="fas fa-paper-plane"></i> Requests</a>
+      <a class="drawer-link bug" id="navBug"><i class="fas fa-bug"></i> Report a Bug</a>
       <a class="drawer-link tg" href="https://t.me/rxplayer" rel="noopener noreferrer" target="_blank"><i class="fab fa-telegram-plane"></i> Join Backup Channel</a>
     </div>
     <div class="drawer-footer">
@@ -2130,10 +2134,11 @@ function closeDrawer(){
 drawerOpenBtn.addEventListener('click', openDrawer);
 drawerCloseBtn.addEventListener('click', closeDrawer);
 drawerOverlay.addEventListener('click', e => { if (e.target === drawerOverlay) closeDrawer(); });
-navHome.addEventListener('click', () => { closeDrawer(); saveNowPlaying(); });
-navMusic.addEventListener('click', () => { closeDrawer(); switchSection('global'); window.scrollTo({ top:0, behavior:'smooth' }); });
-navRequest.addEventListener('click', () => { closeDrawer(); });
-navBug.addEventListener('click', () => { closeDrawer(); window.open('https://t.me/rxplayer', '_blank'); });
+// Added null checks to prevent crashes
+if (navHome) navHome.addEventListener('click', () => { closeDrawer(); saveNowPlaying(); });
+if (navMusic) navMusic.addEventListener('click', () => { closeDrawer(); switchSection('global'); window.scrollTo({ top:0, behavior:'smooth' }); });
+if (navRequest) navRequest.addEventListener('click', () => { closeDrawer(); });
+if (navBug) navBug.addEventListener('click', () => { closeDrawer(); window.open('https://t.me/rxplayer', '_blank'); });
 
 function showLoginView(){
   authTabsContainer.style.display = 'flex';
@@ -2819,9 +2824,7 @@ function renderArtistSearchCard(artistName, songs) {
 }
 
 function openArtistView(artistName, songs) {
-    // We do not clear search input here so the user can keep typing if they want.
     updateFeedVisibility();
-
     currentPlaylist = songs;
     currentIndex = 0;
     listSectionTitle.textContent = 'Artist Profile';
