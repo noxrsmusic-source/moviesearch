@@ -1213,7 +1213,6 @@ img{ display:block; max-width:100%; object-fit:cover; }
     </div>
     <div class="drawer-links">
       <a class="drawer-link" href="index.html" id="navHome"><i class="fas fa-home"></i> Home</a>
-      <!-- Added missing navigation links so JS doesn't crash -->
       <a class="drawer-link" id="navMusic"><i class="fas fa-music"></i> Music</a>
       <a class="drawer-link" id="navRequest"><i class="fas fa-paper-plane"></i> Requests</a>
       <a class="drawer-link bug" id="navBug"><i class="fas fa-bug"></i> Report a Bug</a>
@@ -2302,12 +2301,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* ============================================================
-   *  ARTIST NAME EXTRACTION
+   *  ARTIST NAME EXTRACTION & PLACEHOLDER FILTERS
    * ============================================================ */
   const PLACEHOLDER_ARTIST_NAMES = new Set([
     'bollywood artist','unknown artist','artist','various artists',
     'hindi artist','punjabi artist','unknown','dj','remix',
-    'music','song','audio','bollywood','hindi','punjabi'
+    'music','song','audio','bollywood','hindi','punjabi',
+    'uploaded by user', 'uploaded', 'user', 'by user', 'admin', 'rx player' // Added to prevent fake profiles
   ]);
 
   function isPlaceholderArtistName(name){
@@ -4338,22 +4338,43 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!seen.has(s.id)){ seen.add(s.id); merged.push(s); }
     });
 
-    // --- ARTIST DETECTION LOGIC ---
+    // --- REVISED ARTIST DETECTION LOGIC ---
+    // This now ensures that only a genuine artist search triggers the profile card.
     const words = clean.split(' ').length;
-    const isProbablyArtist = words >= 1 && words <= 4 && !/song|mp3|download|audio|music|remix|status|video/i.test(clean);
-    
-    if (isProbablyArtist && merged.length >= 3) {
-        let artistName = clean;
-        const realArtists = merged.map(s => s.artist).filter(a => a && a !== 'Unknown Artist' && !isPlaceholderArtistName(a));
-        if (realArtists.length > 0) {
-            const counts = {};
-            realArtists.forEach(a => counts[a] = (counts[a] || 0) + 1);
-            artistName = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    const lowerQuery = clean.toLowerCase();
+
+    // 1. Find if any real artists match the search query
+    const artistCounts = {};
+    merged.forEach(s => {
+        if (s.artist && !isPlaceholderArtistName(s.artist)) {
+            const lowerArtist = s.artist.toLowerCase();
+            // If the artist name matches the query (e.g. searching "Arijit" matches "Arijit Singh")
+            if (lowerArtist.includes(lowerQuery) || lowerQuery.includes(lowerArtist)) {
+                artistCounts[s.artist] = (artistCounts[s.artist] || 0) + 1;
+            }
         }
-        renderArtistSearchCard(artistName, merged);
-        return;
+    });
+
+    // 2. Determine the most frequent matched artist
+    let dominantArtist = null;
+    let maxCount = 0;
+    for (const [artist, count] of Object.entries(artistCounts)) {
+        if (count > maxCount) {
+            maxCount = count;
+            dominantArtist = artist;
+        }
     }
 
+    // 3. Show Artist Card ONLY if we have a strong artist match AND it's a short query
+    const isProbablyArtist = words >= 1 && words <= 3 && !/song|mp3|download|audio|music|remix|status|video/i.test(clean);
+    
+    if (isProbablyArtist && dominantArtist && maxCount >= 2) {
+        renderArtistSearchCard(dominantArtist, merged);
+        return;
+    }
+    // --- END ARTIST DETECTION LOGIC ---
+
+    // If it's a song search, show the normal list
     searchStatus.textContent = `${merged.length} result${merged.length === 1 ? '' : 's'} found`;
     listSectionTitle.textContent = `Search: "${clean}"`;
     currentPlaylist = merged;
