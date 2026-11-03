@@ -398,7 +398,10 @@
     <section class="player-section container">
         <div class="player-row">
             <div class="player-wrapper" id="playerWrapper">
-                <iframe id="playerIframe" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe>
+               <iframe id="playerIframe" 
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" 
+        allow="fullscreen; autoplay; encrypted-media" 
+        allowfullscreen></iframe>
 
                 <div class="pause-ad-overlay top" id="pauseAdTop">
                     <span class="ad-label"><i class="fas fa-pause"></i> Paused</span>
