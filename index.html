@@ -922,6 +922,29 @@
 </head>
 <body x-data="rxPlayerApp()" x-init="init()">
 
+        <!-- =========================================================
+         NOTIFICATION POPUP — only shown to users WITHOUT
+         adblocker / Brave / Private DNS (checked in JS)
+         ========================================================= -->
+    <div class="notification-overlay" x-show="showNotification" x-cloak x-transition.opacity>
+        <div class="notification-box" @click.stop>
+            <button class="notif-close" @click="closeNotification()" title="Close"><i class="fas fa-times"></i></button>
+            
+            <button class="notif-translate-btn" @click="toggleNotificationLang()" x-text="notificationLang === 'en' ? 'हिंदी' : 'English'"></button>
+
+            <div class="notif-icon"><i class="fas fa-shield-alt"></i></div>
+            
+            <h2 class="notif-title" x-text="notificationLang === 'en' ? 'Ad-Free Experience Recommended' : 'विज्ञापन-मुक्त अनुभव की सलाह'"></h2>
+            
+            <p class="notif-text" x-text="notificationLang === 'en' ? 'For using our site without pop-up ads, please download our App' : 'बिना पॉप-अप विज्ञापनों के हमारी साइट का उपयोग करने के लिए, कृपया हमारा ऐप डाउनलोड '"></p>
+            
+            <a href="https://www.rxplayer.in/downloadlanding.html" class="notif-action-btn" target="_blank" style="text-decoration: none;">
+                <i class="fas fa-download"></i>
+                <span x-text="notificationLang === 'en' ? 'Download App Now' : 'अभी ऐप डाउनलोड करें'"></span>
+            </a>
+        </div>
+    </div>
+
 
     <div id="preloader">
         <div class="preloader-logo"><i class="fas fa-play-circle"></i> RX<span>PLAYER</span></div>
