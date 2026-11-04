@@ -16,6 +16,7 @@
 
         :root {
             --primary-red: #E50914;
+            --primary-green: #22C55E;
             --bg-primary: #08080C;
             --bg-card: #14141F;
             --bg-secondary: #0F0F17;
@@ -177,48 +178,306 @@
         .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 16px; color: var(--text-muted); }
         .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 14px; }
 
-        /* DETAIL MODAL */
-        .detail-modal-overlay { position: fixed; inset: 0; z-index: 2147483000; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+        /* =========================================================
+           DETAIL MODAL (Exact copy from index.html)
+           ========================================================= */
+        .detail-modal-overlay {
+            position: fixed; inset: 0; z-index: 2147483000;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center;
+            padding: 16px; overflow-y: auto;
+        }
         .detail-modal-overlay.open { display: flex; }
-        .detail-modal-box { background: var(--bg-card); border-radius: var(--radius); max-width: 880px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.9); position: relative; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1); }
-        @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .detail-modal-close { position: absolute; top: 14px; right: 14px; z-index: 20; width: 38px; height: 38px; border-radius: 50%; background: rgba(0,0,0,0.75); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: var(--transition); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(8px); }
+
+        .detail-modal-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            max-width: 880px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
+            animation: modalIn 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+
+        .detail-modal-close {
+            position: absolute; top: 14px; right: 14px; z-index: 20;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(0,0,0,0.75); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(8px);
+        }
         .detail-modal-close:hover { background: var(--primary-red); transform: rotate(90deg); }
-        .detail-modal-loading { padding: 100px 20px; text-align: center; font-size: 32px; color: var(--primary-red); display: flex; flex-direction: column; align-items: center; gap: 16px; }
-        .detail-backdrop { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 220px; background-size: cover; background-position: center top; background-color: #0a0a0f; }
-        .detail-backdrop-gradient { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,20,31,0.20) 0%, rgba(20,20,31,0.70) 60%, var(--bg-card) 100%); }
-        .detail-header-content { position: relative; padding: 24px 24px 16px; margin-top: -60px; z-index: 2; }
-        @media (min-width: 768px) { .detail-header-content { margin-top: -80px; padding: 28px 28px 20px; } }
-        .detail-header-content h2 { font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; text-shadow: 0 2px 14px rgba(0,0,0,0.85); color: #fff; }
-        .detail-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; color: #e5e5e5; margin-bottom: 10px; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
-        .detail-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 4px; background: rgba(229,9,20,0.9); color: #fff; text-transform: uppercase; }
-        .detail-rating { color: #F5C518; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+
+        .detail-modal-loading {
+            padding: 100px 20px; text-align: center;
+            font-size: 32px; color: var(--primary-red);
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        .detail-modal-loading span { font-size: 14px; color: var(--text-muted); }
+
+        .detail-backdrop {
+            position: relative; width: 100%;
+            aspect-ratio: 16 / 9; min-height: 220px;
+            background-size: cover; background-position: center top;
+            background-color: #0a0a0f;
+        }
+        .detail-backdrop-gradient {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(20,20,31,0.20) 0%,
+                rgba(20,20,31,0.70) 60%,
+                var(--bg-card) 100%
+            );
+        }
+        .detail-header-content {
+            position: relative;
+            padding: 24px 24px 16px;
+            margin-top: -60px;
+            z-index: 2;
+        }
+        @media (min-width: 768px) {
+            .detail-header-content { margin-top: -80px; padding: 28px 28px 20px; }
+        }
+        .detail-header-content h2 {
+            font-size: clamp(20px, 4vw, 30px); font-weight: 900; margin-bottom: 8px;
+            letter-spacing: -0.5px; line-height: 1.15;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.85);
+            color: #fff;
+        }
+        .detail-meta {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            font-size: 13px; color: #e5e5e5; margin-bottom: 10px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+        }
+        .detail-badge {
+            font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+            padding: 3px 10px; border-radius: 4px;
+            background: rgba(229,9,20,0.9); color: #fff;
+            text-transform: uppercase;
+        }
+        .detail-rating {
+            color: #F5C518; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
         .detail-genres { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-        .detail-genre-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15); color: #e5e5e5; backdrop-filter: blur(6px); }
+        .detail-genre-chip {
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #e5e5e5;
+            backdrop-filter: blur(6px);
+        }
         .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-        .detail-watch-btn, .detail-download-btn, .detail-trailer-btn { padding: 10px 24px; border-radius: 30px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn, .detail-trailer-btn {
+            padding: 10px 24px; border-radius: 30px;
+            font-weight: 800; font-size: 13.5px;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: var(--transition); border: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
         .detail-watch-btn { background: #fff; color: #000; }
         .detail-watch-btn:hover { background: #e5e5e5; transform: scale(1.04); }
-        .detail-download-btn { background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%); color: #fff; border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 6px 20px rgba(34,197,94,0.35); }
-        .detail-download-btn:hover { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); transform: scale(1.04); box-shadow: 0 10px 26px rgba(34,197,94,0.5); }
-        .detail-trailer-btn { background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #fff; border: 1px solid rgba(56,189,248,0.4); box-shadow: 0 6px 20px rgba(56,189,248,0.35); }
-        .detail-trailer-btn:hover:not(:disabled) { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); transform: scale(1.04); box-shadow: 0 10px 26px rgba(56,189,248,0.5); }
-        .detail-trailer-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .detail-trailer-wrap { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; z-index: 5; }
-        .detail-trailer-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-        .detail-trailer-close { position: absolute; top: 12px; right: 12px; z-index: 10; padding: 8px 16px; background: rgba(0,0,0,0.75); color: #fff; border-radius: 30px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); cursor: pointer; }
-        .detail-body { padding: 0 24px 28px; }
-        @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
-        .detail-overview { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.88); }
         
-        /* Episode Selector */
-        .detail-selector-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); }
+        .detail-watchlist-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .detail-watchlist-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
+        .detail-watchlist-btn.active { background: rgba(34,197,94,0.18); border-color: rgba(34,197,94,0.6); color: #4ade80; }
+
+        .detail-download-btn {
+            background: linear-gradient(135deg, #22C55E 0%, #16a34a 100%);
+            color: #fff;
+            border: 1px solid rgba(34,197,94,0.4);
+            box-shadow: 0 6px 20px rgba(34,197,94,0.35);
+        }
+        .detail-download-btn:hover {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 26px rgba(34,197,94,0.5);
+        }
+        .detail-download-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .detail-trailer-btn {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: #fff;
+            border: 1px solid rgba(56,189,248,0.4);
+            box-shadow: 0 6px 20px rgba(56,189,248,0.35);
+        }
+        .detail-trailer-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            transform: scale(1.04);
+            box-shadow: 0 10px 26px rgba(56,189,248,0.5);
+        }
+        .detail-trailer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .detail-trailer-wrap {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            z-index: 5;
+        }
+        .detail-trailer-wrap iframe {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            border: 0;
+        }
+        .detail-trailer-close {
+            position: absolute; top: 12px; right: 12px;
+            z-index: 10;
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.75);
+            color: #fff;
+            border-radius: 30px;
+            font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .detail-trailer-close:hover {
+            background: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .detail-selector-row {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
         .detail-selector-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
         .detail-selector-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        .detail-selector-group select { background: var(--bg-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; font-family: var(--font); }
+        .detail-selector-group select {
+            background: var(--bg-secondary); color: #fff; border: 1px solid rgba(255,255,255,0.15);
+            padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; font-family: var(--font);
+        }
         .detail-selector-group select:focus { border-color: var(--primary-red); }
 
-        @media (max-width: 640px) { .detail-modal-overlay { padding: 10px; align-items: center; } .detail-modal-box { border-radius: var(--radius); max-height: 92vh; } .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; } .detail-actions { width: 100%; flex-direction: column; } .detail-watch-btn, .detail-download-btn, .detail-trailer-btn { width: 100%; justify-content: center; } }
+        .detail-body { padding: 0 24px 28px; }
+        @media (min-width: 768px) { .detail-body { padding: 0 28px 28px; } }
+
+        .detail-info-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 640px) {
+            .detail-info-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+
+        .detail-overview {
+            font-size: 14px; line-height: 1.6;
+            color: rgba(255,255,255,0.88);
+        }
+
+        .detail-facts { display: flex; flex-direction: column; gap: 10px; }
+        .detail-fact {
+            font-size: 13px; display: flex; flex-direction: column; gap: 2px;
+        }
+        .detail-fact .fact-label {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px;
+            color: var(--text-muted); text-transform: uppercase;
+        }
+        .detail-fact .fact-value { color: #fff; font-weight: 600; }
+
+        .detail-cast h4 {
+            font-size: 13px; font-weight: 800; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            color: var(--text-muted);
+        }
+        .detail-cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 12px;
+        }
+        .detail-cast-item {
+            background: var(--bg-secondary);
+            border-radius: 8px; padding: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.04);
+            transition: var(--transition);
+        }
+        .detail-cast-item:hover { border-color: rgba(229,9,20,0.4); transform: translateY(-2px); }
+        .detail-cast-avatar {
+            width: 52px; height: 52px; border-radius: 50%;
+            margin: 0 auto 8px;
+            background: rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: var(--text-muted); font-size: 18px;
+            border: 2px solid rgba(255,255,255,0.08);
+        }
+        .detail-cast-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .detail-cast-item span {
+            display: block; font-size: 11px; font-weight: 600;
+            line-height: 1.3; color: #fff;
+            overflow: hidden; text-overflow: ellipsis;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        .detail-cast-item small {
+            display: block; font-size: 9.5px; color: var(--text-muted);
+            margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+            .detail-modal-overlay { padding: 10px; align-items: center; }
+            .detail-modal-box { border-radius: var(--radius); max-height: 92vh; }
+            .detail-backdrop { min-height: 180px; aspect-ratio: 16/9; }
+            .detail-actions { width: 100%; flex-direction: column; }
+            .detail-watch-btn, .detail-watchlist-btn, .detail-download-btn, .detail-trailer-btn { width: 100%; justify-content: center; }
+        }
+
+        .modal-alert-wrapper {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2147483002; width: 100%; max-width: 420px;
+            pointer-events: none; display: flex; justify-content: center;
+        }
+        .modal-alert-box {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm); padding: 14px 22px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            display: flex; align-items: center; gap: 14px;
+            pointer-events: auto; width: 100%;
+            animation: alertIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid var(--primary-red);
+        }
+        .modal-alert-box.success { border-left-color: var(--primary-green); }
+        .modal-alert-box.info { border-left-color: #38bdf8; }
+        .modal-alert-box.error { border-left-color: var(--primary-red); }
+        .modal-alert-box i { font-size: 20px; color: var(--primary-red); }
+        .modal-alert-box.success i { color: var(--primary-green); }
+        .modal-alert-box.info i { color: #38bdf8; }
+        .modal-alert-box span { font-size: 14px; font-weight: 600; color: #fff; line-height: 1.4; }
+        @keyframes alertIn {
+            from { opacity: 0; transform: translateY(-24px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .toast-container {
+            position: fixed; bottom: 130px; right: 24px; z-index: 999999;
+            display: flex; flex-direction: column; gap: 10px;
+            max-width: 380px; width: 100%; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: var(--radius-sm);
+            background: var(--bg-card); border-left: 4px solid var(--primary-red);
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+            pointer-events: auto;
+        }
+        .toast.success { border-left-color: var(--primary-green); }
+        .toast.error { border-left-color: var(--primary-red); }
+        .toast.info { border-left-color: #38bdf8; }
     </style>
 </head>
 <body x-data="animeApp()" x-init="init()">
@@ -375,24 +634,48 @@
     </main>
 
     <!-- DETAIL MODAL -->
-    <div class="detail-modal-overlay" :class="{ 'open': detailModalOpen }" @click.self="closeDetailModal()" x-cloak>
+    <div class="detail-modal-overlay"
+         :class="{ 'open': detailModalOpen }"
+         @click.self="closeDetailModal()"
+         @keydown.escape.window="closeDetailModal()"
+         x-cloak>
+         
+        <div class="modal-alert-wrapper" x-show="modalAlert.show" x-cloak>
+            <div class="modal-alert-box" :class="modalAlert.type">
+                <i class="fas" :class="modalAlert.type === 'success' ? 'fa-check-circle' : (modalAlert.type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle')"></i>
+                <span x-text="modalAlert.message"></span>
+            </div>
+        </div>
+
         <div class="detail-modal-box">
-            <button class="detail-modal-close" @click="closeDetailModal()"><i class="fas fa-times"></i></button>
+            <button class="detail-modal-close" @click="closeDetailModal()" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
             <div x-show="detailLoading" class="detail-modal-loading">
                 <i class="fas fa-circle-notch fa-spin"></i>
                 <span>Loading details…</span>
             </div>
+
             <template x-if="!detailLoading && detailData">
                 <div>
                     <div class="detail-backdrop" :style="trailerActive ? '' : 'background-image: url(' + detailBackdrop(detailData) + ')'">
-                        <template x-if="!trailerActive"><div class="detail-backdrop-gradient"></div></template>
+                        <template x-if="!trailerActive">
+                            <div class="detail-backdrop-gradient"></div>
+                        </template>
                         <template x-if="trailerActive && detailTrailerKey">
                             <div class="detail-trailer-wrap">
-                                <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=1&rel=0&modestbranding=1'" allowfullscreen></iframe>
-                                <button type="button" class="detail-trailer-close" @click="closeTrailer()"><i class="fas fa-times"></i> Close Trailer</button>
+                                <iframe :src="'https://www.youtube.com/embed/' + detailTrailerKey + '?autoplay=1&rel=0&modestbranding=1'"
+                                        title="Trailer"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen></iframe>
+                                <button type="button" class="detail-trailer-close" @click="closeTrailer()">
+                                    <i class="fas fa-times"></i> Close Trailer
+                                </button>
                             </div>
                         </template>
                     </div>
+
                     <div class="detail-header-content">
                         <h2 x-text="detailTitle(detailData)"></h2>
                         <div class="detail-meta">
@@ -401,14 +684,15 @@
                             <span class="detail-rating"><i class="fas fa-star"></i> <span x-text="detailRatingVal(detailData)"></span></span>
                             <span x-text="detailRuntimeVal(detailData)"></span>
                         </div>
-                        <div class="detail-genres" x-show="detailData.genres">
-                            <template x-for="g in detailData.genres" :key="g.id"><span class="detail-genre-chip" x-text="g.name"></span></template>
+                        <div class="detail-genres" x-show="detailData.genres && detailData.genres.length">
+                            <template x-for="g in detailData.genres" :key="'g-' + g.id">
+                                <span class="detail-genre-chip" x-text="g.name"></span>
+                            </template>
                         </div>
-                        
-                        <!-- Season & Episode Selector (Only for TV) -->
+
                         <div class="detail-selector-row" x-show="detailItem.type === 'tv' && detailSeasonsList.length > 0">
                             <div class="detail-selector-group">
-                                <label><i class="fas fa-layer-group"></i> Season</label>
+                                <label><i class="fas fa-layer-group"></i> Select Season</label>
                                 <select x-model="selectedSeason" @change="onSeasonChange()">
                                     <template x-for="s in detailSeasonsList" :key="s.season_number">
                                         <option :value="s.season_number" x-text="s.name + ' (' + s.episode_count + ' Eps)'"></option>
@@ -416,7 +700,7 @@
                                 </select>
                             </div>
                             <div class="detail-selector-group">
-                                <label><i class="fas fa-list-ol"></i> Episode</label>
+                                <label><i class="fas fa-list-ol"></i> Select Episode</label>
                                 <select x-model="selectedEpisode">
                                     <template x-for="epNum in currentSeasonEpisodesCount" :key="epNum">
                                         <option :value="epNum" x-text="'Episode ' + epNum"></option>
@@ -426,21 +710,105 @@
                         </div>
 
                         <div class="detail-actions">
-                            <button class="detail-watch-btn" @click="goToPlayer()"><i class="fas fa-play"></i> Watch Now</button>
-                            <button class="detail-trailer-btn" @click="watchTrailer()" :disabled="!detailTrailerKey"><i class="fas fa-film"></i> Watch Trailer</button>
-                            <button class="detail-download-btn" @click="downloadContent()"><i class="fas fa-download"></i> Download</button>
+                            <button class="detail-watch-btn" @click="goToPlayer()">
+                                <i class="fas fa-play"></i>
+                                <span>Watch Now</span>
+                            </button>
+
+                            <button class="detail-trailer-btn" @click="watchTrailer()" :disabled="!detailTrailerKey">
+                                <i class="fas fa-film"></i>
+                                <span>Watch Trailer</span>
+                            </button>
+
+                            <button class="detail-download-btn" @click="downloadContent()">
+                                <i class="fas fa-download"></i>
+                                <span x-text="detailItem.type === 'tv' ? ('Download S' + selectedSeason + ' E' + selectedEpisode) : 'Download'"></span>
+                            </button>
+
+                            <button class="detail-watchlist-btn"
+                                    :class="{ 'active': isInWatchlist }"
+                                    @click="toggleWatchlist()">
+                                <i class="fas" :class="isInWatchlist ? 'fa-check' : 'fa-plus'"></i>
+                                <span x-text="isInWatchlist ? 'In Watch Later' : 'Watch Later'">Watch Later</span>
+                            </button>
                         </div>
                     </div>
+
                     <div class="detail-body">
-                        <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                        <div class="detail-info-grid">
+                            <div>
+                                <p class="detail-overview" x-text="detailData.overview || 'No description available.'"></p>
+                            </div>
+                            <div class="detail-facts">
+                                <div class="detail-fact" x-show="detailOriginalLanguage(detailData)">
+                                    <span class="fact-label">Language</span>
+                                    <span class="fact-value" x-text="detailOriginalLanguage(detailData)"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_episodes">
+                                    <span class="fact-label">Total Episodes</span>
+                                    <span class="fact-value" x-text="detailData.number_of_episodes"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailItem.type === 'tv' && detailData.number_of_seasons">
+                                    <span class="fact-label">Seasons</span>
+                                    <span class="fact-value" x-text="detailData.number_of_seasons"></span>
+                                </div>
+                                <div class="detail-fact" x-show="detailStatus(detailData)">
+                                    <span class="fact-label">Status</span>
+                                    <span class="fact-value" x-text="detailStatus(detailData)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-cast" x-show="detailCastList.length">
+                            <h4><i class="fas fa-users" style="color: var(--primary-red); margin-right: 6px;"></i> Top Cast</h4>
+                            <div class="detail-cast-grid">
+                                <template x-for="c in detailCastList" :key="'cast-' + c.id">
+                                    <div class="detail-cast-item">
+                                        <div class="detail-cast-avatar">
+                                            <template x-if="c.profile_path">
+                                                <img :src="'https://image.tmdb.org/t/p/w185' + c.profile_path" :alt="c.name" loading="lazy" />
+                                            </template>
+                                            <template x-if="!c.profile_path">
+                                                <i class="fas fa-user"></i>
+                                            </template>
+                                        </div>
+                                        <span x-text="c.name"></span>
+                                        <small x-text="c.character || ''"></small>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
         </div>
     </div>
 
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <script>
-        const API = "/api";
+        const API = "https://rxplayer-indol.vercel.app/api";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa-Ut8CCiZac7MPpeuw0LSjLehqLO4ICw",
+            authDomain: "rxplayer-a2582.firebaseapp.com",
+            databaseURL: "https://rxplayer-a2582-default-rtdb.firebaseio.com",
+            projectId: "rxplayer-a2582",
+            storageBucket: "rxplayer-a2582.firebasestorage.app",
+            messagingSenderId: "208971977557",
+            appId: "1:208971977557:web:501ee9138aa40dbef595dc",
+            measurementId: "G-28GFZHBB6P"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function animeApp() {
             return {
@@ -467,6 +835,11 @@
                 selectedSeason: 1,
                 selectedEpisode: 1,
                 currentSeasonEpisodesCount: 1,
+                modalAlert: { show: false, message: '', type: 'info', timer: null },
+
+                // Auth & Watchlist State
+                currentUser: null,
+                watchlist: [],
 
                 get hasActiveFilters() {
                     return Object.values(this.filters).some(v => v !== '');
@@ -478,7 +851,34 @@
                 },
 
                 async init() {
+                    // Firebase Auth Listener
+                    auth.onAuthStateChanged(async (user) => {
+                        this.currentUser = user;
+                        if (user) {
+                            await this.loadWatchlist();
+                        } else {
+                            this.watchlist = [];
+                        }
+                    });
+
                     await this.loadAllSections();
+                },
+
+                async loadWatchlist() {
+                    if (!this.currentUser) {
+                        this.watchlist = [];
+                        return;
+                    }
+                    try {
+                        const snap = await db.collection('users')
+                            .doc(this.currentUser.uid)
+                            .collection('watchlist')
+                            .get();
+                        this.watchlist = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+                    } catch (e) {
+                        console.warn('watchlist load failed:', e.message);
+                        this.watchlist = [];
+                    }
                 },
 
                 async request(url) {
@@ -612,10 +1012,11 @@
                     this.detailModalOpen = true;
                     this.selectedSeason = 1;
                     this.selectedEpisode = 1;
+                    this.modalAlert.show = false;
                     document.body.style.overflow = 'hidden';
 
                     try {
-                        const endpoint = `/${type}/${id}?language=en-US&append_to_response=videos`;
+                        const endpoint = `/${type}/${id}?language=en-US&append_to_response=credits,videos`;
                         const data = await this.request("/tmdb-proxy?endpoint=" + encodeURIComponent(endpoint));
                         this.detailData = data;
                         
@@ -638,23 +1039,60 @@
                 },
                 closeDetailModal() {
                     this.detailModalOpen = false;
+                    this.modalAlert.show = false;
+                    this.trailerActive = false;
                     document.body.style.overflow = '';
+                    setTimeout(() => {
+                        if (!this.detailModalOpen) {
+                            this.detailData = null;
+                            this.detailItem = { id: null, type: 'tv' };
+                        }
+                    }, 300);
                 },
                 goToPlayer() {
-                    const id = this.detailItem.id;
-                    const t = encodeURIComponent(this.detailTitle(this.detailData));
-                    const p = encodeURIComponent(this.poster(this.detailData));
-                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${this.detailItem.type}&action=watch&title=${t}&poster=${p}&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    if (!this.detailItem || !this.detailItem.id) return;
+                    const { id, type } = this.detailItem;
+                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Anime');
+                    const poster = encodeURIComponent(this.poster(this.detailData));
+
+                    // Direct to player.html
+                    let url = `player.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&title=${title}&poster=${poster}`;
+                    if (type === 'tv') {
+                        url += `&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    } else {
+                        url += `&season=1&episode=1`;
+                    }
+                    window.location.href = url;
                 },
                 downloadContent() {
-                    const id = this.detailItem.id;
-                    const t = encodeURIComponent(this.detailTitle(this.detailData));
-                    const p = encodeURIComponent(this.poster(this.detailData));
-                    window.location.href = `https://rxplayer.in/ads.html?id=${id}&type=${this.detailItem.type}&action=download&title=${t}&poster=${p}&season=${this.selectedSeason}&episode=${this.selectedEpisode}`;
+                    if (!this.detailItem || !this.detailItem.id) {
+                        this.showToast('Download link available nahi hai.', 'error');
+                        return;
+                    }
+                    const { id, type } = this.detailItem;
+                    const title = encodeURIComponent(this.detailTitle(this.detailData) || 'Anime');
+                    const poster = encodeURIComponent(this.poster(this.detailData));
+
+                    // Direct to download.html
+                    let url = `download.html?id=${encodeURIComponent(id)}&type=${encodeURIComponent(type)}&title=${title}&poster=${poster}`;
+
+                    if (type === 'tv') {
+                        url += `&season=${this.selectedSeason || 1}&episode=${this.selectedEpisode || 1}`;
+                    } else {
+                        url += `&season=1&episode=1`;
+                    }
+
+                    const label = type === 'tv'
+                        ? `S${this.selectedSeason} E${this.selectedEpisode}`
+                        : (this.detailTitle(this.detailData) || 'Anime');
+
+                    this.showToast(`Opening download page for ${label}…`, 'success');
+                    window.location.href = url;
                 },
                 get detailTrailerKey() {
                     if (!this.detailData || !this.detailData.videos) return null;
-                    const v = this.detailData.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+                    const vids = this.detailData.videos.results || [];
+                    const v = vids.find(v => v.site === 'YouTube' && v.type === 'Trailer') || vids.find(v => v.site === 'YouTube');
                     return v ? v.key : null;
                 },
                 watchTrailer() { if (this.detailTrailerKey) this.trailerActive = true; },
@@ -668,7 +1106,92 @@
                     const n = d.number_of_seasons || (Array.isArray(d.seasons) ? d.seasons.length : 0);
                     return n ? `${n} Season${n > 1 ? 's' : ''}` : '—';
                 },
-                detailBackdrop(d) { return d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : this.poster(d); }
+                detailBackdrop(d) { return d.backdrop_path ? `https://image.tmdb.org/t/p/original${d.backdrop_path}` : this.poster(d); },
+                detailOriginalLanguage(d) {
+                    if (!d || !d.original_language) return '';
+                    return String(d.original_language).toUpperCase();
+                },
+                detailStatus(d) {
+                    if (!d || !d.status) return '';
+                    return d.status;
+                },
+                get detailCastList() {
+                    if (!this.detailData || !this.detailData.credits) return [];
+                    return (this.detailData.credits.cast || []).slice(0, 12);
+                },
+
+                // Watchlist Logic (Firestore + Auth Guard)
+                get isInWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id) return false;
+                    return this.watchlist.some(w => String(w.id) === String(this.detailItem.id) && (w.type || 'movie') === this.detailItem.type);
+                },
+                _watchlistKey(item) {
+                    return `${item.type || 'movie'}_${item.id}`;
+                },
+                async toggleWatchlist() {
+                    if (!this.detailItem || !this.detailItem.id || !this.detailData) return;
+
+                    // STRICT LOGIN CHECK
+                    if (!this.currentUser) {
+                        this.showToast('Please login to use Watch Later feature.', 'error');
+                        return;
+                    }
+
+                    const exists = this.watchlist.some(w => String(w.id) === String(this.detailItem.id) && (w.type || 'movie') === this.detailItem.type);
+                    const docId = this._watchlistKey(this.detailItem);
+                    const d = this.detailData;
+
+                    const entry = {
+                        id: this.detailItem.id,
+                        type: this.detailItem.type,
+                        media_type: this.detailItem.type,
+                        title: this.detailTitle(d),
+                        poster_path: d.poster_path || '',
+                        poster_url: this.poster(d),
+                        vote_average: d.vote_average || 0,
+                        release_date: d.release_date || d.first_air_date || '',
+                        genres: (d.genres || []).map(g => g.id),
+                        original_language: d.original_language || '',
+                        overview: d.overview || '',
+                        docId: docId,
+                        addedAt: Date.now()
+                    };
+
+                    try {
+                        if (exists) {
+                            await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).delete();
+                            this.watchlist = this.watchlist.filter(w => w.docId !== docId);
+                            this.showModalAlert('Removed from Watch Later', 'info');
+                        } else {
+                            await db.collection('users').doc(this.currentUser.uid).collection('watchlist').doc(docId).set(entry, { merge: true });
+                            this.watchlist.push(entry);
+                            this.showModalAlert('Added to Watch Later', 'success');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        this.showToast('Could not update Watch Later. Please try again.', 'error');
+                    }
+                },
+
+                showToast(message, type = 'info', duration = 3500) {
+                    const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+                    const container = document.getElementById('toastContainer');
+                    if (!container) return;
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.innerHTML = `<span><i class="fas ${icons[type] || icons.info}"></i></span><span>${message}</span>`;
+                    container.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, duration);
+                },
+                showModalAlert(message, type = 'info', duration = 3000) {
+                    if (this.modalAlert.timer) clearTimeout(this.modalAlert.timer);
+                    this.modalAlert.message = message;
+                    this.modalAlert.type = type;
+                    this.modalAlert.show = true;
+                    this.modalAlert.timer = setTimeout(() => {
+                        this.modalAlert.show = false;
+                    }, duration);
+                }
             }
         }
     </script>
