@@ -63,3 +63,96 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
+<script>
+    (function() {
+    // 1. रीडायरेक्ट फंक्शन: जब भी कोई शक हो, यूजर को दूसरे पेज पर भेज दें
+    let isRedirected = false;
+    const REDIRECT_URL = 'https://rxplayer-indol.vercel.app/blocked'; // यहाँ अपना पेज डालें
+
+    function triggerRedirect() {
+        if (isRedirected) return; // अगर पहले ही रीडायरेक्ट हो रहा है तो रोकें
+        isRedirected = true;
+        
+        // डोम को खाली करें ताकि कुछ भी न दिखे
+        try { document.documentElement.innerHTML = ''; } catch(e) {}
+        
+        // रीडायरेक्ट करें
+        window.location.replace(REDIRECT_URL);
+    }
+
+    // 2. विंडो साइज डिटेक्शन (Window Size Detection)
+    // जब DevTools डॉक किया जाता है, तो विंडो का साइज बदल जाता है
+    function detectWindowSize() {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        
+        // अगर अंतर 160px से ज्यादा है, तो DevTools खुला है
+        if (widthDiff > 160 || heightDiff > 160) {
+            triggerRedirect();
+        }
+    }
+
+    // 3. डीबगर लूप डिटेक्शन (Debugger Loop)
+    // यह कोड एक infinite loop बनाता है। अगर कोई डीबग करने की कोशिश करेगा, तो ब्राउज़र हैंग हो जाएगा
+    function startDebuggerLoop() {
+        setInterval(() => {
+            (function() {
+                debugger; // यह लाइन डीबगर को रोक देती है
+            })();
+        }, 100);
+    }
+
+    // 4. परफॉरमेंस टाइमिंग डिटेक्शन (Performance Timing Detection)
+    // डीबगर खुला होने पर `console.profile` बहुत धीमा चलता है
+    function detectPerformance() {
+        setInterval(() => {
+            const start = performance.now();
+            console.profile();
+            console.profileEnd();
+            if (performance.now() - start > 150) { // 150ms से ज्यादा समय लगा
+                triggerRedirect();
+            }
+        }, 1000);
+    }
+
+    // 5. राइट-क्लिक और शॉर्टकट ब्लॉक करें
+    function blockShortcuts() {
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        document.addEventListener('keydown', (e) => {
+            // F12
+            if (e.key === 'F12') { triggerRedirect(); }
+            // Ctrl+Shift+I, J, C, K
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(e.key)) { triggerRedirect(); }
+            // Ctrl+U
+            if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { triggerRedirect(); }
+        });
+    }
+
+    // 6. डिबगिंग ट्रैप (Debugging Trap)
+    // Elements टैब में `id` प्रॉपर्टी देखते ही यह ट्रिगर हो जाता है
+    function setupDevToolsTrap() {
+        const element = new Image();
+        Object.defineProperty(element, 'id', {
+            get: function() {
+                triggerRedirect();
+            }
+        });
+        // कंसोल में लगातार इसे प्रिंट करें, DevTools इसे पढ़ने की कोशिश करेगा
+        setInterval(() => { console.dir(element); }, 500);
+    }
+
+    // --- सारे डिटेक्टर्स को एक साथ चालू करें ---
+    detectWindowSize();
+    window.addEventListener('resize', detectWindowSize);
+    setInterval(detectWindowSize, 500);
+
+    // अन्य डिटेक्टर्स
+    startDebuggerLoop();
+    detectPerformance();
+    blockShortcuts();
+    setupDevToolsTrap();
+
+})();
+</script>
