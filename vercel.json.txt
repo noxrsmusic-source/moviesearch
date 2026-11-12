@@ -7,7 +7,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/stream/:path*",
+      "source": "/proxy/stream/:path*",
       "destination": "https://nxsha.space/embed/:path*"
     }
   ]
