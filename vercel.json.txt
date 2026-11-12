@@ -4,5 +4,11 @@
       "maxDuration": 30
     }
   },
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/proxy/:path*",
+      "destination": "/api/proxy?targetPath=:path*"
+    }
+  ]
 }
