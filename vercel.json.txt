@@ -4,11 +4,5 @@
       "maxDuration": 30
     }
   },
-  "cleanUrls": true,
-  "rewrites": [
-    {
-      "source": "/proxy/stream/:path*",
-      "destination": "https://nxsha.space/embed/:path*"
-    }
-  ]
+  "cleanUrls": true
 }
