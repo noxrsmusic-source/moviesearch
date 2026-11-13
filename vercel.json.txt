@@ -1,4 +1,5 @@
 {
+{
   "functions": {
     "api/*.js": {
       "maxDuration": 30
@@ -7,8 +8,8 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/proxy/:path*",
-      "destination": "/api/proxy?targetPath=:path*"
+      "source": "/api/stream/:path*",
+      "destination": "https://nxsha.space/embed/:path*"
     }
   ]
 }
